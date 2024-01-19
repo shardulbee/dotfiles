@@ -54,6 +54,7 @@ in {
       pkgs.rust-analyzer
       pkgs.clippy
       pkgs.rustfmt
+      pkgs.fish
 
       direnv
       zsh-autosuggestions
@@ -61,9 +62,6 @@ in {
       fzf
   ];
 
-  programs.fish = {
-    enable = true;
-  };
   programs.zsh = {
     enable = true;
     enableBashCompletion = false;
