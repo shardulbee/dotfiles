@@ -7,7 +7,12 @@
   direnv = pkgs.direnv;
 in {
   environment.pathsToLink = [ "/share/zsh" ];
-  nix.useDaemon = true;
+  nix = {
+    useDaemon = true;
+    nixPath = [
+      { nixpkgs = "${pkgs.path}"; }
+    ];
+  };
   services.nix-daemon.enable = true;
   nixpkgs.hostPlatform = "aarch64-darwin";
   nix.settings.experimental-features = "nix-command flakes";
