@@ -1,0 +1,10 @@
+#!/usr/bin/env zsh
+
+local tab_id=$(kitty @ ls | jq -r '.[].tabs[] | "\(.id) \(.title)"' | fzf --with-nth=2 | awk '{print $1}')
+echo "Tab id: $tab_id"
+
+if [[ -z "$tab_id" ]]; then
+  exit 1
+fi
+
+kitty @ focus-tab --match id:$tab_id

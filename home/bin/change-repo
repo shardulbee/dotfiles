@@ -1,0 +1,11 @@
+#!/usr/bin/env zsh
+
+set -uo pipefail
+
+local repo=$(fd . $HOME/src/github.com --exact-depth=2 -td | awk -F "/" '{print $(NF-2)"/"$(NF-1)}' | fzf)
+
+if [[ -z "$repo" ]]; then
+  exit 1
+fi
+
+kitty @ launch --type=tab --cwd=$HOME/src/github.com/$repo --title=$repo nvim

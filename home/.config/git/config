@@ -1,0 +1,58 @@
+[advice]
+	detachedHead = false
+
+[alias]
+	co = "checkout"
+	p = "push"
+
+[color]
+	diff = "auto"
+	interactive = "auto"
+	status = "auto"
+	ui = true
+
+[column]
+	io = "auto row dense"
+
+[core]
+	commitGraph = true
+	editor = "nvim"
+
+[diff]
+	algorithm = "patience"
+
+[fetch]
+	prune = true
+
+[gc]
+	writeCommitGraph = true
+
+[github]
+	user = "shardulbee"
+
+[init]
+	defaultBranch = "main"
+
+[merge]
+	conflictstyle = "diff3"
+	tool = "vimdiff"
+
+[protocol]
+	version = 2
+
+[pull]
+	default = "current"
+	rebase = true
+
+[push]
+	default = "current"
+
+[rebase]
+	autosquash = true
+
+[submodule]
+	recurse = true
+
+[user]
+	email = "shardul@baral.ca"
+	name = "Shardul Baral"
