@@ -55,6 +55,9 @@ in {
       pkgs.clippy
       pkgs.rustfmt
       pkgs.fish
+      pkgs.flyctl
+      pkgs.hyperfine
+      pkgs.httpie
 
       direnv
       zsh-autosuggestions
