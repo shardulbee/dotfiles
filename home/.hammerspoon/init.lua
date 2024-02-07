@@ -190,7 +190,7 @@ local hotkeyToActionMapping = {
     R = function()
         hs.reload()
     end,
-    M = launchOrActivate("HEY.app"),
+    M = launchOrActivate("Mimestream"),
     C = launchOrFocusTab("https://calendar.google.com/calendar/u/0/r"),
     D = openRepo("dotfiles"),
     F = function() -- repo launcher

@@ -58,6 +58,7 @@ in {
       pkgs.flyctl
       pkgs.hyperfine
       pkgs.httpie
+      pkgs.tailscale
 
       direnv
       zsh-autosuggestions
@@ -151,10 +152,12 @@ in {
       "vlc"
       "zwift"
       "arc"
-      "hey"
       "spotify"
       "zoom"
       "orbstack"
+      "balenaetcher"
+      "tailscale"
+      "mimestream"
     ];
     masApps = {
       "Things 3" = 904280696;
