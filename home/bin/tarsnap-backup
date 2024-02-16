@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# Set up archive name
+computer=$(uname -n)
+now=$(date +%Y-%m-%d_%H-%M-%S)
+name=${computer}-${now}
+
+directories=(
+    "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Personal Documents"
+    "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Family Documents/Taxes"
+    "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Family Documents/Real Estate"
+    "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Family Documents/Family/Bébé Baral"
+    "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Family Documents/Receipts"
+    "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Family Documents/Misc Documents"
+    "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Family Documents/Will:POA:Mandate"
+    "$HOME/Library/Mobile Documents/com~apple~CloudDocs/Google Drive"
+)
+
+for dir in "${directories[@]}"; do
+    if [ -d "${dir}" ]; then
+        echo "Backing up: ${dir}"
+        /usr/local/bin/tarsnap -c \
+            --print-stats \
+            -f "${name}-$(basename "$dir")" \
+            -C "$(dirname "$dir")" \
+            "$(basename "$dir")"
+        echo
+    else
+        echo "Directory not found: ${dir}"
+    fi
+done
