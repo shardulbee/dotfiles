@@ -62,6 +62,13 @@ opam() {
     return 1
   fi
 }
+
+if test -n "$KITTY_INSTALLATION_DIR"; then
+    export KITTY_SHELL_INTEGRATION="enabled"
+    autoload -Uz -- "$KITTY_INSTALLATION_DIR"/shell-integration/zsh/kitty-integration
+    kitty-integration
+    unfunction kitty-integration
+fi
 # }}}
 
 # {{{ custom functions
@@ -109,6 +116,7 @@ zle -N fzf-redraw-prompt
 # Command that allows quickly switching to different GitHub repos using CTRL-F
 function fzf-repo-widget {
   local dirs=$(fd -td --exact-depth 3 . $HOME/src)
+  local dirs="$dirs\n/Users/shardul/dotfiles"
   local dir=$(echo "$dirs" | FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='Git repos> ' $FZF_DEFAULT_OPTS" fzf)
 
   if [[ -z "$dir" ]]; then
@@ -142,6 +150,9 @@ function create-repo {
 }
 
 function cheat() { curl cheat.sh/"$1" }
+
+# https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072
+function whatis() { if [[ -v THEFD ]]; then :; else command whatis "$@"; fi; }
 # }}}
 
 # {{{ aliases

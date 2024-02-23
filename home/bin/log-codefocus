@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# interpret the first cli arg as seconds and convert to minutes
+# round down if necessary
+# if not provided, default to 1 minute
+value=$(echo "scale=0; $1 / 60" | bc)
+
+goal="codefocus"
+comment="Logged automatically by Pomodoro app"
+auth_token=$(op item get Beeminder --fields label="api_key")
+
+curl -XPOST "https://www.beeminder.com/api/v1/users/turbochardo/goals/$goal/datapoints.json" \
+  -d auth_token="$auth_token" \
+  -d value="$value" \
+  -d comment="$comment"

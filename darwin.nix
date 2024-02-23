@@ -32,7 +32,6 @@ in {
       pkgs.go
       pkgs.ocamlPackages.ocaml-lsp
       pkgs.ocamlformat
-      pkgs.shell_gpt
       pkgs.ruby
       pkgs.nodejs
       pkgs.nodePackages.fixjson
@@ -44,7 +43,6 @@ in {
       pkgs._1password
       pkgs.stow
       pkgs.ripgrep
-      pkgs.starship
       pkgs.neovim
       pkgs.darwin.trash
       pkgs.tree-sitter
@@ -58,7 +56,8 @@ in {
       pkgs.flyctl
       pkgs.hyperfine
       pkgs.httpie
-      pkgs.tailscale
+      pkgs.rclone
+      pkgs.tarsnap
 
       direnv
       zsh-autosuggestions
@@ -142,7 +141,6 @@ in {
       "dash"
       "hammerspoon"
       "google-chrome"
-      "google-drive"
       "istat-menus"
       "raycast"
       "sublime-text"
@@ -157,7 +155,9 @@ in {
       "orbstack"
       "balenaetcher"
       "tailscale"
-      "mimestream"
+      "zed"
+      "focus"
+      # "mimestream"
     ];
     masApps = {
       "Things 3" = 904280696;

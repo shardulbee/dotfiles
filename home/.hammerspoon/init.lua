@@ -5,6 +5,17 @@ local eventtap = require("hs.eventtap")
 
 local utf8 = require('utf8')
 
+local function isFocusing()
+  local script = [[
+    tell application "Focus"
+        is focusing
+    end tell
+  ]]
+
+  local _, result = hs.osascript.applescript(script)
+  return result
+end
+
 -- Copies a rich link to your currently visible Chrome browser tab that you
 -- can paste into Slack/anywhere else that supports it.
 --
@@ -70,68 +81,64 @@ local function getRichLinkToCurrentChromeTab()
 end
 
 local function newScroller(delay, tick)
-    return { delay = delay, tick = tick, timer = nil }
+  return { delay = delay, tick = tick, timer = nil }
 end
 
 local function startScroll(scroller)
-    if scroller.timer == nil then
-        scroller.timer = timer.doEvery(scroller.delay, function()
-            eventtap.scrollWheel({ 0, scroller.tick }, {}, "pixel")
-        end)
-    end
+  if scroller.timer == nil then
+    scroller.timer = timer.doEvery(scroller.delay, function()
+      eventtap.scrollWheel({ 0, scroller.tick }, {}, "pixel")
+    end)
+  end
 end
 
 local function stopScroll(scroller)
-    if scroller.timer then
-        scroller.timer:stop()
-        scroller.timer = nil
-    end
+  if scroller.timer then
+    scroller.timer:stop()
+    scroller.timer = nil
+  end
 end
 
 Listener = nil
 local popclickListening = false
 local tssScrollDown = newScroller(0.02, -10)
 local function scrollHandler(evNum)
-    -- alert.show(tostring(evNum))
-    if evNum == 1 then
-        startScroll(tssScrollDown)
-    elseif evNum == 2 then
-        stopScroll(tssScrollDown)
-    elseif evNum == 3 then
-        if hs.application.frontmostApplication():name() == "ReadKit" then
-            eventtap.keyStroke({}, "j")
-        else
-            eventtap.scrollWheel({ 0, 250 }, {}, "pixel")
-        end
-    end
-end
-
-local function popclickPlayPause()
-    if not popclickListening then
-        Listener:start()
-        hs.alert.show("Popclick listening.")
-    else
-        Listener:stop()
-        hs.alert.show("Popclick stopped listening.")
-    end
-    popclickListening = not popclickListening
+  -- alert.show(tostring(evNum))
+  if evNum == 1 then
+    startScroll(tssScrollDown)
+  elseif evNum == 2 then
+    stopScroll(tssScrollDown)
+  elseif evNum == 3 then
+    eventtap.scrollWheel({ 0, 250 }, {}, "pixel")
+  end
 end
 
 local function popclickInit()
-    popclickListening = false
-    -- local fn = wrap(scrollHandler)
-    local fn = scrollHandler
-    Listener = popclick.new(fn)
+  popclickListening = false
+  -- local fn = wrap(scrollHandler)
+  local fn = scrollHandler
+  Listener = popclick.new(fn)
+end
+
+local function popclickPlayPause()
+  if not popclickListening then
+    Listener:start()
+    hs.alert.show("Popclick listening.")
+  else
+    Listener:stop()
+    hs.alert.show("Popclick stopped listening.")
+  end
+  popclickListening = not popclickListening
 end
 
 local function launchOrActivate(appName)
-    return function()
-        hs.application.launchOrFocus(appName)
-    end
+  return function()
+    hs.application.launchOrFocus(appName)
+  end
 end
 
 local function launchOrFocusTab(tabURL)
-    local baseScript = [[
+  local baseScript = [[
     let site = "%s"
     let chrome = Application("Google Chrome");
     chrome.includeStandardAdditions = true;
@@ -154,80 +161,89 @@ local function launchOrFocusTab(tabURL)
     }
   ]]
 
-    return function()
-        hs.osascript.javascript(string.format(baseScript, tabURL))
-    end
+  return function()
+    hs.osascript.javascript(string.format(baseScript, tabURL))
+  end
 end
 --
 -- function to switch to a safari tab by URL
 
 local hotkeyToAppNameMapping = {
-    ["1"] = launchOrActivate("Sublime Text"),
-    ["2"] = launchOrActivate("Sublime Merge"),
-    ["3"] = launchOrActivate("Google Chrome"),
-    ["0"] = launchOrActivate("Kitty"),
-    ["6"] = hs.toggleConsole,
-    ["8"] = launchOrActivate("Messages"),
-    ["9"] = launchOrActivate("Things3"),
-    K = launchOrActivate("Kindle"),
-
+  ["1"] = launchOrActivate("Zed"),
+  ["2"] = launchOrActivate("Preview"),
+  ["3"] = function()
+    local appname
+    if not isFocusing() then
+      appname = "Google Chrome"
+    else
+      appname = "Safari.app"
+    end
+    hs.application.launchOrFocus(appname)
+  end,
+  ["0"] = launchOrActivate("Kitty"),
+  ["6"] = hs.toggleConsole,
+  ["8"] = launchOrActivate("Messages"),
+  ["9"] = launchOrActivate("Things3"),
+  K = launchOrActivate("Kindle"),
 }
 
 for hotkey, appName in pairs(hotkeyToAppNameMapping) do
-    hs.hotkey.bind("option", hotkey, appName)
+  hs.hotkey.bind("option", hotkey, appName)
 end
 
 local function openRepo(repoName)
-    return function()
-        local repoPath = string.format("~/src/github.com/shardulbee/%s", repoName)
-        if not kitty.FocusWindowOrTab(repoName) and not kitty.FocusWindowOrTab(string.format("shardulbee/%s", repoName)) then
-            kitty.Launch(repoPath, repoName, "tab", "nvim", false)
-        end
+  return function()
+    local repoPath = string.format("~/src/github.com/shardulbee/%s", repoName)
+    if not kitty.FocusWindowOrTab(repoName) and not kitty.FocusWindowOrTab(string.format("shardulbee/%s", repoName)) then
+      kitty.Launch(repoPath, repoName, "tab", "nvim", false)
     end
+  end
 end
 
 local hotkeyToActionMapping = {
-    R = function()
-        hs.reload()
-    end,
-    M = launchOrActivate("Mimestream"),
-    C = launchOrFocusTab("https://calendar.google.com/calendar/u/0/r"),
-    D = openRepo("dotfiles"),
-    F = function() -- repo launcher
-        kitty.Launch(nil, "repo launcher", "overlay", "change-repo", false)
-        hs.application.launchOrFocus("Kitty")
-    end,
-    N = launchOrActivate("iA Writer"),
-    P = popclickPlayPause,
+  R = function()
+    hs.reload()
+  end,
+  M = launchOrActivate("Mimestream"),
+  C = launchOrFocusTab("https://calendar.google.com/calendar/u/0/r"),
+  D = openRepo("dotfiles"),
+  F = function() -- repo launcher
+    kitty.Launch(nil, "repo launcher", "overlay", "change-repo", false)
+    hs.application.launchOrFocus("Kitty")
+  end,
+  N = launchOrActivate("iA Writer"),
+  P = popclickPlayPause,
 }
 
 for hotkey, lambda in pairs(hotkeyToActionMapping) do
-    hs.hotkey.bind({ "cmd", "ctrl" }, hotkey, lambda)
+  hs.hotkey.bind({ "cmd", "ctrl" }, hotkey, lambda)
 end
 
 local superMapping = {
-    F = launchOrActivate("Finder"),
-    C = getRichLinkToCurrentChromeTab,
-    T = function() -- open today note
-        if not kitty.FocusWindowOrTab("today") then
-            kitty.Launch("/Users/shardul/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents", "today", "tab", "today-note", false)
-        else
-            local filename = string.format("%s-daily-note.md", os.date("%Y-%m-%d"))
-            kitty.sendText("today", string.format(":e %s\r", filename))
-        end
-        hs.application.launchOrFocus("Kitty")
-    end,
-    S = function()
-        if not kitty.FocusWindowOrTab("scratch") then
-            kitty.Launch("/Users/shardul/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents", "scratch", "tab", "nvim scratch.md", true)
-        end
-        hs.application.launchOrFocus("Kitty")
-    end,
-    R = launchOrActivate("Reader"),
+  F = launchOrActivate("Finder"),
+  C = getRichLinkToCurrentChromeTab,
+  T = function() -- open today note
+    if not kitty.FocusWindowOrTab("today") then
+      kitty.Launch("/Users/shardul/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents", "today", "tab",
+        "today-note", false)
+    else
+      local filename = string.format("%s-daily-note.md", os.date("%Y-%m-%d"))
+      kitty.sendText("today", string.format(":e %s\r", filename))
+    end
+    hs.application.launchOrFocus("Kitty")
+  end,
+  S = function()
+    if not kitty.FocusWindowOrTab("scratch") then
+      kitty.Launch("/Users/shardul/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents", "scratch", "tab",
+        "nvim scratch.md", true)
+    end
+    hs.application.launchOrFocus("Kitty")
+  end,
+  R = launchOrActivate("Reader"),
 }
 
 for hotkey, lambda in pairs(superMapping) do
-    hs.hotkey.bind({ "cmd", "ctrl", "alt" }, hotkey, lambda)
+  hs.hotkey.bind({ "cmd", "ctrl", "alt" }, hotkey, lambda)
 end
 
 popclickInit()
