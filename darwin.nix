@@ -58,6 +58,8 @@ in {
       pkgs.httpie
       pkgs.rclone
       pkgs.tarsnap
+      pkgs.hugo
+      pkgs.railway
 
       direnv
       zsh-autosuggestions
@@ -143,13 +145,10 @@ in {
       "google-chrome"
       "istat-menus"
       "raycast"
-      "sublime-text"
       "sublime-merge"
-      "papers"
       "thingsmacsandboxhelper"
       "vlc"
       "zwift"
-      "arc"
       "spotify"
       "zoom"
       "orbstack"
@@ -157,7 +156,10 @@ in {
       "tailscale"
       "zed"
       "focus"
-      # "mimestream"
+      "google-drive"
+      "fantastical"
+      "zulip"
+      "cursor"
     ];
     masApps = {
       "Things 3" = 904280696;

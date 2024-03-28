@@ -2,10 +2,22 @@
 
 set -uo pipefail
 
-local repo=$(fd . $HOME/src/github.com --exact-depth=2 -td | awk -F "/" '{print $(NF-2)"/"$(NF-1)}' | fzf)
+local dirs=$(fd -td --exact-depth 3 . $HOME/src)
+local dirs="$dirs\n/Users/shardul/dotfiles"
+local dir=$(echo "$dirs" | FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='Git repos> '" fzf)
 
-if [[ -z "$repo" ]]; then
+if [[ -z "$dir" ]]; then
   exit 1
 fi
 
-kitty @ launch --type=tab --cwd=$HOME/src/github.com/$repo --title=$repo nvim
+local org=$(basename $(dirname $dir))
+local repo=$(basename $dir)
+local tab_title="$repo"
+
+# if there already exists a kitty tab with the tab_title, switch to it
+kitty @ focus-tab --match title:$tab_title 2>&1 > /dev/null
+if [[ $? -eq 0 ]]; then
+  exit 0
+fi
+
+kitty @ launch --type=tab --cwd=$dir --title=$tab_title zsh -c 'nvim'

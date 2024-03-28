@@ -5,15 +5,28 @@ local eventtap = require("hs.eventtap")
 
 local utf8 = require('utf8')
 
-local function isFocusing()
-  local script = [[
-    tell application "Focus"
-        is focusing
-    end tell
-  ]]
 
-  local _, result = hs.osascript.applescript(script)
-  return result
+
+local function readFocusStatus()
+  local file = io.open("/tmp/focus-status", "r")
+  if file then
+    local content = string.gsub(file:read("*all"), "\n", "")
+    file:close()
+    return content
+  else
+    print("File not found at /tmp/focus-status")
+    return nil
+  end
+end
+
+local function isFocusing()
+  local focusStatus = readFocusStatus()
+  return focusStatus == "focusing"
+end
+
+local function isBreaking()
+  local focusStatus = readFocusStatus()
+  return focusStatus == "breaking"
 end
 
 -- Copies a rich link to your currently visible Chrome browser tab that you
@@ -169,7 +182,7 @@ end
 -- function to switch to a safari tab by URL
 
 local hotkeyToAppNameMapping = {
-  ["1"] = launchOrActivate("Zed"),
+  -- ["1"] = launchOrActivate("Zed"),
   ["2"] = launchOrActivate("Preview"),
   ["3"] = function()
     local appname
@@ -181,38 +194,48 @@ local hotkeyToAppNameMapping = {
     hs.application.launchOrFocus(appname)
   end,
   ["0"] = launchOrActivate("Kitty"),
+  ["4"] = launchOrFocusTab("https://www.recurse.com/calendar"),
   ["6"] = hs.toggleConsole,
+  F = launchOrActivate("Finder"),
+  ["7"] = launchOrFocusTab("https://recurse.zulipchat.com/"),
   ["8"] = launchOrActivate("Messages"),
   ["9"] = launchOrActivate("Things3"),
-  K = launchOrActivate("Kindle"),
 }
 
 for hotkey, appName in pairs(hotkeyToAppNameMapping) do
   hs.hotkey.bind("option", hotkey, appName)
 end
 
-local function openRepo(repoName)
-  return function()
-    local repoPath = string.format("~/src/github.com/shardulbee/%s", repoName)
-    if not kitty.FocusWindowOrTab(repoName) and not kitty.FocusWindowOrTab(string.format("shardulbee/%s", repoName)) then
-      kitty.Launch(repoPath, repoName, "tab", "nvim", false)
-    end
-  end
-end
+-- local function openRepo(repoName)
+--   return function()
+--     local repoPath = string.format("~/src/github.com/shardulbee/%s", repoName)
+--     if not kitty.FocusWindowOrTab(repoName) and not kitty.FocusWindowOrTab(string.format("shardulbee/%s", repoName)) then
+--       kitty.Launch(repoPath, repoName, "tab", "nvim", false)
+--     end
+--   end
+-- end
 
 local hotkeyToActionMapping = {
   R = function()
     hs.reload()
   end,
-  M = launchOrActivate("Mimestream"),
-  C = launchOrFocusTab("https://calendar.google.com/calendar/u/0/r"),
-  D = openRepo("dotfiles"),
-  F = function() -- repo launcher
-    kitty.Launch(nil, "repo launcher", "overlay", "change-repo", false)
-    hs.application.launchOrFocus("Kitty")
+  F = function()
+    local focusedWindow = hs.window.focusedWindow()
+    hs.urlevent.openURL("focus://toggle?profile=Coding")
+    focusedWindow:focus()
   end,
-  N = launchOrActivate("iA Writer"),
+  -- B = function()
+  --   if isBreaking() then
+  --     hs.urlevent.openURL("focus://unbreak")
+  --   else
+  --     hs.urlevent.openURL("focus://break")
+  --   end
+  -- end,
+  C = launchOrActivate("Fantastical"),
+  M = launchOrActivate("Fastmail"),
   P = popclickPlayPause,
+  Z = launchOrActivate("zoom.us"),
+  T = launchOrFocusTab("https://recurse.rctogether.com/"),
 }
 
 for hotkey, lambda in pairs(hotkeyToActionMapping) do
@@ -222,24 +245,6 @@ end
 local superMapping = {
   F = launchOrActivate("Finder"),
   C = getRichLinkToCurrentChromeTab,
-  T = function() -- open today note
-    if not kitty.FocusWindowOrTab("today") then
-      kitty.Launch("/Users/shardul/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents", "today", "tab",
-        "today-note", false)
-    else
-      local filename = string.format("%s-daily-note.md", os.date("%Y-%m-%d"))
-      kitty.sendText("today", string.format(":e %s\r", filename))
-    end
-    hs.application.launchOrFocus("Kitty")
-  end,
-  S = function()
-    if not kitty.FocusWindowOrTab("scratch") then
-      kitty.Launch("/Users/shardul/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents", "scratch", "tab",
-        "nvim scratch.md", true)
-    end
-    hs.application.launchOrFocus("Kitty")
-  end,
-  R = launchOrActivate("Reader"),
 }
 
 for hotkey, lambda in pairs(superMapping) do
