@@ -36,6 +36,7 @@ vim.opt.hlsearch       = false  -- don't highlight search results
 vim.opt.background     = "dark"  -- assume a dark background
 vim.opt.grepprg        = "rg --hidden --vimgrep --no-heading --smart-case"  -- use ripgrep for :grep
 vim.opt.conceallevel   = 2  -- mostly important for concealling markdown links and other formatting
+vim.opt.termguicolors  = true  -- use gui colors in the terminal
 -- }}}
 
 -- {{{ statusline
@@ -217,6 +218,10 @@ require("lazy").setup({
         },
       })
     end
+  },
+  {
+    "knubie/vim-kitty-navigator",
+    build = "cp ./*.py ~/.config/kitty/",
   },
 
   {
@@ -576,5 +581,13 @@ require("lazy").setup({
       })
     end
   },
-})
+},
+  {
+    change_detection = {
+      -- automatically check for config file changes and reload the ui
+      enabled = true,
+      notify = true, -- get a notification when changes are found
+    },
+  }
+)
 -- }}}

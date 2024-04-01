@@ -11,11 +11,12 @@ local function kittySock()
         hs.application.launchOrFocus("Kitty")
 
         lines = {}
-        for line in io.popen([[ls /tmp | grep mykitty]]):lines() do
-            table.insert(lines, line)
-        end
-        if not lines or #lines == 0 then
-            print("Still cannot find a kitty socket. Terminating.")
+
+        -- while loop to wait for the lines to not be empty
+        while not lines or #lines == 0 do
+            for line in io.popen([[ls /tmp | grep mykitty]]):lines() do
+                table.insert(lines, line)
+            end
         end
     end
 
@@ -29,6 +30,7 @@ function M.Run(runArgs)
     end
 
     local args = { "@", "--to", sock }
+    -- local args = { "@" }
     for _, arg in ipairs(runArgs) do
         table.insert(args, arg)
     end

@@ -51,8 +51,6 @@ def handle_result(
 
     # the current window is not nvim. so we are in a terminal or something else
     # first check and see if there is nvim somewhere
-
-
     nvim_window = next((w for w in tab.windows if is_window_vim(w)), None)
     if not nvim_window:
         # there is no nvim window in the current tab, exit

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # interpret the first cli arg as seconds and convert to minutes
 # round down if necessary
 # if not provided, default to 1 minute
@@ -13,7 +15,7 @@ fi
 
 goal="codefocus"
 comment="Logged automatically by Pomodoro app"
-auth_token=$(op item get Beeminder --fields label="api_key")
+auth_token=$(op item get Beeminder --fields label="api_key" > /tmp/codefocus-op-get.log)
 
 curl -XPOST "https://www.beeminder.com/api/v1/users/turbochardo/goals/$goal/datapoints.json" \
   -d auth_token="$auth_token" \

@@ -27,16 +27,12 @@ in {
       pkgs.jq
       pkgs.bat
       pkgs.gh
-      pkgs.rnix-lsp
-      pkgs.sumneko-lua-language-server
       pkgs.go
-      pkgs.ocamlPackages.ocaml-lsp
       pkgs.ocamlformat
       pkgs.ruby
       pkgs.nodejs
       pkgs.nodePackages.fixjson
       pkgs.nodePackages.jsonlint
-      pkgs.stylua
       pkgs.neofetch
       pkgs.rubyPackages.solargraph
       pkgs.wget
@@ -49,9 +45,6 @@ in {
       pkgs.kitty
       pkgs.cargo
       pkgs.rustc
-      pkgs.rust-analyzer
-      pkgs.clippy
-      pkgs.rustfmt
       pkgs.fish
       pkgs.flyctl
       pkgs.hyperfine
@@ -60,6 +53,15 @@ in {
       pkgs.tarsnap
       pkgs.hugo
       pkgs.railway
+
+      pkgs.clippy
+      pkgs.rustfmt
+      pkgs.gopls
+      pkgs.stylua
+      pkgs.rust-analyzer
+      pkgs.rnix-lsp
+      pkgs.sumneko-lua-language-server
+      pkgs.ocamlPackages.ocaml-lsp
 
       direnv
       zsh-autosuggestions

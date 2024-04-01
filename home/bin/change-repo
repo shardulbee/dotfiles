@@ -21,3 +21,4 @@ if [[ $? -eq 0 ]]; then
 fi
 
 kitty @ launch --type=tab --cwd=$dir --title=$tab_title zsh -c 'nvim'
+kitty @ launch --type=window --cwd=$dir --title=$tab_title --keep-focus zsh

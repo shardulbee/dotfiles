@@ -182,7 +182,7 @@ end
 -- function to switch to a safari tab by URL
 
 local hotkeyToAppNameMapping = {
-  -- ["1"] = launchOrActivate("Zed"),
+  ["1"] = launchOrActivate("Zed"),
   ["2"] = launchOrActivate("Preview"),
   ["3"] = function()
     local appname
@@ -219,21 +219,14 @@ local hotkeyToActionMapping = {
   R = function()
     hs.reload()
   end,
-  F = function()
-    local focusedWindow = hs.window.focusedWindow()
-    hs.urlevent.openURL("focus://toggle?profile=Coding")
-    focusedWindow:focus()
-  end,
-  -- B = function()
-  --   if isBreaking() then
-  --     hs.urlevent.openURL("focus://unbreak")
-  --   else
-  --     hs.urlevent.openURL("focus://break")
-  --   end
-  -- end,
+  F = launchOrActivate("Finder"),
   C = launchOrActivate("Fantastical"),
   M = launchOrActivate("Fastmail"),
+  N = launchOrActivate("iA Writer"),
   P = popclickPlayPause,
+  O = function()
+    kitty.Launch("/Users/shardul/bin", "change-repo", "tab", "change-repo", false)
+  end,
   Z = launchOrActivate("zoom.us"),
   T = launchOrFocusTab("https://recurse.rctogether.com/"),
 }
@@ -243,8 +236,12 @@ for hotkey, lambda in pairs(hotkeyToActionMapping) do
 end
 
 local superMapping = {
-  F = launchOrActivate("Finder"),
   C = getRichLinkToCurrentChromeTab,
+  F = function()
+    local focusedWindow = hs.window.focusedWindow()
+    hs.urlevent.openURL("focus://toggle?profile=Coding")
+    focusedWindow:focus()
+  end,
 }
 
 for hotkey, lambda in pairs(superMapping) do
