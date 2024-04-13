@@ -59,7 +59,7 @@ def handle_result(
         # there is one but but it is not focused and we are in stack. unstack and switch to nvim
         boss.call_remote_control(window, ("focus-window", f"--match=id:{nvim_window.id}"))
         boss.call_remote_control(window, ("goto-layout", "--match=state:focused", "fat"))
-    else:
+    elif tab.current_layout.name == "fat":
         # there is one but it is not focused and we are in the fat layout, let's focus it and switch to stack
         boss.call_remote_control(window, ("focus-window", f"--match=id:{nvim_window.id}"))
         boss.call_remote_control(window, ("goto-layout", "--match=state:focused", "stack"))

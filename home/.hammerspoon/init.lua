@@ -3,9 +3,7 @@ local timer = require("hs.timer")
 local popclick = require("hs.noises")
 local eventtap = require("hs.eventtap")
 
-local utf8 = require('utf8')
-
-
+local utf8 = require("utf8")
 
 local function readFocusStatus()
   local file = io.open("/tmp/focus-status", "r")
@@ -39,7 +37,7 @@ local function getRichLinkToCurrentChromeTab()
   local application = hs.application.frontmostApplication()
 
   -- Only copy from Chrome
-  if application:bundleID() ~= 'com.google.Chrome' then
+  if application:bundleID() ~= "com.google.Chrome" then
     return
   end
 
@@ -54,27 +52,27 @@ local function getRichLinkToCurrentChromeTab()
 
   -- Remove trailing garbage from window title for a better looking link.
   local removePatterns = {
-    ' – Dropbox Paper.*',
-    '- - Google Chrome.*',
-    ' %- Google Docs',
-    ' %- Google Sheets',
-    ' %- Jira',
-    ' – Figma',
+    " – Dropbox Paper.*",
+    "- - Google Chrome.*",
+    " %- Google Docs",
+    " %- Google Sheets",
+    " %- Jira",
+    " – Figma",
     -- Notion's "(9+) " comment indicator
-    '%(%d+%+*%) ',
+    "%(%d+%+*%) ",
   }
 
   for _, pattern in ipairs(removePatterns) do
-    title = string.gsub(title, pattern, '')
+    title = string.gsub(title, pattern, "")
   end
 
   -- Encode the title as html entities like (&#107;&#84;), so that we can
   -- print out unicode characters inside of `getStyledTextFromData` and have
   -- them render correctly in the link.
-  local encodedTitle = ''
+  local encodedTitle = ""
 
   for _, code in utf8.codes(title) do
-    encodedTitle = encodedTitle .. '&#' .. code .. ';'
+    encodedTitle = encodedTitle .. "&#" .. code .. ";"
   end
 
   -- Get the current URL from the address bar.
@@ -88,7 +86,7 @@ local function getRichLinkToCurrentChromeTab()
 
   -- Embed the URL + title in an <a> tag so macOS converts it to a rich link
   -- on paste.
-  local md = string.format('[%s](%s)', title, url)
+  local md = string.format("[%s](%s)", title, url)
   hs.pasteboard.writeObjects(md)
   hs.alert('Copied link to "' .. title .. '"')
 end
@@ -237,11 +235,11 @@ end
 
 local superMapping = {
   C = getRichLinkToCurrentChromeTab,
-  F = function()
-    local focusedWindow = hs.window.focusedWindow()
-    hs.urlevent.openURL("focus://toggle?profile=Coding")
-    focusedWindow:focus()
-  end,
+  -- F = function()
+  --   local focusedWindow = hs.window.focusedWindow()
+  --   hs.urlevent.openURL("focus://toggle?profile=Coding")
+  --   focusedWindow:focus()
+  -- end,
 }
 
 for hotkey, lambda in pairs(superMapping) do

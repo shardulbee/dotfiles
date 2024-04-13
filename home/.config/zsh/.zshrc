@@ -62,6 +62,22 @@ opam() {
     return 1
   fi
 }
+if command -v /usr/local/bin/direnv > /dev/null; then
+  eval "$(/usr/local/bin/direnv hook zsh)"
+else
+  echo "direnv not found"
+  return 1
+fi
+
+# direnv() {
+#   if command -v /usr/local/bin/direnv > /dev/null; then
+#     eval "$(/usr/local/bin/direnv hook zsh)"
+#     /usr/local/bin/direnv "$@"
+#   else
+#     echo "direnv not found"
+#     return 1
+#   fi
+# }
 
 if test -n "$KITTY_INSTALLATION_DIR"; then
     export KITTY_SHELL_INTEGRATION="enabled"

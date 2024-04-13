@@ -18,6 +18,9 @@ in {
   nix.settings.experimental-features = "nix-command flakes";
   system.stateVersion = 4;
   nixpkgs.config.allowUnfree = true;
+  nix.settings.trusted-users = [ "shardul" ];
+  nix.linux-builder.enable = true;
+
 
 # {{{ programs
   environment.systemPackages =
@@ -53,6 +56,8 @@ in {
       pkgs.tarsnap
       pkgs.hugo
       pkgs.railway
+      pkgs.clang-tools
+      # pkgs.llvmPackages_17.clang-unwrapped
 
       pkgs.clippy
       pkgs.rustfmt
@@ -78,16 +83,6 @@ in {
       source ${zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
       source ${zsh-fast-syntax-highlighting}/share/zsh/site-functions/fast-syntax-highlighting.plugin.zsh
       source ${fzf}/share/fzf/key-bindings.zsh
-
-      direnv() {
-        if command -v /usr/local/bin/direnv > /dev/null; then
-          eval "$(${direnv} hook zsh)"
-          /usr/local/bin/direnv "$@"
-        else
-          echo "direnv not found"
-          return 1
-        fi
-      }
     '';
   };
 # }}}
@@ -162,6 +157,7 @@ in {
       "fantastical"
       "zulip"
       "cursor"
+      "vmware-fusion"
     ];
     masApps = {
       "Things 3" = 904280696;

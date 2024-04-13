@@ -2,9 +2,15 @@
 
 set -uo pipefail
 
-local dirs=$(fd -td --exact-depth 3 . $HOME/src)
-local dirs="$dirs\n/Users/shardul/dotfiles"
-local dir=$(echo "$dirs" | FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='Git repos> '" fzf)
+# check if arg is pased in, if so, use that as the dir
+
+if [[ $# -gt 0 ]]; then
+  local dir=$1
+else
+  local dirs=$(fd -td --exact-depth 3 . $HOME/src)
+  local dirs="$dirs\n/Users/shardul/dotfiles"
+  local dir=$(echo "$dirs" | FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='Git repos> '" fzf)
+fi
 
 if [[ -z "$dir" ]]; then
   exit 1
