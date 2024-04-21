@@ -4,7 +4,6 @@
   zsh-autosuggestions = pkgs.zsh-autosuggestions;
   zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
   fzf = pkgs.fzf;
-  direnv = pkgs.direnv;
 in {
   environment.pathsToLink = [ "/share/zsh" ];
   nix = {
@@ -18,8 +17,6 @@ in {
   nix.settings.experimental-features = "nix-command flakes";
   system.stateVersion = 4;
   nixpkgs.config.allowUnfree = true;
-  nix.linux-builder.enable = true;
-  nix.settings.extra-trusted-users = ["shardul"];
 
 # {{{ programs
   environment.systemPackages =
@@ -29,46 +26,42 @@ in {
       pkgs.jq
       pkgs.bat
       pkgs.gh
-      pkgs.go
-      pkgs.ocamlformat
-      pkgs.ruby
-      pkgs.nodejs
-      pkgs.nodePackages.fixjson
-      pkgs.nodePackages.jsonlint
       pkgs.neofetch
-      pkgs.rubyPackages.solargraph
       pkgs.wget
       pkgs._1password
       pkgs.stow
       pkgs.ripgrep
       pkgs.neovim
       pkgs.darwin.trash
-      pkgs.tree-sitter
       pkgs.kitty
-      pkgs.cargo
-      pkgs.rustc
-      pkgs.fish
-      pkgs.flyctl
       pkgs.hyperfine
       pkgs.httpie
       pkgs.rclone
       pkgs.tarsnap
-      pkgs.hugo
       pkgs.railway
-      pkgs.clang-tools
-      # pkgs.llvmPackages_17.clang-unwrapped
+      pkgs.jankyborders
+      pkgs.direnv
 
-      pkgs.clippy
+      pkgs.go
+      pkgs.ocamlformat
+      pkgs.ruby
+      pkgs.nodejs
+      pkgs.hugo
+      pkgs.cargo
       pkgs.rustfmt
+      pkgs.clippy
       pkgs.gopls
       pkgs.stylua
       pkgs.rust-analyzer
       pkgs.sumneko-lua-language-server
       pkgs.ocamlPackages.ocaml-lsp
+      pkgs.clang-tools
+      pkgs.rustc
+      pkgs.tree-sitter
+      pkgs.nodePackages.fixjson
+      pkgs.nodePackages.jsonlint
+      pkgs.rubyPackages.solargraph
 
-      pkgs.jankyborders # draw borders around windows
-
-      direnv
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
       fzf
@@ -179,9 +172,6 @@ in {
     yabai = {
       enable = true;
       enableScriptingAddition = true;
-    };
-    skhd = {
-      enable = true;
     };
   };
 

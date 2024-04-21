@@ -30,15 +30,15 @@ function M.MoveWindow(space)
 end
 
 function M.SwapWindow(direction)
-	args = { "-m", "window", "--swap", direction }
+	local args = { "-m", "window", "--swap", direction }
 	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit()
 end
 
 function M.NextWindow()
-	query_args = { "-m", "query", "--spaces" }
-	callbackFn = function(_, stdOut, _)
-		spaces = hs.json.decode(stdOut)
-		focusedSpace = hs.fnutils.find(spaces, function(space)
+	local query_args = { "-m", "query", "--spaces" }
+	local callbackFn = function(_, stdOut, _)
+		local spaces = hs.json.decode(stdOut)
+		local focusedSpace = hs.fnutils.find(spaces, function(space)
 			return space["has-focus"]
 		end)
 		local nextWindowStr = "next"
@@ -93,6 +93,26 @@ end
 
 function M.ToggleNotes()
 	toggleWindowAttribute("notes")
+end
+
+function M.TogglePip()
+	toggleWindowAttribute("sticky")
+	toggleWindowAttribute("pip")
+end
+
+function M.FocusNotesIfNotFocused()
+	local query_args = { "-m", "query", "--windows" }
+	local callbackFn = function(_, stdOut, _)
+		local windows = hs.json.decode(stdOut)
+		local focusedWindow = hs.fnutils.find(windows, function(window)
+			return window["has-focus"]
+		end)
+		if focusedWindow["scratchpad"] == "notes" then
+			return
+		end
+		toggleWindowAttribute("notes")
+	end
+	hs.task.new("/usr/local/bin/yabai", callbackFn, query_args):start():waitUntilExit()
 end
 
 function M.CycleStackBsp()

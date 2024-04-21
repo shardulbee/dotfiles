@@ -29,7 +29,6 @@ Listener = nil
 local popclickListening = false
 local tssScrollDown = newScroller(0.02, -10)
 local function scrollHandler(evNum)
-	-- alert.show(tostring(evNum))
 	if evNum == 1 then
 		startScroll(tssScrollDown)
 	elseif evNum == 2 then
@@ -68,6 +67,92 @@ local function wrapped(fn, args)
 		fn(args)
 	end
 	return wrapped_fn
+end
+
+local function kittySock()
+	local lines = {}
+	for line in io.popen([[ls /tmp | grep mykitty]]):lines() do
+		table.insert(lines, line)
+	end
+
+	if not lines or #lines == 0 then
+		print("Cannot find a kitty socket. Terminating.")
+		hs.application.launchOrFocus("Kitty")
+
+		lines = {}
+
+		-- while loop to wait for the lines to not be empty
+		while not lines or #lines == 0 do
+			for line in io.popen([[ls /tmp | grep mykitty]]):lines() do
+				table.insert(lines, line)
+			end
+		end
+	end
+
+	return "unix:/tmp/mykitty"
+end
+
+function KittyRun(runArgs)
+	local sock = kittySock()
+	if not sock then
+		return
+	end
+
+	local args = { "@", "--to", sock }
+	for _, arg in ipairs(runArgs) do
+		table.insert(args, arg)
+	end
+
+	return hs.task
+			.new("/usr/local/bin/kitty", function(exitCode, stdOut, stdErr)
+				print("exitCode: ", exitCode, "stdOut:", stdOut, "stdErr:", stdErr)
+			end, function(exitCode, stdOut, stdErr)
+				print("exitCode: ", exitCode, "stdOut:", stdOut, "stdErr:", stdErr)
+				return true
+			end, args)
+			:start()
+			:waitUntilExit()
+			:terminationStatus() == 0
+end
+
+function Launch(cwd, title, type, cmd, hold, extraArgs)
+	local args = { "launch" }
+
+	if #extraArgs > 0 then
+		for _, arg in ipairs(extraArgs) do
+			print(arg)
+			table.insert(args, arg)
+		end
+	end
+
+	if hold then
+		table.insert(args, "--hold")
+	end
+
+	if cwd then
+		table.insert(args, string.format("--cwd=%s", cwd))
+	else
+		table.insert(args, "--cwd=current")
+	end
+
+	if title then
+		table.insert(args, string.format("--title=%s", title))
+	end
+
+	if type then
+		table.insert(args, string.format("--type=%s", type))
+	else
+		table.insert(args, "--type=tab")
+	end
+
+	if cmd then
+		table.insert(args, "zsh")
+		table.insert(args, "--login")
+		table.insert(args, "-c")
+		table.insert(args, cmd)
+	end
+
+	KittyRun(args)
 end
 
 -- ##################################################################
@@ -116,6 +201,21 @@ for hotkey, lambda in pairs({
 	["Z"] = yabai.ZoomFullscreen,
 	["N"] = yabai.ToggleNotes,
 	["C"] = hs.toggleConsole,
+	["P"] = yabai.TogglePip,
+
+	["T"] = function()
+		if not KittyRun({ "focus-window", "--match", 'title:"daily\\snote"' }) then
+			Launch(
+				"/Users/shardul/gdrive/notes",
+				"daily note",
+				"tab",
+				"today-note",
+				false,
+				{ "--match", "title:^notes$" }
+			)
+		end
+		yabai.FocusNotesIfNotFocused()
+	end,
 }) do
 	hs.hotkey.bind({ "option", "shift" }, hotkey, lambda)
 end
@@ -130,9 +230,6 @@ for hotkey, lambda in pairs({
 	F = launchOrActivate("Finder"),
 	C = launchOrActivate("Fantastical"),
 	P = popclickPlayPause,
-	O = function()
-		kitty.Launch("/Users/shardul/bin", "change-repo", "tab", "change-repo", false)
-	end,
 	Z = launchOrActivate("zoom.us"),
 	T = chrome.LaunchOrFocusTab("https://rcverse.recurse.com/"),
 }) do

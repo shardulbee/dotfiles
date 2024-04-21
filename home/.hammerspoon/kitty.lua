@@ -23,14 +23,13 @@ local function kittySock()
     return "unix:/tmp/mykitty"
 end
 
-function M.Run(runArgs)
+function M.KittyRun(runArgs)
     local sock = kittySock()
     if not sock then
         return
     end
 
     local args = { "@", "--to", sock }
-    -- local args = { "@" }
     for _, arg in ipairs(runArgs) do
         table.insert(args, arg)
     end
@@ -51,8 +50,8 @@ function M.FocusWindowOrTab(title)
     if not title then
         return
     end
-    if not M.Run({ "focus-tab", "--match", string.format("title:%s", title) }) then
-        return M.Run({ "focus-window", "--match", string.format("title:%s", title) })
+    if not M.KittyRun({ "focus-tab", "--match", string.format("title:%s", title) }) then
+        return M.KittyRun({ "focus-window", "--match", string.format("title:%s", title) })
     else
         return true
     end
@@ -62,7 +61,7 @@ function M.sendText(title, text)
     if not title or not text then
         return
     end
-    return M.Run({
+    return M.KittyRun({
         "send-text",
         "--match",
         string.format("title:%s", title),
@@ -100,7 +99,7 @@ function M.Launch(cwd, title, type, cmd, hold)
         table.insert(args, cmd)
     end
 
-    M.Run(args)
+    M.KittyRun(args)
 end
 
 function M.LaunchNeovim(cwd, title, type, additional_args)
@@ -130,7 +129,7 @@ function M.LaunchNeovim(cwd, title, type, additional_args)
         end
     end
 
-    M.Run(args)
+    M.KittyRun(args)
 end
 
 return M
