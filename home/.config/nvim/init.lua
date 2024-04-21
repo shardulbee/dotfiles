@@ -161,6 +161,21 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   {
+    "junegunn/vim-easy-align",
+  },
+  {
+    "mikesmithgh/kitty-scrollback.nvim",
+    enabled = true,
+    lazy = true,
+    cmd = { "KittyScrollbackGenerateKittens", "KittyScrollbackCheckHealth" },
+    event = { "User KittyScrollbackLaunch" },
+    -- version = '*', -- latest stable version, may have breaking changes if major version changed
+    -- version = '^4.0.0', -- pin major version, include fixes and features that do not have breaking changes
+    config = function()
+      require("kitty-scrollback").setup()
+    end,
+  },
+  {
     "luk400/vim-jukit",
     ft = { "json", "python" },
   },
@@ -528,7 +543,7 @@ require("lazy").setup({
             },
           },
         }),
-        rnix = config_with_defaults({}),
+        -- rnix = config_with_defaults({}),
         gopls = config_with_defaults({}),
         pylsp = config_with_defaults({}),
         clangd = config_with_defaults({}),
@@ -612,6 +627,7 @@ require("lazy").setup({
           null_ls.builtins.formatting.rustfmt,
           null_ls.builtins.formatting.clang_format,
           null_ls.builtins.code_actions.gitsigns,
+          null_ls.builtins.diagnostics.flake8,
         },
         on_attach = function(client, bufnr)
           if client.supports_method("textDocument/formatting") then

@@ -45,6 +45,9 @@ def handle_result(
             boss.call_remote_control(window, ("focus-window", "--match=neighbor:bottom"))
         elif tab.current_layout.name == "fat":
             boss.call_remote_control(window, ("goto-layout", "--match=state:focused", "stack"))
+        else:
+            # we are in some other layout, let's switch to stack
+            boss.call_remote_control(window, ("goto-layout", "--match=state:focused", "stack"))
 
         return
 

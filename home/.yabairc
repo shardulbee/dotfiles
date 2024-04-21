@@ -1,0 +1,75 @@
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+sudo yabai --load-sa
+
+c() {
+  yabai -m config "$@"
+}
+c layout stack
+
+yabai -m space 1 --label code
+yabai -m space 3 --label web
+yabai -m space 6 --label mail
+yabai -m space 8 --label messages
+yabai -m space 9 --label planning
+yabai -m space 10 --label terminal
+
+# --------------------------------------------------------------
+# App Rules
+# --------------------------------------------------------------
+yabai -m rule --add app="^Fastmail$" space=mail
+yabai -m rule --add app="^Mail$" space=mail
+yabai -m rule --add app="^Messages$" space=messages
+yabai -m rule --add app="^Google Chrome$" space=web
+yabai -m rule --add app="^Safari$" space=web
+yabai -m rule --add app="^kitty$" space=terminal
+yabai -m rule --add app="^Code$" space=code
+yabai -m rule --add app="^Things" space=planning
+yabai -m rule --add app="^Fantastical" space=planning
+
+# --------------------------------------------------------------
+# Signals
+# --------------------------------------------------------------
+
+# --------------------------------------------------------------
+# Notes window
+# --------------------------------------------------------------
+yabai -m rule --add app="^kitty$" title="^notes$" scratchpad="notes" grid="20:20:1:1:18:18"
+
+# --------------------------------------------------------------
+# Unmanaged apps
+# --------------------------------------------------------------
+yabai -m rule --add app="^Raycast$" manage=off
+yabai -m rule --add app="^System Preferences$" manage=off
+
+# --------------------------------------------------------------
+# Config
+# --------------------------------------------------------------
+c mouse_follows_focus on
+c focus_follows_mouse autoraise
+c window_opacity off
+c top_padding 12
+c bottom_padding 12
+c left_padding 12
+c right_padding 12
+c window_gap 6
+c insert_feedback_color        0xff0000dd
+
+# --------------------------------------------------------------
+# Border config
+# --------------------------------------------------------------
+options=(
+	style=round
+	width=3.0
+	hidpi=on
+	active_color=0xffffffff
+	inactive_color=0xff000000
+)
+
+pgrep borders | xargs kill -9 > /dev/null
+borders "${options[@]}" &
+
+# --------------------------------------------------------------
+# Finishing steps
+# --------------------------------------------------------------
+# launchctl kickstart -k gui/501/org.nixos.skhd
+echo "yabai configuration loaded.."

@@ -18,9 +18,8 @@ in {
   nix.settings.experimental-features = "nix-command flakes";
   system.stateVersion = 4;
   nixpkgs.config.allowUnfree = true;
-  nix.settings.trusted-users = [ "shardul" ];
   nix.linux-builder.enable = true;
-
+  nix.settings.extra-trusted-users = ["shardul"];
 
 # {{{ programs
   environment.systemPackages =
@@ -64,9 +63,10 @@ in {
       pkgs.gopls
       pkgs.stylua
       pkgs.rust-analyzer
-      pkgs.rnix-lsp
       pkgs.sumneko-lua-language-server
       pkgs.ocamlPackages.ocaml-lsp
+
+      pkgs.jankyborders # draw borders around windows
 
       direnv
       zsh-autosuggestions
@@ -142,27 +142,24 @@ in {
       "google-chrome"
       "istat-menus"
       "raycast"
-      "sublime-merge"
       "thingsmacsandboxhelper"
       "vlc"
       "zwift"
       "spotify"
       "zoom"
       "orbstack"
-      "balenaetcher"
       "tailscale"
-      "zed"
       "focus"
       "google-drive"
       "fantastical"
-      "zulip"
-      "cursor"
-      "vmware-fusion"
+      "visual-studio-code"
+      "thunderbird"
     ];
     masApps = {
       "Things 3" = 904280696;
       "iA Writer" = 775737590;
-      "CARROT Weather" = 993487541;
+      "Infuse • Video Player" = 1136220934;
+      "Control Panel for Twitter" = 1668516167;
     };
     onActivation.cleanup = "uninstall";
   };
@@ -178,6 +175,16 @@ in {
     isHidden = false;
     shell = pkgs.zsh;
   };
+  services = {
+    yabai = {
+      enable = true;
+      enableScriptingAddition = true;
+    };
+    skhd = {
+      enable = true;
+    };
+  };
+
   system.activationScripts.postActivation.text = ''
     $DRY_RUN_CMD ln -sfn /run/current-system/sw/bin/* /usr/local/bin
     $DRY_RUN_CMD ln -sfn /run/current-system/sw/lib/* /usr/local/lib
