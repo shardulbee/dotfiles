@@ -1,4 +1,4 @@
-kitty = {}
+Kitty = {}
 
 local function kittySock()
 	local lines = {}
@@ -23,7 +23,7 @@ local function kittySock()
 	return "unix:/tmp/mykitty"
 end
 
-function kitty.Run(runArgs)
+function Kitty.Run(runArgs)
 	local sock = kittySock()
 	if not sock then
 		return
@@ -37,31 +37,30 @@ function kitty.Run(runArgs)
 	return hs.task
 		.new("/usr/local/bin/kitty", function(exitCode, stdOut, stdErr)
 			print("exitCode: ", exitCode, "stdOut:", stdOut, "stdErr:", stdErr)
-		end, function(exitCode, stdOut, stdErr)
-			print("exitCode: ", exitCode, "stdOut:", stdOut, "stdErr:", stdErr)
-			return true
 		end, args)
 		:start()
 		:waitUntilExit()
 		:terminationStatus() == 0
 end
 
-function kitty.FocusWindowOrTab(title)
+function Kitty.FocusWindowOrTab(title)
 	if not title then
-		return
+		return false
 	end
-	if not kitty.Run({ "focus-tab", "--match", string.format("title:%s", title) }) then
-		return kitty.Run({ "focus-window", "--match", string.format("title:%s", title) })
-	else
+	if Kitty.Run({ "focus-tab", "--match", string.format("title:%s", title) }) then
 		return true
 	end
+	if Kitty.Run({ "focus-window", "--match", string.format("title:%s", title) }) then
+		return true
+	end
+	return false
 end
 
-function kitty.sendText(title, text)
+function Kitty.sendText(title, text)
 	if not title or not text then
 		return
 	end
-	return kitty.Run({
+	return Kitty.Run({
 		"send-text",
 		"--match",
 		string.format("title:%s", title),
@@ -69,7 +68,7 @@ function kitty.sendText(title, text)
 	})
 end
 
-function kitty.Launch(cwd, title, type, cmd, hold)
+function Kitty.Launch(cwd, title, type, cmd, hold)
 	local args = { "launch" }
 
 	if hold then
@@ -99,37 +98,18 @@ function kitty.Launch(cwd, title, type, cmd, hold)
 		table.insert(args, cmd)
 	end
 
-	kitty.Run(args)
+	return Kitty.Run(args)
 end
 
-function kitty.LaunchNeovim(cwd, title, type, additional_args)
-	local args = { "launch" }
-	-- table.insert(args, "--hold")
-
-	if cwd then
-		table.insert(args, string.format("--cwd=%s", cwd))
-	else
-		table.insert(args, "--cwd=current")
+function Kitty.TodayNote()
+	if not Kitty.FocusWindowOrTab("today-note") then
+		Kitty.RunScript("today-note")
 	end
-
-	if title then
-		table.insert(args, string.format("--title=%s", title))
-	end
-
-	if type then
-		table.insert(args, string.format("--type=%s", type))
-	else
-		table.insert(args, "--type=tab")
-	end
-	table.insert(args, "nvim")
-
-	if additional_args then
-		for _, arg in ipairs(additional_args) do
-			table.insert(args, arg)
-		end
-	end
-
-	kitty.Run(args)
 end
 
-return kitty
+function Kitty.RunScript(scriptname)
+	Kitty.Launch(nil, scriptname, "tab", scriptname)
+	Kitty.FocusWindowOrTab(scriptname)
+end
+
+return Kitty

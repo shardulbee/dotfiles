@@ -8,7 +8,7 @@ if [[ $# -gt 0 ]]; then
   local dir=$1
 else
   local dirs=$(fd -td --exact-depth 3 . $HOME/src)
-  local dirs="$dirs\n/Users/shardul/dotfiles"
+  local dirs="$dirs\n$HOME/dotfiles"
   local dir=$(echo "$dirs" | FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='Git repos> '" fzf)
 fi
 

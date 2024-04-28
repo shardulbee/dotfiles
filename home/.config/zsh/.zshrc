@@ -1,4 +1,3 @@
-# vim: set ft=zsh fdm=marker fdl=0:vim
 # zmodload zsh/zprof
 # zmodload zsh/datetime
 # setopt PROMPT_SUBST
@@ -10,7 +9,9 @@
 
 bindkey -e
 
-# {{{ prompt
+# -----------------------------------------------------------------------------
+# Prompt
+# -----------------------------------------------------------------------------
 setopt prompt_subst
 setopt TRANSIENT_RPROMPT
 precmd () {print -Pn "\e]0;%2d\a"}
@@ -28,17 +29,19 @@ git_status() {
   echo "%F{blue}on branch %B%F{64}${BRANCH} %b%F{blue}working status ${DIRTY}"
 }
 RPROMPT='$(git_status)'
-# }}}
 
-# {{{ compinit
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
 autoload -Uz compinit
 for dump in $ZDOTDIR/.zcompdump(N.mh+24); do
   compinit
 done
 compinit -C
-# }}}
 
-# {{{ history
+# -----------------------------------------------------------------------------
+# History
+# -----------------------------------------------------------------------------
 HISTSIZE="100000000"
 SAVEHIST="100000000"
 HISTFILE="$HOME/.zsh_history"
@@ -50,9 +53,10 @@ unsetopt HIST_EXPIRE_DUPS_FIRST
 setopt SHARE_HISTORY
 unsetopt EXTENDED_HISTORY
 setopt autocd
-# }}}
 
-# {{{ sources
+# -----------------------------------------------------------------------------
+# Sources
+# -----------------------------------------------------------------------------
 opam() {
   if command -v /opt/homebrew/bin/opam > /dev/null; then
     eval "$(/opt/homebrew/bin/opam env)"
@@ -69,18 +73,9 @@ else
   return 1
 fi
 
-# direnv() {
-#   if command -v /usr/local/bin/direnv > /dev/null; then
-#     eval "$(/usr/local/bin/direnv hook zsh)"
-#     /usr/local/bin/direnv "$@"
-#   else
-#     echo "direnv not found"
-#     return 1
-#   fi
-# }
-# }}}
-
-# {{{ custom functions
+# -----------------------------------------------------------------------------
+# Functions
+# -----------------------------------------------------------------------------
 function gbd {
   local branch=$(git branch | sed 's/[\* ]//g' | fzf --multi --height 30)
   if [ -n "$branch" ]; then
@@ -125,7 +120,7 @@ zle -N fzf-redraw-prompt
 # Command that allows quickly switching to different GitHub repos using CTRL-F
 function fzf-repo-widget {
   local dirs=$(fd -td --exact-depth 3 . $HOME/src)
-  local dirs="$dirs\n/Users/shardul/dotfiles"
+  local dirs="$dirs\n$HOME/dotfiles"
   local dir=$(echo "$dirs" | FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='Git repos> ' $FZF_DEFAULT_OPTS" fzf)
 
   if [[ -z "$dir" ]]; then
@@ -164,7 +159,9 @@ function cheat() { curl cheat.sh/"$1" }
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis "$@"; fi; }
 # }}}
 
-# {{{ aliases
+# -----------------------------------------------------------------------------
+# Aliases
+# -----------------------------------------------------------------------------
 alias vi=nvim
 alias vim=nvim
 alias be='bundle exec'
@@ -194,8 +191,10 @@ alias vrepo='gh repo view --web > /dev/null'
 alias cat='bat --style=plain,numbers,grid'
 alias rm="trash"
 alias rmfrfr="rm" # aka rm for real for real
-# }}}
 
+# -----------------------------------------------------------------------------
+# Environment
+# -----------------------------------------------------------------------------
 export FZF_DEFAULT_CMD="fd -tf --hidden"
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_CMD
 

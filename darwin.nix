@@ -78,11 +78,9 @@ in {
       "zoom"
       "orbstack"
       "tailscale"
-      "focus"
       "google-drive"
       "fantastical"
       "visual-studio-code"
-      "thunderbird"
     ];
     masApps = {
       "Things 3" = 904280696;
@@ -133,7 +131,7 @@ in {
   system.defaults.NSGlobalDomain.NSNavPanelExpandedStateForSaveMode = true;
   system.defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
   system.defaults.NSGlobalDomain.AppleKeyboardUIMode = 3;
-  # system.keyboard.remapCapsLockToControl = true;
+  system.keyboard.remapCapsLockToControl = true;
   system.defaults.NSGlobalDomain."com.apple.keyboard.fnState" = false;
   system.defaults.NSGlobalDomain."com.apple.mouse.tapBehavior" = 1;
   system.defaults.NSGlobalDomain."com.apple.trackpad.trackpadCornerClickBehavior" = 1;

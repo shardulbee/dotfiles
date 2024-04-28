@@ -71,9 +71,9 @@ function Yabai.CycleStackBsp()
 			layout = "bsp"
 		end
 		hs.task
-				.new("/usr/local/bin/yabai", nil, { "-m", "config", "--space", spaceIndexStr, "layout", layout })
-				:start()
-				:waitUntilExit()
+			.new("/usr/local/bin/yabai", nil, { "-m", "config", "--space", spaceIndexStr, "layout", layout })
+			:start()
+			:waitUntilExit()
 	end
 	hs.task.new("/usr/local/bin/yabai", callbackFn, query_args):start():waitUntilExit()
 end
@@ -123,13 +123,13 @@ end
 function Yabai.SwapWindow(direction)
 	local args = { "-m", "window", "--swap", direction }
 	local status = hs.task
-			.new("/usr/local/bin/yabai", function(stderr, stdout, _)
-				print("stderr: " .. stderr)
-				print("stdout: " .. stdout)
-			end, args)
-			:start()
-			:waitUntilExit()
-			:terminationStatus()
+		.new("/usr/local/bin/yabai", function(stderr, stdout, _)
+			print("stderr: " .. stderr)
+			print("stdout: " .. stdout)
+		end, args)
+		:start()
+		:waitUntilExit()
+		:terminationStatus()
 	return status
 end
 

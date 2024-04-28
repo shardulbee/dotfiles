@@ -1,8 +1,8 @@
 local utf8 = require("utf8")
 
-kitty = {}
+Chrome = {}
 
-function kitty.GetTabRichLink()
+function Chrome.GetTabRichLink()
 	local application = hs.application.frontmostApplication()
 
 	-- Only copy from Chrome
@@ -44,7 +44,7 @@ function kitty.GetTabRichLink()
 	hs.alert('Copied link to "' .. title .. '"')
 end
 
-function kitty.LaunchOrFocusTab(tabURL)
+function Chrome.LaunchOrFocusTab(tabURL)
 	local baseScript = [[
     let site = "%s"
     let chrome = Application("Google Chrome");
@@ -74,4 +74,4 @@ function kitty.LaunchOrFocusTab(tabURL)
 	end
 end
 
-return kitty
+return Chrome
