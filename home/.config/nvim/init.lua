@@ -105,7 +105,6 @@ require("lazy").setup({
 			vim.cmd("colorscheme base16-default-dark")
 		end,
 	},
-	"airblade/vim-gitgutter",
 	{
 		"lukas-reineke/indent-blankline.nvim",
 		main = "ibl",
@@ -197,6 +196,49 @@ require("lazy").setup({
 		"ibhagwan/fzf-lua",
 		config = function()
 			require("fzf")
+		end,
+	},
+	{
+		"lewis6991/gitsigns.nvim",
+		config = function()
+			require("gitsigns").setup({
+				on_attach = function()
+					local gitsigns = require("gitsigns")
+
+					local function map(mode, l, r, opts)
+						opts = opts or {}
+						opts.buffer = bufnr
+						vim.keymap.set(mode, l, r, opts)
+					end
+
+					-- Navigation
+					map("n", "]c", function()
+						if vim.wo.diff then
+							vim.cmd.normal({ "]c", bang = true })
+						else
+							gitsigns.nav_hunk("next")
+						end
+					end)
+
+					map("n", "[c", function()
+						if vim.wo.diff then
+							vim.cmd.normal({ "[c", bang = true })
+						else
+							gitsigns.nav_hunk("prev")
+						end
+					end)
+					map("n", "<leader>hp", gitsigns.preview_hunk)
+					map("n", "<leader>hs", gitsigns.stage_hunk)
+				end,
+				preview_config = {
+					-- Options passed to nvim_open_win
+					border = "rounded",
+					style = "minimal",
+					relative = "cursor",
+					row = 0,
+					col = 1,
+				},
+			})
 		end,
 	},
 	{
