@@ -20,7 +20,14 @@
     };
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, nix-homebrew, homebrew-core, homebrew-cask, homebrew-bundle }: let
+  outputs = inputs@{ self
+	, nix-darwin
+	, nixpkgs
+	, nix-homebrew
+	, homebrew-core
+	, homebrew-cask
+	, homebrew-bundle
+      }: let
   in {
     darwinConfigurations."turbochardo" = nix-darwin.lib.darwinSystem {
       modules = [

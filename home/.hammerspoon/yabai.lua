@@ -1,40 +1,20 @@
-M = {}
+yabai = {}
 
-function M.FocusSpace(space)
-	local spaceAsStr = tostring(space)
-	local args = { "-m", "space", "--focus", spaceAsStr }
-	hs.task
-			.new("/usr/local/bin/yabai", function(_, stdOut, _)
-				print(stdOut)
-			end, args)
-			:start()
-			:waitUntilExit()
-			:terminationStatus()
-end
-
-function M.FocusWindow(direction)
-	local args = { "-m", "window", "--focus", direction }
-	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
-end
-
-function M.FocusSpace(space)
-	local spaceAsStr = tostring(space)
-	local args = { "-m", "space", "--focus", spaceAsStr }
-	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
-end
-
-function M.MoveWindow(space)
-	local spaceAsStr = tostring(space)
-	local args = { "-m", "window", "--space", spaceAsStr }
-	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
-end
-
-function M.SwapWindow(direction)
-	local args = { "-m", "window", "--swap", direction }
+local function toggleWindowAttribute(attr)
+	local args = { "-m", "window", "--toggle", attr }
 	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit()
 end
 
-function M.NextWindow()
+function yabai.MoveWindow(space)
+	local spaceAsStr = tostring(space)
+	local args = { "-m", "window", "--space", spaceAsStr }
+	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
+
+	local focusSpaceArgs = { "-m", "space", "--focus", spaceAsStr }
+	return hs.task.new("/usr/local/bin/yabai", nil, focusSpaceArgs):start():waitUntilExit():terminationStatus()
+end
+
+function yabai.NextWindow()
 	local query_args = { "-m", "query", "--spaces" }
 	local callbackFn = function(_, stdOut, _)
 		local spaces = hs.json.decode(stdOut)
@@ -59,48 +39,11 @@ function M.NextWindow()
 	hs.task.new("/usr/local/bin/yabai", callbackFn, query_args):start():waitUntilExit()
 end
 
-function M.ToggleZoom()
-	local query_args = { "-m", "query", "--spaces" }
-	local callbackFn = function(_, stdOut, _)
-		local spaces = hs.json.decode(stdOut)
-		local focusedSpace = hs.fnutils.find(spaces, function(space)
-			return space["has-focus"]
-		end)
-		local spaceIndexStr = tostring(focusedSpace["index"])
-		if focusedSpace["type"] == "stack" then
-			hs.task
-					.new("/usr/local/bin/yabai", nil, { "-m", "config", "--space", spaceIndexStr, "layout", "bsp" })
-					:start()
-					:waitUntilExit()
-		else
-			hs.task
-					.new("/usr/local/bin/yabai", nil, { "-m", "config", "--space", spaceIndexStr, "layout", "stack" })
-					:start()
-					:waitUntilExit()
-		end
-	end
-	hs.task.new("/usr/local/bin/yabai", callbackFn, query_args):start():waitUntilExit()
-end
-
-local function toggleWindowAttribute(attr)
-	local args = { "-m", "window", "--toggle", attr }
-	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit()
-end
-
-function M.ZoomFullscreen()
-	toggleWindowAttribute("zoom-fullscreen")
-end
-
-function M.ToggleNotes()
+function yabai.ToggleNotes()
 	toggleWindowAttribute("notes")
 end
 
-function M.TogglePip()
-	toggleWindowAttribute("sticky")
-	toggleWindowAttribute("pip")
-end
-
-function M.FocusNotesIfNotFocused()
+function yabai.FocusNotesIfNotFocused()
 	local query_args = { "-m", "query", "--windows" }
 	local callbackFn = function(_, stdOut, _)
 		local windows = hs.json.decode(stdOut)
@@ -115,7 +58,7 @@ function M.FocusNotesIfNotFocused()
 	hs.task.new("/usr/local/bin/yabai", callbackFn, query_args):start():waitUntilExit()
 end
 
-function M.CycleStackBsp()
+function yabai.CycleStackBsp()
 	local query_args = { "-m", "query", "--spaces" }
 	local callbackFn = function(_, stdOut, _)
 		local spaces = hs.json.decode(stdOut)
@@ -135,4 +78,59 @@ function M.CycleStackBsp()
 	hs.task.new("/usr/local/bin/yabai", callbackFn, query_args):start():waitUntilExit()
 end
 
-return M
+function yabai.FocusWindow(direction)
+	-- first try to focus in direction
+	local args = { "-m", "window", "--focus", direction }
+	local status = hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
+	if status == 0 then
+		return
+	end
+
+	-- if focus in direction failed, try to focus in direction on next space
+	if direction == "north" or direction == "south" then
+		return
+	elseif direction == "west" then
+		yabai.PrevSpace()
+	else
+		yabai.NextSpace()
+	end
+end
+
+function yabai.PrevSpace()
+	local args = { "-m", "space", "--focus", "prev" }
+	local status = hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
+	if status == 0 then
+		return
+	end
+
+	-- if focus previous space fails, go to last space
+	args = { "-m", "space", "--focus", "last" }
+	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit()
+end
+
+function yabai.NextSpace()
+	local args = { "-m", "space", "--focus", "next" }
+	local status = hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
+	if status == 0 then
+		return
+	end
+
+	-- if focus next space fails, go to first space
+	args = { "-m", "space", "--focus", "first" }
+	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit()
+end
+
+function yabai.SwapWindow(direction)
+	local args = { "-m", "window", "--swap", direction }
+	local status = hs.task
+			.new("/usr/local/bin/yabai", function(stderr, stdout, _)
+				print("stderr: " .. stderr)
+				print("stdout: " .. stdout)
+			end, args)
+			:start()
+			:waitUntilExit()
+			:terminationStatus()
+	return status
+end
+
+return yabai

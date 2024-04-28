@@ -1,10 +1,9 @@
-local kitty = require("kitty")
 local yabai = require("yabai")
 local timer = require("hs.timer")
 local popclick = require("hs.noises")
 local eventtap = require("hs.eventtap")
 local chrome = require("chrome")
--- local focus = require("focus")
+local kitty = require("kitty")
 
 local function newScroller(delay, tick)
 	return { delay = delay, tick = tick, timer = nil }
@@ -69,181 +68,60 @@ local function wrapped(fn, args)
 	return wrapped_fn
 end
 
-local function kittySock()
-	local lines = {}
-	for line in io.popen([[ls /tmp | grep mykitty]]):lines() do
-		table.insert(lines, line)
+local function setBinding(binding)
+	if binding.app then
+		hs.hotkey.bind(binding.mods, binding.key, wrapped(hs.application.launchOrFocus, binding.app))
+	elseif binding.fn then
+		hs.hotkey.bind(binding.mods, binding.key, binding.fn)
+	elseif binding.tab then
+		hs.hotkey.bind(binding.mods, binding.key, chrome.LaunchOrFocusTab(binding.tab))
+	elseif binding.url then
+		hs.hotkey.bind(binding.mods, binding.key, wrapped(hs.urlevent.openURL, binding.url))
 	end
-
-	if not lines or #lines == 0 then
-		print("Cannot find a kitty socket. Terminating.")
-		hs.application.launchOrFocus("Kitty")
-
-		lines = {}
-
-		-- while loop to wait for the lines to not be empty
-		while not lines or #lines == 0 do
-			for line in io.popen([[ls /tmp | grep mykitty]]):lines() do
-				table.insert(lines, line)
-			end
-		end
-	end
-
-	return "unix:/tmp/mykitty"
 end
 
-function KittyRun(runArgs)
-	local sock = kittySock()
-	if not sock then
-		return
-	end
+ALT = "alt"
+CMD = "cmd"
+CTRL = "ctrl"
+SHIFT = "shift"
 
-	local args = { "@", "--to", sock }
-	for _, arg in ipairs(runArgs) do
-		table.insert(args, arg)
-	end
+local bindings = {
+	{ mods = { ALT },            key = "H",     fn = wrapped(yabai.FocusWindow, "west") },
+	{ mods = { ALT },            key = "L",     fn = wrapped(yabai.FocusWindow, "east") },
+	{ mods = { ALT },            key = "J",     fn = wrapped(yabai.FocusWindow, "south") },
+	{ mods = { ALT },            key = "K",     fn = wrapped(yabai.FocusWindow, "north") },
+	{ mods = { ALT },            key = "N",     fn = yabai.NextWindow },
 
-	return hs.task
-			.new("/usr/local/bin/kitty", function(exitCode, stdOut, stdErr)
-				print("exitCode: ", exitCode, "stdOut:", stdOut, "stdErr:", stdErr)
-			end, function(exitCode, stdOut, stdErr)
-				print("exitCode: ", exitCode, "stdOut:", stdOut, "stdErr:", stdErr)
-				return true
-			end, args)
-			:start()
-			:waitUntilExit()
-			:terminationStatus() == 0
+	{ mods = { ALT },            key = "0",     app = "Kitty" },
+	{ mods = { ALT },            key = "1",     app = "Visual Studio Code" },
+	{ mods = { ALT },            key = "3",     app = "Google Chrome" },
+	{ mods = { ALT },            key = "6",     fn = hs.toggleConsole },
+	{ mods = { ALT },            key = "Z",     tab = "https://recurse.zulipchat.com/" },
+
+	{ mods = { ALT, SHIFT },     key = "L",     fn = wrapped(yabai.SwapWindow, "east") },
+	{ mods = { ALT, SHIFT },     key = "H",     fn = wrapped(yabai.SwapWindow, "west") },
+	{ mods = { ALT, SHIFT },     key = "J",     fn = wrapped(yabai.SwapWindow, "south") },
+	{ mods = { ALT, SHIFT },     key = "K",     fn = wrapped(yabai.SwapWindow, "north") },
+	{ mods = { ALT, SHIFT },     key = "space", fn = yabai.CycleStackBsp },
+
+	{ mods = { CMD, CTRL },      key = "R",     fn = hs.reload },
+	{ mods = { CMD, CTRL },      key = "F",     app = "Finder" },
+	{ mods = { CMD, CTRL },      key = "C",     app = "Fantastical" },
+	{ mods = { CMD, CTRL },      key = "P",     fn = popclickPlayPause },
+	{ mods = { CMD, CTRL },      key = "Z",     app = "zoom.us" },
+	{ mods = { CMD, CTRL },      key = "T",     tab = "https://rcverse.recurse.com/" },
+
+	{ mods = { CMD, ALT },       key = "left",  fn = yabai.PrevSpace },
+	{ mods = { CMD, ALT },       key = "right", fn = yabai.NextSpace },
+	{ mods = { CMD, ALT },       key = "space", url = "things:///add?when=today&list=Random&show-quick-entry=true" },
+
+	{ mods = { CMD, CTRL, ALT }, key = "C",     fn = chrome.GetTabRichLink },
+}
+hs.fnutils.each(bindings, setBinding)
+
+local function init()
+	popclickInit()
+	hs.alert.show("Config loaded")
 end
 
-function Launch(cwd, title, type, cmd, hold, extraArgs)
-	local args = { "launch" }
-
-	if #extraArgs > 0 then
-		for _, arg in ipairs(extraArgs) do
-			print(arg)
-			table.insert(args, arg)
-		end
-	end
-
-	if hold then
-		table.insert(args, "--hold")
-	end
-
-	if cwd then
-		table.insert(args, string.format("--cwd=%s", cwd))
-	else
-		table.insert(args, "--cwd=current")
-	end
-
-	if title then
-		table.insert(args, string.format("--title=%s", title))
-	end
-
-	if type then
-		table.insert(args, string.format("--type=%s", type))
-	else
-		table.insert(args, "--type=tab")
-	end
-
-	if cmd then
-		table.insert(args, "zsh")
-		table.insert(args, "--login")
-		table.insert(args, "-c")
-		table.insert(args, cmd)
-	end
-
-	KittyRun(args)
-end
-
--- ##################################################################
--- alt bindings
--- #################################################################
-for hotkey, appName in pairs({
-	["1"] = wrapped(yabai.FocusSpace, 1),
-	["2"] = wrapped(yabai.FocusSpace, 2),
-	["3"] = wrapped(yabai.FocusSpace, 3),
-	["4"] = wrapped(yabai.FocusSpace, 4),
-	["5"] = wrapped(yabai.FocusSpace, 5),
-	["6"] = wrapped(yabai.FocusSpace, 6),
-	["7"] = wrapped(yabai.FocusSpace, 7),
-	["8"] = wrapped(yabai.FocusSpace, 8),
-	["9"] = wrapped(yabai.FocusSpace, 9),
-	["0"] = wrapped(yabai.FocusSpace, 10),
-	["H"] = wrapped(yabai.FocusWindow, "west"),
-	["L"] = wrapped(yabai.FocusWindow, "east"),
-	["J"] = wrapped(yabai.FocusWindow, "south"),
-	["K"] = wrapped(yabai.FocusWindow, "north"),
-	["N"] = yabai.NextWindow,
-	["Z"] = chrome.LaunchOrFocusTab("https://recurse.zulipchat.com/"),
-}) do
-	hs.hotkey.bind("option", hotkey, appName)
-end
-
--- ##################################################################
--- alt + shift bindings
--- #################################################################
-for hotkey, lambda in pairs({
-	["1"] = wrapped(yabai.MoveWindow, 1),
-	["2"] = wrapped(yabai.MoveWindow, 2),
-	["3"] = wrapped(yabai.MoveWindow, 3),
-	["4"] = wrapped(yabai.MoveWindow, 4),
-	["5"] = wrapped(yabai.MoveWindow, 5),
-	["6"] = wrapped(yabai.MoveWindow, 6),
-	["7"] = wrapped(yabai.MoveWindow, 7),
-	["8"] = wrapped(yabai.MoveWindow, 8),
-	["9"] = wrapped(yabai.MoveWindow, 9),
-	["0"] = wrapped(yabai.MoveWindow, 10),
-	["H"] = wrapped(yabai.SwapWindow, "west"),
-	["L"] = wrapped(yabai.SwapWindow, "east"),
-	["J"] = wrapped(yabai.SwapWindow, "south"),
-	["K"] = wrapped(yabai.SwapWindow, "north"),
-	["space"] = yabai.CycleStackBsp,
-	["Z"] = yabai.ZoomFullscreen,
-	["N"] = yabai.ToggleNotes,
-	["C"] = hs.toggleConsole,
-	["P"] = yabai.TogglePip,
-
-	["T"] = function()
-		if not KittyRun({ "focus-window", "--match", 'title:"daily\\snote"' }) then
-			Launch(
-				"/Users/shardul/gdrive/notes",
-				"daily note",
-				"tab",
-				"today-note",
-				false,
-				{ "--match", "title:^notes$" }
-			)
-		end
-		yabai.FocusNotesIfNotFocused()
-	end,
-}) do
-	hs.hotkey.bind({ "option", "shift" }, hotkey, lambda)
-end
-
--- ##################################################################
--- cmd + ctrl bindings
--- #################################################################
-for hotkey, lambda in pairs({
-	R = function()
-		hs.reload()
-	end,
-	F = launchOrActivate("Finder"),
-	C = launchOrActivate("Fantastical"),
-	P = popclickPlayPause,
-	Z = launchOrActivate("zoom.us"),
-	T = chrome.LaunchOrFocusTab("https://rcverse.recurse.com/"),
-}) do
-	hs.hotkey.bind({ "cmd", "ctrl" }, hotkey, lambda)
-end
-
--- ##################################################################
--- Super (cmd + ctrl + alt) bindings
--- #################################################################
-for hotkey, lambda in pairs({
-	C = chrome.GetTabRichLink,
-}) do
-	hs.hotkey.bind({ "cmd", "ctrl", "alt" }, hotkey, lambda)
-end
-
-popclickInit()
-hs.alert.show("Config loaded")
+init()

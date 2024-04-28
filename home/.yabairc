@@ -4,31 +4,27 @@ sudo yabai --load-sa
 c() {
   yabai -m config "$@"
 }
-c layout stack
+c layout bsp
 
-yabai -m space 1 --label code
-yabai -m space 3 --label web
-yabai -m space 6 --label mail
-yabai -m space 8 --label messages
-yabai -m space 9 --label planning
-yabai -m space 10 --label terminal
+# yabai -m space 1 --label code
+# yabai -m space 3 --label web
+# yabai -m space 6 --label mail
+# yabai -m space 8 --label messages
+# yabai -m space 9 --label planning
+# yabai -m space 10 --label terminal
 
 # --------------------------------------------------------------
 # App Rules
 # --------------------------------------------------------------
-yabai -m rule --add app="^Fastmail$" space=mail
-yabai -m rule --add app="^Mail$" space=mail
-yabai -m rule --add app="^Messages$" space=messages
-yabai -m rule --add app="^Google Chrome$" space=web
-yabai -m rule --add app="^Safari$" space=web
-yabai -m rule --add app="^kitty$" space=terminal
-yabai -m rule --add app="^Code$" space=code
-yabai -m rule --add app="^Things" space=planning
-yabai -m rule --add app="^Fantastical" space=planning
-
-# --------------------------------------------------------------
-# Signals
-# --------------------------------------------------------------
+# yabai -m rule --add app="^Fastmail$" space=mail
+# yabai -m rule --add app="^Mail$" space=mail
+# yabai -m rule --add app="^Messages$" space=messages
+# yabai -m rule --add app="^Google Chrome$" space=web
+# yabai -m rule --add app="^Safari$" space=web
+# yabai -m rule --add app="^kitty$" space=terminal
+# yabai -m rule --add app="^Code$" space=code
+# yabai -m rule --add app="^Things" space=planning
+# yabai -m rule --add app="^Fantastical" space=planning
 
 # --------------------------------------------------------------
 # Notes window
@@ -40,6 +36,9 @@ yabai -m rule --add app="^kitty$" title="^notes$" scratchpad="notes" grid="20:20
 # --------------------------------------------------------------
 yabai -m rule --add app="^Raycast$" manage=off
 yabai -m rule --add app="^System Preferences$" manage=off
+yabai -m rule --add title="^Hammerspoon Console$" manage=off
+yabai -m rule --add title="^Hammerspoon Console$" manage=off
+
 
 # --------------------------------------------------------------
 # Config

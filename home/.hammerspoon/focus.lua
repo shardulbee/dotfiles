@@ -1,4 +1,4 @@
-M = {}
+kitty = {}
 
 local function readFocusStatus()
   local file = io.open("/tmp/focus-status", "r")
@@ -12,14 +12,14 @@ local function readFocusStatus()
   end
 end
 
-function M.IsBreaking()
+function kitty.IsBreaking()
   local focusStatus = readFocusStatus()
   return focusStatus == "focusing"
 end
 
-function M.IsFocusing()
+function kitty.IsFocusing()
   local focusStatus = readFocusStatus()
   return focusStatus == "breaking"
 end
 
-return M
+return kitty
