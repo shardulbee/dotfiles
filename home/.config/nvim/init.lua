@@ -27,7 +27,11 @@ require("lazy").setup({
 	"tpope/vim-repeat",
 	{
 		"tpope/vim-fugitive",
-		keys = { { "<leader>gs", "<cmd>Git<cr>", "n", { silent = true, noremap = true } } },
+		keys = {
+			{ "<leader>gs", "<cmd>Git<cr>", "n", { silent = true, noremap = true } },
+			{ "<leader>gp", "<cmd>Git p<cr>", "n", { silent = true, noremap = true } },
+			{ "<leader>gc", "<cmd>Git commit<cr>", "n", { silent = true, noremap = true } },
+		},
 	},
 	{
 		"nvim-treesitter/nvim-treesitter",
