@@ -5,20 +5,17 @@
   zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
   fzf = pkgs.fzf;
 in {
-  environment.pathsToLink = [ "/share/zsh" ];
-  nix = {
-    useDaemon = true;
-    nixPath = [
-      { nixpkgs = "${pkgs.path}"; }
-    ];
-  };
-  services.nix-daemon.enable = true;
-  nixpkgs.hostPlatform = "aarch64-darwin";
-  nix.settings.experimental-features = "nix-command flakes";
-  system.stateVersion = 4;
-  nixpkgs.config.allowUnfree = true;
 
-# {{{ programs
+  users.users.shardul = {
+    name = "shardul";
+    home = "/Users/shardul";
+    isHidden = false;
+    shell = pkgs.zsh;
+  };
+
+  # -------------------------------------------------------
+  # Programs/packages
+  # -------------------------------------------------------
   environment.systemPackages =
     [ pkgs.vim
       pkgs.git
@@ -35,33 +32,10 @@ in {
       pkgs.darwin.trash
       pkgs.kitty
       pkgs.hyperfine
-      pkgs.httpie
-      pkgs.rclone
       pkgs.tarsnap
-      pkgs.railway
       pkgs.jankyborders
       pkgs.direnv
-
-      pkgs.go
-      pkgs.ocamlformat
-      pkgs.ruby
-      pkgs.nodejs
-      pkgs.hugo
-      pkgs.cargo
-      pkgs.rustfmt
-      pkgs.clippy
-      pkgs.gopls
-      pkgs.stylua
-      pkgs.rust-analyzer
-      pkgs.sumneko-lua-language-server
-      pkgs.ocamlPackages.ocaml-lsp
-      pkgs.clang-tools
-      pkgs.rustc
-      pkgs.tree-sitter
-      pkgs.nodePackages.fixjson
-      pkgs.nodePackages.jsonlint
-      pkgs.rubyPackages.solargraph
-
+      pkgs.tree
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
       fzf
@@ -78,47 +52,7 @@ in {
       source ${fzf}/share/fzf/key-bindings.zsh
     '';
   };
-# }}}
 
-  # {{{ macos defaults
-
-  # use touch ID for sudo
-  security.pam.enableSudoTouchIdAuth = true;
-
-# {{{ keyboard
-  system.keyboard.enableKeyMapping = true;
-  system.defaults.NSGlobalDomain.InitialKeyRepeat = 15;
-  system.defaults.NSGlobalDomain.KeyRepeat = 1;
-  system.defaults.NSGlobalDomain.NSAutomaticCapitalizationEnabled = false;
-  system.defaults.NSGlobalDomain.NSAutomaticSpellingCorrectionEnabled = false;
-  system.defaults.NSGlobalDomain.NSDocumentSaveNewDocumentsToCloud = false;
-  system.defaults.NSGlobalDomain.NSNavPanelExpandedStateForSaveMode = true;
-  system.defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
-  system.defaults.NSGlobalDomain.AppleKeyboardUIMode = 3;
-  # system.keyboard.remapCapsLockToControl = true;
-  system.defaults.NSGlobalDomain."com.apple.keyboard.fnState" = false;
-  system.defaults.NSGlobalDomain."com.apple.mouse.tapBehavior" = 1;
-  system.defaults.NSGlobalDomain."com.apple.trackpad.trackpadCornerClickBehavior" = 1;
-# }}}
-
-# {{{ dock/finder/appearance
-  system.defaults.dock.mru-spaces = false;
-  system.defaults.dock.minimize-to-application = true;
-  system.defaults.dock.mineffect = "scale";
-  system.defaults.dock.launchanim = false;
-  system.defaults.dock.expose-animation-duration = 0.0;
-  system.defaults.dock.orientation = "bottom";
-  system.defaults.dock.show-recents = false;
-  system.defaults.dock.static-only = true;
-  system.defaults.finder.CreateDesktop = false;
-  system.defaults.finder.FXPreferredViewStyle = "Nlsv";
-  system.defaults.finder.ShowPathbar = true;
-  system.defaults.NSGlobalDomain.AppleInterfaceStyle = "Dark";
-  system.defaults.menuExtraClock.Show24Hour = true;
-# }}}
-  # }}}
-
-# {{{ homebrew
   homebrew = {
     enable = true;
     brews = [
@@ -156,18 +90,6 @@ in {
     };
     onActivation.cleanup = "uninstall";
   };
-# }}}
-
-  networking.hostName = "turbochardo";
-  networking.localHostName = "turbochardo";
-  networking.computerName = "turbochardo";
-
-  users.users.shardul = {
-    name = "shardul";
-    home = "/Users/shardul";
-    isHidden = false;
-    shell = pkgs.zsh;
-  };
   services = {
     karabiner-elements.enable = true;
     yabai = {
@@ -175,6 +97,63 @@ in {
       enableScriptingAddition = true;
     };
   };
+
+  # {{{ misc environment
+  environment.pathsToLink = [ "/share/zsh" ];
+  nix = {
+    useDaemon = true;
+    nixPath = [
+      { nixpkgs = "${pkgs.path}"; }
+    ];
+  };
+  services.nix-daemon.enable = true;
+  nixpkgs.hostPlatform = "aarch64-darwin";
+  nix.settings.experimental-features = "nix-command flakes";
+  system.stateVersion = 4;
+  nixpkgs.config.allowUnfree = true;
+
+  networking.hostName = "turbochardo";
+  networking.localHostName = "turbochardo";
+  networking.computerName = "turbochardo";
+  #}}}
+
+  #{{{ macos defaults
+  security.pam.enableSudoTouchIdAuth = true;
+
+  # ------------------------------------------------------------
+  # Keyboard
+  # ------------------------------------------------------------
+  system.keyboard.enableKeyMapping = true;
+  system.defaults.NSGlobalDomain.InitialKeyRepeat = 15;
+  system.defaults.NSGlobalDomain.KeyRepeat = 1;
+  system.defaults.NSGlobalDomain.NSAutomaticCapitalizationEnabled = false;
+  system.defaults.NSGlobalDomain.NSAutomaticSpellingCorrectionEnabled = false;
+  system.defaults.NSGlobalDomain.NSDocumentSaveNewDocumentsToCloud = false;
+  system.defaults.NSGlobalDomain.NSNavPanelExpandedStateForSaveMode = true;
+  system.defaults.NSGlobalDomain.ApplePressAndHoldEnabled = false;
+  system.defaults.NSGlobalDomain.AppleKeyboardUIMode = 3;
+  # system.keyboard.remapCapsLockToControl = true;
+  system.defaults.NSGlobalDomain."com.apple.keyboard.fnState" = false;
+  system.defaults.NSGlobalDomain."com.apple.mouse.tapBehavior" = 1;
+  system.defaults.NSGlobalDomain."com.apple.trackpad.trackpadCornerClickBehavior" = 1;
+
+  # ------------------------------------------------------------
+  # dock/finder/appearance
+  # ------------------------------------------------------------
+  system.defaults.dock.mru-spaces = false;
+  system.defaults.dock.minimize-to-application = true;
+  system.defaults.dock.mineffect = "scale";
+  system.defaults.dock.launchanim = false;
+  system.defaults.dock.expose-animation-duration = 0.0;
+  system.defaults.dock.orientation = "bottom";
+  system.defaults.dock.show-recents = false;
+  system.defaults.dock.static-only = true;
+  system.defaults.finder.CreateDesktop = false;
+  system.defaults.finder.FXPreferredViewStyle = "Nlsv";
+  system.defaults.finder.ShowPathbar = true;
+  system.defaults.NSGlobalDomain.AppleInterfaceStyle = "Dark";
+  system.defaults.menuExtraClock.Show24Hour = true;
+  # }}}
 
   system.activationScripts.postActivation.text = ''
     $DRY_RUN_CMD ln -sfn /run/current-system/sw/bin/* /usr/local/bin
