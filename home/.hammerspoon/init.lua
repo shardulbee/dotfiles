@@ -24,7 +24,6 @@ local function stopScroll(scroller)
 	end
 end
 
-Listener = nil
 local popclickListening = false
 local tssScrollDown = newScroller(0.02, -10)
 local function scrollHandler(evNum)
@@ -37,12 +36,9 @@ local function scrollHandler(evNum)
 	end
 end
 
-local function popclickInit()
-	popclickListening = false
-	-- local fn = wrap(scrollHandler)
-	local fn = scrollHandler
-	Listener = popclick.new(fn)
-end
+popclickListening = false
+local fn = scrollHandler
+Listener = popclick.new(fn)
 
 local function popclickPlayPause()
 	if not popclickListening then
@@ -55,15 +51,9 @@ local function popclickPlayPause()
 	popclickListening = not popclickListening
 end
 
-local function launchOrActivate(appName)
-	return function()
-		hs.application.launchOrFocus(appName)
-	end
-end
-
-local function wrapped(fn, args)
+local function wrapped(fnToWrap, args)
 	local wrapped_fn = function()
-		fn(args)
+		fnToWrap(args)
 	end
 	return wrapped_fn
 end

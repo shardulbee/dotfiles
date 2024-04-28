@@ -36,6 +36,8 @@ in {
       pkgs.jankyborders
       pkgs.direnv
       pkgs.tree
+      pkgs.nodejs
+      pkgs.tree-sitter
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
       fzf
@@ -91,7 +93,6 @@ in {
     onActivation.cleanup = "uninstall";
   };
   services = {
-    karabiner-elements.enable = true;
     yabai = {
       enable = true;
       enableScriptingAddition = true;

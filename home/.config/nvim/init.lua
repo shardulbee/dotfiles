@@ -1,42 +1,507 @@
 -- vim: fdm=marker fdl=0
+-- {{{
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+	vim.fn.system({
+		"git",
+		"clone",
+		"--filter=blob:none",
+		"https://github.com/folke/lazy.nvim.git",
+		"--branch=stable", -- latest stable release
+		lazypath,
+	})
+end
+vim.opt.rtp:prepend(lazypath)
+-- }}}
+require("lazy").setup({
+	{ "junegunn/vim-easy-align" },
+	{ "ziglang/zig.vim" },
+	{ "wakatime/vim-wakatime" },
+	{ "windwp/nvim-autopairs", event = "InsertEnter", config = true },
+	"tpope/vim-eunuch",
+	"tpope/vim-unimpaired",
+	"tpope/vim-surround",
+	"tpope/vim-sleuth",
+	"tpope/vim-rhubarb",
+	"tpope/vim-repeat",
+	{ "tpope/vim-dispatch", keys = { { "<leader>c", "<cmd>Make!<cr>", "n", { silent = true, noremap = true } } } },
+	{ "tpope/vim-fugitive", keys = { { "<leader>gs", "<cmd>Git<cr>", "n", { silent = true, noremap = true } } } },
+	{
+		"nvim-treesitter/nvim-treesitter",
+		lazy = false,
+		dependencies = {
+			{
+				"nvim-treesitter/nvim-treesitter-context",
+				opts = { enable = true },
+			},
+			"nvim-treesitter/nvim-treesitter-textobjects",
+		},
+		config = function()
+			require("nvim-treesitter.configs").setup({
+				ensure_installed = {
+					"ruby",
+					"python",
+					"rust",
+					"lua",
+					"ocaml",
+					"nix",
+					"zig",
+				},
+				auto_install = false,
+				disable = { "markdown" },
+				highlight = {
+					additional_vim_regex_highlighting = false,
+					enable = true,
+				},
+				indent = {
+					enable = true,
+					disable = { "ruby" },
+				},
+				endwise = {
+					enable = true,
+				},
+				textobjects = {
+					select = {
+						enable = true,
+						lookahead = true,
+
+						keymaps = {
+							["af"] = "@function.outer",
+							["if"] = "@function.inner",
+							["ac"] = "@class.outer",
+							["ic"] = {
+								query = "@class.inner",
+								desc = "Select inner part of a class region",
+							},
+						},
+					},
+				},
+			})
+		end,
+	},
+	{ "knubie/vim-kitty-navigator", build = "cp ./*.py ~/.config/kitty/" },
+	{
+		"ms-jpq/chadtree",
+		keys = {
+			{ "<leader>,", "<cmd>CHADopen<cr>", "n", { silent = true, noremap = true } },
+		},
+		config = function()
+			vim.g.chadtree_settings = {
+				["theme.text_colour_set"] = "nerdtree_syntax_dark",
+			}
+		end,
+	},
+	{
+		"RRethy/nvim-base16",
+		lazy = false,
+		config = function()
+			vim.cmd("colorscheme base16-default-dark")
+		end,
+	},
+	"RRethy/nvim-treesitter-endwise",
+
+	"airblade/vim-gitgutter",
+	"LnL7/vim-nix",
+	{
+		"lukas-reineke/indent-blankline.nvim",
+		main = "ibl",
+		opts = {
+			indent = { char = "▏" },
+			scope = {
+				show_start = false,
+				show_end = false,
+			},
+		},
+	},
+	{
+		"Wansmer/treesj",
+		dev = false,
+		keys = function()
+			local treesj = require("treesj")
+			return {
+				{ "gS", treesj.split, "n", { silent = true, noremap = true } },
+				{ "gJ", treesj.join, "n", { silent = true, noremap = true } },
+			}
+		end,
+		config = function()
+			local lang_utils = require("treesj.langs.utils")
+			local treesj = require("treesj")
+			treesj.setup({
+				max_join_length = 150,
+				langs = {
+					zig = {
+						InitList = lang_utils.set_preset_for_dict(),
+						SwitchExpr = lang_utils.set_preset_for_list({
+							join = {
+								no_format_with = { "line_comment" },
+							},
+						}),
+						FnCallArguments = lang_utils.set_preset_for_args(),
+						ParamDeclList = lang_utils.set_preset_for_args(),
+
+						Block = lang_utils.set_preset_for_statement({
+							join = {
+								no_format_with = { "line_comment" },
+								no_insert_if = {
+									lang_utils.helpers.contains({
+										"IfStatement",
+										"LabeledStatement",
+									}),
+								},
+							},
+							split = {
+								recursive = false,
+							},
+						}),
+					},
+				},
+			})
+		end,
+	},
+	{ "numToStr/Comment.nvim", opts = {}, lazy = false },
+	{
+		"zbirenbaum/copilot.lua",
+		event = "InsertEnter",
+		cmd = "Copilot",
+		opts = {
+			panel = { enabled = false },
+			suggestion = {
+				auto_trigger = true,
+				keymap = {
+					accept = "<c-l>",
+					next = "<c-j>",
+					prev = "<c-k>",
+					dismiss = "<c-e>",
+				},
+				filetype = {
+					markdown = false,
+				},
+			},
+		},
+	},
+	{
+		"vim-test/vim-test",
+		keys = {
+			{ "<leader>tf", "<cmd>TestFile<cr>", "n", { silent = true, noremap = true } },
+			{ "<leader>tn", "<cmd>TestNearest<cr>", "n", { silent = true, noremap = true } },
+		},
+		config = function()
+			vim.g["test#strategy"] = "kitty"
+		end,
+	},
+	{
+		"ibhagwan/fzf-lua",
+		keys = function()
+			local fzfLua = require("fzf-lua")
+
+			return {
+				{
+					"<C-t>",
+					function()
+						require("fzf-lua").files({
+							winopts = {
+								preview = {
+									default = "bat",
+									flip_columns = 140,
+									winopts = {
+										number = false,
+										relativenumber = false,
+									},
+								},
+							},
+							actions = {
+								["alt-d"] = function(selected)
+									-- delete all selected
+									for _, file in ipairs(selected) do
+										vim.fn.delete(file)
+									end
+								end,
+							},
+						})
+					end,
+					"n",
+					{ silent = true },
+				},
+				{ "<C-p>", fzfLua.commands, "n", { silent = true } },
+				{ "<leader>hh", fzfLua.help_tags, "n", { silent = true } },
+				{ "<leader>b", fzfLua.buffers, "n", { silent = true } },
+				{ "<leader>f", fzfLua.blines, "n", { silent = true } },
+				{ "<leader>F", fzfLua.live_grep_native, "n", { silent = true } },
+			}
+		end,
+		opts = {
+			grep = {
+				rg_opts = "--hidden --column --line-number --no-heading --color=always --smart-case --max-columns=4096 -e",
+			},
+			winopts = {
+				height = 0.95,
+				width = 0.95,
+				preview = {
+					flip_columns = 140,
+					winopts = {
+						number = false,
+						relativenumber = false,
+					},
+				},
+				fzf_opts = {
+					["--layout"] = "reverse-list",
+				},
+				previewers = {
+					bat = { theme = "base16-default-dark" },
+				},
+			},
+		},
+	},
+	{
+		"neovim/nvim-lspconfig",
+		dependencies = {
+			{
+				"hrsh7th/nvim-cmp",
+				"williamboman/mason.nvim",
+				"williamboman/mason-lspconfig.nvim",
+				"hrsh7th/cmp-nvim-lsp",
+				"hrsh7th/vim-vsnip",
+				"hrsh7th/cmp-vsnip",
+				"hrsh7th/cmp-buffer",
+				"hrsh7th/cmp-path",
+				"hrsh7th/cmp-cmdline",
+				"hrsh7th/cmp-nvim-lsp-signature-help",
+				"mhartington/formatter.nvim",
+				"jose-elias-alvarez/null-ls.nvim",
+				"nvim-lua/plenary.nvim",
+				"WhoIsSethDaniel/mason-tool-installer.nvim",
+				"lewis6991/gitsigns.nvim",
+			},
+		},
+		config = function()
+			-------------------------------------------------------------------------
+			-- UI
+			------------------------------------------------------------------------
+			vim.diagnostic.config({
+				virtual_text = true,
+				update_in_insert = true,
+				underline = false,
+				float = { border = "rounded" },
+			})
+			vim.cmd([[autocmd! ColorScheme * highlight NormalFloat guibg=#1f2335]])
+			vim.cmd([[autocmd! ColorScheme * highlight FloatBorder guifg=white guibg=#1f2335]])
+			local border = {
+				{ "🭽", "FloatBorder" },
+				{ "▔", "FloatBorder" },
+				{ "🭾", "FloatBorder" },
+				{ "▕", "FloatBorder" },
+				{ "🭿", "FloatBorder" },
+				{ "▁", "FloatBorder" },
+				{ "🭼", "FloatBorder" },
+				{ "▏", "FloatBorder" },
+			}
+			local handlers = {
+				["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = border }),
+				["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = border }),
+			}
+
+			-------------------------------------------------------------------------
+			-- Keymaps
+			-------------------------------------------------------------------------
+			local on_attach = function(_, bufnr)
+				local opts = { noremap = true, silent = true }
+				vim.api.nvim_buf_set_keymap(
+					bufnr,
+					"n",
+					",ca",
+					"<cmd>lua require('fzf-lua').lsp_code_actions()<CR>",
+					opts
+				)
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>r", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
+				vim.api.nvim_buf_set_keymap(bufnr, "i", "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
+
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
+			end
+
+			require("mason").setup()
+			require("mason-tool-installer").setup({
+				ensure_installed = {
+					"shfmt",
+					"shellcheck",
+
+					"rust-analyzer",
+					"rustfmt",
+
+					"jsonls",
+					"clangd",
+					"lua-language-server",
+					"zls",
+					"gopls",
+					"markdownlint",
+				},
+			})
+			require("mason-lspconfig").setup()
+			require("mason-lspconfig").setup_handlers({
+				function(server_name)
+					require("lspconfig")[server_name].setup({
+						handlers = handlers,
+						on_attach = on_attach,
+					})
+				end,
+			})
+
+			-------------------------------------------------------------------------
+			-- Completion
+			-------------------------------------------------------------------------
+			local cmp = require("cmp")
+			cmp.setup({
+				enabled = function()
+					if
+						require("cmp.config.context").in_treesitter_capture("comment") == true
+						or require("cmp.config.context").in_syntax_group("Comment")
+					then
+						return false
+					else
+						return true
+					end
+				end,
+				snippet = {
+					expand = function(args)
+						vim.fn["vsnip#anonymous"](args.body)
+					end,
+				},
+				window = {
+					completion = cmp.config.window.bordered(),
+					documentation = cmp.config.window.bordered(),
+				},
+				formatting = {
+					fields = { "menu", "abbr", "kind" },
+					format = function(entry, item)
+						local menu_icon = {
+							nvim_lsp = "λ",
+							buffer = "Ω",
+						}
+						item.menu = menu_icon[entry.source.name]
+						return item
+					end,
+				},
+				completion = {
+					completeopt = "menu,menuone,noinsert",
+				},
+				mapping = cmp.mapping.preset.insert({
+					["<Tab>"] = vim.schedule_wrap(function(fallback)
+						if cmp.visible() then
+							cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+						else
+							fallback()
+						end
+					end),
+					["<S-Tab>"] = cmp.mapping(function()
+						if cmp.visible() then
+							cmp.select_prev_item()
+						end
+					end, { "i", "s" }),
+					["<C-b>"] = cmp.mapping.scroll_docs(-4),
+					["<C-f>"] = cmp.mapping.scroll_docs(4),
+					["<C-e>"] = cmp.mapping.abort(),
+					["<CR>"] = cmp.mapping.confirm({
+						select = false,
+						behavior = cmp.ConfirmBehavior.Replace,
+					}),
+				}),
+				sources = {
+					{ name = "vsnip" },
+					{ name = "path" },
+					{ name = "nvim_lsp", keyword_length = 3 }, -- from language server
+					{ name = "nvim_lsp_signature_help" }, -- display function signatures with current parameter emphasized
+					{ name = "buffer", keyword_length = 2 }, -- source current buffer
+				},
+			})
+
+			-------------------------------------------------------------------------
+			-- Formatting / linting
+			-------------------------------------------------------------------------
+			local null_ls = require("null-ls")
+			local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+			require("gitsigns").setup()
+			null_ls.setup({
+				sources = {
+					null_ls.builtins.formatting.ocamlformat,
+					null_ls.builtins.formatting.fixjson,
+					null_ls.builtins.formatting.stylua,
+					null_ls.builtins.formatting.jq,
+					null_ls.builtins.formatting.rustfmt,
+					null_ls.builtins.formatting.shfmt,
+					null_ls.builtins.formatting.markdownlint,
+
+					null_ls.builtins.diagnostics.pylint,
+					null_ls.builtins.diagnostics.shellcheck,
+					null_ls.builtins.diagnostics.markdownlint,
+
+					null_ls.builtins.code_actions.gitsigns,
+				},
+				on_attach = function(client, bufnr)
+					if client.supports_method("textDocument/formatting") then
+						vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+						vim.api.nvim_create_autocmd("BufWritePre", {
+							group = augroup,
+							buffer = bufnr,
+							callback = function()
+								vim.lsp.buf.format()
+							end,
+						})
+					end
+				end,
+			})
+		end,
+	},
+}, {
+	dev = {
+		path = "~/src/github.com/shardulbee",
+	},
+	change_detection = {
+		enabled = true,
+		notify = true,
+	},
+})
+
 -- settings {{{
 vim.cmd([[filetype plugin indent on]])
 vim.cmd([[syntax on]])
-vim.opt.wrap = false                                                -- soft wrap off
-vim.opt.scrolloff = 10                                              -- scroll once the cursor is < 10 lines from the bottom
-vim.opt.showmatch = true                                            -- briefly jump to the matching bracket when the closing one is entered
-vim.opt.matchtime = 3                                               -- how long to jump to the matching bracket
-vim.opt.incsearch = true                                            -- search as you type
-vim.opt.tabstop = 2                                                 -- number of spaces to insert when tab is pressed (also controls the number of spaces used for < and >)
-vim.opt.shiftwidth = 2                                              -- number of spaces to use for autoindent
-vim.opt.expandtab = true                                            -- use spaces instead of tabs
-vim.opt.number = true                                               -- show line numbers
-vim.opt.relativenumber = true                                       -- show relative line numbers
-vim.opt.ruler = true                                                -- show the current line and column number
-vim.opt.laststatus = 3                                              -- always show the status line
-vim.opt.showmode = true                                             -- show what editing mode we are in
-vim.opt.undodir = "~/.config/nvim/undo"                             -- where to store undo files
-vim.opt.undolevels = 1000                                           -- number of undos to keep in memory
-vim.opt.backup = false                                              -- don't backup file when writing
-vim.opt.writebackup = false                                         -- don't backup file when writing
-vim.opt.swapfile = false                                            -- don't create swap files which allow you to recover from crashes even if you didn't save
-vim.opt.showcmd = false                                             -- don't show the command you are typing on the last line
-vim.opt.autowrite = true                                            -- automatically write the file when switching buffers
-vim.opt.hidden = true                                               -- allow switching buffers without saving
-vim.opt.clipboard = "unnamed"                                       -- use the system clipboard
-vim.opt.backspace = "indent,eol,start"                              -- allow backspacing over everything
-vim.opt.autoread = true                                             -- automatically reload files that have changed on disk
-vim.opt.linebreak = true                                            -- wrap long lines at characters in 'breakat'
-vim.opt.list = false                                                -- dont show tabs as >- and trailing spaces as .
-vim.opt.ttimeoutlen = 0                                             -- don't wait for key codes to complete
-vim.opt.ignorecase = true                                           -- ignore case when searching
-vim.opt.history = 10000                                             -- keep 10000 lines of history
-vim.opt.encoding = "utf-8"                                          -- use utf-8 encoding
-vim.opt.hlsearch = false                                            -- don't highlight search results
-vim.opt.background = "dark"                                         -- assume a dark background
+vim.opt.wrap = false -- soft wrap off
+vim.opt.scrolloff = 10 -- scroll once the cursor is < 10 lines from the bottom
+vim.opt.showmatch = true -- briefly jump to the matching bracket when the closing one is entered
+vim.opt.matchtime = 3 -- how long to jump to the matching bracket
+vim.opt.incsearch = true -- search as you type
+vim.opt.tabstop = 2 -- number of spaces to insert when tab is pressed (also controls the number of spaces used for < and >)
+vim.opt.shiftwidth = 2 -- number of spaces to use for autoindent
+vim.opt.expandtab = true -- use spaces instead of tabs
+vim.opt.number = true -- show line numbers
+vim.opt.relativenumber = true -- show relative line numbers
+vim.opt.ruler = true -- show the current line and column number
+vim.opt.laststatus = 3 -- always show the status line
+vim.opt.showmode = true -- show what editing mode we are in
+vim.opt.undodir = "~/.config/nvim/undo" -- where to store undo files
+vim.opt.undolevels = 1000 -- number of undos to keep in memory
+vim.opt.backup = false -- don't backup file when writing
+vim.opt.writebackup = false -- don't backup file when writing
+vim.opt.swapfile = false -- don't create swap files which allow you to recover from crashes even if you didn't save
+vim.opt.showcmd = false -- don't show the command you are typing on the last line
+vim.opt.autowrite = true -- automatically write the file when switching buffers
+vim.opt.hidden = true -- allow switching buffers without saving
+vim.opt.clipboard = "unnamed" -- use the system clipboard
+vim.opt.backspace = "indent,eol,start" -- allow backspacing over everything
+vim.opt.autoread = true -- automatically reload files that have changed on disk
+vim.opt.linebreak = true -- wrap long lines at characters in 'breakat'
+vim.opt.list = false -- dont show tabs as >- and trailing spaces as .
+vim.opt.ttimeoutlen = 0 -- don't wait for key codes to complete
+vim.opt.ignorecase = true -- ignore case when searching
+vim.opt.history = 10000 -- keep 10000 lines of history
+vim.opt.encoding = "utf-8" -- use utf-8 encoding
+vim.opt.hlsearch = false -- don't highlight search results
+vim.opt.background = "dark" -- assume a dark background
 vim.opt.grepprg = "rg --hidden --vimgrep --no-heading --smart-case" -- use ripgrep for :grep
-vim.opt.conceallevel = 2                                            -- mostly important for concealling markdown links and other formatting
-vim.opt.termguicolors = true                                        -- use gui colors in the terminal
+vim.opt.conceallevel = 2 -- mostly important for concealling markdown links and other formatting
+vim.opt.termguicolors = true -- use gui colors in the terminal
+vim.o.updatetime = 50
 -- }}}
 
 -- {{{ statusline
@@ -142,566 +607,5 @@ vim.api.nvim_create_autocmd({ "VimResized" }, {
 	callback = function()
 		vim.api.nvim_command("wincmd =")
 	end,
-})
--- }}}
-
--- {{{ plugins
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-	vim.fn.system({
-		"git",
-		"clone",
-		"--filter=blob:none",
-		"https://github.com/folke/lazy.nvim.git",
-		"--branch=stable", -- latest stable release
-		lazypath,
-	})
-end
-vim.opt.rtp:prepend(lazypath)
-
-require("lazy").setup({
-	{
-		"junegunn/vim-easy-align",
-	},
-	{ "ziglang/zig.vim" },
-	{ "wakatime/vim-wakatime" },
-	{
-		"mikesmithgh/kitty-scrollback.nvim",
-		enabled = true,
-		lazy = true,
-		cmd = { "KittyScrollbackGenerateKittens", "KittyScrollbackCheckHealth" },
-		event = { "User KittyScrollbackLaunch" },
-		-- version = '*', -- latest stable version, may have breaking changes if major version changed
-		-- version = '^4.0.0', -- pin major version, include fixes and features that do not have breaking changes
-		config = function()
-			require("kitty-scrollback").setup()
-		end,
-	},
-	{
-		"luk400/vim-jukit",
-		ft = { "json", "python" },
-	},
-	{
-		"windwp/nvim-autopairs",
-		event = "InsertEnter",
-		config = true,
-	},
-	"tpope/vim-eunuch",
-	"tpope/vim-unimpaired",
-	"tpope/vim-surround",
-	"tpope/vim-sleuth",
-	"tpope/vim-rhubarb",
-	"tpope/vim-repeat",
-	{
-		"tpope/vim-dispatch",
-		keys = {
-			{ "<leader>c", "<cmd>Make!<cr>", "n", { silent = true, noremap = true } },
-		},
-	},
-	{
-		"tpope/vim-fugitive",
-		keys = {
-			{ "<leader>gs", "<cmd>Git<cr>", "n", { silent = true, noremap = true } },
-		},
-	},
-	{
-		"nvim-treesitter/nvim-treesitter",
-		lazy = false,
-		dependencies = {
-			{
-				"nvim-treesitter/nvim-treesitter-context",
-				opts = { enable = true },
-			},
-			"nvim-treesitter/nvim-treesitter-textobjects",
-		},
-		config = function()
-			require("nvim-treesitter.configs").setup({
-				ensure_installed = {
-					"ruby",
-					"python",
-					"rust",
-					"lua",
-					"ocaml",
-					"nix",
-				},
-				auto_install = false,
-				disable = { "markdown" },
-				highlight = {
-					additional_vim_regex_highlighting = false,
-					enable = true,
-				},
-				indent = {
-					enable = true,
-					disable = { "ruby" },
-				},
-				endwise = {
-					enable = true,
-				},
-				textobjects = {
-					select = {
-						enable = true,
-						lookahead = true,
-
-						keymaps = {
-							["af"] = "@function.outer",
-							["if"] = "@function.inner",
-							["ac"] = "@class.outer",
-							["ic"] = {
-								query = "@class.inner",
-								desc = "Select inner part of a class region",
-							},
-						},
-					},
-				},
-			})
-		end,
-	},
-	{
-		"knubie/vim-kitty-navigator",
-		build = "cp ./*.py ~/.config/kitty/",
-	},
-
-	{
-		"ms-jpq/chadtree",
-		keys = {
-			{ "<leader>,", "<cmd>CHADopen<cr>", "n", { silent = true, noremap = true } },
-		},
-		config = function()
-			vim.g.chadtree_settings = {
-				["theme.text_colour_set"] = "nerdtree_syntax_dark",
-			}
-		end,
-	},
-	{
-		"RRethy/nvim-base16",
-		lazy = false,
-		config = function()
-			vim.cmd("colorscheme base16-default-dark")
-			-- vim.cmd('colorscheme base16-bright')
-		end,
-	},
-	"RRethy/nvim-treesitter-endwise",
-
-	"airblade/vim-gitgutter",
-	"LnL7/vim-nix",
-	{
-		"lukas-reineke/indent-blankline.nvim",
-		main = "ibl",
-		opts = {
-			indent = { char = "▏" },
-			scope = {
-				show_start = false,
-				show_end = false,
-			},
-		},
-	},
-	{
-		"Wansmer/treesj",
-		dev = false,
-		keys = function()
-			local treesj = require("treesj")
-			return {
-				{ "gS", treesj.split, "n", { silent = true, noremap = true } },
-				{ "gJ", treesj.join,  "n", { silent = true, noremap = true } },
-			}
-		end,
-		config = function()
-			local lang_utils = require("treesj.langs.utils")
-			local treesj = require("treesj")
-			treesj.setup({
-				max_join_length = 150,
-				langs = {
-					zig = {
-						InitList = lang_utils.set_preset_for_dict(),
-						SwitchExpr = lang_utils.set_preset_for_list({
-							join = {
-								no_format_with = { "line_comment" },
-							},
-						}),
-						FnCallArguments = lang_utils.set_preset_for_args(),
-						ParamDeclList = lang_utils.set_preset_for_args(),
-
-						Block = lang_utils.set_preset_for_statement({
-							join = {
-								no_format_with = { "line_comment" },
-								no_insert_if = {
-									lang_utils.helpers.contains({
-										"IfStatement",
-										"LabeledStatement",
-									}),
-								},
-							},
-							split = {
-								recursive = false,
-							},
-						}),
-					},
-				},
-			})
-		end,
-	},
-	{
-		"numToStr/Comment.nvim",
-		opts = {},
-		lazy = false,
-	},
-	{
-		"zbirenbaum/copilot.lua",
-		event = "InsertEnter",
-		cmd = "Copilot",
-		opts = {
-			server_opts_overrides = {
-				settings = {
-					advanced = {
-						listCount = 10,   -- #completions for panel
-						inlineSuggestCount = 5, -- #completions for getCompletions
-					},
-				},
-			},
-			debounce = 500,
-			suggestion = {
-				auto_trigger = true,
-				keymap = {
-					accept = "<c-l>",
-					next = "<c-j>",
-					prev = "<c-k>",
-					dismiss = "<c-e>",
-				},
-				filetype = {
-					markdown = false,
-				},
-				panel = {
-					enabled = false,
-					auto_refresh = false,
-					keymap = {
-						jump_prev = "[[",
-						jump_next = "]]",
-						accept = "<CR>",
-						refresh = "gr",
-						open = "<C-h>",
-					},
-				},
-			},
-		},
-	},
-	{
-		"vim-test/vim-test",
-		keys = {
-			{ "<leader>tf", "<cmd>TestFile<cr>",    "n", { silent = true, noremap = true } },
-			{ "<leader>tn", "<cmd>TestNearest<cr>", "n", { silent = true, noremap = true } },
-		},
-	},
-	{
-		"ibhagwan/fzf-lua",
-		keys = function()
-			local fzfLua = require("fzf-lua")
-
-			return {
-				{
-					"<C-t>",
-					function()
-						require("fzf-lua").files({
-							winopts = {
-								preview = {
-									default = "bat",
-									flip_columns = 140,
-									winopts = {
-										number = false,
-										relativenumber = false,
-									},
-								},
-							},
-							actions = {
-								["alt-d"] = function(selected)
-									-- delete all selected
-									for _, file in ipairs(selected) do
-										vim.fn.delete(file)
-									end
-								end,
-							},
-						})
-					end,
-					"n",
-					{ silent = true },
-				},
-				{ "<C-p>",      fzfLua.commands,         "n", { silent = true } },
-				{ "<leader>hh", fzfLua.help_tags,        "n", { silent = true } },
-				{ "<leader>b",  fzfLua.buffers,          "n", { silent = true } },
-				{ "<leader>f",  fzfLua.blines,           "n", { silent = true } },
-				{ "<leader>F",  fzfLua.live_grep_native, "n", { silent = true } },
-			}
-		end,
-		opts = {
-			grep = {
-				rg_opts = "--hidden --column --line-number --no-heading --color=always --smart-case --max-columns=4096 -e",
-			},
-			winopts = {
-				height = 0.95,
-				width = 0.95,
-				preview = {
-					flip_columns = 140,
-					winopts = {
-						number = false,
-						relativenumber = false,
-					},
-				},
-				fzf_opts = {
-					["--layout"] = "reverse-list",
-				},
-				previewers = {
-					bat = { theme = "base16-default-dark" },
-				},
-			},
-		},
-	},
-	{
-		"neovim/nvim-lspconfig",
-		dependencies = {
-			{
-				"hrsh7th/nvim-cmp",
-				dependencies = {
-					"neovim/nvim-lspconfig",
-					"hrsh7th/cmp-nvim-lsp",
-					"hrsh7th/cmp-buffer",
-					"hrsh7th/cmp-path",
-					"hrsh7th/cmp-cmdline",
-					{
-						"zbirenbaum/copilot-cmp",
-						config = function()
-							require("copilot_cmp").setup({
-								method = "getCompletionsCycling",
-							})
-						end,
-					},
-				},
-			},
-		},
-		config = function()
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			local nvim_lsp = require("lspconfig")
-
-			local cmp = require("cmp")
-			cmp.setup({
-				snippet = {
-					-- REQUIRED - you must specify a snippet engine
-					expand = function(args)
-						vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-					end,
-				},
-				mapping = cmp.mapping.preset.insert({
-					["<C-b>"] = cmp.mapping.scroll_docs(-4),
-					["<C-f>"] = cmp.mapping.scroll_docs(4),
-					["<C-Space>"] = cmp.mapping.complete(),
-					["<C-e>"] = cmp.mapping.abort(),
-					["<CR>"] = cmp.mapping.confirm({
-						select = false,
-						behavior = cmp.ConfirmBehavior.Replace,
-					}), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-				}),
-				sources = cmp.config.sources({
-					{ name = "copilot",  group_index = 2 },
-					{ name = "nvim_lsp", group_index = 2 },
-					{ name = "path",     group_index = 2 },
-					{ name = "vsnip",    group_index = 2 },
-				}, {
-					{ name = "buffer" },
-				}),
-			})
-
-			local on_attach = function(_, bufnr)
-				local function buf_set_keymap(...)
-					vim.api.nvim_buf_set_keymap(bufnr, ...)
-				end
-				local function buf_set_option(...)
-					vim.api.nvim_buf_set_option(bufnr, ...)
-				end
-
-				buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
-
-				local opts = { noremap = true, silent = true }
-				buf_set_keymap("n", ",ca", "<cmd>lua require('fzf-lua').lsp_code_actions()<CR>", opts)
-				buf_set_keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-				buf_set_keymap("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
-				buf_set_keymap("n", "<leader>r", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
-				buf_set_keymap("n", "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
-				buf_set_keymap("n", "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
-				buf_set_keymap(
-					"n",
-					"]d",
-					"<cmd>lua vim.diagnostic.goto_next({severity = vim.diagnostic.severity.ERROR})<CR>",
-					opts
-				)
-				buf_set_keymap(
-					"n",
-					"[d",
-					"<cmd>lua vim.diagnostic.goto_prev({severity = vim.diagnostic.severity.ERROR})<CR>",
-					opts
-				)
-			end
-
-			local function config_with_defaults(overrides)
-				local final = {
-					on_attach = on_attach,
-					capabilities = capabilities,
-				}
-				for k, v in pairs(overrides) do
-					final[k] = v
-				end
-
-				return final
-			end
-
-			local function merge_tables(t1, t2)
-				for k, v in pairs(t2) do
-					t1[k] = v
-				end
-				return t1
-			end
-
-			vim.cmd([[autocmd! ColorScheme * highlight NormalFloat guibg=#1f2335]])
-			vim.cmd([[autocmd! ColorScheme * highlight FloatBorder guifg=white guibg=#1f2335]])
-
-			local border = {
-				{ "🭽", "FloatBorder" },
-				{ "▔", "FloatBorder" },
-				{ "🭾", "FloatBorder" },
-				{ "▕", "FloatBorder" },
-				{ "🭿", "FloatBorder" },
-				{ "▁", "FloatBorder" },
-				{ "🭼", "FloatBorder" },
-				{ "▏", "FloatBorder" },
-			}
-
-			local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
-			function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
-				opts = opts or {}
-				opts.border = opts.border or border
-				return orig_util_open_floating_preview(contents, syntax, opts, ...)
-			end
-
-			local server_configs = {
-				rust_analyzer = config_with_defaults({
-					settings = {
-						["rust-analyzer"] = {
-							checkOnSave = {
-								command = "clippy",
-							},
-							diagnostics = {
-								disabled = { "inactive-code" },
-							},
-						},
-					},
-				}),
-				-- rnix = config_with_defaults({}),
-				gopls = config_with_defaults({}),
-				pylsp = config_with_defaults({}),
-				clangd = config_with_defaults({}),
-				ocamllsp = config_with_defaults({}),
-				solargraph = config_with_defaults({}),
-				zls = config_with_defaults({}),
-				lua_ls = config_with_defaults({
-					settings = {
-						Lua = {
-							telemetry = {
-								enable = false,
-							},
-							diagnostics = {
-								globals = { "vim", "hs" },
-							},
-						},
-					},
-				}),
-				sorbet = config_with_defaults({
-					cmd = { "bundle", "exec", "srb", "tc", "--lsp" },
-				}),
-			}
-			local cmp_capabilities = require("cmp_nvim_lsp").default_capabilities()
-			for server, server_config in pairs(server_configs) do
-				nvim_lsp[server].setup(merge_tables(server_config, cmp_capabilities))
-			end
-
-			vim.o.updatetime = 250
-			_G.LspDiagnosticsPopupHandler = function()
-				local current_cursor = vim.api.nvim_win_get_cursor(0)
-				local last_popup_cursor = vim.w.lsp_diagnostics_last_cursor or { nil, nil }
-
-				if not (current_cursor[1] == last_popup_cursor[1] and current_cursor[2] == last_popup_cursor[2]) then
-					vim.w.lsp_diagnostics_last_cursor = current_cursor
-					vim.diagnostic.open_float(
-						0,
-						{ scope = "cursor", focusable = false, severity = vim.diagnostic.severity.ERROR }
-					)
-				end
-			end
-
-			vim.api.nvim_create_augroup("POPUP", { clear = true })
-			vim.api.nvim_create_autocmd({ "CursorHold" }, {
-				group = "POPUP",
-				pattern = { "*" },
-				callback = _G.LspDiagnosticsPopupHandler,
-			})
-		end,
-	},
-	"junegunn/goyo.vim",
-	{
-		"jose-elias-alvarez/null-ls.nvim",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			{
-				"lewis6991/gitsigns.nvim",
-				config = function()
-					require("gitsigns").setup({
-						current_line_blame = false,
-						on_attach = function()
-							local gs = package.loaded.gitsigns
-							vim.keymap.set("n", "<leader>hs", gs.stage_hunk, { silent = true, noremap = true })
-							vim.keymap.set("n", "<leader>hu", gs.undo_stage_hunk, { silent = true, noremap = true })
-							vim.keymap.set("n", "<leader>hr", gs.reset_hunk, { silent = true, noremap = true })
-							vim.keymap.set("n", "<leader>hp", gs.preview_hunk, { silent = true, noremap = true })
-							vim.keymap.set("n", "<leader>gd", gs.diffthis, { silent = true, noremap = true })
-						end,
-					})
-				end,
-			},
-		},
-		config = function()
-			local null_ls = require("null-ls")
-			local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-			null_ls.setup({
-				sources = {
-					null_ls.builtins.formatting.ocamlformat,
-					null_ls.builtins.formatting.fixjson,
-					null_ls.builtins.formatting.stylua,
-					null_ls.builtins.formatting.jq,
-					null_ls.builtins.formatting.rustfmt,
-					null_ls.builtins.formatting.rustfmt,
-					null_ls.builtins.formatting.clang_format,
-					null_ls.builtins.code_actions.gitsigns,
-					null_ls.builtins.diagnostics.flake8,
-				},
-				on_attach = function(client, bufnr)
-					if client.supports_method("textDocument/formatting") then
-						vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-						vim.api.nvim_create_autocmd("BufWritePre", {
-							group = augroup,
-							buffer = bufnr,
-							callback = function()
-								vim.lsp.buf.format()
-							end,
-						})
-					end
-				end,
-			})
-		end,
-	},
-}, {
-	dev = {
-		path = "~/src/github.com/shardulbee",
-	},
-	change_detection = {
-		-- automatically check for config file changes and reload the ui
-		enabled = true,
-		notify = true, -- get a notification when changes are found
-	},
 })
 -- }}}
