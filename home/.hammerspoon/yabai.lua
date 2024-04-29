@@ -1,48 +1,45 @@
 Yabai = {}
 
-function Yabai.NextWindow()
-	local query_args = { "-m", "query", "--spaces" }
+function Yabai.QueryCurrentSpace()
+	local space = nil
+	local query_args = { "-m", "query", "--spaces", "--space", "mouse" }
 	local callbackFn = function(_, stdOut, _)
-		local spaces = hs.json.decode(stdOut)
-		local focusedSpace = hs.fnutils.find(spaces, function(space)
-			return space["has-focus"]
-		end)
-		local nextWindowStr = "next"
-		local firstWindowStr = "first"
-
-		if focusedSpace["type"] == "stack" then
-			nextWindowStr = "stack.next"
-			firstWindowStr = "stack.first"
-		end
-
-		local args = { "-m", "window", "--focus", nextWindowStr }
-		local success = hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus() == 0
-		if not success then
-			args = { "-m", "window", "--focus", firstWindowStr }
-			hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
-		end
+		space = hs.json.decode(stdOut)
 	end
 	hs.task.new("/usr/local/bin/yabai", callbackFn, query_args):start():waitUntilExit()
+	return space
+end
+
+function Yabai.NextWindow()
+	local space = Yabai.QueryCurrentSpace()
+
+	local nextWindowStr = "next"
+	local firstWindowStr = "first"
+
+	if space and space["type"] == "stack" then
+		nextWindowStr = "stack.next"
+		firstWindowStr = "stack.first"
+	end
+
+	local args = { "-m", "window", "--focus", nextWindowStr }
+	local success = hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus() == 0
+	if not success then
+		args = { "-m", "window", "--focus", firstWindowStr }
+		hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
+	end
 end
 
 function Yabai.CycleStackBsp()
-	local query_args = { "-m", "query", "--spaces" }
-	local callbackFn = function(_, stdOut, _)
-		local spaces = hs.json.decode(stdOut)
-		local focusedSpace = hs.fnutils.find(spaces, function(space)
-			return space["has-focus"]
-		end)
-		local spaceIndexStr = tostring(focusedSpace["index"])
-		local layout = "stack"
-		if focusedSpace["type"] == "stack" then
-			layout = "bsp"
-		end
-		hs.task
-			.new("/usr/local/bin/yabai", nil, { "-m", "config", "--space", spaceIndexStr, "layout", layout })
-			:start()
-			:waitUntilExit()
+	local focusedSpace = Yabai.QueryCurrentSpace()
+	local spaceIndexStr = tostring(focusedSpace["index"])
+	local layout = "stack"
+	if focusedSpace["type"] == "stack" then
+		layout = "bsp"
 	end
-	hs.task.new("/usr/local/bin/yabai", callbackFn, query_args):start():waitUntilExit()
+	hs.task
+		.new("/usr/local/bin/yabai", nil, { "-m", "config", "--space", spaceIndexStr, "layout", layout })
+		:start()
+		:waitUntilExit()
 end
 
 function Yabai.FocusWindow(direction)
