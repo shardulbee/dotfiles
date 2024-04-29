@@ -1,59 +1,12 @@
 local yabai = require("yabai")
-local timer = require("hs.timer")
-local popclick = require("hs.noises")
-local eventtap = require("hs.eventtap")
 local chrome = require("chrome")
 local kitty = require("kitty")
+local popclick = require("popclick")
 
-local function newScroller(delay, tick)
-	return { delay = delay, tick = tick, timer = nil }
-end
-
-local function startScroll(scroller)
-	if scroller.timer == nil then
-		scroller.timer = timer.doEvery(scroller.delay, function()
-			eventtap.scrollWheel({ 0, scroller.tick }, {}, "pixel")
-		end)
-	end
-end
-
-local function stopScroll(scroller)
-	if scroller.timer then
-		scroller.timer:stop()
-		scroller.timer = nil
-	end
-end
-
-local popclickListening = false
-local tssScrollDown = newScroller(0.02, -10)
-local function scrollHandler(evNum)
-	if evNum == 1 then
-		startScroll(tssScrollDown)
-	elseif evNum == 2 then
-		stopScroll(tssScrollDown)
-	elseif evNum == 3 then
-		eventtap.scrollWheel({ 0, 250 }, {}, "pixel")
-	end
-end
-
-popclickListening = false
-local fn = scrollHandler
-Listener = popclick.new(fn)
-
-local function popclickPlayPause()
-	if not popclickListening then
-		Listener:start()
-		hs.alert.show("Popclick listening.")
-	else
-		Listener:stop()
-		hs.alert.show("Popclick stopped listening.")
-	end
-	popclickListening = not popclickListening
-end
-
-local function wrapped(fnToWrap, args)
+local function wrapped(fnToWrap, ...)
+	local vararg = { ... }
 	local wrapped_fn = function()
-		fnToWrap(args)
+		fnToWrap(table.unpack(vararg))
 	end
 	return wrapped_fn
 end
@@ -76,45 +29,41 @@ CTRL = "ctrl"
 SHIFT = "shift"
 
 local bindings = {
-	{ mods = { ALT },            key = "H",     fn = wrapped(yabai.FocusWindow, "west") },
-	{ mods = { ALT },            key = "L",     fn = wrapped(yabai.FocusWindow, "east") },
-	{ mods = { ALT },            key = "J",     fn = wrapped(yabai.FocusWindow, "south") },
-	{ mods = { ALT },            key = "K",     fn = wrapped(yabai.FocusWindow, "north") },
-	{ mods = { ALT },            key = "N",     fn = yabai.NextWindow },
+	{ mods = { ALT }, key = "H", fn = wrapped(yabai.FocusWindow, "west") },
+	{ mods = { ALT }, key = "L", fn = wrapped(yabai.FocusWindow, "east") },
+	{ mods = { ALT }, key = "J", fn = wrapped(yabai.FocusWindow, "south") },
+	{ mods = { ALT }, key = "K", fn = wrapped(yabai.FocusWindow, "north") },
+	{ mods = { ALT }, key = "N", fn = yabai.NextWindow },
 
-	{ mods = { ALT },            key = "0",     app = "Kitty" },
-	{ mods = { ALT },            key = "1",     app = "Visual Studio Code" },
-	{ mods = { ALT },            key = "3",     app = "Google Chrome" },
-	{ mods = { ALT },            key = "6",     fn = hs.toggleConsole },
-	{ mods = { ALT },            key = "Z",     tab = "https://recurse.zulipchat.com/" },
+	{ mods = { ALT }, key = "0", app = "Kitty" },
+	{ mods = { ALT }, key = "1", app = "Visual Studio Code" },
+	{ mods = { ALT }, key = "3", app = "Google Chrome" },
+	{ mods = { ALT }, key = "6", fn = hs.toggleConsole },
+	{ mods = { ALT }, key = "Z", tab = "https://recurse.zulipchat.com/" },
 
-	{ mods = { ALT, SHIFT },     key = "L",     fn = wrapped(yabai.SwapWindow, "east") },
-	{ mods = { ALT, SHIFT },     key = "H",     fn = wrapped(yabai.SwapWindow, "west") },
-	{ mods = { ALT, SHIFT },     key = "J",     fn = wrapped(yabai.SwapWindow, "south") },
-	{ mods = { ALT, SHIFT },     key = "K",     fn = wrapped(yabai.SwapWindow, "north") },
-	{ mods = { ALT, SHIFT },     key = "space", fn = yabai.CycleStackBsp },
+	{ mods = { ALT, SHIFT }, key = "L", fn = wrapped(yabai.SwapWindow, "east") },
+	{ mods = { ALT, SHIFT }, key = "H", fn = wrapped(yabai.SwapWindow, "west") },
+	{ mods = { ALT, SHIFT }, key = "J", fn = wrapped(yabai.SwapWindow, "south") },
+	{ mods = { ALT, SHIFT }, key = "K", fn = wrapped(yabai.SwapWindow, "north") },
+	{ mods = { ALT, SHIFT }, key = "space", fn = yabai.CycleStackBsp },
 
-	{ mods = { CMD, CTRL },      key = "R",     fn = hs.reload },
-	{ mods = { CMD, CTRL },      key = "F",     app = "Finder" },
-	{ mods = { CMD, CTRL },      key = "C",     app = "Fantastical" },
-	{ mods = { CMD, CTRL },      key = "P",     fn = popclickPlayPause },
-	{ mods = { CMD, CTRL },      key = "Z",     app = "zoom.us" },
-	{ mods = { CMD, CTRL },      key = "T",     tab = "https://rcverse.recurse.com/" },
-	{ mods = { CMD, CTRL },      key = "N",     fn = wrapped(kitty.FocusWindowOrTab, "notes") },
-	{ mods = { CMD, CTRL },      key = "N",     fn = wrapped(kitty.FocusWindowOrTab, "dotfiles") },
-	{ mods = { CMD, CTRL },      key = "O",     fn = wrapped(kitty.RunScript, "change-repo") },
-	{ mods = { CMD, CTRL },      key = "T",     fn = wrapped(kitty.TodayNote) },
+	{ mods = { CMD, CTRL }, key = "R", fn = hs.reload },
+	{ mods = { CMD, CTRL }, key = "F", app = "Finder" },
+	{ mods = { CMD, CTRL }, key = "C", app = "Fantastical" },
+	{ mods = { CMD, CTRL }, key = "P", fn = popclick.Toggle },
+	{ mods = { CMD, CTRL }, key = "Z", app = "zoom.us" },
+	{ mods = { CMD, CTRL }, key = "T", tab = "https://rcverse.recurse.com/" },
+	{ mods = { CMD, CTRL }, key = "N", fn = wrapped(kitty.FocusWindowOrTab, "notes") },
+	{ mods = { CMD, CTRL }, key = "D", fn = wrapped(kitty.FocusWindowOrTab, "dotfiles") },
+	{ mods = { CMD, CTRL }, key = "O", fn = wrapped(kitty.RunScript, "change-repo") },
+	{ mods = { CMD, CTRL }, key = "T", fn = wrapped(kitty.TodayNote) },
 
-	{ mods = { CMD, ALT },       key = "left",  fn = yabai.PrevSpace },
-	{ mods = { CMD, ALT },       key = "right", fn = yabai.NextSpace },
-	{ mods = { CMD, ALT },       key = "space", url = "things:///add?when=today&list=Random&show-quick-entry=true" },
+	{ mods = { CMD, ALT }, key = "left", fn = yabai.PrevSpace },
+	{ mods = { CMD, ALT }, key = "right", fn = yabai.NextSpace },
+	{ mods = { CMD, ALT }, key = "space", url = "things:///add?when=today&list=Random&show-quick-entry=true" },
 
-	{ mods = { CMD, CTRL, ALT }, key = "C",     fn = chrome.GetTabRichLink },
+	{ mods = { CMD, CTRL, ALT }, key = "C", fn = chrome.GetTabRichLink },
 }
 hs.fnutils.each(bindings, setBinding)
 
-local function init()
-	hs.alert.show("Config loaded")
-end
-
-init()
+hs.alert.show("Config loaded")

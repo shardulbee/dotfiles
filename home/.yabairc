@@ -45,7 +45,9 @@ yabai -m rule --add title="^Hammerspoon Console$" manage=off
 # --------------------------------------------------------------
 c mouse_follows_focus on
 c focus_follows_mouse autoraise
-c window_opacity off
+c window_opacity on
+c active_window_opacity 1.0
+c normal_window_opacity 0.95
 c top_padding 12
 c bottom_padding 12
 c left_padding 12

@@ -28,8 +28,8 @@ require("lazy").setup({
 	{
 		"tpope/vim-fugitive",
 		keys = {
-			{ "<leader>gs", "<cmd>Git<cr>",        "n", { silent = true, noremap = true } },
-			{ "<leader>gp", "<cmd>Git p<cr>",      "n", { silent = true, noremap = true } },
+			{ "<leader>gs", "<cmd>Git<cr>", "n", { silent = true, noremap = true } },
+			{ "<leader>gp", "<cmd>Git p<cr>", "n", { silent = true, noremap = true } },
 			{ "<leader>gc", "<cmd>Git commit<cr>", "n", { silent = true, noremap = true } },
 		},
 	},
@@ -81,7 +81,7 @@ require("lazy").setup({
 			local treesj = require("treesj")
 			return {
 				{ "gS", treesj.split, "n", { silent = true, noremap = true } },
-				{ "gJ", treesj.join,  "n", { silent = true, noremap = true } },
+				{ "gJ", treesj.join, "n", { silent = true, noremap = true } },
 			}
 		end,
 		config = function()
@@ -119,7 +119,7 @@ require("lazy").setup({
 			})
 		end,
 	},
-	{ "numToStr/Comment.nvim",      opts = {},                           lazy = false },
+	{ "numToStr/Comment.nvim", opts = {}, lazy = false },
 	{
 		"zbirenbaum/copilot.lua",
 		event = "InsertEnter",
@@ -143,7 +143,7 @@ require("lazy").setup({
 	{
 		"vim-test/vim-test",
 		keys = {
-			{ "<leader>tf", "<cmd>TestFile<cr>",    "n", { silent = true, noremap = true } },
+			{ "<leader>tf", "<cmd>TestFile<cr>", "n", { silent = true, noremap = true } },
 			{ "<leader>tn", "<cmd>TestNearest<cr>", "n", { silent = true, noremap = true } },
 		},
 		config = function()
@@ -238,43 +238,39 @@ require("lazy").setup({
 -- settings {{{
 vim.cmd([[filetype plugin indent on]])
 vim.cmd([[syntax on]])
-vim.opt.wrap = false                                                -- soft wrap off
-vim.opt.scrolloff = 10                                              -- scroll once the cursor is < 10 lines from the bottom
-vim.opt.showmatch = true                                            -- briefly jump to the matching bracket when the closing one is entered
-vim.opt.matchtime = 3                                               -- how long to jump to the matching bracket
-vim.opt.incsearch = true                                            -- search as you type
-vim.opt.tabstop = 2                                                 -- number of spaces to insert when tab is pressed (also controls the number of spaces used for < and >)
-vim.opt.shiftwidth = 2                                              -- number of spaces to use for autoindent
-vim.opt.expandtab = true                                            -- use spaces instead of tabs
-vim.opt.number = true                                               -- show line numbers
-vim.opt.relativenumber = true                                       -- show relative line numbers
-vim.opt.ruler = true                                                -- show the current line and column number
-vim.opt.laststatus = 3                                              -- always show the status line
-vim.opt.showmode = true                                             -- show what editing mode we are in
-vim.opt.undodir = "~/.config/nvim/undo"                             -- where to store undo files
-vim.opt.undolevels = 1000                                           -- number of undos to keep in memory
-vim.opt.backup = false                                              -- don't backup file when writing
-vim.opt.writebackup = false                                         -- don't backup file when writing
-vim.opt.swapfile = false                                            -- don't create swap files which allow you to recover from crashes even if you didn't save
-vim.opt.showcmd = false                                             -- don't show the command you are typing on the last line
-vim.opt.autowrite = true                                            -- automatically write the file when switching buffers
-vim.opt.hidden = true                                               -- allow switching buffers without saving
-vim.opt.clipboard = "unnamed"                                       -- use the system clipboard
-vim.opt.backspace = "indent,eol,start"                              -- allow backspacing over everything
-vim.opt.smartindent = true                                          -- autoindent based on the previous line
-vim.opt.autoread = true                                             -- automatically reload files that have changed on disk
-vim.opt.linebreak = true                                            -- wrap long lines at characters in 'breakat'
-vim.opt.list = false                                                -- dont show tabs as >- and trailing spaces as .
-vim.opt.ttimeoutlen = 0                                             -- don't wait for key codes to complete
-vim.opt.ignorecase = true                                           -- ignore case when searching
-vim.opt.history = 10000                                             -- keep 10000 lines of history
-vim.opt.encoding = "utf-8"                                          -- use utf-8 encoding
-vim.opt.hlsearch = false                                            -- don't highlight search results
-vim.opt.background = "dark"                                         -- assume a dark background
-vim.opt.grepprg = "rg --hidden --vimgrep --no-heading --smart-case" -- use ripgrep for :grep
-vim.opt.conceallevel = 2                                            -- mostly important for concealling markdown links and other formatting
-vim.opt.termguicolors = true                                        -- use gui colors in the terminal
-vim.o.updatetime = 50
+vim.opt.wrap = false -- soft wrap off
+vim.opt.scrolloff = 10 -- scroll once the cursor is < 10 lines from the bottom
+vim.opt.showmatch = true -- briefly jump to the matching bracket when the closing one is entered
+vim.opt.matchtime = 3 -- how long to jump to the matching bracket
+vim.opt.tabstop = 2 -- number of spaces to insert when tab is pressed (also controls the number of spaces used for < and >)
+vim.opt.shiftwidth = 2 -- number of spaces to use for autoindent
+vim.opt.expandtab = true -- use spaces instead of tabs
+vim.opt.number = true -- show line numbers
+vim.opt.relativenumber = true -- show relative line numbers
+vim.opt.ruler = true -- show the current line and column number
+vim.opt.laststatus = 3 -- always show the status line
+vim.opt.showmode = true -- show what editing mode we are in
+vim.opt.undodir = "~/.config/nvim/undo" -- where to store undo files
+vim.opt.undolevels = 1000 -- number of undos to keep in memory
+vim.opt.backup = false -- don't backup file when writing
+vim.opt.writebackup = false -- don't backup file when writing
+vim.opt.swapfile = false -- don't create swap files which allow you to recover from crashes even if you didn't save
+vim.opt.showcmd = false -- don't show the command you are typing on the last line
+vim.opt.autowrite = true -- automatically write the file when switching buffers
+vim.opt.hidden = true -- allow switching buffers without saving
+vim.opt.clipboard = "unnamed" -- use the system clipboard
+vim.opt.backspace = "indent,eol,start" -- allow backspacing over everything
+vim.opt.smartindent = true -- autoindent based on the previous line
+vim.opt.autoread = true -- automatically reload files that have changed on disk
+vim.opt.linebreak = true -- wrap long lines at characters in 'breakat'
+vim.opt.ttimeoutlen = 0 -- don't wait for key codes to complete
+vim.opt.ignorecase = true -- ignore case when searching
+vim.opt.history = 10000
+vim.opt.encoding = "utf-8"
+vim.opt.hlsearch = false -- don't highlight search results
+vim.opt.incsearch = true -- search as you type
+vim.opt.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
+vim.opt.termguicolors = true
 -- }}}
 
 -- {{{ statusline
@@ -337,33 +333,10 @@ vim.opt.statusline = " %{mode()} | %f%m%=%{v:lua.workspace_diagnostics_status()}
 
 -- keymaps {{{
 vim.api.nvim_set_keymap("n", "<space>", ":", { noremap = true })
-vim.api.nvim_set_keymap("i", "jk", "<esc>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("n", "<leader>d", ":bd!<cr>", { noremap = true, silent = true })
-
-function WrappedMovement(movement)
-	return function()
-		if vim.o.wrap then
-			return "g" .. movement
-		else
-			return movement
-		end
-	end
-end
-
-vim.keymap.set("o", "j", WrappedMovement("j"), { expr = true, remap = false, silent = true })
-vim.keymap.set("o", "k", WrappedMovement("k"), { expr = true, remap = false, silent = true })
-vim.keymap.set("o", "0", WrappedMovement("0"), { expr = true, remap = false, silent = true })
-vim.keymap.set("o", "^", WrappedMovement("^"), { expr = true, remap = false, silent = true })
-vim.keymap.set("o", "$", WrappedMovement("$"), { expr = true, remap = false, silent = true })
-vim.keymap.set("n", "j", WrappedMovement("j"), { expr = true, remap = false, silent = true })
-vim.keymap.set("n", "k", WrappedMovement("k"), { expr = true, remap = false, silent = true })
-vim.keymap.set("n", "0", WrappedMovement("0"), { expr = true, remap = false, silent = true })
-vim.keymap.set("n", "^", WrappedMovement("^"), { expr = true, remap = false, silent = true })
-vim.keymap.set("n", "$", WrappedMovement("$"), { expr = true, remap = false, silent = true })
 -- }}}
 
 -- autocmds {{{
--- trim trailing whitespace on save
 vim.api.nvim_create_augroup("TRIM_WHITESPACE", { clear = true })
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 	group = "TRIM_WHITESPACE",
@@ -371,7 +344,6 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 	command = [[%s/\s\+$//e]],
 })
 
--- equalize all split panes when resizing the terminal window
 vim.api.nvim_create_augroup("RESIZE_NVIM", { clear = true })
 vim.api.nvim_create_autocmd({ "VimResized" }, {
 	group = "RESIZE_NVIM",

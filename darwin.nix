@@ -98,15 +98,10 @@ in {
   };
   fonts.fontDir.enable = true;
   fonts.fonts = with pkgs; [
-       inconsolata-nerdfont
-       recursive
-       (nerdfonts.override { fonts = [
-         "FiraCode"
-         "JetBrainsMono"
-         "IBMPlexMono"
-         "CascadiaCode"
-         "DejaVuSansMono"
-       ]; })
+    recursive
+    (nerdfonts.override {
+      fonts = [ "IBMPlexMono" ];
+    })
   ];
 
   # {{{ misc environment
