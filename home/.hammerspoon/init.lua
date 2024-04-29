@@ -29,16 +29,27 @@ CTRL = "ctrl"
 SHIFT = "shift"
 
 local bindings = {
+	-- { mods = { ALT }, key = "0", app = "Kitty" },
+	-- { mods = { ALT }, key = "1", app = "Visual Studio Code" },
+	-- { mods = { ALT }, key = "3", app = "Google Chrome" },
+
 	{ mods = { ALT }, key = "H", fn = wrapped(yabai.FocusWindow, "west") },
 	{ mods = { ALT }, key = "L", fn = wrapped(yabai.FocusWindow, "east") },
 	{ mods = { ALT }, key = "J", fn = wrapped(yabai.FocusWindow, "south") },
 	{ mods = { ALT }, key = "K", fn = wrapped(yabai.FocusWindow, "north") },
 	{ mods = { ALT }, key = "N", fn = yabai.NextWindow },
 
-	{ mods = { ALT }, key = "0", app = "Kitty" },
-	{ mods = { ALT }, key = "1", app = "Visual Studio Code" },
-	{ mods = { ALT }, key = "3", app = "Google Chrome" },
-	{ mods = { ALT }, key = "6", fn = hs.toggleConsole },
+	{ mods = { ALT }, key = "1", fn = wrapped(yabai.FocusSpace, 1) },
+	{ mods = { ALT }, key = "2", fn = wrapped(yabai.FocusSpace, 2) },
+	{ mods = { ALT }, key = "3", fn = wrapped(yabai.FocusSpace, 3) },
+	{ mods = { ALT }, key = "4", fn = wrapped(yabai.FocusSpace, 4) },
+	{ mods = { ALT }, key = "5", fn = wrapped(yabai.FocusSpace, 5) },
+	{ mods = { ALT }, key = "6", fn = wrapped(yabai.FocusSpace, 6) },
+	{ mods = { ALT }, key = "7", fn = wrapped(yabai.FocusSpace, 7) },
+	{ mods = { ALT }, key = "8", fn = wrapped(yabai.FocusSpace, 8) },
+	{ mods = { ALT }, key = "9", fn = wrapped(yabai.FocusSpace, 9) },
+	{ mods = { ALT }, key = "0", fn = wrapped(yabai.FocusSpace, 10) },
+	{ mods = { ALT }, key = "C", fn = hs.toggleConsole },
 	{ mods = { ALT }, key = "Z", tab = "https://recurse.zulipchat.com/" },
 
 	{ mods = { ALT, SHIFT }, key = "L", fn = wrapped(yabai.SwapWindow, "east") },

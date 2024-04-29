@@ -1,17 +1,19 @@
+#!/usr/bin/env sh
+
 yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 sudo yabai --load-sa
 
 c() {
-  yabai -m config "$@"
+	yabai -m config "$@"
 }
 c layout bsp
 
-# yabai -m space 1 --label code
-# yabai -m space 3 --label web
+yabai -m space 1 --label code
+yabai -m space 3 --label web
 # yabai -m space 6 --label mail
 # yabai -m space 8 --label messages
 # yabai -m space 9 --label planning
-# yabai -m space 10 --label terminal
+yabai -m space 10 --label terminal
 
 # --------------------------------------------------------------
 # App Rules
@@ -19,26 +21,23 @@ c layout bsp
 # yabai -m rule --add app="^Fastmail$" space=mail
 # yabai -m rule --add app="^Mail$" space=mail
 # yabai -m rule --add app="^Messages$" space=messages
-# yabai -m rule --add app="^Google Chrome$" space=web
+yabai -m rule --add app="^Google Chrome$" space=web
 # yabai -m rule --add app="^Safari$" space=web
-# yabai -m rule --add app="^kitty$" space=terminal
-# yabai -m rule --add app="^Code$" space=code
+yabai -m rule --add app="^kitty$" space=terminal
+yabai -m rule --add app="^Code$" space=code
 # yabai -m rule --add app="^Things" space=planning
 # yabai -m rule --add app="^Fantastical" space=planning
-
-# --------------------------------------------------------------
-# Notes window
-# --------------------------------------------------------------
-yabai -m rule --add app="^kitty$" title="^notes$" scratchpad="notes" grid="20:20:1:1:18:18"
 
 # --------------------------------------------------------------
 # Unmanaged apps
 # --------------------------------------------------------------
 yabai -m rule --add app="^Raycast$" manage=off
 yabai -m rule --add app="^System Preferences$" manage=off
-yabai -m rule --add title="^Hammerspoon Console$" manage=off
-yabai -m rule --add title="^Hammerspoon Console$" manage=off
 
+# --------------------------------------------------------------
+# Signals
+# --------------------------------------------------------------
+yabai -m signal --add event=window_created action="yabai -m window \$(yabai -m query --windows | jq '. | sort_by(.id)[-1].id') --focus"
 
 # --------------------------------------------------------------
 # Config
@@ -53,7 +52,7 @@ c bottom_padding 12
 c left_padding 12
 c right_padding 12
 c window_gap 6
-c insert_feedback_color        0xff0000dd
+c insert_feedback_color 0xff0000dd
 
 # --------------------------------------------------------------
 # Border config
@@ -66,7 +65,7 @@ options=(
 	inactive_color=0xff000000
 )
 
-pgrep borders | xargs kill -9 > /dev/null
+pgrep borders | xargs kill -9 >/dev/null
 borders "${options[@]}" &
 
 # --------------------------------------------------------------

@@ -79,4 +79,9 @@ function Yabai.SwapWindow(direction)
 	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
 end
 
+function Yabai.FocusSpace(index)
+	local args = { "-m", "space", "--focus", tostring(index) }
+	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
+end
+
 return Yabai
