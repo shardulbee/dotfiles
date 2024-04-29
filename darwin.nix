@@ -96,6 +96,18 @@ in {
       enableScriptingAddition = true;
     };
   };
+  fonts.fontDir.enable = true;
+  fonts.fonts = with pkgs; [
+       inconsolata-nerdfont
+       recursive
+       (nerdfonts.override { fonts = [
+         "FiraCode"
+         "JetBrainsMono"
+         "IBMPlexMono"
+         "CascadiaCode"
+         "DejaVuSansMono"
+       ]; })
+  ];
 
   # {{{ misc environment
   environment.pathsToLink = [ "/share/zsh" ];
