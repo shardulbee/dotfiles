@@ -19,6 +19,7 @@ in {
   environment.systemPackages =
     [ pkgs.vim
       pkgs.git
+      pkgs.git-lfs
       pkgs.fd
       pkgs.jq
       pkgs.bat

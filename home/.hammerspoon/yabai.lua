@@ -31,6 +31,9 @@ end
 
 function Yabai.CycleStackBsp()
 	local focusedSpace = Yabai.QueryCurrentSpace()
+	if not focusedSpace then
+		return
+	end
 	local spaceIndexStr = tostring(focusedSpace["index"])
 	local layout = "stack"
 	if focusedSpace["type"] == "stack" then
@@ -44,7 +47,7 @@ end
 
 function Yabai.FocusWindow(direction)
 	local args = { "-m", "window", "--focus", direction }
-	local status = hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
+	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
 end
 
 function Yabai.PrevSpace()
@@ -79,6 +82,18 @@ end
 function Yabai.FocusSpace(index)
 	local args = { "-m", "space", "--focus", tostring(index) }
 	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit():terminationStatus()
+end
+
+function Yabai.MoveWindowToSpace(index)
+	local args = { "-m", "window", "--space", tostring(index) }
+	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit()
+
+	Yabai.FocusSpace(index)
+end
+
+function Yabai.ToggleFloat()
+	local args = { "-m", "window", "--toggle", "float", "--grid", "4:4:1:1:2:2" }
+	hs.task.new("/usr/local/bin/yabai", nil, args):start():waitUntilExit()
 end
 
 return Yabai
