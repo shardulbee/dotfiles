@@ -134,25 +134,6 @@ function fzf-repo-widget {
 zle -N fzf-repo-widget
 bindkey ^F fzf-repo-widget
 
-function create-repo {
-  local repo_name=$1
-
-  if [[ -z "$repo_name" ]]; then
-    echo "Usage: create-repo <repo-name>"
-    return 1
-  fi
-
-  local repo_path="$HOME/src/github.com/shardulbee/$repo_name"
-
-  # Create local git repository
-  mkdir -p "$repo_path"
-  cd "$repo_path"
-  git init
-
-  # Create public GitHub repository using gh tool
-  gh repo create "$repo_name" --private --remote=origin --source=.
-}
-
 function cheat() { curl cheat.sh/"$1" }
 
 # https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072

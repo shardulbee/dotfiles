@@ -4,6 +4,27 @@
   zsh-autosuggestions = pkgs.zsh-autosuggestions;
   zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
   fzf = pkgs.fzf;
+  neovimConfig = pkgs.neovimUtils.makeNeovimConfig {
+    extraLuaPackages = p: [ p.magick ];
+    extraPython3Packages = p:
+      with p; [
+        pynvim
+        jupyter-client
+        ipython
+        pillow
+      ];
+    withNodeJs = true;
+    withRuby = true;
+    withPython3 = true;
+    wrapRc = false;
+  };
+  fullConfig = (neovimConfig // {
+    wrapperArgs = pkgs.lib.escapeShellArgs neovimConfig.wrapperArgs;
+  });
+  neovim-custom = pkgs.wrapNeovimUnstable
+    (pkgs.neovim-unwrapped.overrideAttrs (oldAttrs: {
+      buildInputs = oldAttrs.buildInputs ++ [ pkgs.tree-sitter ];
+    })) fullConfig;
 in {
 
   users.users.shardul = {
@@ -27,9 +48,9 @@ in {
       pkgs.neofetch
       pkgs.wget
       pkgs._1password
+      neovim-custom
       pkgs.stow
       pkgs.ripgrep
-      pkgs.neovim
       pkgs.darwin.trash
       pkgs.kitty
       pkgs.hyperfine
@@ -38,7 +59,7 @@ in {
       pkgs.direnv
       pkgs.tree
       pkgs.nodejs
-      pkgs.tree-sitter
+      pkgs.imagemagick
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
       fzf
@@ -82,6 +103,7 @@ in {
       "google-drive"
       "fantastical"
       "visual-studio-code"
+      "anki"
     ];
     masApps = {
       "Things 3" = 904280696;

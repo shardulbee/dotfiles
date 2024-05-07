@@ -7,3 +7,6 @@ vendor/
 *.o
 .vscode
 .direnv
+.venv
+venv
+.git

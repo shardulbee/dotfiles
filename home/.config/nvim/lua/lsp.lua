@@ -24,11 +24,28 @@ local handlers = {
 -------------------------------------------------------------------------
 -- Keymaps
 -------------------------------------------------------------------------
-local on_attach = function(_, bufnr)
+local on_attach = function(client, bufnr)
+	if client.name == "ruff_lsp" then
+		client.server_capabilities.hoverProvider = false
+	end
+
+	if client.supports_method("textDocument/formatting") then
+		local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+		vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+		vim.api.nvim_create_autocmd("BufWritePre", {
+			group = augroup,
+			buffer = bufnr,
+			callback = function()
+				vim.lsp.buf.format()
+			end,
+		})
+	end
+
 	local opts = { noremap = true, silent = true }
+
 	vim.api.nvim_buf_set_keymap(bufnr, "n", ",ca", "<cmd>lua require('fzf-lua').lsp_code_actions()<CR>", opts)
 	vim.api.nvim_buf_set_keymap(bufnr, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-	vim.api.nvim_buf_set_keymap(bufnr, "n", "H", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
+	vim.api.nvim_buf_set_keymap(bufnr, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
 	vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>r", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
 	vim.api.nvim_buf_set_keymap(bufnr, "i", "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
 
@@ -41,16 +58,13 @@ require("mason-tool-installer").setup({
 	ensure_installed = {
 		"shfmt",
 		"shellcheck",
-
 		"rust-analyzer",
-		"rustfmt",
-
 		"jsonls",
 		"clangd",
 		"lua-language-server",
 		"zls",
 		"gopls",
-		"markdownlint",
+		"stylua",
 	},
 })
 require("mason-lspconfig").setup()
@@ -59,6 +73,32 @@ require("mason-lspconfig").setup_handlers({
 		require("lspconfig")[server_name].setup({
 			handlers = handlers,
 			on_attach = on_attach,
+		})
+	end,
+	["ruff-lsp"] = function()
+		require("lspconfig").ruff_lsp.setup({
+			handlers = handlers,
+			on_attach = on_attach,
+			init_options = {
+				settings = {
+					args = { "--extendedIgnore=F722" },
+				},
+			},
+		})
+	end,
+	["pylsp"] = function()
+		require("lspconfig").pylsp.setup({
+			on_attach = on_attach,
+			settings = {
+				plugins = {
+					ruff = {
+						extendIgnore = { "F722" }, -- where to ignore stuff globally
+						ignore = { "F722" }, -- where to ignore stuff globally
+						format = { "I" },
+						lineLength = 120,
+					},
+				},
+			},
 		})
 	end,
 })

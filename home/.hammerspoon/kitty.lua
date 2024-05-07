@@ -35,12 +35,12 @@ function Kitty.Run(runArgs)
 	end
 
 	return hs.task
-		.new("/usr/local/bin/kitty", function(exitCode, stdOut, stdErr)
-			print("exitCode: ", exitCode, "stdOut:", stdOut, "stdErr:", stdErr)
-		end, args)
-		:start()
-		:waitUntilExit()
-		:terminationStatus() == 0
+			.new("/usr/local/bin/kitty", function(exitCode, stdOut, stdErr)
+				print("exitCode: ", exitCode, "stdOut:", stdOut, "stdErr:", stdErr)
+			end, args)
+			:start()
+			:waitUntilExit()
+			:terminationStatus() == 0
 end
 
 function Kitty.FocusWindowOrTab(title)
@@ -48,9 +48,11 @@ function Kitty.FocusWindowOrTab(title)
 		return false
 	end
 	if Kitty.Run({ "focus-tab", "--match", string.format("title:%s", title) }) then
+		hs.application.launchOrFocus("kitty")
 		return true
 	end
 	if Kitty.Run({ "focus-window", "--match", string.format("title:%s", title) }) then
+		hs.application.launchOrFocus("kitty")
 		return true
 	end
 	return false

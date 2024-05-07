@@ -62,3 +62,7 @@ cmp.setup({
 		{ name = "buffer", keyword_length = 2 }, -- source current buffer
 	},
 })
+
+cmp.setup.filetype("markdown", {
+	sources = cmp.config.sources({}, {}),
+})
