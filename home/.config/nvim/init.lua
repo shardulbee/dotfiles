@@ -37,69 +37,10 @@ require("lazy").setup({
 		end,
 	},
 	{
-		"GCBallesteros/jupytext.nvim",
-		dependencies = {
-			{
-				"GCBallesteros/vim-textobj-hydrogen",
-				dependencies = {
-					"kana/vim-textobj-user",
-				},
-			},
-		},
-		config = true,
-	},
-	{
-		"3rd/image.nvim",
-		config = function()
-			require("image").setup({
-				backend = "kitty", -- whatever backend you would like to use
-				max_width = 100,
-				max_height = 30,
-				max_height_window_percentage = math.huge,
-				max_width_window_percentage = math.huge,
-				window_overlap_clear_enabled = true, -- toggles images when windows are overlapped
-				window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
-			})
-		end,
-	},
-	{
-		"benlubas/molten-nvim",
-		version = "^1.0.0", -- use version <2.0.0 to avoid breaking changes
-		build = ":UpdateRemotePlugins",
-		config = function()
-			vim.g.molten_image_provider = "image.nvim"
-			vim.keymap.set(
-				"v",
-				"<localleader>r",
-				":<C-u>MoltenEvaluateVisual<CR>gv",
-				{ silent = true, desc = "evaluate visual selection" }
-			)
-			vim.keymap.set(
-				"n",
-				"<localleader>e",
-				":MoltenEvaluateOperator<CR>",
-				{ silent = true, desc = "run operator selection" }
-			)
-			vim.keymap.set("n", "<localleader>rl", ":MoltenEvaluateLine<CR>", { silent = true, desc = "evaluate line" })
-			vim.keymap.set(
-				"n",
-				"<localleader>rr",
-				":MoltenReevaluateCell<CR>",
-				{ silent = true, desc = "re-evaluate cell" }
-			)
-			vim.keymap.set(
-				"v",
-				"<localleader>r",
-				":<C-u>MoltenEvaluateVisual<CR>gv",
-				{ silent = true, desc = "evaluate visual selection" }
-			)
-		end,
-	},
-	{
 		"tpope/vim-fugitive",
 		keys = {
-			{ "<leader>gs", "<cmd>Git<cr>",        "n", { silent = true, noremap = true } },
-			{ "<leader>gp", "<cmd>Git p<cr>",      "n", { silent = true, noremap = true } },
+			{ "<leader>gs", "<cmd>Git<cr>", "n", { silent = true, noremap = true } },
+			{ "<leader>gp", "<cmd>Git p<cr>", "n", { silent = true, noremap = true } },
 			{ "<leader>gc", "<cmd>Git commit<cr>", "n", { silent = true, noremap = true } },
 		},
 	},
@@ -151,7 +92,7 @@ require("lazy").setup({
 			local treesj = require("treesj")
 			return {
 				{ "gS", treesj.split, "n", { silent = true, noremap = true } },
-				{ "gJ", treesj.join,  "n", { silent = true, noremap = true } },
+				{ "gJ", treesj.join, "n", { silent = true, noremap = true } },
 			}
 		end,
 		config = function()
@@ -189,7 +130,7 @@ require("lazy").setup({
 			})
 		end,
 	},
-	{ "numToStr/Comment.nvim",      opts = {},                           lazy = false },
+	{ "numToStr/Comment.nvim", opts = {}, lazy = false },
 	{
 		"zbirenbaum/copilot.lua",
 		event = "InsertEnter",
@@ -213,7 +154,7 @@ require("lazy").setup({
 	{
 		"vim-test/vim-test",
 		keys = {
-			{ "<leader>tf", "<cmd>TestFile<cr>",    "n", { silent = true, noremap = true } },
+			{ "<leader>tf", "<cmd>TestFile<cr>", "n", { silent = true, noremap = true } },
 			{ "<leader>tn", "<cmd>TestNearest<cr>", "n", { silent = true, noremap = true } },
 		},
 		config = function()
@@ -309,33 +250,33 @@ require("lazy").setup({
 -- settings {{{
 vim.cmd([[filetype plugin indent on]])
 vim.cmd([[syntax on]])
-vim.opt.wrap = false                    -- soft wrap off
-vim.opt.scrolloff = 10                  -- scroll once the cursor is < 10 lines from the bottom
-vim.opt.showmatch = true                -- briefly jump to the matching bracket when the closing one is entered
-vim.opt.matchtime = 3                   -- how long to jump to the matching bracket
-vim.opt.tabstop = 2                     -- number of spaces to insert when tab is pressed (also controls the number of spaces used for < and >)
-vim.opt.shiftwidth = 2                  -- number of spaces to use for autoindent
-vim.opt.expandtab = true                -- use spaces instead of tabs
-vim.opt.number = true                   -- show line numbers
-vim.opt.relativenumber = true           -- show relative line numbers
-vim.opt.ruler = true                    -- show the current line and column number
-vim.opt.laststatus = 3                  -- always show the status line
-vim.opt.showmode = true                 -- show what editing mode we are in
+vim.opt.wrap = false -- soft wrap off
+vim.opt.scrolloff = 10 -- scroll once the cursor is < 10 lines from the bottom
+vim.opt.showmatch = true -- briefly jump to the matching bracket when the closing one is entered
+vim.opt.matchtime = 3 -- how long to jump to the matching bracket
+vim.opt.tabstop = 2 -- number of spaces to insert when tab is pressed (also controls the number of spaces used for < and >)
+vim.opt.shiftwidth = 2 -- number of spaces to use for autoindent
+vim.opt.expandtab = true -- use spaces instead of tabs
+vim.opt.number = true -- show line numbers
+vim.opt.relativenumber = true -- show relative line numbers
+vim.opt.ruler = true -- show the current line and column number
+vim.opt.laststatus = 3 -- always show the status line
+vim.opt.showmode = true -- show what editing mode we are in
 vim.opt.undodir = "~/.config/nvim/undo" -- where to store undo files
-vim.opt.undolevels = 1000               -- number of undos to keep in memory
-vim.opt.backup = false                  -- don't backup file when writing
-vim.opt.writebackup = false             -- don't backup file when writing
-vim.opt.swapfile = false                -- don't create swap files which allow you to recover from crashes even if you didn't save
-vim.opt.showcmd = false                 -- don't show the command you are typing on the last line
-vim.opt.autowrite = true                -- automatically write the file when switching buffers
-vim.opt.hidden = true                   -- allow switching buffers without saving
-vim.opt.clipboard = "unnamed"           -- use the system clipboard
-vim.opt.backspace = "indent,eol,start"  -- allow backspacing over everything
-vim.opt.smartindent = true              -- autoindent based on the previous line
-vim.opt.autoread = true                 -- automatically reload files that have changed on disk
-vim.opt.linebreak = true                -- wrap long lines at characters in 'breakat'
-vim.opt.ttimeoutlen = 0                 -- don't wait for key codes to complete
-vim.opt.ignorecase = true               -- ignore case when searching
+vim.opt.undolevels = 1000 -- number of undos to keep in memory
+vim.opt.backup = false -- don't backup file when writing
+vim.opt.writebackup = false -- don't backup file when writing
+vim.opt.swapfile = false -- don't create swap files which allow you to recover from crashes even if you didn't save
+vim.opt.showcmd = false -- don't show the command you are typing on the last line
+vim.opt.autowrite = true -- automatically write the file when switching buffers
+vim.opt.hidden = true -- allow switching buffers without saving
+vim.opt.clipboard = "unnamed" -- use the system clipboard
+vim.opt.backspace = "indent,eol,start" -- allow backspacing over everything
+vim.opt.smartindent = true -- autoindent based on the previous line
+vim.opt.autoread = true -- automatically reload files that have changed on disk
+vim.opt.linebreak = true -- wrap long lines at characters in 'breakat'
+vim.opt.ttimeoutlen = 0 -- don't wait for key codes to complete
+vim.opt.ignorecase = true -- ignore case when searching
 vim.opt.history = 10000
 vim.opt.encoding = "utf-8"
 vim.opt.hlsearch = false -- don't highlight search results
@@ -406,26 +347,24 @@ vim.opt.statusline = " %{mode()} | %f%m%=%{v:lua.workspace_diagnostics_status()}
 vim.api.nvim_set_keymap("n", "<space>", ":", { noremap = true })
 vim.api.nvim_set_keymap("n", "<leader>d", ":bd!<cr>", { noremap = true, silent = true })
 
-function ScreenMovement(mode, movement)
-	return function()
-		if vim.opt.wrap then
-			vim.api.nvim_feedkeys("g" .. movement, "mode", false)
-		else
-			vim.api.nvim_feedkeys(movement, mode, true)
-		end
+function ScreenMovement(movement)
+	if vim.wo.wrap then
+		return "g" .. movement
+	else
+		return movement
 	end
 end
 
-vim.keymap.set("o", "j", ScreenMovement("o", "j"), { noremap = true, silent = true })
-vim.keymap.set("o", "k", ScreenMovement("o", "k"), { noremap = true, silent = true })
-vim.keymap.set("o", "0", ScreenMovement("o", "0"), { noremap = true, silent = true })
-vim.keymap.set("o", "^", ScreenMovement("o", "^"), { noremap = true, silent = true })
-vim.keymap.set("o", "$", ScreenMovement("o", "$"), { noremap = true, silent = true })
-vim.keymap.set("n", "j", ScreenMovement("n", "j"), { noremap = true, silent = true })
-vim.keymap.set("n", "k", ScreenMovement("n", "k"), { noremap = true, silent = true })
-vim.keymap.set("n", "0", ScreenMovement("n", "0"), { noremap = true, silent = true })
-vim.keymap.set("n", "^", ScreenMovement("n", "^"), { noremap = true, silent = true })
-vim.keymap.set("n", "$", ScreenMovement("n", "$"), { noremap = true, silent = true })
+vim.api.nvim_set_keymap("o", "j", 'v:lua.ScreenMovement("j")', { silent = true, expr = true })
+vim.api.nvim_set_keymap("o", "k", 'v:lua.ScreenMovement("k")', { silent = true, expr = true })
+vim.api.nvim_set_keymap("o", "0", 'v:lua.ScreenMovement("0")', { silent = true, expr = true })
+vim.api.nvim_set_keymap("o", "^", 'v:lua.ScreenMovement("^")', { silent = true, expr = true })
+vim.api.nvim_set_keymap("o", "$", 'v:lua.ScreenMovement("$")', { silent = true, expr = true })
+vim.api.nvim_set_keymap("n", "j", 'v:lua.ScreenMovement("j")', { silent = true, expr = true })
+vim.api.nvim_set_keymap("n", "k", 'v:lua.ScreenMovement("k")', { silent = true, expr = true })
+vim.api.nvim_set_keymap("n", "0", 'v:lua.ScreenMovement("0")', { silent = true, expr = true })
+vim.api.nvim_set_keymap("n", "^", 'v:lua.ScreenMovement("^")', { silent = true, expr = true })
+vim.api.nvim_set_keymap("n", "$", 'v:lua.ScreenMovement("$")', { silent = true, expr = true })
 -- }}}
 
 -- autocmds {{{

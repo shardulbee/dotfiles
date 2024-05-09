@@ -6,7 +6,7 @@ sudo yabai --load-sa
 c() {
 	yabai -m config "$@"
 }
-c layout bsp
+c layout float
 
 yabai -m space 1 --label code
 yabai -m space 3 --label web

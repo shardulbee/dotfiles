@@ -115,8 +115,8 @@ in {
   };
   services = {
     yabai = {
-      enable = true;
-      enableScriptingAddition = true;
+      enable = false;
+      enableScriptingAddition = false;
     };
   };
   fonts.fontDir.enable = true;

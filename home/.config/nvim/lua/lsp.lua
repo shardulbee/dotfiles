@@ -29,7 +29,7 @@ local on_attach = function(client, bufnr)
 		client.server_capabilities.hoverProvider = false
 	end
 
-	if client.supports_method("textDocument/formatting") then
+	if client.supports_method("textDocument/formatting") and client.name ~= "pylsp" then
 		local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 		vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
 		vim.api.nvim_create_autocmd("BufWritePre", {
@@ -75,28 +75,31 @@ require("mason-lspconfig").setup_handlers({
 			on_attach = on_attach,
 		})
 	end,
-	["ruff-lsp"] = function()
+	["ruff_lsp"] = function()
 		require("lspconfig").ruff_lsp.setup({
 			handlers = handlers,
 			on_attach = on_attach,
 			init_options = {
 				settings = {
-					args = { "--extendedIgnore=F722" },
+					args = {
+						"--extend-ignore=F722",
+						"--line-length=120",
+					},
 				},
 			},
 		})
 	end,
 	["pylsp"] = function()
 		require("lspconfig").pylsp.setup({
+			handlers = handlers,
 			on_attach = on_attach,
-			settings = {
+			init_options = {
 				plugins = {
-					ruff = {
-						extendIgnore = { "F722" }, -- where to ignore stuff globally
-						ignore = { "F722" }, -- where to ignore stuff globally
-						format = { "I" },
-						lineLength = 120,
-					},
+					pyflakes = { enabled = false },
+					mccabe = { enabled = false },
+					pycodestyle = { enabled = false },
+					yapf = { enabled = false },
+					autopep8 = { enabled = false },
 				},
 			},
 		})
