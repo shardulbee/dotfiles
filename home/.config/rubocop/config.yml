@@ -1,8 +1,0 @@
-Style/Documentation:
-  Enabled: false
-Metrics/MethodLength:
-  Enabled: false
-Style/FrozenStringLiteralComment:
-  Enabled: false # Ruby >3 has this by default so let's just forget about it
-Style/WordArray:
-  Enabled: false

@@ -58,8 +58,9 @@ in {
       pkgs.jankyborders
       pkgs.direnv
       pkgs.tree
-      pkgs.nodejs
-      pkgs.imagemagick
+      pkgs.google-cloud-sdk
+      pkgs.mutagen
+      pkgs.markdown-anki-decks
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
       fzf
@@ -82,6 +83,7 @@ in {
     brews = [
       "mas"
       "opam"
+      "gnu-time"
     ];
     casks = [
       "1password"
@@ -104,6 +106,10 @@ in {
       "fantastical"
       "visual-studio-code"
       "anki"
+      "zed"
+      "whatsapp"
+      "clion"
+      "opal-composer"
     ];
     masApps = {
       "Things 3" = 904280696;

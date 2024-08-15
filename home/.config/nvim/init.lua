@@ -25,6 +25,19 @@ require("lazy").setup({
 	"tpope/vim-sleuth",
 	"tpope/vim-rhubarb",
 	"tpope/vim-repeat",
+	"tpope/vim-dispatch",
+	{
+		"supermaven-inc/supermaven-nvim",
+		config = function()
+			require("supermaven-nvim").setup({
+				ignore_filtypes = { "markdown" },
+				keymaps = {
+					accept_suggestion = "<c-l>",
+					clear_suggestion = "<c-e>",
+				},
+			})
+		end,
+	},
 	{
 		"preservim/vim-markdown",
 		ft = "markdown",
@@ -131,26 +144,26 @@ require("lazy").setup({
 		end,
 	},
 	{ "numToStr/Comment.nvim", opts = {}, lazy = false },
-	{
-		"zbirenbaum/copilot.lua",
-		event = "InsertEnter",
-		cmd = "Copilot",
-		opts = {
-			panel = { enabled = false },
-			suggestion = {
-				auto_trigger = true,
-				keymap = {
-					accept = "<c-l>",
-					next = "<c-j>",
-					prev = "<c-k>",
-					dismiss = "<c-e>",
-				},
-				filetype = {
-					markdown = false,
-				},
-			},
-		},
-	},
+	-- {
+	-- 	"zbirenbaum/copilot.lua",
+	-- 	event = "InsertEnter",
+	-- 	cmd = "Copilot",
+	-- 	opts = {
+	-- 		panel = { enabled = false },
+	-- 		suggestion = {
+	-- 			auto_trigger = true,
+	-- 			keymap = {
+	-- 				accept = "<c-l>",
+	-- 				next = "<c-j>",
+	-- 				prev = "<c-k>",
+	-- 				dismiss = "<c-e>",
+	-- 			},
+	-- 			filetype = {
+	-- 				markdown = false,
+	-- 			},
+	-- 		},
+	-- 	},
+	-- },
 	{
 		"vim-test/vim-test",
 		keys = {
@@ -198,6 +211,8 @@ require("lazy").setup({
 					end)
 					map("n", "<leader>hp", gitsigns.preview_hunk)
 					map("n", "<leader>hs", gitsigns.stage_hunk)
+					map("n", "<leader>hu", gitsigns.undo_stage_hunk)
+					map("n", "<leader>hr", gitsigns.reset_hunk)
 				end,
 				preview_config = {
 					border = "rounded",

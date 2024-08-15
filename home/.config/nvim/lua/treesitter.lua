@@ -9,6 +9,7 @@ require("nvim-treesitter.configs").setup({
 		"nix",
 		"zig",
 		"vimdoc",
+		"cpp",
 	},
 	auto_install = false,
 	disable = { "markdown" },

@@ -62,9 +62,10 @@ require("mason-tool-installer").setup({
 		"jsonls",
 		"clangd",
 		"lua-language-server",
-		"zls",
+		-- "zls",
 		"gopls",
 		"stylua",
+		"sql-formatter",
 	},
 })
 require("mason-lspconfig").setup()

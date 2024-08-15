@@ -70,6 +70,7 @@ local bindings = {
 	{ mods = { CMD, CTRL }, key = "O", fn = wrapped(kitty.RunScript, "change-repo") },
 	{ mods = { CMD, CTRL }, key = "T", fn = wrapped(kitty.TodayNote) },
 	{ mods = { CMD, CTRL }, key = "R", fn = hs.reload },
+	{ mods = { CMD, CTRL }, key = "M", tab = "https://app.fastmail.com/mail/Inbox/?u=00a94062" },
 
 	{ mods = { ALT }, key = "H", fn = wrapped(focusWindow, "west") },
 	{ mods = { ALT }, key = "L", fn = wrapped(focusWindow, "east") },

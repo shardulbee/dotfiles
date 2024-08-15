@@ -31,6 +31,8 @@ vim.keymap.set("n", "<leader>hh", fzfLua.help_tags, opts)
 vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
 vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
 vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
+vim.keymap.set("n", "<leader>s", fzfLua.lsp_document_symbols, opts)
+vim.keymap.set("n", "<leader>S", fzfLua.lsp_workspace_symbols, opts)
 vim.keymap.set("n", "<C-t>", function()
 	require("fzf-lua").files({
 		winopts = {

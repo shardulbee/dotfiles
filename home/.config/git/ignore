@@ -10,3 +10,5 @@ vendor/
 .venv
 venv
 .git
+.zig-cache
+zig-out
