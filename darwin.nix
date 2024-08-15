@@ -4,27 +4,20 @@
   zsh-autosuggestions = pkgs.zsh-autosuggestions;
   zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
   fzf = pkgs.fzf;
-  neovimConfig = pkgs.neovimUtils.makeNeovimConfig {
-    extraLuaPackages = p: [ p.magick ];
-    extraPython3Packages = p:
-      with p; [
-        pynvim
-        jupyter-client
-        ipython
-        pillow
-      ];
-    withNodeJs = true;
-    withRuby = true;
-    withPython3 = true;
-    wrapRc = false;
-  };
-  fullConfig = (neovimConfig // {
-    wrapperArgs = pkgs.lib.escapeShellArgs neovimConfig.wrapperArgs;
-  });
-  neovim-custom = pkgs.wrapNeovimUnstable
-    (pkgs.neovim-unwrapped.overrideAttrs (oldAttrs: {
-      buildInputs = oldAttrs.buildInputs ++ [ pkgs.tree-sitter ];
-    })) fullConfig;
+  fzf-git-sh = pkgs.fzf-git-sh;
+  # neovimConfig = pkgs.neovimUtils.makeNeovimConfig {
+  #   withNodeJs = true;
+  #   withRuby = true;
+  #   withPython3 = true;
+  #   wrapRc = false;
+  # };
+  # fullConfig = (neovimConfig // {
+  #   wrapperArgs = pkgs.lib.escapeShellArgs neovimConfig.wrapperArgs;
+  # });
+  # neovim-custom = pkgs.wrapNeovimUnstable
+  #   (pkgs.neovim-unwrapped.overrideAttrs (oldAttrs: {
+  #     buildInputs = oldAttrs.buildInputs ++ [ pkgs.tree-sitter ];
+  #   })) fullConfig;
 in {
 
   users.users.shardul = {
@@ -39,8 +32,8 @@ in {
   # -------------------------------------------------------
   environment.systemPackages =
     [ pkgs.vim
+      pkgs.neovim
       pkgs.git
-      pkgs.git-lfs
       pkgs.fd
       pkgs.jq
       pkgs.bat
@@ -48,22 +41,23 @@ in {
       pkgs.neofetch
       pkgs.wget
       pkgs._1password
-      neovim-custom
-      pkgs.stow
       pkgs.ripgrep
       pkgs.darwin.trash
       pkgs.kitty
       pkgs.hyperfine
       pkgs.tarsnap
-      pkgs.jankyborders
-      pkgs.direnv
-      pkgs.tree
-      pkgs.google-cloud-sdk
-      pkgs.mutagen
-      pkgs.markdown-anki-decks
+      stow
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
       fzf
+      # pkgs.direnv
+      # pkgs.git-lfs
+      # neovim-custom
+      # pkgs.jankyborders
+      # pkgs.tree
+      # pkgs.google-cloud-sdk
+      # pkgs.mutagen
+      # pkgs.markdown-anki-decks
   ];
 
   programs.zsh = {
@@ -74,8 +68,15 @@ in {
     interactiveShellInit = ''
       source ${zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
       source ${zsh-fast-syntax-highlighting}/share/zsh/site-functions/fast-syntax-highlighting.plugin.zsh
+      source ${fzf}/share/fzf/completion.zsh
       source ${fzf}/share/fzf/key-bindings.zsh
+      source ${fzf-git-sh}/share/fzf-git-sh/fzf-git.sh
     '';
+  };
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+    loadInNixShell = true;
   };
 
   homebrew = {
@@ -83,7 +84,7 @@ in {
     brews = [
       "mas"
       "opam"
-      "gnu-time"
+      # "gnu-time"
     ];
     casks = [
       "1password"
@@ -97,33 +98,27 @@ in {
       "raycast"
       "thingsmacsandboxhelper"
       "vlc"
-      "zwift"
       "spotify"
       "zoom"
-      "orbstack"
       "tailscale"
       "google-drive"
       "fantastical"
-      "visual-studio-code"
-      "anki"
-      "zed"
-      "whatsapp"
-      "clion"
-      "opal-composer"
+      # "zwift"
+      # "orbstack"
+      # "visual-studio-code"
+      # "anki"
+      # "zed"
+      # "whatsapp"
+      # "clion"
+      # "opal-composer"
     ];
     masApps = {
       "Things 3" = 904280696;
-      "iA Writer" = 775737590;
       "Infuse • Video Player" = 1136220934;
       "Control Panel for Twitter" = 1668516167;
+      # "iA Writer" = 775737590;
     };
     onActivation.cleanup = "uninstall";
-  };
-  services = {
-    yabai = {
-      enable = false;
-      enableScriptingAddition = false;
-    };
   };
   fonts.fontDir.enable = true;
   fonts.fonts = with pkgs; [

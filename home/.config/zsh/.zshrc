@@ -1,12 +1,3 @@
-# zmodload zsh/zprof
-# zmodload zsh/datetime
-# setopt PROMPT_SUBST
-# PS4='+$EPOCHREALTIME %N:%i> '
-# logfile=$(mktemp zsh_profile.XXXXXXXX)
-# echo "Logging to $logfile"
-# exec 3>&2 2>$logfile
-# setopt XTRACE
-
 bindkey -e
 
 # -----------------------------------------------------------------------------
@@ -57,89 +48,12 @@ setopt autocd
 # -----------------------------------------------------------------------------
 # Sources
 # -----------------------------------------------------------------------------
-opam() {
-  if command -v /opt/homebrew/bin/opam > /dev/null; then
-    eval "$(/opt/homebrew/bin/opam env)"
-    /opt/homebrew/bin/opam "$@"
-  else
-    echo "opam not found"
-    return 1
-  fi
-}
-if command -v /usr/local/bin/direnv > /dev/null; then
-  eval "$(/usr/local/bin/direnv hook zsh)"
-else
-  echo "direnv not found"
-  return 1
-fi
-
-# -----------------------------------------------------------------------------
-# Functions
-# -----------------------------------------------------------------------------
-function gbd {
-  local branch=$(git branch | sed 's/[\* ]//g' | fzf --multi --height 30)
-  if [ -n "$branch" ]; then
-    echo $branch | while IFS= read -r line; do
-      git branch -D $line
-    done
-  fi
-}
-
-function gbr {
-  git checkout $(git branch | sed 's/[\* ]//g' | fzf --height 30)
-}
-
-function gp {
-  if [[ -z $(git for-each-ref --format='%(upstream:short)' $(git symbolic-ref -q HEAD))  ]]; then
-    git push -u
-  else
-    git push
-  fi
-}
-
-function gdo { git diff origin $(gcb) }
-function grim { git rebase --interactive $(gfork) }
-
-function gpf {
-  if [[ $(gcb) != "master"  ]]; then
-    git push --force-with-lease
-  else
-    echo "Nope"
-  fi;
-}
-
-fzf-redraw-prompt() {
-  local precmd
-  for precmd in $precmd_functions; do
-    $precmd
-  done
-  zle reset-prompt
-}
-zle -N fzf-redraw-prompt
-
-# Command that allows quickly switching to different GitHub repos using CTRL-F
-function fzf-repo-widget {
-  local dirs=$(fd -td --exact-depth 3 . $HOME/src)
-  local dirs="$dirs\n$HOME/dotfiles"
-  local dir=$(echo "$dirs" | FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='Git repos> ' $FZF_DEFAULT_OPTS" fzf)
-
-  if [[ -z "$dir" ]]; then
-    zle redisplay
-    return 0
-  fi
-
-  cd $dir
-  fzf-redraw-prompt
-}
-zle -N fzf-repo-widget
-bindkey ^F fzf-repo-widget
-
-function cheat() { curl cheat.sh/"$1" }
-
-# https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072
-function whatis() { if [[ -v THEFD ]]; then :; else command whatis "$@"; fi; }
-# }}}
-
+# if command -v /usr/local/bin/direnv > /dev/null; then
+#   eval "$(/usr/local/bin/direnv hook zsh)"
+# else
+#   echo "direnv not found"
+#   return 1
+# fi
 # -----------------------------------------------------------------------------
 # Aliases
 # -----------------------------------------------------------------------------
@@ -173,12 +87,16 @@ alias cat='bat --style=plain,numbers,grid'
 alias rm="trash"
 alias rmfrfr="rm" # aka rm for real for real
 
-# -----------------------------------------------------------------------------
-# Environment
-# -----------------------------------------------------------------------------
-export FZF_DEFAULT_CMD="fd -tf --hidden"
-export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_CMD
+function gbr { git checkout $(git branch | sed 's/[\* ]//g' | fzf --height 30) }
+function gdo { git diff origin $(gcb) }
+function grim { git rebase --interactive $(gfork) }
+function gpf {
+  if [[ $(gcb) != "master"  ]]; then
+    git push --force-with-lease
+  else
+    echo "Nope"
+  fi;
+}
 
-# unsetopt XTRACE
-# exec 2>&3 3>&-
-# zprof
+# https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072
+function whatis() { if [[ -v THEFD ]]; then :; else command whatis "$@"; fi; }

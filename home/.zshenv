@@ -10,3 +10,5 @@ export NOTES_DIR="$HOME/gdrive/Notes"
 export MANPAGER="col -bx | bat -l man -p"
 export LC_ALL="en_US.UTF-8"
 export COLORTERM='truecolor'
+export FZF_DEFAULT_CMD="fd -tf --hidden"
+export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_CMD
