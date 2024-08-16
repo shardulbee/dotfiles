@@ -101,7 +101,6 @@ require("lazy").setup({
 			})
 		end,
 	},
-	{ "knubie/vim-kitty-navigator", build = "cp ./*.py ~/.config/kitty/" },
 	{
 		"nvim-tree/nvim-tree.lua",
 		dependencies = { "kyazdani42/nvim-web-devicons" },
