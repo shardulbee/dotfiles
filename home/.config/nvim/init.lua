@@ -101,17 +101,6 @@ require("lazy").setup({
 			vim.cmd("colorscheme base16-default-dark")
 		end,
 	},
-	-- {
-	-- 	"lukas-reineke/indent-blankline.nvim",
-	-- 	main = "ibl",
-	-- 	opts = {
-	-- 		indent = { char = "▏" },
-	-- 		scope = {
-	-- 			show_start = false,
-	-- 			show_end = false,
-	-- 		},
-	-- 	},
-	-- },
 	{
 		"Wansmer/treesj",
 		dev = false,
@@ -303,22 +292,6 @@ require("lazy").setup({
 			-- Keymaps
 			-------------------------------------------------------------------------
 			local on_attach = function(_, bufnr)
-				-- if client.name == "ruff_lsp" then
-				-- 	client.server_capabilities.hoverProvider = false
-				-- end
-				--
-				-- if client.supports_method("textDocument/formatting") and client.name ~= "pylsp" then
-				-- 	local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-				-- 	vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-				-- 	vim.api.nvim_create_autocmd("BufWritePre", {
-				-- 		group = augroup,
-				-- 		buffer = bufnr,
-				-- 		callback = function()
-				-- 			vim.lsp.buf.format()
-				-- 		end,
-				-- 	})
-				-- end
-
 				local opts = { noremap = true, silent = true }
 
 				vim.api.nvim_buf_set_keymap(
@@ -333,9 +306,8 @@ require("lazy").setup({
 				vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>r", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
 				vim.api.nvim_buf_set_keymap(bufnr, "i", "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
 
-				-- these should be default now?
-				-- vim.api.nvim_buf_set_keymap(bufnr, "n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
-				-- vim.api.nvim_buf_set_keymap(bufnr, "n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
 			end
 
 			require("mason").setup()
@@ -361,35 +333,6 @@ require("lazy").setup({
 						on_attach = on_attach,
 					})
 				end,
-				-- ["ruff_lsp"] = function()
-				-- 	require("lspconfig").ruff_lsp.setup({
-				-- 		handlers = handlers,
-				-- 		on_attach = on_attach,
-				-- 		init_options = {
-				-- 			settings = {
-				-- 				args = {
-				-- 					"--extend-ignore=F722",
-				-- 					"--line-length=120",
-				-- 				},
-				-- 			},
-				-- 		},
-				-- 	})
-				-- end,
-				-- ["pylsp"] = function()
-				-- 	require("lspconfig").pylsp.setup({
-				-- 		handlers = handlers,
-				-- 		on_attach = on_attach,
-				-- 		init_options = {
-				-- 			plugins = {
-				-- 				pyflakes = { enabled = false },
-				-- 				mccabe = { enabled = false },
-				-- 				pycodestyle = { enabled = false },
-				-- 				yapf = { enabled = false },
-				-- 				autopep8 = { enabled = false },
-				-- 			},
-				-- 		},
-				-- 	})
-				-- end,
 			})
 			local null_ls = require("null-ls")
 			local augroup = vim.api.nvim_create_augroup("NoneLsFormatting", {})
@@ -402,7 +345,7 @@ require("lazy").setup({
 					null_ls.builtins.formatting.rustfmt,
 					null_ls.builtins.formatting.shfmt,
 					null_ls.builtins.diagnostics.shellcheck,
-					-- null_ls.builtins.code_actions.gitsigns,
+					null_ls.builtins.code_actions.gitsigns,
 					null_ls.builtins.formatting.sqlfluff.with({
 						extra_args = { "--dialect", "duckdb" },
 					}),
