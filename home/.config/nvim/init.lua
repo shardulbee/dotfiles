@@ -22,6 +22,7 @@ require("lazy").setup({
 	"tpope/vim-eunuch",
 	"tpope/vim-unimpaired",
 	"tpope/vim-surround",
+	{ "echasnovski/mini.indentscope", version = false, config = true },
 	"tpope/vim-sleuth",
 	"tpope/vim-rhubarb",
 	"tpope/vim-repeat",
@@ -36,17 +37,6 @@ require("lazy").setup({
 					clear_suggestion = "<c-e>",
 				},
 			})
-		end,
-	},
-	{
-		"preservim/vim-markdown",
-		ft = "markdown",
-		config = function()
-			vim.g.vim_markdown_folding_disabled = 1
-			vim.g.vim_markdown_frontmatter = 1
-			vim.g.vim_markdown_auto_insert_bullets = 1
-			vim.g.vim_markdown_new_list_item_indent = 0
-			vim.g.vim_markdown_math = 1
 		end,
 	},
 	{
@@ -66,7 +56,49 @@ require("lazy").setup({
 			"RRethy/nvim-treesitter-endwise",
 		},
 		config = function()
-			require("treesitter")
+			require("treesitter-context").setup()
+			require("nvim-treesitter.configs").setup({
+				ensure_installed = {
+					"ruby",
+					"python",
+					"rust",
+					"lua",
+					"ocaml",
+					"nix",
+					"zig",
+					"vimdoc",
+					"cpp",
+				},
+				auto_install = false,
+				disable = { "markdown" },
+				highlight = {
+					additional_vim_regex_highlighting = false,
+					enable = true,
+				},
+				indent = {
+					enable = true,
+					disable = { "ruby" },
+				},
+				endwise = {
+					enable = true,
+				},
+				textobjects = {
+					select = {
+						enable = true,
+						lookahead = true,
+
+						keymaps = {
+							["af"] = "@function.outer",
+							["if"] = "@function.inner",
+							["ac"] = "@class.outer",
+							["ic"] = {
+								query = "@class.inner",
+								desc = "Select inner part of a class region",
+							},
+						},
+					},
+				},
+			})
 		end,
 	},
 	{ "knubie/vim-kitty-navigator", build = "cp ./*.py ~/.config/kitty/" },
@@ -87,17 +119,17 @@ require("lazy").setup({
 			vim.cmd("colorscheme base16-default-dark")
 		end,
 	},
-	{
-		"lukas-reineke/indent-blankline.nvim",
-		main = "ibl",
-		opts = {
-			indent = { char = "▏" },
-			scope = {
-				show_start = false,
-				show_end = false,
-			},
-		},
-	},
+	-- {
+	-- 	"lukas-reineke/indent-blankline.nvim",
+	-- 	main = "ibl",
+	-- 	opts = {
+	-- 		indent = { char = "▏" },
+	-- 		scope = {
+	-- 			show_start = false,
+	-- 			show_end = false,
+	-- 		},
+	-- 	},
+	-- },
 	{
 		"Wansmer/treesj",
 		dev = false,
@@ -144,26 +176,6 @@ require("lazy").setup({
 		end,
 	},
 	{ "numToStr/Comment.nvim", opts = {}, lazy = false },
-	-- {
-	-- 	"zbirenbaum/copilot.lua",
-	-- 	event = "InsertEnter",
-	-- 	cmd = "Copilot",
-	-- 	opts = {
-	-- 		panel = { enabled = false },
-	-- 		suggestion = {
-	-- 			auto_trigger = true,
-	-- 			keymap = {
-	-- 				accept = "<c-l>",
-	-- 				next = "<c-j>",
-	-- 				prev = "<c-k>",
-	-- 				dismiss = "<c-e>",
-	-- 			},
-	-- 			filetype = {
-	-- 				markdown = false,
-	-- 			},
-	-- 		},
-	-- 	},
-	-- },
 	{
 		"vim-test/vim-test",
 		keys = {
@@ -177,7 +189,42 @@ require("lazy").setup({
 	{
 		"ibhagwan/fzf-lua",
 		config = function()
-			require("fzf")
+			local fzfLua = require("fzf-lua")
+
+			fzfLua.setup({
+				grep = {
+					rg_opts = "--hidden --column --line-number --no-heading --color=always --smart-case --max-columns=4096 -e",
+				},
+				winopts = {
+					height = 0.95,
+					width = 0.95,
+					preview = {
+						flip_columns = 140,
+						winopts = {
+							number = false,
+							relativenumber = false,
+						},
+					},
+					fzf_opts = {
+						["--layout"] = "reverse-list",
+					},
+					previewers = {
+						bat = { theme = "base16-default-dark" },
+					},
+				},
+			})
+
+			local opts = { noremap = true, silent = true }
+
+			vim.keymap.set("n", "<C-p>", fzfLua.commands, opts)
+			vim.keymap.set("n", "gr", fzfLua.lsp_references, opts)
+			vim.keymap.set("n", "<leader>hh", fzfLua.help_tags, opts)
+			vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
+			vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
+			vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
+			vim.keymap.set("n", "<leader>s", fzfLua.lsp_document_symbols, opts)
+			vim.keymap.set("n", "<leader>S", fzfLua.lsp_workspace_symbols, opts)
+			vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
 		end,
 	},
 	{
@@ -247,9 +294,230 @@ require("lazy").setup({
 			},
 		},
 		config = function()
-			require("lsp")
-			require("format")
-			require("completion")
+			vim.diagnostic.config({
+				virtual_text = true,
+				update_in_insert = true,
+				underline = false,
+				float = { border = "rounded" },
+			})
+			vim.cmd([[autocmd! ColorScheme * highlight NormalFloat guibg=#1f2335]])
+			vim.cmd([[autocmd! ColorScheme * highlight FloatBorder guifg=white guibg=#1f2335]])
+			local border = {
+				{ "🭽", "FloatBorder" },
+				{ "▔", "FloatBorder" },
+				{ "🭾", "FloatBorder" },
+				{ "▕", "FloatBorder" },
+				{ "🭿", "FloatBorder" },
+				{ "▁", "FloatBorder" },
+				{ "🭼", "FloatBorder" },
+				{ "▏", "FloatBorder" },
+			}
+			local handlers = {
+				["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = border }),
+				["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = border }),
+			}
+
+			-------------------------------------------------------------------------
+			-- Keymaps
+			-------------------------------------------------------------------------
+			local on_attach = function(_, bufnr)
+				-- if client.name == "ruff_lsp" then
+				-- 	client.server_capabilities.hoverProvider = false
+				-- end
+				--
+				-- if client.supports_method("textDocument/formatting") and client.name ~= "pylsp" then
+				-- 	local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+				-- 	vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+				-- 	vim.api.nvim_create_autocmd("BufWritePre", {
+				-- 		group = augroup,
+				-- 		buffer = bufnr,
+				-- 		callback = function()
+				-- 			vim.lsp.buf.format()
+				-- 		end,
+				-- 	})
+				-- end
+
+				local opts = { noremap = true, silent = true }
+
+				vim.api.nvim_buf_set_keymap(
+					bufnr,
+					"n",
+					",ca",
+					"<cmd>lua require('fzf-lua').lsp_code_actions()<CR>",
+					opts
+				)
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>r", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
+				vim.api.nvim_buf_set_keymap(bufnr, "i", "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
+
+				-- these should be default now?
+				-- vim.api.nvim_buf_set_keymap(bufnr, "n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
+				-- vim.api.nvim_buf_set_keymap(bufnr, "n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
+			end
+
+			require("mason").setup()
+			require("mason-tool-installer").setup({
+				ensure_installed = {
+					"shfmt",
+					"shellcheck",
+					"rust-analyzer",
+					"jsonls",
+					"clangd",
+					"lua-language-server",
+					-- "zls",
+					"gopls",
+					"stylua",
+					"sql-formatter",
+				},
+			})
+			require("mason-lspconfig").setup()
+			require("mason-lspconfig").setup_handlers({
+				function(server_name)
+					require("lspconfig")[server_name].setup({
+						handlers = handlers,
+						on_attach = on_attach,
+					})
+				end,
+				-- ["ruff_lsp"] = function()
+				-- 	require("lspconfig").ruff_lsp.setup({
+				-- 		handlers = handlers,
+				-- 		on_attach = on_attach,
+				-- 		init_options = {
+				-- 			settings = {
+				-- 				args = {
+				-- 					"--extend-ignore=F722",
+				-- 					"--line-length=120",
+				-- 				},
+				-- 			},
+				-- 		},
+				-- 	})
+				-- end,
+				-- ["pylsp"] = function()
+				-- 	require("lspconfig").pylsp.setup({
+				-- 		handlers = handlers,
+				-- 		on_attach = on_attach,
+				-- 		init_options = {
+				-- 			plugins = {
+				-- 				pyflakes = { enabled = false },
+				-- 				mccabe = { enabled = false },
+				-- 				pycodestyle = { enabled = false },
+				-- 				yapf = { enabled = false },
+				-- 				autopep8 = { enabled = false },
+				-- 			},
+				-- 		},
+				-- 	})
+				-- end,
+			})
+			local null_ls = require("null-ls")
+			local augroup = vim.api.nvim_create_augroup("NoneLsFormatting", {})
+			null_ls.setup({
+				sources = {
+					null_ls.builtins.formatting.ocamlformat,
+					null_ls.builtins.formatting.fixjson,
+					null_ls.builtins.formatting.stylua,
+					null_ls.builtins.formatting.jq,
+					null_ls.builtins.formatting.rustfmt,
+					null_ls.builtins.formatting.shfmt,
+					null_ls.builtins.diagnostics.shellcheck,
+					-- null_ls.builtins.code_actions.gitsigns,
+					null_ls.builtins.formatting.sqlfluff.with({
+						extra_args = { "--dialect", "duckdb" },
+					}),
+				},
+				on_attach = function(client, bufnr)
+					if client.supports_method("textDocument/formatting") then
+						vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+						vim.api.nvim_create_autocmd("BufWritePre", {
+							group = augroup,
+							buffer = bufnr,
+							callback = function()
+								vim.lsp.buf.format()
+							end,
+						})
+					end
+				end,
+			})
+			local cmp = require("cmp")
+			cmp.setup({
+				enabled = function()
+					if
+						require("cmp.config.context").in_treesitter_capture("comment") == true
+						or require("cmp.config.context").in_syntax_group("Comment")
+					then
+						return false
+					else
+						return true
+					end
+				end,
+				snippet = {
+					expand = function(args)
+						vim.fn["vsnip#anonymous"](args.body)
+					end,
+				},
+				window = {
+					completion = cmp.config.window.bordered(),
+					documentation = cmp.config.window.bordered(),
+				},
+				formatting = {
+					fields = { "menu", "abbr", "kind" },
+					format = function(entry, item)
+						local menu_icon = {
+							nvim_lsp = "λ",
+							buffer = "Ω",
+						}
+						item.menu = menu_icon[entry.source.name]
+						return item
+					end,
+				},
+				completion = {
+					completeopt = "menu,menuone,noinsert",
+				},
+				mapping = cmp.mapping.preset.insert({
+					["<Tab>"] = vim.schedule_wrap(function(fallback)
+						if cmp.visible() then
+							cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+						else
+							fallback()
+						end
+					end),
+					["<S-Tab>"] = cmp.mapping(function()
+						if cmp.visible() then
+							cmp.select_prev_item()
+						end
+					end, { "i", "s" }),
+					["<C-N>"] = vim.schedule_wrap(function(fallback)
+						if cmp.visible() then
+							cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+						else
+							fallback()
+						end
+					end),
+					["<C-P>"] = cmp.mapping(function()
+						if cmp.visible() then
+							cmp.select_prev_item()
+						end
+					end, { "i", "s" }),
+					["<C-b>"] = cmp.mapping.scroll_docs(-4),
+					["<C-f>"] = cmp.mapping.scroll_docs(4),
+					["<C-e>"] = cmp.mapping.abort(),
+					["<CR>"] = cmp.mapping.confirm({
+						select = false,
+						behavior = cmp.ConfirmBehavior.Replace,
+					}),
+				}),
+				sources = {
+					{ name = "vsnip" },
+					{ name = "path" },
+					{ name = "nvim_lsp", keyword_length = 3 }, -- from language server
+					{ name = "nvim_lsp_signature_help" }, -- display function signatures with current parameter emphasized
+					{ name = "buffer", keyword_length = 2 }, -- source current buffer
+				},
+			})
+
+			cmp.setup.filetype("markdown", {
+				sources = cmp.config.sources({}, {}),
+			})
 		end,
 	},
 }, {
