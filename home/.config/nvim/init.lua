@@ -51,7 +51,6 @@ require("lazy").setup({
 		"nvim-treesitter/nvim-treesitter",
 		lazy = false,
 		dependencies = {
-			"nvim-treesitter/nvim-treesitter-textobjects",
 			"nvim-treesitter/nvim-treesitter-context",
 			"RRethy/nvim-treesitter-endwise",
 		},
@@ -81,22 +80,6 @@ require("lazy").setup({
 				},
 				endwise = {
 					enable = true,
-				},
-				textobjects = {
-					select = {
-						enable = true,
-						lookahead = true,
-
-						keymaps = {
-							["af"] = "@function.outer",
-							["if"] = "@function.inner",
-							["ac"] = "@class.outer",
-							["ic"] = {
-								query = "@class.inner",
-								desc = "Select inner part of a class region",
-							},
-						},
-					},
 				},
 			})
 		end,
