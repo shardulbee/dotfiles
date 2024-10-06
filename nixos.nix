@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }: {
   imports = [
     ./hardware-configuration.nix
-    ./modules/vmware-guest.nix
+    ./nix-modules/vmware-guest.nix
   ];
   disabledModules = [ "virtualisation/vmware-guest.nix" ];
   virtualisation.vmware.guest.enable = true;
@@ -19,53 +19,51 @@
   # Select internationalisation properties.
   i18n.defaultLocale = "en_CA.UTF-8";
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
 
   # Enable the GNOME Desktop Environment.
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
+  # services.xserver.displayManager.gdm.enable = true;
+  # services.xserver.desktopManager.gnome.enable = true;
 
   # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
-
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
-
-  # Enable sound with pipewire.
-  hardware.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
+  services.xserver = {
     enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
+    xkb.layout = "us";
+    dpi = 220;
 
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
+    desktopManager = {
+      xterm.enable = false;
+      wallpaper.mode = "fill";
+    };
+
+    displayManager = {
+      defaultSession = "none+i3";
+      lightdm.enable = true;
+
+      # AARCH64: For now, on Apple Silicon, we must manually set the
+      # display resolution. This is a known issue with VMware Fusion.
+      sessionCommands = ''
+        ${pkgs.xorg.xset}/bin/xset r rate 200 40
+      '';
+    };
+
+    windowManager = {
+      i3.enable = true;
+    };
   };
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.vm-aarch64 = {
+  users.users.shardul = {
     isNormalUser = true;
     description = "Shardul Baral";
     extraGroups = [ "networkmanager" "wheel" ];
+    hashedPassword = "$y$j9T$AMDtYc6N/Fz491MFbTF0d1$HgrxC9G36A1LaJgspO1x1p2lXQh1TSHv.cUi0nv46m3";
     packages = with pkgs; [
     ];
   };
 
   # Enable automatic login for the user.
   services.xserver.displayManager.autoLogin.enable = true;
-  services.xserver.displayManager.autoLogin.user = "vm-aarch64";
+  services.xserver.displayManager.autoLogin.user = "shardul";
 
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
   systemd.services."getty@tty1".enable = false;
@@ -83,6 +81,7 @@
     vim
     ulauncher
     kitty
+    wmctrl
   ];
 
   # Enable the OpenSSH daemon.
@@ -95,14 +94,4 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.05"; # Did you read the comment?
-
-  systemd.user.services.ulauncher = {
-    enable = true;
-    description = "Start Ulauncher";
-    script = "${pkgs.ulauncher}/bin/ulauncher --hide-window";
-
-    documentation = [ "https://github.com/Ulauncher/Ulauncher/blob/f0905b9a9cabb342f9c29d0e9efd3ba4d0fa456e/contrib/systemd/ulauncher.service" ];
-    wantedBy = [ "graphical.target" "multi-user.target" ];
-    after = [ "display-manager.service" ];
-  };
 }

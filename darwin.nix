@@ -5,19 +5,6 @@
   zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
   fzf = pkgs.fzf;
   fzf-git-sh = pkgs.fzf-git-sh;
-  # neovimConfig = pkgs.neovimUtils.makeNeovimConfig {
-  #   withNodeJs = true;
-  #   withRuby = true;
-  #   withPython3 = true;
-  #   wrapRc = false;
-  # };
-  # fullConfig = (neovimConfig // {
-  #   wrapperArgs = pkgs.lib.escapeShellArgs neovimConfig.wrapperArgs;
-  # });
-  # neovim-custom = pkgs.wrapNeovimUnstable
-  #   (pkgs.neovim-unwrapped.overrideAttrs (oldAttrs: {
-  #     buildInputs = oldAttrs.buildInputs ++ [ pkgs.tree-sitter ];
-  #   })) fullConfig;
 in {
 
   users.users.shardul = {
@@ -50,14 +37,6 @@ in {
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
       fzf
-      # pkgs.direnv
-      # pkgs.git-lfs
-      # neovim-custom
-      # pkgs.jankyborders
-      # pkgs.tree
-      # pkgs.google-cloud-sdk
-      # pkgs.mutagen
-      # pkgs.markdown-anki-decks
   ];
 
   programs.zsh = {
@@ -103,9 +82,7 @@ in {
       "google-drive"
       "fantastical"
       "zwift"
-      # "orbstack"
       "zed"
-      "vmware-fusion"
     ];
     masApps = {
       "Things 3" = 904280696;

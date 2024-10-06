@@ -1,6 +1,7 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     nix-homebrew = {
@@ -23,6 +24,7 @@
   outputs = inputs@{ self
 	, nix-darwin
 	, nixpkgs
+	, nixpkgs-unstable
 	, nix-homebrew
 	, homebrew-core
 	, homebrew-cask
