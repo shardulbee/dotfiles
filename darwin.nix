@@ -84,7 +84,6 @@ in {
     brews = [
       "mas"
       "opam"
-      # "gnu-time"
     ];
     casks = [
       "1password"
@@ -103,20 +102,15 @@ in {
       "tailscale"
       "google-drive"
       "fantastical"
-      # "zwift"
+      "zwift"
       # "orbstack"
-      # "visual-studio-code"
-      # "anki"
-      # "zed"
-      # "whatsapp"
-      # "clion"
-      # "opal-composer"
+      "zed"
+      "vmware-fusion"
     ];
     masApps = {
       "Things 3" = 904280696;
       "Infuse • Video Player" = 1136220934;
       "Control Panel for Twitter" = 1668516167;
-      # "iA Writer" = 775737590;
     };
     onActivation.cleanup = "uninstall";
   };

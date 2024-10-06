@@ -28,7 +28,13 @@
 	, homebrew-cask
 	, homebrew-bundle
       }: let
-  in {
+    in {
+    nixosConfigurations."vm-aarch64" = nixpkgs.lib.nixosSystem {
+      system = "aarch64-linux";
+      modules = [
+        ./nixos.nix
+      ];
+    };
     darwinConfigurations."turbochardo" = nix-darwin.lib.darwinSystem {
       modules = [
 	nix-homebrew.darwinModules.nix-homebrew {
