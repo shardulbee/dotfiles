@@ -27,12 +27,14 @@ in {
       pkgs.gh
       pkgs.neofetch
       pkgs.wget
-      pkgs._1password
+      # pkgs._1password
       pkgs.ripgrep
       pkgs.darwin.trash
       pkgs.kitty
       pkgs.hyperfine
-      pkgs.tarsnap
+      # pkgs.tarsnap
+      pkgs.tmux
+      pkgs.zellij
       stow
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
@@ -70,7 +72,6 @@ in {
       "bartender"
       "cleanshot"
       "dash"
-      "hammerspoon"
       "google-chrome"
       "istat-menus"
       "raycast"
@@ -83,6 +84,7 @@ in {
       "fantastical"
       "zwift"
       "zed"
+      "nikitabobko/tap/aerospace"
     ];
     masApps = {
       "Things 3" = 904280696;

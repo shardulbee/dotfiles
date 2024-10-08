@@ -19,6 +19,10 @@
       url = "github:homebrew/homebrew-bundle";
       flake = false;
     };
+    aerospace = {
+      url = "github:nikitabobko/homebrew-tap";
+      flake = false;
+    };
   };
 
   outputs = inputs@{ self
@@ -29,10 +33,12 @@
     , homebrew-core
     , homebrew-cask
     , homebrew-bundle
+    , aerospace
   }: let
     # Helper function to create a package set with unstable Neovim
     mkPkgs = system: import nixpkgs {
       inherit system;
+      nixpkgs.config.allowUnfree = true;
       overlays = [
         (final: prev: {
           neovim = nixpkgs-unstable.legacyPackages.${system}.neovim;
@@ -43,7 +49,7 @@
     nixosConfigurations."vm-aarch64" = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
       modules = [
-        ./nixos.nix
+        ./machines/nixos.nix
       ];
       specialArgs = {
         pkgs = mkPkgs "aarch64-linux";
@@ -62,11 +68,12 @@
               "homebrew/homebrew-core" = homebrew-core;
               "homebrew/homebrew-cask" = homebrew-cask;
               "homebrew/homebrew-bundle" = homebrew-bundle;
+              "nikitabobko/homebrew-tap" = aerospace;
             };
             mutableTaps = false;
           };
         }
-        ./darwin.nix
+        ./machines/darwin.nix
       ];
       specialArgs = {
         inherit inputs;

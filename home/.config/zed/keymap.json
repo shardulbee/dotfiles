@@ -1,0 +1,100 @@
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
+      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
+      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
+      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
+      "cmd-enter": "terminal_panel::ToggleFocus"
+    }
+  },
+  {
+    "context": "Editor && VimControl && !VimWaiting && !menu",
+    "bindings": {
+      // "ctrl-w z": "workspace::ToggleZoom",
+      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
+      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
+      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
+      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
+
+      // lsp
+      "] d": "editor::GoToDiagnostic",
+      "[ d": "editor::GoToPrevDiagnostic",
+      "g r": "editor::FindAllReferences",
+      "shift-k": "editor::Hover",
+      ", c a": "editor::ToggleCodeActions",
+      "\\ r": "editor::Rename",
+
+      // tasks
+      "\\ t n": ["task::Spawn", { "task_name": "run cursor pytest test" }],
+      "\\ t f": ["task::Spawn", { "task_name": "run pytest file" }],
+
+      // git
+      "\\ g b": "editor::ToggleGitBlame",
+      "cmd-shift-g cmd-shift-o": "editor::OpenPermalinkToLine",
+      "cmd-shift-g cmd-shift-c": "editor::CopyPermalinkToLine",
+
+      "\\ 9": [
+        "workspace::SendKeystrokes",
+        "^ i enter up i m p o r t space i p d b ; space i p d b . s e t _ t r a c e ( ) escape"
+      ],
+      "cmd-enter": "workspace::ToggleRightDock"
+    }
+  },
+  {
+    "context": "Dock",
+    "bindings": {
+      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
+      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
+      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
+      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
+      "cmd-enter": "workspace::ToggleRightDock"
+    }
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "cmd-t": "workspace::NewTerminal",
+      "ctrl-d": "terminal::ScrollPageDown",
+      "ctrl-u": "terminal::ScrollPageUp",
+      "cmd-enter": "workspace::ToggleRightDock"
+    }
+  },
+  {
+    "context": "AssistantPanel",
+    "bindings": {
+      "cmd-t": "assistant::NewContext"
+    }
+  },
+  {
+    //vim visual mode
+    "context": "Editor && vim_mode == visual && !VimWaiting && !VimObject",
+    "bindings": {
+      "s": "editor::SelectSmallerSyntaxNode",
+      ";": "editor::SelectLargerSyntaxNode",
+      // shift-s binds (Surround) rely on custom keybinding (ctrl-g p) for vim paste
+      "shift-s '": ["workspace::SendKeystrokes", "d i ' ' left left ctrl-g p"],
+      "shift-s `": ["workspace::SendKeystrokes", "d i ` ` left left ctrl-g p"],
+      "shift-s \"": [
+        "workspace::SendKeystrokes",
+        "d i \" \" left left ctrl-g p"
+      ],
+      "shift-s [": [
+        "workspace::SendKeystrokes",
+        "d i [ space space ] left left left ctrl-g p"
+      ],
+      "shift-s ]": ["workspace::SendKeystrokes", "d i [ ] left left ctrl-g p"],
+      "shift-s {": [
+        "workspace::SendKeystrokes",
+        "d i { space space } left left left ctrl-g p"
+      ],
+      "shift-s }": ["workspace::SendKeystrokes", "d i { } left left ctrl-g p"],
+      "shift-s (": [
+        "workspace::SendKeystrokes",
+        "d i ( space space ) left left left ctrl-g p"
+      ],
+      "shift-s )": ["workspace::SendKeystrokes", "d i ( ) left left ctrl-g p"]
+    }
+  }
+]

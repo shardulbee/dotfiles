@@ -9,7 +9,6 @@ directories=(
   "$HOME/dotfiles"
   "$HOME/gdrive/Jardul"
   "$HOME/gdrive/Personal"
-
 )
 
 for dir in "${directories[@]}"; do

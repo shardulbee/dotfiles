@@ -1,0 +1,16 @@
+// Static tasks configuration.
+//
+// Example:
+[
+  {
+    "label": "run pytest file",
+    "command": "$ZED_WORKTREE_ROOT/.venv/bin/pytest $ZED_FILE -s",
+    "use_new_terminal": false
+  },
+  {
+    "label": "run cursor pytest test",
+    "command": "$ZED_WORKTREE_ROOT/.venv/bin/pytest $ZED_FILE::$ZED_SYMBOL -s",
+    "use_new_terminal": false
+    // "hide": "on_success"
+  }
+]

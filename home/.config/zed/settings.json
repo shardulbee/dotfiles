@@ -1,0 +1,87 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run the `open default settings` command
+// from the command palette or from `Zed` application menu.
+{
+  "scrollbar": {
+    "show": "never"
+  },
+  "outline_panel": {
+    "dock": "right"
+  },
+  "terminal": {
+    "dock": "bottom"
+  },
+  "assistant": {
+    "dock": "right",
+    "default_model": {
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-20240620"
+    },
+    "version": "2"
+  },
+  "features": {
+    "inline_completion_provider": "supermaven"
+  },
+  "theme": "Gruvbox Dark Hard",
+  "buffer_line_height": {
+    "custom": 1.25
+  },
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "vim_mode": true,
+  "ui_font_size": 16,
+  "buffer_font_size": 16,
+  "buffer_font_family": "BlexMono Nerd Font",
+  "ui_font_family": "BlexMono Nerd Font",
+  "double_click_in_multibuffer": "open",
+  "tab_bar": {
+    "show": true,
+    "show_nav_history_buttons": false
+  },
+  "git": {
+    "inline_blame": { "enabled": true }
+  },
+  "soft_wrap": "none",
+  "cursor_blink": false,
+  "project_panel": {
+    "scrollbar": { "show": "never" }
+  },
+  "base_keymap": "VSCode",
+  "indent_guides": {
+    "enabled": true
+  },
+  "current_line_highlight": "none",
+  "preview_tabs": {
+    "enabled": true,
+    "enable_preview_from_code_navigation": true,
+    "enable_preview_from_file_finder": false
+  },
+  "tab_size": 2,
+  "format_on_save": "on",
+  "languages": {
+    "Python": {
+      "language_servers": ["pyright", "ruff"],
+      "format_on_save": "on",
+      "formatter": [
+        {
+          "code_actions": {
+            "source.organizeImports.ruff": true,
+            "source.fixAll.ruff": true
+          }
+        },
+        {
+          "language_server": {
+            "name": "ruff"
+          }
+        }
+      ]
+    }
+  }
+}
