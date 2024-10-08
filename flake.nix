@@ -6,6 +6,7 @@
     nix-homebrew = {
       url= "github:zhaofengli-wip/nix-homebrew";
     };
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     homebrew-core = {
       url = "github:homebrew/homebrew-core";
       flake = false;
@@ -18,6 +19,10 @@
       url = "github:homebrew/homebrew-bundle";
       flake = false;
     };
+    aerospace = {
+      url = "github:nikitabobko/homebrew-tap";
+      flake = false;
+    };
   };
 
   outputs = inputs@{ self
@@ -26,29 +31,29 @@
 	, nix-homebrew
 	, homebrew-core
 	, homebrew-cask
-	, homebrew-bundle
-      }: let
-  in {
+    , homebrew-bundle
+    , aerospace
+    , nixpkgs-unstable
+      }: {
     darwinConfigurations."turbochardo" = nix-darwin.lib.darwinSystem {
       modules = [
-	nix-homebrew.darwinModules.nix-homebrew {
-	  nix-homebrew = {
-      	    enable = true;
-	    enableRosetta = true;
-	    user = "shardul";
-	    taps = {
-	      "homebrew/homebrew-core" = homebrew-core;
-              "homebrew/homebrew-cask" = homebrew-cask;
-              "homebrew/homebrew-bundle" = homebrew-bundle;
-	    };
-	    mutableTaps = false;
-          };
+    	nix-homebrew.darwinModules.nix-homebrew {
+            nix-homebrew = {
+           	    enable = true;
+           	    enableRosetta = true;
+           	    user = "shardul";
+           	    taps = {
+                    "homebrew/homebrew-core" = homebrew-core;
+                    "homebrew/homebrew-cask" = homebrew-cask;
+                    "homebrew/homebrew-bundle" = homebrew-bundle;
+                    "nikitabobko/homebrew-tap" = aerospace;
+           	    };
+           	    mutableTaps = false;
+            };
         }
-	./darwin.nix
+    	./darwin.nix
       ];
       specialArgs = { inherit inputs; };
     };
-
-    darwinPackages = self.darwinConfigurations."turbochardo".pkgs;
   };
 }

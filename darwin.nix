@@ -1,23 +1,11 @@
 # vim: fdm=marker fdl=0
-{ pkgs, ... }: let
+{ pkgs, inputs, ... }: let
   stow = pkgs.stow;
   zsh-autosuggestions = pkgs.zsh-autosuggestions;
   zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
   fzf = pkgs.fzf;
   fzf-git-sh = pkgs.fzf-git-sh;
-  # neovimConfig = pkgs.neovimUtils.makeNeovimConfig {
-  #   withNodeJs = true;
-  #   withRuby = true;
-  #   withPython3 = true;
-  #   wrapRc = false;
-  # };
-  # fullConfig = (neovimConfig // {
-  #   wrapperArgs = pkgs.lib.escapeShellArgs neovimConfig.wrapperArgs;
-  # });
-  # neovim-custom = pkgs.wrapNeovimUnstable
-  #   (pkgs.neovim-unwrapped.overrideAttrs (oldAttrs: {
-  #     buildInputs = oldAttrs.buildInputs ++ [ pkgs.tree-sitter ];
-  #   })) fullConfig;
+  pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.aarch64-darwin;
 in {
 
   users.users.shardul = {
@@ -45,19 +33,12 @@ in {
       pkgs.darwin.trash
       pkgs.kitty
       pkgs.hyperfine
-      pkgs.tarsnap
+      pkgs.nodejs
+      pkgs.awscli2
       stow
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
       fzf
-      # pkgs.direnv
-      # pkgs.git-lfs
-      # neovim-custom
-      # pkgs.jankyborders
-      # pkgs.tree
-      # pkgs.google-cloud-sdk
-      # pkgs.mutagen
-      # pkgs.markdown-anki-decks
   ];
 
   programs.zsh = {
@@ -81,52 +62,35 @@ in {
 
   homebrew = {
     enable = true;
-    brews = [
-      "mas"
-      "opam"
-      # "gnu-time"
-    ];
+    global.autoUpdate = true;
     casks = [
       "1password"
-      "arq"
-      "bartender"
-      "cleanshot"
-      "dash"
       "hammerspoon"
       "google-chrome"
-      "istat-menus"
       "raycast"
-      "thingsmacsandboxhelper"
-      "vlc"
       "spotify"
       "zoom"
-      "tailscale"
       "google-drive"
+      "visual-studio-code"
+      "slack"
+      "meetingbar"
+      "zed"
+      "orbstack"
+      "sublime-merge"
+      "setapp"
+      "logseq"
+      "nikitabobko/tap/aerospace"
+      "mimestream"
       "fantastical"
-      # "zwift"
-      # "orbstack"
-      # "visual-studio-code"
-      # "anki"
-      # "zed"
-      # "whatsapp"
-      # "clion"
-      # "opal-composer"
     ];
-    masApps = {
-      "Things 3" = 904280696;
-      "Infuse • Video Player" = 1136220934;
-      "Control Panel for Twitter" = 1668516167;
-      # "iA Writer" = 775737590;
-    };
     onActivation.cleanup = "uninstall";
   };
-  fonts.fontDir.enable = true;
-  fonts.fonts = with pkgs; [
-    recursive
-    (nerdfonts.override {
-      fonts = [ "IBMPlexMono" ];
-    })
-  ];
+  # fonts.packages = with pkgs; [
+  #   recursive
+  #   (nerdfonts.override {
+  #     fonts = [ "IBMPlexMono" ];
+  #   })
+  # ];
 
   # {{{ misc environment
   environment.pathsToLink = [ "/share/zsh" ];
@@ -188,6 +152,6 @@ in {
   system.activationScripts.postActivation.text = ''
     $DRY_RUN_CMD ln -sfn /run/current-system/sw/bin/* /usr/local/bin
     $DRY_RUN_CMD ln -sfn /run/current-system/sw/lib/* /usr/local/lib
-    $DRY_RUN_CMD ${stow}/bin/stow --ignore=\.DS_Store -R --dotfiles --target=/Users/shardul home
+    $DRY_RUN_CMD ${stow}/bin/stow --ignore=\.DS_Store -R --no-folding --dotfiles --target=/Users/shardul home
   '';
 }

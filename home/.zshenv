@@ -12,3 +12,5 @@ export LC_ALL="en_US.UTF-8"
 export COLORTERM='truecolor'
 export FZF_DEFAULT_CMD="fd -tf --hidden"
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_CMD
+export HOMEBREW_PREFIX="/opt/homebrew"
+export PATH=$PATH:$HOMEBREW_PREFIX/bin

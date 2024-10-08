@@ -64,34 +64,47 @@ alias blush='git commit --amend --reuse-message HEAD'
 alias crepo='create-repo'
 alias ga='git add -A'
 alias gb='git for-each-ref --sort=-committerdate refs/heads/ --format='\''%(color:red)%(committerdate:short) %(color:yellow)%(objectname:short) %(color:white)%(refname:short)'\'''
-alias gbrc='gco master && gfogro && git branch --merged | grep -v '\''master'\'' | xargs git branch -d'
+alias gbrc='gco main && gfogro && git branch --merged | grep -v '\''main'\'' | xargs git branch -d'
 alias gc='git commit --verbose'
 alias gcb='git rev-parse --abbrev-ref HEAD'
 alias gco='git checkout'
 alias gcob='git checkout -b'
-alias gcom='git checkout master'
+alias gcom='git checkout main'
 alias gcp='git cherry-pick'
 alias gd='git diff'
-alias gdom='git diff origin/master'
-alias gfo='git fetch origin master'
+alias gdom='git diff origin/main'
+alias gfo='git fetch origin main'
 alias gfogro='gfo && gro'
-alias gfork='git merge-base --fork-point origin/master @'
+alias gfork='git merge-base --fork-point origin/main @'
 alias gl='git log --pretty=format:'\''%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'\'' --abbrev-commit --date=local'
 alias gra='git rebase --abort'
 alias grc='git rebase --continue'
-alias gro='git rebase origin/master'
+alias gro='git rebase origin/main'
 alias gs='git status --short --branch'
 alias gupd='gfogro; gpf'
 alias vrepo='gh repo view --web > /dev/null'
 alias cat='bat --style=plain,numbers,grid'
 alias rm="trash"
+alias gp="git p"
 alias rmfrfr="rm" # aka rm for real for real
+alias gbr="_fzf_git_branches | xargs git checkout"
+alias gbd="_fzf_git_branches | xargs git branch -D"
+alias dev="make run-dev"
 
-function gbr { git checkout $(git branch | sed 's/[\* ]//g' | fzf --height 30) }
+function mkbranch {
+    # validate that $1 was provided otherwise error out
+    if [ -z "$1" ]; then
+        echo "Error: Branch name required"
+        return 1
+    fi
+
+    gfo && git checkout -b "$1" origin/main
+}
+
 function gdo { git diff origin $(gcb) }
 function grim { git rebase --interactive $(gfork) }
 function gpf {
-  if [[ $(gcb) != "master"  ]]; then
+  if [[ $(gcb) != "main"  ]]; then
     git push --force-with-lease
   else
     echo "Nope"

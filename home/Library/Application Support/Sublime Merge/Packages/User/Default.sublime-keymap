@@ -1,0 +1,12 @@
+[
+    {   // Move Commit Down
+        "keys": ["ctrl+shift+down"],
+        "command": "move_commit",
+        "args": { "commit": "$commit", "down": true }
+    },
+    {   // Move Commit Up
+        "keys": ["ctrl+shift+up"],
+        "command": "move_commit",
+        "args": { "commit": "$commit", "down": false }
+    },
+]

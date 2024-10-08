@@ -18,7 +18,7 @@ require("lazy").setup({
 	"direnv/direnv.vim",
 	"LnL7/vim-nix",
 	"ziglang/zig.vim",
-	"wakatime/vim-wakatime",
+	-- "wakatime/vim-wakatime",
 	"tpope/vim-eunuch",
 	"tpope/vim-unimpaired",
 	"tpope/vim-surround",
@@ -27,18 +27,105 @@ require("lazy").setup({
 	"tpope/vim-rhubarb",
 	"tpope/vim-repeat",
 	"tpope/vim-dispatch",
+	-- {
+	-- 	"supermaven-inc/supermaven-nvim",
+	-- 	config = function()
+	-- 		require("supermaven-nvim").setup({
+	-- 			ignore_filtypes = { "markdown" },
+	-- 			keymaps = {
+	-- 				accept_suggestion = "<c-l>",
+	-- 				clear_suggestion = "<c-e>",
+	-- 			},
+	-- 		})
+	-- 	end,
+	-- },
 	{
-		"supermaven-inc/supermaven-nvim",
+		"zbirenbaum/copilot.lua",
+		cmd = "Copilot",
+		event = "InsertEnter",
+		requires = {
+			"nvim-treesitter/nvim-treesitter",
+			"nvim-lua/plenary.nvim",
+			"nvim-lua/popup.nvim",
+			"nvim-lua/popup.nvim",
+			"nvim-lua/plenary.nvim",
+		},
 		config = function()
-			require("supermaven-nvim").setup({
-				ignore_filtypes = { "markdown" },
-				keymaps = {
-					accept_suggestion = "<c-l>",
-					clear_suggestion = "<c-e>",
+			require("copilot").setup({
+				panel = {
+					enabled = false,
+					auto_refresh = false,
+					keymap = {
+						jump_prev = "[[",
+						jump_next = "]]",
+						accept = "<CR>",
+						refresh = "gr",
+						open = "<M-CR>",
+					},
+					layout = {
+						position = "bottom", -- | top | left | right
+						ratio = 0.4,
+					},
+				},
+				suggestion = {
+					enabled = true,
+					auto_trigger = true,
+					hide_during_completion = false,
+					debounce = 75,
+					keymap = {
+						accept = "<C-l>",
+						accept_word = false,
+						accept_line = false,
+						next = "<M-]>",
+						prev = "<M-[>",
+						dismiss = "<C-e>",
+					},
 				},
 			})
 		end,
 	},
+	-- avante nvim
+	{
+  "yetone/avante.nvim",
+  event = "VeryLazy",
+  lazy = false,
+  version = false, -- set this if you want to always pull the latest change
+  opts = {
+	  provider = 'copilot'
+  },
+  build = "make",
+  dependencies = {
+    "stevearc/dressing.nvim",
+    "nvim-lua/plenary.nvim",
+    "MunifTanjim/nui.nvim",
+    --- The below dependencies are optional,
+    "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
+    "zbirenbaum/copilot.lua", -- for providers='copilot'
+    {
+      -- support for image pasting
+      "HakonHarnes/img-clip.nvim",
+      event = "VeryLazy",
+      opts = {
+        -- recommended settings
+        default = {
+          embed_image_as_base64 = false,
+          prompt_for_file_name = false,
+          drag_and_drop = {
+            insert_mode = true,
+          },
+        },
+      },
+    },
+    {
+      -- Make sure to set this up properly if you have lazy=true
+      'MeanderingProgrammer/render-markdown.nvim',
+      opts = {
+        file_types = { "markdown", "Avante" },
+      },
+      ft = { "markdown", "Avante" },
+    },
+  },
+},
 	{
 		"tpope/vim-fugitive",
 		keys = {
@@ -52,11 +139,11 @@ require("lazy").setup({
 		lazy = false,
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter-textobjects",
-			"nvim-treesitter/nvim-treesitter-context",
+			-- "nvim-treesitter/nvim-treesitter-context",
 			"RRethy/nvim-treesitter-endwise",
 		},
 		config = function()
-			require("treesitter-context").setup()
+			-- require("treesitter-context").setup()
 			require("nvim-treesitter.configs").setup({
 				ensure_installed = {
 					"ruby",
@@ -116,20 +203,20 @@ require("lazy").setup({
 		"RRethy/nvim-base16",
 		lazy = false,
 		config = function()
-			vim.cmd("colorscheme base16-default-dark")
+			function change_colorscheme()
+				local colorscheme = vim.g.colors_name
+				if colorscheme == "base16-gruvbox-light-soft" then
+					vim.cmd("colorscheme base16-gruvbox-dark-hard")
+				else
+					vim.cmd("colorscheme base16-gruvbox-light-hard")
+				end
+			end
+
+			vim.keymap.set("n", "<leader>cc", change_colorscheme, { noremap = true, silent = true })
+
+			vim.cmd("colorscheme base16-gruvbox-dark-hard")
 		end,
 	},
-	-- {
-	-- 	"lukas-reineke/indent-blankline.nvim",
-	-- 	main = "ibl",
-	-- 	opts = {
-	-- 		indent = { char = "▏" },
-	-- 		scope = {
-	-- 			show_start = false,
-	-- 			show_end = false,
-	-- 		},
-	-- 	},
-	-- },
 	{
 		"Wansmer/treesj",
 		dev = false,
@@ -224,6 +311,7 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
 			vim.keymap.set("n", "<leader>s", fzfLua.lsp_document_symbols, opts)
 			vim.keymap.set("n", "<leader>S", fzfLua.lsp_workspace_symbols, opts)
+			vim.keymap.set("n", "<leader>gl", fzfLua.git_bcommits, opts)
 			vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
 		end,
 	},
@@ -286,11 +374,11 @@ require("lazy").setup({
 				"hrsh7th/cmp-cmdline",
 				"hrsh7th/cmp-nvim-lsp-signature-help",
 				"mhartington/formatter.nvim",
-				"jose-elias-alvarez/null-ls.nvim",
+				"nvimtools/none-ls.nvim",
 				"nvim-lua/plenary.nvim",
 				"WhoIsSethDaniel/mason-tool-installer.nvim",
 				"lewis6991/gitsigns.nvim",
-				"python-lsp/python-lsp-ruff",
+				-- "python-lsp/python-lsp-ruff",
 			},
 		},
 		config = function()
@@ -321,22 +409,6 @@ require("lazy").setup({
 			-- Keymaps
 			-------------------------------------------------------------------------
 			local on_attach = function(_, bufnr)
-				-- if client.name == "ruff_lsp" then
-				-- 	client.server_capabilities.hoverProvider = false
-				-- end
-				--
-				-- if client.supports_method("textDocument/formatting") and client.name ~= "pylsp" then
-				-- 	local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-				-- 	vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-				-- 	vim.api.nvim_create_autocmd("BufWritePre", {
-				-- 		group = augroup,
-				-- 		buffer = bufnr,
-				-- 		callback = function()
-				-- 			vim.lsp.buf.format()
-				-- 		end,
-				-- 	})
-				-- end
-
 				local opts = { noremap = true, silent = true }
 
 				vim.api.nvim_buf_set_keymap(
@@ -352,23 +424,16 @@ require("lazy").setup({
 				vim.api.nvim_buf_set_keymap(bufnr, "i", "<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
 
 				-- these should be default now?
-				-- vim.api.nvim_buf_set_keymap(bufnr, "n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
-				-- vim.api.nvim_buf_set_keymap(bufnr, "n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
+				vim.api.nvim_buf_set_keymap(bufnr, "n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
 			end
 
 			require("mason").setup()
 			require("mason-tool-installer").setup({
 				ensure_installed = {
-					"shfmt",
-					"shellcheck",
-					"rust-analyzer",
-					"jsonls",
-					"clangd",
 					"lua-language-server",
-					-- "zls",
-					"gopls",
 					"stylua",
-					"sql-formatter",
+					"ruff-lsp"
 				},
 			})
 			require("mason-lspconfig").setup()
@@ -379,51 +444,19 @@ require("lazy").setup({
 						on_attach = on_attach,
 					})
 				end,
-				-- ["ruff_lsp"] = function()
-				-- 	require("lspconfig").ruff_lsp.setup({
-				-- 		handlers = handlers,
-				-- 		on_attach = on_attach,
-				-- 		init_options = {
-				-- 			settings = {
-				-- 				args = {
-				-- 					"--extend-ignore=F722",
-				-- 					"--line-length=120",
-				-- 				},
-				-- 			},
-				-- 		},
-				-- 	})
-				-- end,
-				-- ["pylsp"] = function()
-				-- 	require("lspconfig").pylsp.setup({
-				-- 		handlers = handlers,
-				-- 		on_attach = on_attach,
-				-- 		init_options = {
-				-- 			plugins = {
-				-- 				pyflakes = { enabled = false },
-				-- 				mccabe = { enabled = false },
-				-- 				pycodestyle = { enabled = false },
-				-- 				yapf = { enabled = false },
-				-- 				autopep8 = { enabled = false },
-				-- 			},
-				-- 		},
-				-- 	})
-				-- end,
 			})
 			local null_ls = require("null-ls")
 			local augroup = vim.api.nvim_create_augroup("NoneLsFormatting", {})
 			null_ls.setup({
 				sources = {
-					null_ls.builtins.formatting.ocamlformat,
+					null_ls.builtins.code_actions.gitsigns,
 					null_ls.builtins.formatting.fixjson,
 					null_ls.builtins.formatting.stylua,
-					null_ls.builtins.formatting.jq,
-					null_ls.builtins.formatting.rustfmt,
-					null_ls.builtins.formatting.shfmt,
-					null_ls.builtins.diagnostics.shellcheck,
-					-- null_ls.builtins.code_actions.gitsigns,
-					null_ls.builtins.formatting.sqlfluff.with({
-						extra_args = { "--dialect", "duckdb" },
-					}),
+
+					-- python
+					-- null_ls.builtins.formatting.isort,
+					-- null_ls.builtins.formatting.black,
+					-- null_ls.builtins.diagnostics.mypy,
 				},
 				on_attach = function(client, bufnr)
 					if client.supports_method("textDocument/formatting") then
@@ -529,6 +562,7 @@ require("lazy").setup({
 		notify = true,
 	},
 })
+
 
 -- settings {{{
 vim.cmd([[filetype plugin indent on]])

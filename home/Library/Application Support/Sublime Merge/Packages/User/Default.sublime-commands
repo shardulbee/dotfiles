@@ -1,0 +1,13 @@
+[
+    {
+        "caption": "Git: Clean up merged branches",
+        "command": "git",
+        "args": { "argv": ["sync"] }
+    },
+    {
+        "caption": "Git: Rebase current branch onto another branch",
+        "command": "rebase_branch",
+        "args": { "branch": "$select_branch" }
+    }
+
+]

@@ -3,55 +3,55 @@ local utf8 = require("utf8")
 Chrome = {}
 
 function Chrome.GetTabRichLink()
-	local application = hs.application.frontmostApplication()
+    local application = hs.application.frontmostApplication()
 
-	-- Only copy from Chrome
-	if application:bundleID() ~= "com.google.Chrome" then
-		return
-	end
+    -- Only copy from Chrome
+    if application:bundleID() ~= "com.google.Chrome" then
+        return
+    end
 
-	-- Grab the <title> from the page.
-	local script = [[
+    -- Grab the <title> from the page.
+    local script = [[
     tell application "Google Chrome"
       get title of active tab of first window
     end tell
   ]]
 
-	local _, title = hs.osascript.applescript(script)
+    local _, title = hs.osascript.applescript(script)
 
-	-- Encode the title as html entities like (&#107;&#84;), so that we can
-	-- print out unicode characters inside of `getStyledTextFromData` and have
-	-- them render correctly in the link.
-	local encodedTitle = ""
+    -- Encode the title as html entities like (&#107;&#84;), so that we can
+    -- print out unicode characters inside of `getStyledTextFromData` and have
+    -- them render correctly in the link.
+    local encodedTitle = ""
 
-	for _, code in utf8.codes(title) do
-		encodedTitle = encodedTitle .. "&#" .. code .. ";"
-	end
+    for _, code in utf8.codes(title) do
+        encodedTitle = encodedTitle .. "&#" .. code .. ";"
+    end
 
-	-- Get the current URL from the address bar.
-	script = [[
+    -- Get the current URL from the address bar.
+    script = [[
     tell application "Google Chrome"
       get URL of active tab of first window
     end tell
   ]]
 
-	local _, url = hs.osascript.applescript(script)
+    local _, url = hs.osascript.applescript(script)
 
-	-- Embed the URL + title in an <a> tag so macOS converts it to a rich link
-	-- on paste.
-	local md = string.format("[%s](%s)", title, url)
-	hs.pasteboard.writeObjects(md)
-	hs.alert('Copied link to "' .. title .. '"')
+    -- Embed the URL + title in an <a> tag so macOS converts it to a rich link
+    -- on paste.
+    local md = string.format("[%s](%s)", title, url)
+    hs.pasteboard.writeObjects(md)
+    hs.alert('Copied link to "' .. title .. '"')
 end
 
 function Chrome.LaunchOrFocusTab(tabURL)
-	local baseScript = [[
+    local baseScript = [[
     let site = "%s"
     let chrome = Application("Google Chrome");
     chrome.includeStandardAdditions = true;
     let windows = chrome.windows.tabs.url();
     let found = false;
-    for (let windowIndex = 0; windowIndex < windows.length; windowIndex++) {
+    windowLoop: for (let windowIndex = 0; windowIndex < windows.length; windowIndex++) {
       for (let tabIndex = 0; tabIndex < windows[windowIndex].length; tabIndex++) {
         if (windows[windowIndex][tabIndex].startsWith(site)) {
           chrome.windows[windowIndex].visible = true;
@@ -59,6 +59,7 @@ function Chrome.LaunchOrFocusTab(tabURL)
           chrome.windows[windowIndex].index = 1;
           chrome.activate();
           found = true;
+          break windowLoop;
         }
       }
     };
@@ -68,10 +69,10 @@ function Chrome.LaunchOrFocusTab(tabURL)
     }
   ]]
 
-	return function()
-		hs.osascript.javascript(string.format(baseScript, tabURL))
-		hs.application.launchOrFocus("Google Chrome")
-	end
+    return function()
+        hs.osascript.javascript(string.format(baseScript, tabURL))
+        hs.application.launchOrFocus("Google Chrome")
+    end
 end
 
 return Chrome
