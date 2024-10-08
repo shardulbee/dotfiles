@@ -24,6 +24,14 @@
   # services.xserver.displayManager.gdm.enable = true;
   # services.xserver.desktopManager.gnome.enable = true;
 
+  fonts.fontDir.enable = true;
+  fonts.fonts = with pkgs; [
+    recursive
+    (nerdfonts.override {
+      fonts = [ "IBMPlexMono" ];
+    })
+  ];
+
   # Configure keymap in X11
   services.xserver = {
     enable = true;

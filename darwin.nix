@@ -1,5 +1,5 @@
 # vim: fdm=marker fdl=0
-{ pkgs, ... }: let
+{ pkgs, inputs, ... }: let
   stow = pkgs.stow;
   zsh-autosuggestions = pkgs.zsh-autosuggestions;
   zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
