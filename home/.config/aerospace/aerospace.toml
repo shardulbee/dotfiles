@@ -37,7 +37,7 @@ default-root-container-orientation = 'auto'
 key-mapping.preset = 'qwerty'
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 on-focus-changed = [
-    'move-mouse window-lazy-center',
+  'move-mouse window-lazy-center',
 ] # Mouse lazily follows any focus (window or workspace)
 
 # example
@@ -50,29 +50,40 @@ on-focus-changed = [
 # check-further-callbacks = true
 # run = ['layout floating', 'move-node-to-workspace S']  # The callback itself
 [[on-window-detected]]
-if.app-id = 'com.zed.app'
+if.app-name-regex-substring = 'Zed'
 run = ['move-node-to-workspace 1']
 
 [[on-window-detected]]
-if.app-id = 'net.kovidgoyal.kitty'
+if.app-name-regex-substring = 'kitty'
 run = ['move-node-to-workspace Z']
 
 [[on-window-detected]]
-if.app-id = 'com.tinyspeck.slackmacgap '
+if.app-name-regex-substring = 'Slack'
 run = ['move-node-to-workspace 7']
 
 [[on-window-detected]]
-if.app-id = 'com.mimestream.Mimestream'
-run = ['move-node-to-workspace M']
-
-[[on-window-detected]]
-if.app-id = 'com.kapeli.dash-setapp'
+if.app-name-regex-substring = 'Dash'
 run = ['layout floating']
 
 [[on-window-detected]]
-if.app-id = 'com.sublimemerge'
+if.app-name-regex-substring = 'Raycast'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.app-name-regex-substring = '1Password'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Hammerspoon'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Sublime Merge'
 run = ['move-node-to-workspace 2']
 
+[[on-window-detected]]
+if.app-name-regex-substring = 'Chrome'
+run = ['move-node-to-workspace 3']
 
 # Gaps between windows (inner-*) and between monitor edges (outer-*).
 # Possible values:
@@ -129,6 +140,9 @@ alt-shift-h = 'move left'
 alt-shift-j = 'move down'
 alt-shift-k = 'move up'
 alt-shift-l = 'move right'
+
+cmd-alt-left = 'focus-monitor left'
+cmd-alt-right = 'focus-monitor right'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#resize
 alt-shift-minus = 'resize smart -50'
@@ -216,8 +230,8 @@ esc = ['reload-config', 'mode main']
 r = ['flatten-workspace-tree', 'mode main'] # reset layout
 #s = ['layout sticky tiling', 'mode main'] # sticky is not yet supported https://github.com/nikitabobko/AeroSpace/issues/2
 f = [
-    'layout floating tiling',
-    'mode main',
+  'layout floating tiling',
+  'mode main',
 ] # Toggle between floating and tiling layout
 backspace = ['close-all-windows-but-current', 'mode main']
 

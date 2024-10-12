@@ -3,14 +3,22 @@
 // Example:
 [
   {
-    "label": "run pytest file",
-    "command": "$ZED_WORKTREE_ROOT/.venv/bin/pytest $ZED_FILE -s",
+    "label": "make",
+    "command": "make",
     "use_new_terminal": false
   },
   {
-    "label": "run cursor pytest test",
-    "command": "$ZED_WORKTREE_ROOT/.venv/bin/pytest $ZED_FILE::$ZED_SYMBOL -s",
+    "label": "Open Sublime Merge (Git)",
+    "command": "cd $ZED_WORKTREE_ROOT && direnv allow && direnv export bash && smerge $ZED_WORKTREE_ROOT",
+    "hide": "always",
+    "reveal": "never",
     "use_new_terminal": false
-    // "hide": "on_success"
+  },
+  {
+    "label": "Open Kitty (terminal)",
+    "command": "~/dotfiles/home/bin/open-repo $ZED_WORKTREE_ROOT",
+    "hide": "never",
+    "reveal": "never",
+    "use_new_terminal": false
   }
 ]

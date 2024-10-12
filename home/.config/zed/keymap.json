@@ -39,7 +39,10 @@
         "workspace::SendKeystrokes",
         "^ i enter up i m p o r t space i p d b ; space i p d b . s e t _ t r a c e ( ) escape"
       ],
-      "cmd-enter": "workspace::ToggleRightDock"
+      "cmd-enter": "workspace::ToggleRightDock",
+
+      "[ x": "editor::SelectLargerSyntaxNode",
+      "] x": "editor::SelectSmallerSyntaxNode"
     }
   },
   {

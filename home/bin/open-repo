@@ -1,0 +1,36 @@
+#!/usr/bin/env zsh
+
+local kitty_sock=$(cd /tmp && ls | grep mykitty)
+
+if [[ -z $kitty_sock ]]; then
+    echo "No kitty socket found. Launching kitty".
+    nohup kitty --listen-on unix:/tmp/mykitty >/dev/null 2>&1 &
+    disown
+else
+    echo "Found kitty socket: $kitty_sock"
+fi
+
+local kitty_sock=$(cd /tmp && ls | grep mykitty)
+if [[ -z $kitty_sock ]]; then
+    echo "Error: No kitty socket found"
+    exit 1
+fi
+
+if [[ -z $1 ]]; then
+    echo "Error: No directory provided"
+    exit 1
+fi
+
+local dir=$1
+local name=$(basename $dir)
+
+kitty @ --to unix:/tmp/$kitty_sock focus-window --match title:$name
+
+if [[ $? -eq 1 ]]; then
+  echo "Unable to focus tab, launching new tab"
+  kitty @ --to unix:/tmp/$kitty_sock launch --type=os-window --cwd=$dir --title=$name
+else
+  echo "Focused tab"
+fi
+
+# aerospace workspace Z

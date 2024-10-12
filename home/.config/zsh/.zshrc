@@ -48,12 +48,12 @@ setopt autocd
 # -----------------------------------------------------------------------------
 # Sources
 # -----------------------------------------------------------------------------
-# if command -v /usr/local/bin/direnv > /dev/null; then
-#   eval "$(/usr/local/bin/direnv hook zsh)"
-# else
-#   echo "direnv not found"
-#   return 1
-# fi
+if command -v orb > /dev/null; then
+  source $HOME/.orbstack/shell/init.zsh
+else
+  echo "orbstack not found"
+  return 1
+fi
 # -----------------------------------------------------------------------------
 # Aliases
 # -----------------------------------------------------------------------------

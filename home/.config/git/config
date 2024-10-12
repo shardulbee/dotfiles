@@ -73,7 +73,3 @@
 [user]
 	email = "shardul@distributional.com"
 	name = "Shardul Baral"
-
-[remote.origin]
-    fetch = "+refs/heads/shardul/*:refs/remotes/origin/shardul/*"
-    fetch = "+refs/heads/main:refs/remotes/origin/main"

@@ -33,12 +33,29 @@ in {
       pkgs.darwin.trash
       pkgs.kitty
       pkgs.hyperfine
-      pkgs.nodejs
-      pkgs.awscli2
+      pkgs.zellij
+      pkgs.tmux
+      pkgs.lazygit
       stow
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
       fzf
+
+      # for dbnl, until I can flakify
+      pkgs.awscli2
+      pkgs.skaffold
+      pkgs.python311
+      pkgs.terraform
+      pkgs.kubectl
+      pkgs.kubernetes-helm
+      pkgs.xz
+      pkgs.bun
+      pkgs.antlr
+      pkgs.gettext
+      pkgs.chart-testing
+      pkgs.nodejs
+      pkgs.python311Packages.pip
+      pkgs.python311Packages.venvShellHook
   ];
 
   programs.zsh = {
@@ -63,6 +80,10 @@ in {
   homebrew = {
     enable = true;
     global.autoUpdate = true;
+    brews = [
+      "postgresql@14"
+      "helm"
+    ];
     casks = [
       "1password"
       "hammerspoon"
@@ -71,7 +92,6 @@ in {
       "spotify"
       "zoom"
       "google-drive"
-      "visual-studio-code"
       "slack"
       "meetingbar"
       "zed"
@@ -80,17 +100,17 @@ in {
       "setapp"
       "logseq"
       "nikitabobko/tap/aerospace"
-      "mimestream"
       "fantastical"
+      "google-cloud-sdk"
     ];
     onActivation.cleanup = "uninstall";
   };
-  # fonts.packages = with pkgs; [
-  #   recursive
-  #   (nerdfonts.override {
-  #     fonts = [ "IBMPlexMono" ];
-  #   })
-  # ];
+  fonts.packages = with pkgs; [
+    recursive
+    (nerdfonts.override {
+      fonts = [ "IBMPlexMono" ];
+    })
+  ];
 
   # {{{ misc environment
   environment.pathsToLink = [ "/share/zsh" ];
