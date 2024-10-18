@@ -633,3 +633,11 @@ vim.api.nvim_create_autocmd({ "VimResized" }, {
   end,
 })
 -- }}}
+
+
+vim.keymap.set("n", "<leader><space>", function()
+  local file = vim.fn.expand("%:p")
+  local line = vim.fn.line(".")
+  local col = vim.fn.col(".")
+  vim.fn.system({ "zed", file .. ":" .. line .. ":" .. col })
+end, { noremap = true, silent = true })

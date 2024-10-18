@@ -1,0 +1,11 @@
+customCommands:
+  - key: '<c-r>'
+    context: 'commits'
+    command: 'gh browse {{.SelectedLocalCommit.Hash}}'
+git:
+  branchLogCmd: "git log --color=always --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=local {{branchName}} --"
+  branchPrefix: "shardul/"
+gui:
+  nerdFontsVersion: "3"
+os:
+  editPreset: 'zed'

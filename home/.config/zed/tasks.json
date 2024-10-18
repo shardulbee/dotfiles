@@ -3,22 +3,59 @@
 // Example:
 [
   {
-    "label": "make",
+    "label": "Run make",
     "command": "make",
     "use_new_terminal": false
   },
   {
     "label": "Open Sublime Merge (Git)",
-    "command": "cd $ZED_WORKTREE_ROOT && direnv allow && direnv export bash && smerge $ZED_WORKTREE_ROOT",
+    "command": "cd $ZED_WORKTREE_ROOT && (direnv allow || direnv export bash) && smerge $ZED_WORKTREE_ROOT",
     "hide": "always",
     "reveal": "never",
     "use_new_terminal": false
   },
   {
-    "label": "Open Kitty (terminal)",
-    "command": "~/dotfiles/home/bin/open-repo $ZED_WORKTREE_ROOT",
+    "label": "Open LazyGit",
+    "command": "~/dotfiles/home/bin/kitty-wrapper focus-window --match 'title:lazygit cwd:$ZED_WORKTREE_ROOT' || ~/dotfiles/home/bin/kitty-wrapper launch --title=lazygit --type=tab --cwd=$ZED_WORKTREE_ROOT zsh -lc 'lazygit' && aerospace workspace Z",
     "hide": "never",
     "reveal": "never",
     "use_new_terminal": false
+  },
+
+  {
+    "label": "Open Kitty (terminal)",
+    "command": "~/dotfiles/home/bin/open-repo $ZED_WORKTREE_ROOT",
+    "hide": "always",
+    "reveal": "never",
+    "use_new_terminal": false
+  },
+  {
+    "label": "Run test file (pytest)",
+    "command": "$ZED_WORKTREE_ROOT/.venv/bin/pytest $ZED_FILE -s",
+    "use_new_terminal": false
+  },
+  {
+    "label": "Run nearest test (pytest)",
+    "command": "$ZED_WORKTREE_ROOT/.venv/bin/pytest $ZED_FILE::$ZED_SYMBOL -s",
+    "use_new_terminal": false
+  },
+  {
+    "label": "Run test suite (pytest)",
+    "command": "$ZED_WORKTREE_ROOT/.venv/bin/pytest -n auto",
+    "use_new_terminal": false
+  },
+  {
+    "label": "Create GitHub PR",
+    "command": "cd $ZED_WORKTREE_ROOT && gh pr create --web",
+    "use_new_terminal": false,
+    "hide": "always",
+    "reveal": "never"
+  },
+  {
+    "label": "Open in Neovim",
+    "command": "~/dotfiles/home/bin/kitty-wrapper send-text --match title:vim ':chdir $ZED_WORKTREE_ROOT\\x0D:e +$ZED_ROW $ZED_FILE\\x0D' && aerospace workspace Z",
+    "use_new_terminal": false,
+    "hide": "always",
+    "reveal": "never"
   }
 ]

@@ -26,14 +26,17 @@
       ", c a": "editor::ToggleCodeActions",
       "\\ r": "editor::Rename",
 
-      // tasks
-      "\\ t n": ["task::Spawn", { "task_name": "run cursor pytest test" }],
-      "\\ t f": ["task::Spawn", { "task_name": "run pytest file" }],
-
       // git
       "\\ g b": "editor::ToggleGitBlame",
       "cmd-shift-g cmd-shift-o": "editor::OpenPermalinkToLine",
       "cmd-shift-g cmd-shift-c": "editor::CopyPermalinkToLine",
+
+      // tasks
+      "\\ space": ["task::Spawn", { "task_name": "Open in Neovim" }],
+      "\\ t n": ["task::Spawn", { "task_name": "Run nearest test (pytest)" }],
+      "\\ t f": ["task::Spawn", { "task_name": "Run test file (pytest)" }],
+      "\\ t t": ["task::Spawn", { "task_name": "Run test suite (pytest)" }],
+      "\\ g s": ["task::Spawn", { "task_name": "Open LazyGit" }],
 
       "\\ 9": [
         "workspace::SendKeystrokes",

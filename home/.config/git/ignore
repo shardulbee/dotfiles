@@ -13,3 +13,4 @@ venv
 .zig-cache
 .zed/
 zig-out
+.envrc

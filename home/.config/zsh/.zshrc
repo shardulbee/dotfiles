@@ -54,6 +54,13 @@ else
   echo "orbstack not found"
   return 1
 fi
+
+if command -v direnv > /dev/null; then
+  eval "$(direnv hook zsh)"
+else
+  echo "direnv not found"
+  return 1
+fi
 # -----------------------------------------------------------------------------
 # Aliases
 # -----------------------------------------------------------------------------
