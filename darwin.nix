@@ -33,9 +33,10 @@ in {
       pkgs.darwin.trash
       pkgs.kitty
       pkgs.hyperfine
-      pkgs.zellij
-      pkgs.tmux
       pkgs.lazygit
+      pkgs.lazydocker
+      pkgs-unstable.jankyborders
+      pkgs.nixd
       stow
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
