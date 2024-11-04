@@ -1,102 +1,12 @@
-# Place a copy of this config to ~/.aerospace.toml
-# After that, you can edit ~/.aerospace.toml to your liking
+after-startup-command = ['exec-and-forget /usr/local/bin/borders']
 
-# It's not necessary to copy all keys to your config.
-# If the key is missing in your config, "default-config.toml" will serve as a fallback
-
-# You can use it to add commands that run after login to macOS user session.
-# 'start-at-login' needs to be 'true' for 'after-login-command' to work
-# Available commands: https://nikitabobko.github.io/AeroSpace/commands
-after-login-command = []
-
-# You can use it to add commands that run after AeroSpace startup.
-# 'after-startup-command' is run after 'after-login-command'
-# Available commands : https://nikitabobko.github.io/AeroSpace/commands
-after-startup-command = [
-  'exec-and-forget /usr/local/bin/borders hidpi=on active_color=0xffffd700 inactive_color=0xffffffff width=10.0',
-]
-
-# Start AeroSpace at login
 start-at-login = true
-
-# Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
-enable-normalization-flatten-containers = true
-enable-normalization-opposite-orientation-for-nested-containers = true
-
-# See: https://nikitabobko.github.io/AeroSpace/guide#layouts
-# The 'accordion-padding' specifies the size of accordion padding
-# You can set 0 to disable the padding feature
 accordion-padding = 10
-
-
-# Possible values: tiles|accordion
 default-root-container-layout = 'tiles'
-
-# Possible values: horizontal|vertical|auto
-# 'auto' means: wide monitor (anything wider than high) gets horizontal orientation,
-#               tall monitor (anything higher than wide) gets vertical orientation
-default-root-container-orientation = 'auto'
-
 key-mapping.preset = 'qwerty'
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
-on-focus-changed = [
-  'move-mouse window-lazy-center',
-] # Mouse lazily follows any focus (window or workspace)
+on-focus-changed = ['move-mouse window-lazy-center']
 
-# example
-# [[on-window-detected]]
-# if.app-id = 'com.apple.systempreferences'
-# if.app-name-regex-substring = 'settings'
-# if.window-title-regex-substring = 'substring'
-# if.workspace = 'workspace-name'
-# if.during-aerospace-startup = true
-# check-further-callbacks = true
-# run = ['layout floating', 'move-node-to-workspace S']  # The callback itself
-
-
-######################################## Floating Windows ########################################
-# [[on-window-detected]]
-# if.app-name-regex-substring = 'Dash'
-# run = ['layout floating']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Raycast'
-run = ['layout floating']
-
-[[on-window-detected]]
-if.app-name-regex-substring = '1Password'
-run = ['layout floating']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Hammerspoon'
-run = ['layout floating']
-######################################## Floating Windows ########################################
-
-
-######################################## Move Windows to Workspaces ########################################
-[[on-window-detected]]
-if.app-name-regex-substring = 'Zed'
-run = ['move-node-to-workspace 1']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Sublime Merge'
-run = ['move-node-to-workspace 2']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Chrome'
-run = ['move-node-to-workspace 3']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Slack'
-run = ['move-node-to-workspace 7']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'kitty'
-run = ['move-node-to-workspace Z']
-######################################## Move Windows to Workspaces ########################################
-
-
-######################################## Gaps ########################################
 [gaps]
 inner.horizontal = 15
 inner.vertical = 15
@@ -104,7 +14,6 @@ outer.left = 15
 outer.bottom = 15
 outer.top = 15
 outer.right = 15
-######################################## Gaps ########################################
 
 [mode.main.binding]
 alt-slash = 'layout tiles horizontal vertical'
@@ -145,48 +54,59 @@ alt-shift-8 = 'move-node-to-workspace 8'
 alt-shift-9 = 'move-node-to-workspace 9'
 alt-shift-0 = 'move-node-to-workspace Z'
 
-alt-tab = 'workspace-back-and-forth'
-cmd-tab = 'focus-back-and-forth'
-
-alt-shift-semicolon = [
-  'mode service',
-  'exec-and-forget /usr/local/bin/borders hidpi=on active_color=0xff1DFF00 inactive_color=0xffffffff width=10.0',
-]
+alt-shift-semicolon = ['mode service']
 
 [mode.service.binding]
-esc = [
-  'reload-config',
-  'exec-and-forget /usr/local/bin/borders hidpi=on active_color=0xffffd700 inactive_color=0xffffffff width=10.0',
-  'mode main',
-]
-f = [
-  'layout floating tiling',
-  'exec-and-forget /usr/local/bin/borders hidpi=on active_color=0xffffd700 inactive_color=0xffffffff width=10.0',
-  'mode main',
-] # Toggle between floating and tiling layout
-backspace = [
-  'close-all-windows-but-current',
-  'exec-and-forget /usr/local/bin/borders hidpi=on active_color=0xffffd700 inactive_color=0xffffffff width=10.0',
-  'mode main',
-]
+esc = ['reload-config', 'mode main']
+f = ['layout floating tiling', 'mode main']
 
-alt-shift-h = [
-  'join-with left',
-  'exec-and-forget /usr/local/bin/borders hidpi=on active_color=0xffffd700 inactive_color=0xffffffff width=10.0',
-  'mode main',
-]
-alt-shift-j = [
-  'join-with down',
-  'exec-and-forget /usr/local/bin/borders hidpi=on active_color=0xffffd700 inactive_color=0xffffffff width=10.0',
-  'mode main',
-]
-alt-shift-k = [
-  'join-with up',
-  'exec-and-forget /usr/local/bin/borders hidpi=on active_color=0xffffd700 inactive_color=0xffffffff width=10.0',
-  'mode main',
-]
-alt-shift-l = [
-  'join-with right',
-  'exec-and-forget /usr/local/bin/borders hidpi=on active_color=0xffffd700 inactive_color=0xffffffff width=10.0',
-  'mode main',
-]
+alt-shift-h = ['join-with left', 'mode main']
+alt-shift-j = ['join-with down', 'mode main']
+alt-shift-k = ['join-with up', 'mode main']
+alt-shift-l = ['join-with right', 'mode main']
+
+# example
+# [[on-window-detected]]
+# if.app-id = 'com.apple.systempreferences'
+# if.app-name-regex-substring = 'settings'
+# if.window-title-regex-substring = 'substring'
+# if.workspace = 'workspace-name'
+# if.during-aerospace-startup = true
+# check-further-callbacks = true
+# run = ['layout floating', 'move-node-to-workspace S']  # The callback itself
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Raycast'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.app-name-regex-substring = '1Password'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Hammerspoon'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Zed'
+run = ['move-node-to-workspace 1']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'kitty'
+run = ['move-node-to-workspace Z']
+
+[[on-window-detected]]
+if.window-title-regex-substring = 'dotfiles'
+run = ['move-node-to-workspace 2']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Chrome'
+run = ['move-node-to-workspace 3']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Slack'
+run = ['move-node-to-workspace 7']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Logseq'
+run = ['move-node-to-workspace N']
