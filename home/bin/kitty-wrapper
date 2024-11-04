@@ -1,10 +1,42 @@
 #!/usr/bin/env zsh
 
+# Initialize variables
+redirect_to_null=false
+
+# Function to display usage
+usage() {
+    echo "Usage: $0 [options] -- [kitty options]"
+    echo "Options:"
+    echo "  --redirect-to-null    Redirect output to /dev/null"
+    echo "  -h, --help            Display this help message"
+}
+
+# Parse options
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
+    case $1 in
+        --redirect-to-null )
+            redirect_to_null=true
+            ;;
+        -h | --help )
+            usage
+            exit 0
+            ;;
+        * )
+            echo "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+if [[ "$1" == '--' ]]; then shift; fi
+
+# Find or launch kitty socket
 local kitty_sock=$(cd /tmp && ls | grep mykitty)
 
 if [[ -z $kitty_sock ]]; then
-    echo "No kitty socket found. Launching kitty".
-    nohup kitty --listen-on unix:/tmp/mykitty >/dev/null 2>&1 &
+    echo "No kitty socket found. Launching kitty."
+    nohup kitty --listen-on=unix:/tmp/mykitty >/dev/null 2>&1 &
     disown
 fi
 
@@ -14,6 +46,11 @@ if [[ -z $kitty_sock ]]; then
     exit 1
 fi
 
-echo "args: $@"
-kitty @ --to unix:/tmp/$kitty_sock "$@"
+# Execute kitty with the remaining arguments
+if $redirect_to_null; then
+    kitty @ --to unix:/tmp/$kitty_sock "$@" > /dev/null
+else
+    kitty @ --to unix:/tmp/$kitty_sock "$@"
+fi
+
 return $?
