@@ -1,11 +1,29 @@
 customCommands:
-  - key: '<c-r>'
-    context: 'commits'
-    command: 'gh browse {{.SelectedLocalCommit.Hash}}'
+    - key: "<c-g>"
+      context: "commits"
+      command: "gh browse {{.SelectedLocalCommit.Hash}}"
+    - key: "<c-g>"
+      context: localBranches
+      command: "gh pr view {{.SelectedLocalBranch.Name}} --web"
+    - key: "<c-g>"
+      context: remoteBranches
+      command: "gh pr view {{.SelectedRemoteBranch.Name}} --web"
+    - key: "<f3>"
+      context: "global"
+      command: "git pull --no-edit"
+keybinding:
+    universal:
+        quit: <disabled>
+        quit-alt1: <c-c>
+        pushFiles: <f4>
+        pullFiles: <f3>
 git:
-  branchLogCmd: "git log --color=always --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=local {{branchName}} --"
-  branchPrefix: "shardul/"
+    branchLogCmd: "git log --color=always --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=local {{branchName}} --"
+    branchPrefix: "shardul/"
+    commitPrefix:
+        pattern: "^shardul/(\\w+-\\d+).*"
+        replace: "[$1] "
 gui:
-  nerdFontsVersion: "3"
+    nerdFontsVersion: "3"
 os:
-  editPreset: 'zed'
+    editPreset: "zed"
