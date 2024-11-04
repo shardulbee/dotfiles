@@ -48,12 +48,16 @@
   },
   "tab_size": 2,
   "git": {
-    "inline_blame": { "enabled": true }
+    "inline_blame": {
+      "enabled": true
+    }
   },
   "soft_wrap": "none",
   "cursor_blink": false,
   "project_panel": {
-    "scrollbar": { "show": "never" }
+    "scrollbar": {
+      "show": "never"
+    }
   },
   "base_keymap": "VSCode",
   "indent_guides": {
@@ -66,9 +70,28 @@
     "enable_preview_from_file_finder": false
   },
   "format_on_save": "on",
+  "formatter": "language_server",
   "languages": {
+    "TypeScript": {
+      "format_on_save": "on",
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true,
+        "source.removeUnusedImports": true,
+        "source.organizeImports": true
+      }
+    },
+    "TSX": {
+      "format_on_save": "on",
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true,
+        "source.organizeImports": true,
+        "source.removeUnusedImports": true
+      }
+    },
     "Python": {
-      "language_servers": ["pyright"],
+      "language_servers": [
+        "pyright"
+      ],
       "format_on_save": {
         "external": {
           "command": "ruff",

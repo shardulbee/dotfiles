@@ -6,7 +6,8 @@
       "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
       "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
       "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
-      "cmd-enter": "terminal_panel::ToggleFocus"
+      "cmd-enter": "terminal_panel::ToggleFocus",
+      "\\ f": "workspace::NewSearch"
     }
   },
   {
@@ -18,10 +19,14 @@
       "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
       "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
 
+      "ctrl-w enter": "workspace::ToggleZoom",
+
       // lsp
       "] d": "editor::GoToDiagnostic",
       "[ d": "editor::GoToPrevDiagnostic",
       "g r": "editor::FindAllReferences",
+      "g D": "editor::GoToTypeDefinitionSplit",
+      "g i": "editor::GoToTypeDefinitionSplit",
       "shift-k": "editor::Hover",
       ", c a": "editor::ToggleCodeActions",
       "\\ r": "editor::Rename",
@@ -32,11 +37,12 @@
       "cmd-shift-g cmd-shift-c": "editor::CopyPermalinkToLine",
 
       // tasks
-      "\\ space": ["task::Spawn", { "task_name": "Open in Neovim" }],
+      "\\ space": ["task::Spawn", { "task_name": "Open Kitty (terminal)" }],
       "\\ t n": ["task::Spawn", { "task_name": "Run nearest test (pytest)" }],
       "\\ t f": ["task::Spawn", { "task_name": "Run test file (pytest)" }],
       "\\ t t": ["task::Spawn", { "task_name": "Run test suite (pytest)" }],
       "\\ g s": ["task::Spawn", { "task_name": "Open LazyGit" }],
+      "\\ f": "workspace::NewSearch",
 
       "\\ 9": [
         "workspace::SendKeystrokes",
