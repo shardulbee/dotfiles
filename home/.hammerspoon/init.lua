@@ -1,5 +1,4 @@
 local chrome = require("chrome")
-require("slack")
 
 local function wrapped(fnToWrap, ...)
   local vararg = { ... }
