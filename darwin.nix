@@ -1,13 +1,30 @@
 # vim: fdm=marker fdl=0
-{ pkgs, inputs, ... }: let
+{ pkgs, inputs, lib , ... }: let
   stow = pkgs.stow;
   zsh-autosuggestions = pkgs.zsh-autosuggestions;
   zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
   fzf = pkgs.fzf;
   fzf-git-sh = pkgs.fzf-git-sh;
-  pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.aarch64-darwin;
+  # pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.aarch64-darwin;
+  pkgs = import inputs.nixpkgs {
+    system = "aarch64-darwin"; # whatever your system name is
+    config = {
+      allowUnfree = true;
+      allowUnfreePredicate = _: true;
+    };
+  };
+  pkgs-unstable = import inputs.nixpkgs-unstable {
+    system = "aarch64-darwin"; # whatever your system name is
+    config = {
+      allowUnfree = true;
+      allowUnfreePredicate = _: true;
+    };
+  };
 in {
 
+  nixpkgs.config = {
+    allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) ["1password-cli"];
+  };
   users.users.shardul = {
     name = "shardul";
     home = "/Users/shardul";
@@ -37,6 +54,9 @@ in {
       pkgs.lazydocker
       pkgs-unstable.jankyborders
       pkgs.nixd
+      pkgs-unstable._1password
+      pkgs.zellij
+      pkgs.tmux
       stow
       zsh-autosuggestions
       zsh-fast-syntax-highlighting
@@ -125,7 +145,8 @@ in {
   nixpkgs.hostPlatform = "aarch64-darwin";
   nix.settings.experimental-features = "nix-command flakes";
   system.stateVersion = 4;
-  nixpkgs.config.allowUnfree = true;
+  # nixpkgs.config.allowUnfree = true;
+  # inputs.nixpkgs.config.allowUnfree = true;
 
   networking.hostName = "turbochardo";
   networking.localHostName = "turbochardo";
