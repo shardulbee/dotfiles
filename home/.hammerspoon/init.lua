@@ -27,17 +27,39 @@ CTRL = "ctrl"
 SHIFT = "shift"
 
 local function connectVPN()
-  -- send the cmd-ctrl-opt-v key
-  -- followed by down down down down then enter
+  local screen = hs.screen.mainScreen()
+  local screenFrame = screen:frame()
+  local centerX = screenFrame.x + (screenFrame.w / 2)
+  local centerY = screenFrame.y + (screenFrame.h / 2)
+  hs.mouse.setAbsolutePosition({ x = centerX, y = centerY })
   hs.eventtap.keyStroke({ "cmd", "ctrl", "alt" }, "v")
-  hs.eventtap.keyStroke({}, "down", 0)
-  hs.eventtap.keyStroke({}, "down", 0)
-  hs.eventtap.keyStroke({}, "down", 0)
-  hs.eventtap.keyStroke({}, "down", 0)
-  hs.eventtap.keyStroke({}, "return", 0)
+  hs.timer.doAfter(0.1, function()
+    hs.eventtap.keyStroke({}, "down", 0)
+    hs.eventtap.keyStroke({}, "down", 0)
+    hs.eventtap.keyStroke({}, "down", 0)
+    hs.eventtap.keyStroke({}, "down", 0)
+    hs.eventtap.keyStroke({}, "return", 0)
+  end)
+end
+
+local function focusWindow(direction)
+  return function()
+    local win = hs.window.focusedWindow()
+    if win then win["focusWindow" .. direction](win, nil, true) end
+  end
 end
 
 local bindings = {
+  { mods = { ALT },            key = "1", app = "Zed" },
+  { mods = { ALT },            key = "3", app = "Google Chrome" },
+  { mods = { ALT },            key = "7", app = "Slack" },
+  { mods = { ALT },            key = "0", app = "kitty" },
+
+  { mods = { ALT },            key = "h", fn = focusWindow("West") },
+  { mods = { ALT },            key = "j", fn = focusWindow("South") },
+  { mods = { ALT },            key = "k", fn = focusWindow("North") },
+  { mods = { ALT },            key = "l", fn = focusWindow("East") },
+
   { mods = { CMD, CTRL },      key = "6", fn = hs.toggleConsole },
   { mods = { CMD, CTRL },      key = "F", app = "Finder" },
   { mods = { CMD, CTRL },      key = "C", app = "Fantastical" },
