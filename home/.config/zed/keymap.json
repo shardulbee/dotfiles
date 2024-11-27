@@ -2,25 +2,61 @@
   {
     "context": "Workspace",
     "bindings": {
-      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
-      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
-      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
-      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
+      "ctrl-h": [
+        "workspace::ActivatePaneInDirection",
+        "Left"
+      ],
+      "ctrl-l": [
+        "workspace::ActivatePaneInDirection",
+        "Right"
+      ],
+      "ctrl-k": [
+        "workspace::ActivatePaneInDirection",
+        "Up"
+      ],
+      "ctrl-j": [
+        "workspace::ActivatePaneInDirection",
+        "Down"
+      ],
       "cmd-enter": "terminal_panel::ToggleFocus",
-      "\\ f": "workspace::NewSearch"
+      "\\ f": "workspace::NewSearch",
+      "\\ space": [
+        "task::Spawn",
+        {
+          "task_name": "Open Kitty (terminal)"
+        }
+      ],
+      "\\ g s": [
+        "task::Spawn",
+        {
+          "task_name": "Open LazyGit (zed)"
+        }
+      ],
+      "alt-cmd-o": "projects::OpenRemote",
+      "ctrl-cmd-o": "projects::OpenRecent"
     }
   },
   {
     "context": "Editor && VimControl && !VimWaiting && !menu",
     "bindings": {
-      // "ctrl-w z": "workspace::ToggleZoom",
-      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
-      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
-      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
-      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
-
+      "ctrl-w z": "workspace::ToggleZoom",
+      "ctrl-h": [
+        "workspace::ActivatePaneInDirection",
+        "Left"
+      ],
+      "ctrl-l": [
+        "workspace::ActivatePaneInDirection",
+        "Right"
+      ],
+      "ctrl-k": [
+        "workspace::ActivatePaneInDirection",
+        "Up"
+      ],
+      "ctrl-j": [
+        "workspace::ActivatePaneInDirection",
+        "Down"
+      ],
       "ctrl-w enter": "workspace::ToggleZoom",
-
       // lsp
       "] d": "editor::GoToDiagnostic",
       "[ d": "editor::GoToPrevDiagnostic",
@@ -30,26 +66,46 @@
       "shift-k": "editor::Hover",
       ", c a": "editor::ToggleCodeActions",
       "\\ r": "editor::Rename",
-
       // git
       "\\ g b": "editor::ToggleGitBlame",
       "cmd-shift-g cmd-shift-o": "editor::OpenPermalinkToLine",
       "cmd-shift-g cmd-shift-c": "editor::CopyPermalinkToLine",
-
       // tasks
-      "\\ space": ["task::Spawn", { "task_name": "Open Kitty (terminal)" }],
-      "\\ t n": ["task::Spawn", { "task_name": "Run nearest test (pytest)" }],
-      "\\ t f": ["task::Spawn", { "task_name": "Run test file (pytest)" }],
-      "\\ t t": ["task::Spawn", { "task_name": "Run test suite (pytest)" }],
-      "\\ g s": ["task::Spawn", { "task_name": "Open LazyGit" }],
+      "\\ space": [
+        "task::Spawn",
+        {
+          "task_name": "Open Kitty (terminal)"
+        }
+      ],
+      "\\ t n": [
+        "task::Spawn",
+        {
+          "task_name": "Run nearest test (pytest)"
+        }
+      ],
+      "\\ t f": [
+        "task::Spawn",
+        {
+          "task_name": "Run test file (pytest)"
+        }
+      ],
+      "\\ t t": [
+        "task::Spawn",
+        {
+          "task_name": "Run test suite (pytest)"
+        }
+      ],
+      "\\ g s": [
+        "task::Spawn",
+        {
+          "task_name": "Open LazyGit (zed)"
+        }
+      ],
       "\\ f": "workspace::NewSearch",
-
       "\\ 9": [
         "workspace::SendKeystrokes",
         "^ i enter up i m p o r t space i p d b ; space i p d b . s e t _ t r a c e ( ) escape"
       ],
-      "cmd-enter": "workspace::ToggleRightDock",
-
       "[ x": "editor::SelectLargerSyntaxNode",
       "] x": "editor::SelectSmallerSyntaxNode"
     }
@@ -57,11 +113,22 @@
   {
     "context": "Dock",
     "bindings": {
-      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
-      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
-      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
-      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
-      "cmd-enter": "workspace::ToggleRightDock"
+      "ctrl-h": [
+        "workspace::ActivatePaneInDirection",
+        "Left"
+      ],
+      "ctrl-l": [
+        "workspace::ActivatePaneInDirection",
+        "Right"
+      ],
+      "ctrl-k": [
+        "workspace::ActivatePaneInDirection",
+        "Up"
+      ],
+      "ctrl-j": [
+        "workspace::ActivatePaneInDirection",
+        "Down"
+      ],
     }
   },
   {
@@ -70,7 +137,15 @@
       "cmd-t": "workspace::NewTerminal",
       "ctrl-d": "terminal::ScrollPageDown",
       "ctrl-u": "terminal::ScrollPageUp",
-      "cmd-enter": "workspace::ToggleRightDock"
+      "cmd-enter": "workspace::ToggleRightDock",
+      "cmd-down": [
+        "workspace::SendKeystrokes",
+        "f3"
+      ],
+      "cmd-up": [
+        "workspace::SendKeystrokes",
+        "f4"
+      ]
     }
   },
   {
@@ -86,8 +161,14 @@
       "s": "editor::SelectSmallerSyntaxNode",
       ";": "editor::SelectLargerSyntaxNode",
       // shift-s binds (Surround) rely on custom keybinding (ctrl-g p) for vim paste
-      "shift-s '": ["workspace::SendKeystrokes", "d i ' ' left left ctrl-g p"],
-      "shift-s `": ["workspace::SendKeystrokes", "d i ` ` left left ctrl-g p"],
+      "shift-s '": [
+        "workspace::SendKeystrokes",
+        "d i ' ' left left ctrl-g p"
+      ],
+      "shift-s `": [
+        "workspace::SendKeystrokes",
+        "d i ` ` left left ctrl-g p"
+      ],
       "shift-s \"": [
         "workspace::SendKeystrokes",
         "d i \" \" left left ctrl-g p"
@@ -96,17 +177,26 @@
         "workspace::SendKeystrokes",
         "d i [ space space ] left left left ctrl-g p"
       ],
-      "shift-s ]": ["workspace::SendKeystrokes", "d i [ ] left left ctrl-g p"],
+      "shift-s ]": [
+        "workspace::SendKeystrokes",
+        "d i [ ] left left ctrl-g p"
+      ],
       "shift-s {": [
         "workspace::SendKeystrokes",
         "d i { space space } left left left ctrl-g p"
       ],
-      "shift-s }": ["workspace::SendKeystrokes", "d i { } left left ctrl-g p"],
+      "shift-s }": [
+        "workspace::SendKeystrokes",
+        "d i { } left left ctrl-g p"
+      ],
       "shift-s (": [
         "workspace::SendKeystrokes",
         "d i ( space space ) left left left ctrl-g p"
       ],
-      "shift-s )": ["workspace::SendKeystrokes", "d i ( ) left left ctrl-g p"]
+      "shift-s )": [
+        "workspace::SendKeystrokes",
+        "d i ( ) left left ctrl-g p"
+      ]
     }
   }
 ]

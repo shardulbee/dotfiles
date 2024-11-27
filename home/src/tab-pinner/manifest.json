@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Pinner",
+  "version": "1.0",
+  "description": "Pin tabs using Cmd+Shift+X",
+  "permissions": [
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "toggle-pin": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+X",
+        "mac": "Command+Shift+X"
+      },
+      "description": "Toggle pin state of current tab"
+    }
+  }
+}

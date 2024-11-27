@@ -31,6 +31,10 @@ function Chrome.GetTabRichLink()
   -- Check if the URL is a GitHub pull request and modify the title if necessary
   if url:match("/pull/") then
     title = title:match("^(.-) by .+ · Pull Request")
+  elseif url:match("atlassian.net/browse/") then
+    print("Title before: " .. title)
+    title = title:match("^(.-) %- Jira")
+    print("Title after: " .. title)
   end
 
   -- Encode the title as html entities like (&#107;&#84;), so that we can

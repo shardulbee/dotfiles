@@ -5,18 +5,12 @@
     "use_new_terminal": false
   },
   {
-    "label": "Open LazyGit",
-    "command": "~/dotfiles/home/bin/kitty-wrapper focus-window --match 'cmdline:lazygit and cwd:$ZED_WORKTREE_ROOT'",
-    "hide": "on_success",
-    "reveal": "never",
-    "use_new_terminal": false
-  },
-  {
-    "label": "Open Kitty (terminal)",
-    "command": "~/dotfiles/home/bin/kitty-wrapper focus-window --match 'cmdline:zsh and cwd:$ZED_WORKTREE_ROOT'",
+    "label": "Open LazyGit (zed)",
+    "command": "lazygit -p $ZED_WORKTREE_ROOT",
     "hide": "never",
     "reveal": "always",
-    "use_new_terminal": false
+    "use_new_terminal": false,
+    "allow_concurrent_runs": true
   },
   {
     "label": "Run test file (pytest)",
@@ -39,32 +33,4 @@
     "hide": "on_success",
     "reveal": "always"
   },
-  {
-    "label": "Create GitHub PR",
-    "command": "cd $ZED_WORKTREE_ROOT && gh pr create --web",
-    "use_new_terminal": false,
-    "hide": "always",
-    "reveal": "never"
-  },
-  {
-    "label": "Open in Neovim",
-    "command": "~/dotfiles/home/bin/kitty-wrapper send-text --match title:vim ':chdir $ZED_WORKTREE_ROOT\\x0D:e +$ZED_ROW $ZED_FILE\\x0D' && aerospace workspace Z",
-    "use_new_terminal": false,
-    "hide": "always",
-    "reveal": "never"
-  },
-  {
-    "label": "Open psql (dev)",
-    "command": "./tools/db/psql.sh -e dev -u dev",
-    "use_new_terminal": false,
-    "hide": "always",
-    "reveal": "never"
-  },
-  {
-    "label": "Open GitHub File",
-    "command": "gh browse $ZED_RELATIVE_FILE:$ZED_ROW --branch main",
-    "use_new_terminal": false,
-    "hide": "always",
-    "reveal": "never"
-  }
 ]
