@@ -1,5 +1,6 @@
 # vim: fdm=marker fdl=0
-{ inputs, lib , ... }: let
+{ inputs, lib, ... }:
+let
   stow = pkgs.stow;
   zsh-autosuggestions = pkgs.zsh-autosuggestions;
   zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
@@ -20,10 +21,11 @@
       allowUnfreePredicate = _: true;
     };
   };
-in {
+in
+{
 
   nixpkgs.config = {
-    allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) ["1password-cli"];
+    allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "1password-cli" ];
   };
   users.users.shardul = {
     name = "shardul";
@@ -35,48 +37,46 @@ in {
   # -------------------------------------------------------
   # Programs/packages
   # -------------------------------------------------------
-  environment.systemPackages =
-    [ pkgs.vim
-      pkgs.neovim
-      pkgs.git
-      pkgs.fd
-      pkgs.jq
-      pkgs.bat
-      pkgs.gh
-      pkgs.neofetch
-      pkgs.wget
-      pkgs._1password
-      pkgs.ripgrep
-      pkgs.darwin.trash
-      pkgs.kitty
-      pkgs.hyperfine
-      pkgs.lazygit
-      pkgs.lazydocker
-      pkgs-unstable.jankyborders
-      pkgs.nixd
-      pkgs-unstable._1password
-      pkgs.zellij
-      pkgs.tmux
-      stow
-      zsh-autosuggestions
-      zsh-fast-syntax-highlighting
-      fzf
+  environment.systemPackages = [
+    pkgs.vim
+    pkgs.neovim
+    pkgs.git
+    pkgs.fd
+    pkgs.jq
+    pkgs.bat
+    pkgs.gh
+    pkgs.neofetch
+    pkgs.wget
+    pkgs._1password
+    pkgs.ripgrep
+    pkgs.darwin.trash
+    pkgs.kitty
+    pkgs.hyperfine
+    pkgs.lazygit
+    pkgs.lazydocker
+    # pkgs-unstable.jankyborders
+    pkgs.nixd
+    pkgs-unstable._1password
+    zsh-autosuggestions
+    zsh-fast-syntax-highlighting
+    fzf
+    pkgs.nixfmt-rfc-style
 
-      # for dbnl, until I can flakify
-      pkgs.awscli2
-      pkgs.skaffold
-      pkgs.python311
-      pkgs.terraform
-      pkgs.kubectl
-      pkgs.kubernetes-helm
-      pkgs.xz
-      pkgs.bun
-      pkgs.antlr
-      pkgs.gettext
-      pkgs.chart-testing
-      pkgs.nodejs
-      pkgs.python311Packages.pip
-      pkgs.python311Packages.venvShellHook
+    # for dbnl, until I can flakify
+    pkgs.awscli2
+    pkgs.skaffold
+    pkgs.python312
+    pkgs.terraform
+    pkgs.kubectl
+    pkgs.kubernetes-helm
+    pkgs.xz
+    pkgs.bun
+    pkgs.antlr
+    pkgs.gettext
+    pkgs.chart-testing
+    pkgs.nodejs
+    pkgs.python311Packages.pip
+    pkgs.python311Packages.venvShellHook
   ];
 
   programs.zsh = {
@@ -121,8 +121,9 @@ in {
       "setapp"
       "logseq"
       "nikitabobko/tap/aerospace"
-      "fantastical"
       "google-cloud-sdk"
+      "mimestream"
+      "karabiner-elements"
     ];
     onActivation.cleanup = "uninstall";
   };
