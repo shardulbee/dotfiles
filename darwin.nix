@@ -54,8 +54,9 @@ in
     pkgs.hyperfine
     pkgs.lazygit
     pkgs.lazydocker
-    # pkgs-unstable.jankyborders
+    pkgs.blueutil
     pkgs.nixd
+    pkgs.btop
     pkgs-unstable._1password
     zsh-autosuggestions
     zsh-fast-syntax-highlighting
@@ -77,6 +78,7 @@ in
     pkgs.nodejs
     pkgs.python311Packages.pip
     pkgs.python311Packages.venvShellHook
+    pkgs.eslint
   ];
 
   programs.zsh = {
