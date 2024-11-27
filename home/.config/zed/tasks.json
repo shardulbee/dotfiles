@@ -5,32 +5,10 @@
     "use_new_terminal": false
   },
   {
-    "label": "Open LazyGit (zed)",
-    "command": "lazygit -p $ZED_WORKTREE_ROOT",
-    "hide": "never",
-    "reveal": "always",
-    "use_new_terminal": false,
-    "allow_concurrent_runs": true
-  },
-  {
     "label": "Run test file (pytest)",
     "command": "$ZED_WORKTREE_ROOT/.venv/bin/pytest $ZED_FILE -s",
     "use_new_terminal": false,
     "hide": "on_success",
     "reveal": "always"
-  },
-  {
-    "label": "Run nearest test (pytest)",
-    "command": "$ZED_WORKTREE_ROOT/.venv/bin/pytest $ZED_FILE::$ZED_SYMBOL -s",
-    "use_new_terminal": false,
-    "hide": "on_success",
-    "reveal": "always"
-  },
-  {
-    "label": "Run test suite (pytest)",
-    "command": "$ZED_WORKTREE_ROOT/.venv/bin/pytest -n auto",
-    "use_new_terminal": false,
-    "hide": "on_success",
-    "reveal": "always"
-  },
+  }
 ]

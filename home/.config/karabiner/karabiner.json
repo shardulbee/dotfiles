@@ -21,27 +21,6 @@
             ]
           },
           {
-            "description": "Caps Lock to F5 on tap, Control on hold",
-            "manipulators": [
-              {
-                "from": {
-                  "key_code": "caps_lock"
-                },
-                "to": [
-                  {
-                    "key_code": "left_control"
-                  }
-                ],
-                "to_if_alone": [
-                  {
-                    "key_code": "f5"
-                  }
-                ],
-                "type": "basic"
-              }
-            ]
-          },
-          {
             "description": "Vi Mode [left_control + hjkl]",
             "manipulators": [
               {

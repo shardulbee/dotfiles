@@ -17,7 +17,6 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   "direnv/direnv.vim",
   "LnL7/vim-nix",
-  "ziglang/zig.vim",
   "tpope/vim-eunuch",
   "tpope/vim-unimpaired",
   "tpope/vim-surround",
@@ -30,18 +29,6 @@ require("lazy").setup({
   "tpope/vim-rhubarb",
   "tpope/vim-repeat",
   "tpope/vim-dispatch",
-  -- {
-  -- 	"supermaven-inc/supermaven-nvim",
-  -- 	config = function()
-  -- 		require("supermaven-nvim").setup({
-  -- 			ignore_filtypes = { "markdown" },
-  -- 			keymaps = {
-  -- 				accept_suggestion = "<c-l>",
-  -- 				clear_suggestion = "<c-e>",
-  -- 			},
-  -- 		})
-  -- 	end,
-  -- },
   {
     "zbirenbaum/copilot.lua",
     cmd = "Copilot",
@@ -86,23 +73,6 @@ require("lazy").setup({
         },
       })
     end,
-  },
-  {
-    "yetone/avante.nvim",
-    event = "VeryLazy",
-    lazy = false,
-    version = false, -- set this if you want to always pull the latest change
-    opts = {
-      provider = 'copilot'
-    },
-    build = "make",
-    dependencies = {
-      "stevearc/dressing.nvim",
-      "nvim-lua/plenary.nvim",
-      "MunifTanjim/nui.nvim",
-      "nvim-tree/nvim-web-devicons",
-      "zbirenbaum/copilot.lua",
-    },
   },
   {
     "tpope/vim-fugitive",
@@ -166,7 +136,6 @@ require("lazy").setup({
       })
     end,
   },
-  { "knubie/vim-kitty-navigator", build = "cp ./*.py ~/.config/kitty/" },
   {
     "RRethy/nvim-base16",
     lazy = false,
@@ -365,7 +334,6 @@ require("lazy").setup({
         ensure_installed = {
           "lua-language-server",
           "stylua",
-          "ruff-lsp"
         },
       })
       require("mason-lspconfig").setup()
@@ -384,11 +352,6 @@ require("lazy").setup({
           null_ls.builtins.code_actions.gitsigns,
           null_ls.builtins.formatting.fixjson,
           null_ls.builtins.formatting.stylua,
-
-          -- python
-          -- null_ls.builtins.formatting.isort,
-          -- null_ls.builtins.formatting.black,
-          -- null_ls.builtins.diagnostics.mypy,
         },
         on_attach = function(client, bufnr)
           if client.supports_method("textDocument/formatting") then
@@ -636,8 +599,27 @@ vim.api.nvim_create_autocmd({ "VimResized" }, {
 
 
 vim.keymap.set("n", "<leader><space>", function()
+  local function find_git_root()
+    local current = vim.fn.expand("%:p:h")
+    while current ~= "/" do
+      if vim.fn.isdirectory(current .. "/.git") == 1 then
+        return current
+      end
+      current = vim.fn.fnamemodify(current, ":h")
+    end
+    return nil
+  end
+
+  local git_root = find_git_root()
+  if not git_root then
+    print("No git root found")
+    return
+  end
+
+  print("git root: " .. git_root)
+
   local file = vim.fn.expand("%:p")
   local line = vim.fn.line(".")
   local col = vim.fn.col(".")
-  vim.fn.system({ "zed", file .. ":" .. line .. ":" .. col })
+  vim.fn.system({ "zed", git_root, file .. ":" .. line .. ":" .. col })
 end, { noremap = true, silent = true })

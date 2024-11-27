@@ -1,47 +1,5 @@
 local chrome = require("chrome")
 
-local function wrapped(fnToWrap, ...)
-  local vararg = { ... }
-  local wrapped_fn = function()
-    fnToWrap(table.unpack(vararg))
-  end
-  return wrapped_fn
-end
-
-local function setBinding(binding)
-  if binding.app then
-    hs.hotkey.bind(binding.mods, binding.key, wrapped(hs.application.launchOrFocus, binding.app))
-  elseif binding.fn then
-    hs.hotkey.bind(binding.mods, binding.key, binding.fn)
-  elseif binding.tab then
-    hs.hotkey.bind(binding.mods, binding.key, chrome.LaunchOrFocusTab(binding.tab))
-  elseif binding.url then
-    hs.hotkey.bind(binding.mods, binding.key, wrapped(hs.urlevent.openURL, binding.url))
-  end
-end
-
-LALT = "lalt"
-LCMD = "lcmd"
-RCMD = "rcmd"
-LCTRL = "lctrl"
-LSHIFT = "lshift"
-
-local function connectVPN()
-  local screen = hs.screen.mainScreen()
-  local screenFrame = screen:frame()
-  local centerX = screenFrame.x + (screenFrame.w / 2)
-  local centerY = screenFrame.y + (screenFrame.h / 2)
-  hs.mouse.absolutePosition({ x = centerX, y = centerY })
-  hs.eventtap.keyStroke({ "cmd", "ctrl", "alt" }, "v")
-  hs.timer.doAfter(1, function()
-    hs.eventtap.keyStroke({}, "down", 0)
-    hs.eventtap.keyStroke({}, "down", 0)
-    hs.eventtap.keyStroke({}, "down", 0)
-    hs.eventtap.keyStroke({}, "down", 0)
-    hs.eventtap.keyStroke({}, "return", 0)
-  end)
-end
-
 local function connectAwsSso()
   local task = hs.task.new("/usr/local/bin/aws", function(exitCode, _, _)
     if exitCode == 0 then
@@ -59,13 +17,8 @@ local function connectAwsSso()
     end
   end, { "sso", "login", "--profile", "app-dev" })
   task:start()
+  hs.timer.doAfter(20, function() task:terminate() end)
 end
-
-local bindings = {
-
-  { mods = { LCMD, LCTRL, LALT }, key = "C", fn = chrome.GetTabRichLink },
-}
-hs.fnutils.each(bindings, setBinding)
 
 hs.loadSpoon("RecursiveBinder")
 
@@ -88,36 +41,58 @@ local function aerospace(args)
   end
 end
 
+local function blueutil(args)
+  return function()
+    local task = hs.task.new("/usr/local/bin/blueutil", nil, args)
+    task:start()
+  end
+end
+
 local keyMap = {
   [singleKey('o', 'open+')] = {
     [singleKey('b', 'browser')] = launchOrFocusApp("Google Chrome"),
     [singleKey('t', 'terminal')] = launchOrFocusApp("kitty"),
     [singleKey('m', 'mail')] = launchOrFocusApp("Mimestream"),
-    [singleKey('s', 'music')] = launchOrFocusApp("Spotify"),
-    [singleKey('i', 'messaging')] = launchOrFocusApp("Slack"),
+    [singleKey('s', 'slack')] = launchOrFocusApp("Slack"),
     [singleKey('z', 'zoom')] = launchOrFocusApp("zoom.us"),
     [singleKey('c', 'calendar')] = chrome.LaunchOrFocusTab("https://calendar.google.com"),
     [singleKey('e', 'zed')] = launchOrFocusApp("Zed"),
+  },
+  [singleKey('z', 'zoom')] = {
+    [singleKey('o', 'open')] = launchOrFocusApp("zoom.us"),
+    [singleKey('j', 'join')] = function() hs.eventtap.keyStroke({ "cmd", "alt", "cmd", "shift" }, "j") end,
+    [singleKey('c', 'calendar')] = function() hs.eventtap.keyStroke({ "cmd", "alt", "ctrl", }, "c") end,
   },
   [singleKey('h', 'hammerspoon')] = {
     [singleKey('c', 'console')] = hs.toggleConsole,
     [singleKey('r', 'console')] = hs.reload
   },
   [singleKey('d', 'dbnl')] = {
-    [singleKey('v', 'connect vpn')] = connectVPN,
-    [singleKey('a', 'aws sso')] = connectAwsSso
+    [singleKey('v', 'connect vpn')] = function() hs.eventtap.keyStroke({ "cmd", "ctrl", "alt" }, "v") end,
+    [singleKey('s', 'aws sso')] = connectAwsSso,
+    [singleKey('a', 'app')] = {
+      [singleKey('l', 'local')] = openUrl("http://localhost:5173/"),
+      [singleKey('r', 'remote')] = openUrl("https://app-shardul.dev.dbnl.com"),
+      [singleKey('d', 'dev')] = openUrl("https://app.dev.dbnl.com"),
+      [singleKey('p', 'prod')] = openUrl("https://app.dbnl.com"),
+    }
   },
   [singleKey('r', 'raycast')] = {
     [singleKey('c', 'clipboard')] = openUrl("raycast://extensions/raycast/clipboard-history/clipboard-history"),
     [singleKey('e', 'emoji')] = openUrl("raycast://extensions/raycast/emoji-symbols/search-emoji-symbols"),
-    [singleKey('r', 'ai chat')] = openUrl("raycast://extensions/raycast/raycast-ai/ai-chat")
+    [singleKey('r', 'ai chat')] = openUrl("raycast://extensions/raycast/raycast-ai/ai-chat"),
+    [singleKey('f', 'search files')] = openUrl("raycast://extensions/raycast/file-search/search-files")
+
   },
   [singleKey('c', 'capture')] = {
     [singleKey('v', 'video')] = openUrl("raycast://extensions/Aayush9029/cleanshotx/record-screen"),
-    [singleKey('c', 'screenshot')] = openUrl(
+    [singleKey('c', 'copy')] = openUrl(
       "raycast://extensions/Aayush9029/cleanshotx/capture-area?arguments=%7B%22action%22%3A%22copy%22%7D"),
     [singleKey('a', 'annotate')] = openUrl(
-      "raycast://extensions/Aayush9029/cleanshotx/capture-area?arguments=%7B%22action%22%3A%22annotate%22%7D")
+      "raycast://extensions/Aayush9029/cleanshotx/capture-area?arguments=%7B%22action%22%3A%22annotate%22%7D"),
+    [singleKey('s', 'save')] = openUrl(
+      "raycast://extensions/Aayush9029/cleanshotx/capture-area?arguments=%7B%22action%22%3A%22save%22%7D"),
+    [singleKey('f', 'find')] = openUrl("raycast://extensions/raycast/file-search/search-files?fallbackText=cleanshot")
   },
   [singleKey('b', 'browser')] = {
     [singleKey('b', 'bookmarks')] = openUrl("raycast://extensions/raycast/browser-bookmarks/index"),
@@ -143,6 +118,20 @@ local keyMap = {
     [singleKey('o', 'open issues')] = openUrl("raycast://extensions/raycast/jira/open-issues"),
     [singleKey('s', 'search')] = openUrl("raycast://extensions/raycast/jira/search-issues"),
     [singleKey('c', 'create')] = openUrl("raycast://extensions/raycast/jira/create-issue"),
+  },
+  [singleKey('a', 'airpods')] = {
+    [singleKey('p', 'pro')] = blueutil({ "--connect", "44-1b-88-e1-7d-7f" }),
+    [singleKey('m', 'max')] = blueutil({ "--connect", "08-ff-44-39-13-74" }),
+  },
+  [singleKey('s', 'spotify')] = {
+    [singleKey('o', 'open')] = launchOrFocusApp("Spotify"),
+    [singleKey('l', 'library')] = openUrl("raycast://extensions/mattisssa/spotify-player/yourLibrary")
+  },
+  [singleKey('f', 'focus')] = {
+    [singleKey('b', 'break')] = openUrl("focus://break"),
+    [singleKey('p', 'pomodoro')] = openUrl("focus://focus?minutes=25"),
+    [singleKey('u', 'unfocus')] = openUrl("focus://unfocus"),
+    [singleKey('c', 'config')] = openUrl("focus://preferences")
   }
 }
 
