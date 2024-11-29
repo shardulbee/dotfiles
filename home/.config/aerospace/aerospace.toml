@@ -68,11 +68,11 @@ if.app-name-regex-substring = '1Password'
 run = ['layout floating']
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'Hammerspoon'
-run = ['layout floating']
+if.app-name-regex-substring = 'Zed'
+run = ['move-node-to-workspace 1']
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'Zed'
+if.app-name-regex-substring = 'Cursor'
 run = ['move-node-to-workspace 1']
 
 [[on-window-detected]]
@@ -80,19 +80,8 @@ if.app-name-regex-substring = 'kitty'
 run = ['move-node-to-workspace Z']
 
 [[on-window-detected]]
-if.window-title-regex-substring = 'dotfiles'
-run = ['move-node-to-workspace 2']
-
-[[on-window-detected]]
 if.app-name-regex-substring = 'Chrome'
 run = ['move-node-to-workspace 3']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Slack'
-run = ['move-node-to-workspace 7']
-[[on-window-detected]]
-if.app-name-regex-substring = 'Mimestream'
-run = ['move-node-to-workspace 7']
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Logseq'

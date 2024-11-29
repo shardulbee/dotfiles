@@ -1,4 +1,3 @@
-# vim: fdm=marker fdl=0
 { inputs, lib, ... }:
 let
   stow = pkgs.stow;
@@ -6,27 +5,18 @@ let
   zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
   fzf = pkgs.fzf;
   fzf-git-sh = pkgs.fzf-git-sh;
-  # pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.aarch64-darwin;
   pkgs = import inputs.nixpkgs {
-    system = "aarch64-darwin"; # whatever your system name is
+    system = "aarch64-darwin";
     config = {
-      allowUnfree = true;
-      allowUnfreePredicate = _: true;
-    };
-  };
-  pkgs-unstable = import inputs.nixpkgs-unstable {
-    system = "aarch64-darwin"; # whatever your system name is
-    config = {
-      allowUnfree = true;
-      allowUnfreePredicate = _: true;
+      allowUnfreePredicate =
+        pkg:
+        builtins.elem (lib.getName pkg) [
+          "1password-cli"
+        ];
     };
   };
 in
 {
-
-  nixpkgs.config = {
-    allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "1password-cli" ];
-  };
   users.users.shardul = {
     name = "shardul";
     home = "/Users/shardul";
@@ -34,9 +24,6 @@ in
     shell = pkgs.zsh;
   };
 
-  # -------------------------------------------------------
-  # Programs/packages
-  # -------------------------------------------------------
   environment.systemPackages = [
     pkgs.vim
     pkgs.neovim
@@ -47,7 +34,6 @@ in
     pkgs.gh
     pkgs.neofetch
     pkgs.wget
-    pkgs._1password
     pkgs.ripgrep
     pkgs.darwin.trash
     pkgs.kitty
@@ -57,28 +43,12 @@ in
     pkgs.blueutil
     pkgs.nixd
     pkgs.btop
-    pkgs-unstable._1password
+    pkgs.nil
+    pkgs._1password-cli
+    pkgs.nixfmt-rfc-style
     zsh-autosuggestions
     zsh-fast-syntax-highlighting
     fzf
-    pkgs.nixfmt-rfc-style
-
-    # for dbnl, until I can flakify
-    pkgs.awscli2
-    pkgs.skaffold
-    pkgs.python312
-    pkgs.terraform
-    pkgs.kubectl
-    pkgs.kubernetes-helm
-    pkgs.xz
-    pkgs.bun
-    pkgs.antlr
-    pkgs.gettext
-    pkgs.chart-testing
-    pkgs.nodejs
-    pkgs.python311Packages.pip
-    pkgs.python311Packages.venvShellHook
-    pkgs.eslint
   ];
 
   programs.zsh = {
@@ -103,40 +73,40 @@ in
   homebrew = {
     enable = true;
     global.autoUpdate = true;
-    brews = [
-      "postgresql@14"
-      "helm"
-    ];
     casks = [
+      # general
+      "karabiner-elements"
+      "dash"
+      "nikitabobko/tap/aerospace"
+      "logseq"
+      "orbstack"
+      "zed"
+      "slack"
+      "google-drive"
+      "zoom"
       "1password"
       "hammerspoon"
       "google-chrome"
       "raycast"
       "spotify"
-      "zoom"
-      "google-drive"
-      "slack"
-      "meetingbar"
-      "zed"
-      "orbstack"
-      "sublime-merge"
-      "setapp"
-      "logseq"
-      "nikitabobko/tap/aerospace"
-      "google-cloud-sdk"
-      "mimestream"
-      "karabiner-elements"
+      "dash"
+
+      # personal
+      "zwift"
+      "tailscale"
+      "vlc"
+      "cursor"
+      "cleanshot"
+      "bartender"
+      "arq"
+      "fantastical"
     ];
     onActivation.cleanup = "uninstall";
   };
   fonts.packages = with pkgs; [
-    recursive
-    (nerdfonts.override {
-      fonts = [ "IBMPlexMono" ];
-    })
+    nerd-fonts.blex-mono
   ];
 
-  # {{{ misc environment
   environment.pathsToLink = [ "/share/zsh" ];
   nix = {
     useDaemon = true;
@@ -148,20 +118,12 @@ in
   nixpkgs.hostPlatform = "aarch64-darwin";
   nix.settings.experimental-features = "nix-command flakes";
   system.stateVersion = 4;
-  # nixpkgs.config.allowUnfree = true;
-  # inputs.nixpkgs.config.allowUnfree = true;
 
   networking.hostName = "turbochardo";
   networking.localHostName = "turbochardo";
   networking.computerName = "turbochardo";
-  #}}}
 
-  #{{{ macos defaults
   security.pam.enableSudoTouchIdAuth = true;
-
-  # ------------------------------------------------------------
-  # Keyboard
-  # ------------------------------------------------------------
   system.keyboard.enableKeyMapping = true;
   system.defaults.NSGlobalDomain.InitialKeyRepeat = 15;
   system.defaults.NSGlobalDomain.KeyRepeat = 1;
@@ -175,10 +137,6 @@ in
   system.defaults.NSGlobalDomain."com.apple.keyboard.fnState" = false;
   system.defaults.NSGlobalDomain."com.apple.mouse.tapBehavior" = 1;
   system.defaults.NSGlobalDomain."com.apple.trackpad.trackpadCornerClickBehavior" = 1;
-
-  # ------------------------------------------------------------
-  # dock/finder/appearance
-  # ------------------------------------------------------------
   system.defaults.dock.mru-spaces = false;
   system.defaults.dock.minimize-to-application = true;
   system.defaults.dock.mineffect = "scale";

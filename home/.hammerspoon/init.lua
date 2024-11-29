@@ -1,25 +1,5 @@
 local chrome = require("chrome")
 
-local function connectAwsSso()
-  local task = hs.task.new("/usr/local/bin/aws", function(exitCode, _, _)
-    if exitCode == 0 then
-      hs.alert.show("AWS SSO Login Successful", {
-        atScreenEdge = 2,
-        strokeColor = { white = 0, alpha = 2 },
-        textFont = 'Courier',
-        textSize = 20
-      })
-    else
-      hs.alert.show("AWS SSO Login Failed", {
-        atScreenEdge = 2,
-        strokeColor = { white = 0, alpha = 2 },
-      })
-    end
-  end, { "sso", "login", "--profile", "app-dev" })
-  task:start()
-  hs.timer.doAfter(20, function() task:terminate() end)
-end
-
 hs.loadSpoon("RecursiveBinder")
 
 spoon.RecursiveBinder.escapeKey = { {}, 'escape' } -- Press escape to abort
@@ -67,22 +47,11 @@ local keyMap = {
     [singleKey('c', 'console')] = hs.toggleConsole,
     [singleKey('r', 'console')] = hs.reload
   },
-  [singleKey('d', 'dbnl')] = {
-    [singleKey('v', 'connect vpn')] = function() hs.eventtap.keyStroke({ "cmd", "ctrl", "alt" }, "v") end,
-    [singleKey('s', 'aws sso')] = connectAwsSso,
-    [singleKey('a', 'app')] = {
-      [singleKey('l', 'local')] = openUrl("http://localhost:5173/"),
-      [singleKey('r', 'remote')] = openUrl("https://app-shardul.dev.dbnl.com"),
-      [singleKey('d', 'dev')] = openUrl("https://app.dev.dbnl.com"),
-      [singleKey('p', 'prod')] = openUrl("https://app.dbnl.com"),
-    }
-  },
   [singleKey('r', 'raycast')] = {
     [singleKey('c', 'clipboard')] = openUrl("raycast://extensions/raycast/clipboard-history/clipboard-history"),
     [singleKey('e', 'emoji')] = openUrl("raycast://extensions/raycast/emoji-symbols/search-emoji-symbols"),
     [singleKey('r', 'ai chat')] = openUrl("raycast://extensions/raycast/raycast-ai/ai-chat"),
     [singleKey('f', 'search files')] = openUrl("raycast://extensions/raycast/file-search/search-files")
-
   },
   [singleKey('c', 'capture')] = {
     [singleKey('v', 'video')] = openUrl("raycast://extensions/Aayush9029/cleanshotx/record-screen"),
@@ -101,6 +70,7 @@ local keyMap = {
   },
   [singleKey('w', 'window')] = {
     [singleKey('f', 'float')] = aerospace({ "layout", "floating", "tiling" }),
+
     [singleKey('r', 'reload')] = aerospace({ "reload-config" }),
     [singleKey('l', 'layout')] = aerospace({ "layout", "h_accordion", "h_tiles" }),
     [singleKey('m', 'monitor')] = {
@@ -113,15 +83,6 @@ local keyMap = {
       [singleKey('k', 'up')] = aerospace({ "join-with", "up" }),
       [singleKey('l', 'right')] = aerospace({ "join-with", "right" }),
     }
-  },
-  [singleKey('j', 'jira')] = {
-    [singleKey('o', 'open issues')] = openUrl("raycast://extensions/raycast/jira/open-issues"),
-    [singleKey('s', 'search')] = openUrl("raycast://extensions/raycast/jira/search-issues"),
-    [singleKey('c', 'create')] = openUrl("raycast://extensions/raycast/jira/create-issue"),
-  },
-  [singleKey('a', 'airpods')] = {
-    [singleKey('p', 'pro')] = blueutil({ "--connect", "44-1b-88-e1-7d-7f" }),
-    [singleKey('m', 'max')] = blueutil({ "--connect", "08-ff-44-39-13-74" }),
   },
   [singleKey('s', 'spotify')] = {
     [singleKey('o', 'open')] = launchOrFocusApp("Spotify"),

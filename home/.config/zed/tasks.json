@@ -3,12 +3,5 @@
     "label": "Run make",
     "command": "make",
     "use_new_terminal": false
-  },
-  {
-    "label": "Run test file (pytest)",
-    "command": "$ZED_WORKTREE_ROOT/.venv/bin/pytest $ZED_FILE -s",
-    "use_new_terminal": false,
-    "hide": "on_success",
-    "reveal": "always"
   }
 ]

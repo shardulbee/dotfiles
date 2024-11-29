@@ -1,4 +1,14 @@
 {
+  "assistant": {
+    "default_model": {
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-latest"
+    },
+    "version": "2"
+  },
+  "features": {
+    "inline_completion_provider": "supermaven"
+  },
   "scrollbar": {
     "show": "never"
   },
@@ -10,14 +20,6 @@
     "env": {
       "GIT_EDITOR": "zed --wait"
     }
-  },
-  "assistant": {
-    "dock": "right",
-    "default_model": {
-      "provider": "copilot_chat",
-      "model": "claude-3-5-sonnet"
-    },
-    "version": "2"
   },
   "theme": "Gruvbox Dark Hard",
   "buffer_line_height": {
@@ -65,58 +67,14 @@
     "enable_preview_from_code_navigation": false,
     "enable_preview_from_file_finder": false
   },
-  "languages": {
-    "Python": {
-      "language_servers": ["pyright"],
-      "format_on_save": {
-        "external": {
-          "command": "ruff",
-          "arguments": [
-            "check",
-            "--exit-zero",
-            "--fix",
-            "--stdin-filename",
-            "{buffer_path}",
-            "-"
-          ]
+  "format_on_save": "on",
+  "lsp": {
+    "nil": {
+      "settings": {
+        "formatting": {
+          "command": ["nixfmt"]
         }
       }
-    },
-    "TypeScript": {
-      "format_on_save": "on",
-      "formatter": [
-        {
-          "external": {
-            "command": "bun",
-            "arguments": [
-              "run",
-              "--cwd=./ui",
-              "--silent",
-              "prettier",
-              "--stdin-filepath",
-              "{buffer_path}"
-            ]
-          }
-        }
-      ]
-    },
-    "TSX": {
-      "format_on_save": "on",
-      "formatter": [
-        {
-          "external": {
-            "command": "bun",
-            "arguments": [
-              "run",
-              "--cwd=./ui",
-              "--silent",
-              "prettier",
-              "--stdin-filepath",
-              "{buffer_path}"
-            ]
-          }
-        }
-      ]
     }
   }
 }
