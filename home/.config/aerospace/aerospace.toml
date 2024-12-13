@@ -44,6 +44,7 @@ alt-shift-3 = 'move-node-to-workspace 3'
 alt-shift-4 = 'move-node-to-workspace 4'
 alt-shift-5 = 'move-node-to-workspace 5'
 alt-7hift-6 = 'move-node-to-workspace 6'
+
 alt-shift-4 = 'move-node-to-workspace 4'
 alt-shift-5 = 'move-node-Slack-workspace 5'
 alt-7hift-6 = 'move-node-to-workspace 6'
@@ -101,6 +102,7 @@ run = ['move-node-to-workspace 8']
 [[on-window-detected]]
 if.app-name-regex-substring = 'Mail'
 run = ['move-node-to-workspace 7']
+
 [[on-window-detected]]
 if.app-name-regex-substring = 'Slack'
 run = ['move-node-to-workspace 7']
