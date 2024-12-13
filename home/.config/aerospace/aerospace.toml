@@ -7,6 +7,7 @@ on-focus-changed = ['move-mouse window-lazy-center']
 
 [gaps]
 inner.horizontal = 10
+
 inner.vertical = 10
 outer.left = 10
 outer.bottom = 10
@@ -24,6 +25,7 @@ alt-shift-j = 'move down'
 alt-shift-k = 'move up'
 alt-shift-l = 'move right'
 
+
 alt-shift-minus = 'resize smart -50'
 alt-shift-equal = 'resize smart +50'
 
@@ -38,9 +40,11 @@ alt-8 = 'workspace 8'
 alt-9 = 'workspace 9'
 alt-0 = 'workspace Z'
 
+
 alt-shift-1 = 'move-node-to-workspace 1'
 alt-shift-2 = 'move-node-to-workspace 2'
 alt-shift-3 = 'move-node-to-workspace 3'
+
 alt-shift-4 = 'move-node-to-workspace 4'
 alt-shift-5 = 'move-node-to-workspace 5'
 alt-7hift-6 = 'move-node-to-workspace 6'
@@ -61,6 +65,7 @@ alt-shift-0 = 'move-node-to-workspace Z'
 # if.during-aerospace-startup = true
 # check-further-callbacks = true
 # run = ['layout floating', 'move-node-to-workspace S']  # The callback itself
+#
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Raycast'
@@ -81,6 +86,7 @@ run = ['move-node-to-workspace 1']
 [[on-window-detected]]
 if.app-name-regex-substring = 'kitty'
 run = ['move-node-to-workspace Z']
+
 [[on-window-detected]]
 if.app-name-regex-substring = 'Ghostty'
 run = ['layout floating', 'move-node-to-workspace Z']
@@ -96,9 +102,11 @@ run = ['move-node-to-workspace N']
 [[on-window-detected]]
 if.app-name-regex-substring = 'Things'
 run = ['move-node-to-workspace 9']
+
 [[on-window-detected]]
 if.app-name-regex-substring = 'Messages'
 run = ['move-node-to-workspace 8']
+
 [[on-window-detected]]
 if.app-name-regex-substring = 'Mail'
 run = ['move-node-to-workspace 7']
