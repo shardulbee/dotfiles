@@ -10,6 +10,7 @@ local function launchOrFocusApp(appName)
   return function() hs.application.launchOrFocus(appName) end
 end
 
+
 local function openUrl(url)
   return function() hs.urlevent.openURL(url) end
 end
