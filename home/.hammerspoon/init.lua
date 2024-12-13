@@ -2,7 +2,7 @@ local chrome = require("chrome")
 
 hs.loadSpoon("RecursiveBinder")
 
-spoon.RecursiveBinder.escapeKey = { {}, 'escape' } -- Press escape to abort
+spoon.RecursiveBinder.escapeKey = { {}, 'escape' }
 
 local singleKey = spoon.RecursiveBinder.singleKey
 
