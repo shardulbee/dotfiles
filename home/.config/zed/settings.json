@@ -46,7 +46,7 @@
     }
   },
   "inlay_hints": {
-    "enabled": true
+    "enabled": false
   },
   "soft_wrap": "none",
   "cursor_blink": false,

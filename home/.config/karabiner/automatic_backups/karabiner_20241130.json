@@ -1,28 +1,21 @@
 {
-  "global": {
-    "show_in_menu_bar": false,
-    "unsafe_ui": true
-  },
+  "global": { "show_in_menu_bar": false },
   "profiles": [
     {
       "complex_modifications": {
         "rules": [
           {
-            "description": "Caps Lock to Left Control",
-            "manipulators": [
-              {
-                "from": { "key_code": "caps_lock" },
-                "to": [{ "key_code": "left_control" }],
-                "type": "basic"
-              }
-            ]
-          },
-          {
             "description": "Right command to F5",
             "manipulators": [
               {
-                "from": { "key_code": "right_command" },
-                "to": [{ "key_code": "f5" }],
+                "from": {
+                  "key_code": "right_command"
+                },
+                "to": [
+                  {
+                    "key_code": "f5"
+                  }
+                ],
                 "type": "basic"
               }
             ]
@@ -102,6 +95,7 @@
           }
         ]
       },
+      "devices": [],
       "name": "Default",
       "selected": true,
       "virtual_hid_keyboard": {

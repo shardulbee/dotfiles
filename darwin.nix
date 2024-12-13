@@ -44,8 +44,11 @@ in
     pkgs.nixd
     pkgs.btop
     pkgs.nil
+    pkgs.zig
+    pkgs.zls
     pkgs._1password-cli
     pkgs.nixfmt-rfc-style
+    pkgs.jujutsu
     zsh-autosuggestions
     zsh-fast-syntax-highlighting
     fzf
@@ -100,6 +103,8 @@ in
       "bartender"
       "arq"
       "fantastical"
+      "obsidian"
+      "chatgpt"
     ];
     onActivation.cleanup = "uninstall";
   };
