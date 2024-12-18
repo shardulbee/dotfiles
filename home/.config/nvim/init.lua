@@ -163,16 +163,16 @@ require("lazy").setup({
     opts = {},
     lazy = false
   },
-  {
-    "vim-test/vim-test",
-    keys = {
-      { "<leader>tf", "<cmd>TestFile<cr>",    "n", { silent = true, noremap = true } },
-      { "<leader>tn", "<cmd>TestNearest<cr>", "n", { silent = true, noremap = true } },
-    },
-    config = function()
-      vim.g["test#strategy"] = "kitty"
-    end,
-  },
+  -- {
+  --   "vim-test/vim-test",
+  --   keys = {
+  --     { "<leader>tf", "<cmd>TestFile<cr>",    "n", { silent = true, noremap = true } },
+  --     { "<leader>tn", "<cmd>TestNearest<cr>", "n", { silent = true, noremap = true } },
+  --   },
+  --   config = function()
+  --     vim.g["test#strategy"] = "kitty"
+  --   end,
+  -- },
   {
     "ibhagwan/fzf-lua",
     config = function()
@@ -259,6 +259,40 @@ require("lazy").setup({
         },
       })
     end,
+  },
+  {
+    'kyazdani42/nvim-tree.lua',
+    keys = {
+      { "\\t" }
+    },
+    dependencies = {
+        'kyazdani42/nvim-web-devicons',
+    },
+    config = function()
+      require'nvim-tree'.setup {}
+      local api = require "nvim-tree.api"
+
+      vim.keymap.set("n", "<leader>t", function()
+        api.tree.toggle({find_file = true})
+      end, { noremap = true, silent = true })
+    end
+  },
+  {
+      "kdheepak/lazygit.nvim",
+      lazy = true,
+      cmd = {
+          "LazyGit",
+          "LazyGitConfig",
+          "LazyGitCurrentFile",
+          "LazyGitFilter",
+          "LazyGitFilterCurrentFile",
+      },
+      dependencies = {
+          "nvim-lua/plenary.nvim",
+      },
+      keys = {
+          { "<leader>lg", "<cmd>LazyGit<cr>", desc = "LazyGit" }
+      }
   },
   {
     "neovim/nvim-lspconfig",

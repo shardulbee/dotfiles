@@ -6,7 +6,6 @@
                 "rules": [
                     {
                         "description": "Disable arrow keys",
-                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {

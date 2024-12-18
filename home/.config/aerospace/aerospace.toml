@@ -37,6 +37,7 @@ alt-7 = 'workspace 7'
 alt-8 = 'workspace 8'
 alt-9 = 'workspace 9'
 alt-0 = 'workspace Z'
+alt-n = 'workspace N'
 
 alt-shift-1 = 'move-node-to-workspace 1'
 alt-shift-2 = 'move-node-to-workspace 2'
@@ -48,6 +49,7 @@ alt-shift-7 = 'move-node-to-workspace 7'
 alt-shift-8 = 'move-node-to-workspace 8'
 alt-shift-9 = 'move-node-to-workspace 9'
 alt-shift-0 = 'move-node-to-workspace Z'
+alt-shift-n = 'move-node-to-workspace N'
 
 # example
 # [[on-window-detected]]
@@ -80,6 +82,10 @@ if.app-name-regex-substring = 'kitty'
 run = ['move-node-to-workspace Z']
 
 [[on-window-detected]]
+if.app-name-regex-substring = 'Ghostty'
+run = ['layout floating', 'move-node-to-workspace Z']
+
+[[on-window-detected]]
 if.window-title-regex-substring = 'dotfiles'
 run = ['move-node-to-workspace 2']
 
@@ -90,6 +96,7 @@ run = ['move-node-to-workspace 3']
 [[on-window-detected]]
 if.app-name-regex-substring = 'Slack'
 run = ['move-node-to-workspace 7']
+
 [[on-window-detected]]
 if.app-name-regex-substring = 'Mimestream'
 run = ['move-node-to-workspace 7']

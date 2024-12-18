@@ -61,6 +61,12 @@ else
   echo "direnv not found"
   return 1
 fi
+if command -v zoxide > /dev/null; then
+  eval "$(zoxide init zsh)"
+else
+  echo "zoxide not found"
+  return 1
+fi
 # -----------------------------------------------------------------------------
 # Aliases
 # -----------------------------------------------------------------------------
