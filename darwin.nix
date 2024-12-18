@@ -47,10 +47,8 @@ in
     pkgs.gh
     pkgs.neofetch
     pkgs.wget
-    pkgs._1password
     pkgs.ripgrep
     pkgs.darwin.trash
-    pkgs.kitty
     pkgs.hyperfine
     pkgs.lazygit
     pkgs.lazydocker
@@ -62,6 +60,9 @@ in
     zsh-fast-syntax-highlighting
     fzf
     pkgs.nixfmt-rfc-style
+    pkgs.zoxide
+    pkgs.tmux
+    pkgs.delta
 
     # for dbnl, until I can flakify
     pkgs.awscli2
@@ -106,6 +107,7 @@ in
     brews = [
       "postgresql@14"
       "helm"
+      "switchaudio-osx"
     ];
     casks = [
       "1password"
@@ -126,6 +128,8 @@ in
       "google-cloud-sdk"
       "mimestream"
       "karabiner-elements"
+      "kitty"
+      "craft"
     ];
     onActivation.cleanup = "uninstall";
   };
