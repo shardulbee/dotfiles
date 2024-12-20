@@ -130,13 +130,16 @@ in
       "karabiner-elements"
       "kitty"
       "craft"
+      "gitify"
+      "obsidian"
+      "vladdoster/formulae/vimari"
     ];
     onActivation.cleanup = "uninstall";
   };
   fonts.packages = with pkgs; [
     recursive
     (nerdfonts.override {
-      fonts = [ "IBMPlexMono" ];
+      fonts = [ "Inconsolata" "JetBrainsMono" ];
     })
   ];
 

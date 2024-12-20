@@ -228,7 +228,8 @@
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
         "nixpkgs": "nixpkgs_3",
-        "nixpkgs-unstable": "nixpkgs-unstable"
+        "nixpkgs-unstable": "nixpkgs-unstable",
+        "vimari": "vimari"
       }
     },
     "systems": {
@@ -243,6 +244,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "vimari": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1665942242,
+        "narHash": "sha256-HM4ZqBTR2u7V5Jg6k3ENvFbZMHUncJW5sZF1Gxv/Q0Q=",
+        "owner": "vladdoster",
+        "repo": "homebrew-formulae",
+        "rev": "cd0c34f48042860bcbb087d85c8d1614118581b3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "vladdoster",
+        "repo": "homebrew-formulae",
         "type": "github"
       }
     }

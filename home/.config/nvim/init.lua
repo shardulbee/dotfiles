@@ -20,11 +20,6 @@ require("lazy").setup({
   "tpope/vim-eunuch",
   "tpope/vim-unimpaired",
   "tpope/vim-surround",
-  {
-    "echasnovski/mini.indentscope",
-    version = false,
-    config = true
-  },
   "tpope/vim-sleuth",
   "tpope/vim-rhubarb",
   "tpope/vim-repeat",

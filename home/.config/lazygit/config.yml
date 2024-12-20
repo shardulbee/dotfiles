@@ -14,7 +14,7 @@ customCommands:
 git:
   paging:
     colorArg: always
-    pager: delta --paging=never --line-numbers
+    pager: delta --dark --paging=never --line-numbers
   branchPrefix: "shardul/"
   commitPrefix:
     pattern: "^shardul/(\\w+-\\d+).*"

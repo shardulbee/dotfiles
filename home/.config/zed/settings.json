@@ -1,9 +1,21 @@
 {
   "scrollbar": {
-    "show": "never"
+    "diagnostics": false,
+    "git_diff": false,
+    "selected_symbol": false,
+    "cursors": false,
+    "search_results": true
   },
+  "tab_bar": {
+    "show_nav_history_buttons": false
+  },
+  "git": {
+    "inline_blame": {
+      "show_commit_summary": true
+    }
+  },
+
   "assistant": {
-    "dock": "right",
     "default_model": {
       "provider": "copilot_chat",
       "model": "o1-mini"
@@ -14,52 +26,11 @@
   "buffer_line_height": {
     "custom": 1.25
   },
-  "telemetry": {
-    "diagnostics": false,
-    "metrics": false
-  },
   "vim_mode": true,
   "ui_font_size": 16,
   "buffer_font_size": 18,
-  "buffer_font_family": "BlexMono Nerd Font",
-  "ui_font_family": "BlexMono Nerd Font",
-  "tab_bar": {
-    "show": true,
-    "show_nav_history_buttons": false
-  },
-  "git": {
-    "inline_blame": {
-      "enabled": true,
-      "show_commit_summary": true
-    }
-  },
-  "inlay_hints": {
-    "enabled": true,
-    "show_background": true,
-    "show_parameter_hints": true,
-    "show_type_hints": true
-  },
-  "soft_wrap": "none",
-  "cursor_blink": false,
-  "project_panel": {
-    "show_diagnostics": "all",
-    "scrollbar": {
-      "show": "never"
-    }
-  },
-  "base_keymap": "VSCode",
-  "indent_guides": {
-    "enabled": true,
-    "active_line_width": 1,
-    "coloring": "indent_aware"
-  },
-  "use_autoclose": true,
   "current_line_highlight": "gutter",
-  "preview_tabs": {
-    "enabled": true,
-    "enable_preview_from_file_finder": true,
-    "enable_preview_from_code_navigation": true
-  },
+  "buffer_font_family": "JetBrainsMono Nerd Font",
   "languages": {
     "Python": {
       "language_servers": ["pyright"],
