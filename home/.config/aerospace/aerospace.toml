@@ -51,28 +51,6 @@ alt-shift-9 = 'move-node-to-workspace 9'
 alt-shift-0 = 'move-node-to-workspace Z'
 alt-shift-n = 'move-node-to-workspace N'
 
-# example
-# [[on-window-detected]]
-# if.app-id = 'com.apple.systempreferences'
-# if.app-name-regex-substring = 'settings'
-# if.window-title-regex-substring = 'substring'
-# if.workspace = 'workspace-name'
-# if.during-aerospace-startup = true
-# check-further-callbacks = true
-# run = ['layout floating', 'move-node-to-workspace S']  # The callback itself
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Raycast'
-run = ['layout floating']
-
-[[on-window-detected]]
-if.app-name-regex-substring = '1Password'
-run = ['layout floating']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Hammerspoon'
-run = ['layout floating']
-
 [[on-window-detected]]
 if.app-name-regex-substring = 'Zed'
 run = ['move-node-to-workspace 1']

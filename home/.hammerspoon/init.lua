@@ -75,7 +75,8 @@ local keyMap = {
     },
     [singleKey('h', 'hammerspoon')] = {
         [singleKey('c', 'console')] = hs.toggleConsole,
-        [singleKey('r', 'console')] = hs.reload
+        [singleKey('r', 'console')] = hs.reload,
+        [singleKey('e', 'edit')] = openPathInZed("/Users/shardul/dotfiles/home/.hammerspoon/init.lua"),
     },
     [singleKey('d', 'dbnl')] = {
         [singleKey('v', 'connect vpn')] = function() hs.eventtap.keyStroke({ "cmd", "ctrl", "alt" }, "v") end,
