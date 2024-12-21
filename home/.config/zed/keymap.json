@@ -2,70 +2,30 @@
   {
     "context": "Workspace",
     "bindings": {
-      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
-      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
-      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
-      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
-      "cmd-enter": "terminal_panel::ToggleFocus",
-      "\\ f": "workspace::NewSearch",
-      "alt-cmd-o": "projects::OpenRemote",
-      "ctrl-cmd-o": "projects::OpenRecent"
+      "ctrl-cmd-o": "projects::OpenRecent",
+      "alt-g": [
+        "workspace::SendKeystrokes",
+        ": new center terminal start lazygit space && space exit enter"
+      ]
     }
   },
   {
     "context": "Editor && VimControl && !VimWaiting && !menu",
     "bindings": {
-      "ctrl-w z": "workspace::ToggleZoom",
-      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
-      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
-      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
-      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"],
       "ctrl-w enter": "workspace::ToggleZoom",
-      // lsp
       "] d": "editor::GoToDiagnostic",
       "[ d": "editor::GoToPrevDiagnostic",
       "g r": "editor::FindAllReferences",
-      "g D": "editor::GoToTypeDefinitionSplit",
-      "g i": "editor::GoToTypeDefinitionSplit",
-      "shift-k": "editor::Hover",
       ", c a": "editor::ToggleCodeActions",
-      "\\ r": "editor::Rename",
 
-      "\\ g b": "editor::ToggleGitBlame",
-      "cmd-shift-g cmd-shift-o": "editor::OpenPermalinkToLine",
-      "cmd-shift-g cmd-shift-c": "editor::CopyPermalinkToLine",
-
-      "\\ space": [
-        "task::Spawn",
-        {
-          "task_name": "Open Kitty (terminal)"
-        }
-      ],
-      "\\ t n": [
-        "editor::SpawnNearestTask",
-        { "reveal": "no_focus", "hide": "always" }
-      ],
+      "\\ t n": ["editor::SpawnNearestTask", { "reveal": "no_focus" }],
       "\\ t f": [
         "task::Spawn",
         {
-          "task_name": "Run test file (pytest)"
+          "task_name": "Run test file",
+          "reveal": "no_focus"
         }
-      ],
-      "\\ 9": [
-        "workspace::SendKeystrokes",
-        "^ i enter up i m p o r t space i p d b ; space i p d b . s e t _ t r a c e ( ) escape"
-      ],
-      "[ x": "editor::SelectLargerSyntaxNode",
-      "] x": "editor::SelectSmallerSyntaxNode"
-    }
-  },
-  {
-    "context": "Dock",
-    "bindings": {
-      "ctrl-h": ["workspace::ActivatePaneInDirection", "Left"],
-      "ctrl-l": ["workspace::ActivatePaneInDirection", "Right"],
-      "ctrl-k": ["workspace::ActivatePaneInDirection", "Up"],
-      "ctrl-j": ["workspace::ActivatePaneInDirection", "Down"]
+      ]
     }
   },
   {
@@ -74,24 +34,17 @@
       "cmd-t": "workspace::NewTerminal",
       "ctrl-d": "terminal::ScrollPageDown",
       "ctrl-u": "terminal::ScrollPageUp",
-      "cmd-enter": "workspace::ToggleRightDock",
-      "cmd-down": ["workspace::SendKeystrokes", "f3"],
-      "cmd-up": ["workspace::SendKeystrokes", "f4"],
-      "ctrl-w enter": "workspace::ToggleZoom"
+      "ctrl-w enter": "workspace::ToggleZoom",
+      "ctrl-w h": ["workspace::ActivatePaneInDirection", "Left"],
+      "ctrl-w l": ["workspace::ActivatePaneInDirection", "Right"],
+      "ctrl-w k": ["workspace::ActivatePaneInDirection", "Up"],
+      "ctrl-w j": ["workspace::ActivatePaneInDirection", "Down"]
     }
   },
   {
     "context": "AssistantPanel",
     "bindings": {
       "cmd-t": "assistant::NewContext"
-    }
-  },
-  {
-    //vim visual mode
-    "context": "Editor && vim_mode == visual && !VimWaiting && !VimObject",
-    "bindings": {
-      "s": "editor::SelectSmallerSyntaxNode",
-      ";": "editor::SelectLargerSyntaxNode"
     }
   }
 ]
