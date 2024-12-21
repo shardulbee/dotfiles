@@ -49,6 +49,7 @@ in
     pkgs._1password-cli
     pkgs.nixfmt-rfc-style
     pkgs.jujutsu
+    pkgs.delta
     zsh-autosuggestions
     zsh-fast-syntax-highlighting
     fzf
