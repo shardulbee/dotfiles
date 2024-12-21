@@ -10,63 +10,20 @@
     "inline_completion_provider": "supermaven"
   },
   "scrollbar": {
-    "show": "never"
-  },
-  "outline_panel": {
-    "dock": "left"
-  },
-  "terminal": {
-    "dock": "bottom",
-    "env": {
-      "GIT_EDITOR": "zed --wait"
-    }
+    "cursors": false,
+    "diagnostics": false,
+    "git_diff": false,
+    "selected_symbol": false
   },
   "theme": "Gruvbox Dark Hard",
   "buffer_line_height": {
     "custom": 1.25
   },
-  "telemetry": {
-    "diagnostics": false,
-    "metrics": false
-  },
   "vim_mode": true,
-  "ui_font_size": 16,
-  "buffer_font_size": 16,
-  "buffer_font_family": "BlexMono Nerd Font",
-  "ui_font_family": "BlexMono Nerd Font",
-  "double_click_in_multibuffer": "open",
   "tab_bar": {
-    "show": true,
     "show_nav_history_buttons": false
   },
-  "tab_size": 2,
-  "git": {
-    "inline_blame": {
-      "enabled": true
-    }
-  },
-  "inlay_hints": {
-    "enabled": false
-  },
-  "soft_wrap": "none",
-  "cursor_blink": false,
-  "project_panel": {
-    "show_diagnostics": "all",
-    "scrollbar": {
-      "show": "never"
-    }
-  },
-  "base_keymap": "VSCode",
-  "indent_guides": {
-    "enabled": false
-  },
-  "use_autoclose": false,
   "current_line_highlight": "gutter",
-  "preview_tabs": {
-    "enabled": false,
-    "enable_preview_from_code_navigation": false,
-    "enable_preview_from_file_finder": false
-  },
   "format_on_save": "on",
   "lsp": {
     "nil": {
