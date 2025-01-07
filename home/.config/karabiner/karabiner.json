@@ -54,6 +54,7 @@
                     },
                     {
                         "description": "Vi Mode [left_control + hjkl]",
+                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {

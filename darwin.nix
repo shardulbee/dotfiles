@@ -38,33 +38,24 @@ in
   # Programs/packages
   # -------------------------------------------------------
   environment.systemPackages = [
-    pkgs.vim
     pkgs.neovim
     pkgs.git
     pkgs.fd
     pkgs.jq
     pkgs.bat
     pkgs.gh
-    pkgs.neofetch
-    pkgs.wget
     pkgs.ripgrep
     pkgs.darwin.trash
     pkgs.hyperfine
     pkgs.lazygit
-    pkgs.lazydocker
-    pkgs.blueutil
-    pkgs.nixd
     pkgs.btop
-    pkgs-unstable._1password
     zsh-autosuggestions
     zsh-fast-syntax-highlighting
     fzf
-    pkgs.nixfmt-rfc-style
     pkgs.zoxide
-    pkgs.tmux
     pkgs.delta
 
-    # for dbnl, until I can flakify
+    # for dbnl
     pkgs.awscli2
     pkgs.skaffold
     pkgs.python312
@@ -105,9 +96,9 @@ in
     enable = true;
     global.autoUpdate = true;
     brews = [
+      # for dbnl
       "postgresql@14"
       "helm"
-      "switchaudio-osx"
     ];
     casks = [
       "1password"
@@ -117,22 +108,19 @@ in
       "spotify"
       "zoom"
       "google-drive"
-      "slack"
-      "meetingbar"
       "zed"
-      "orbstack"
-      "sublime-merge"
-      "setapp"
-      "logseq"
       "nikitabobko/tap/aerospace"
+      "karabiner-elements"
+      "obsidian"
+
+      # for dbnl
+      "orbstack"
+      "setapp"
       "google-cloud-sdk"
       "mimestream"
-      "karabiner-elements"
-      "kitty"
-      "craft"
-      "gitify"
-      "obsidian"
-      "vladdoster/formulae/vimari"
+      "meetingbar"
+      "slack"
+      "visual-studio-code"
     ];
     onActivation.cleanup = "uninstall";
   };

@@ -53,20 +53,17 @@ end
 
 
 local keyMap = {
-    [singleKey('e', 'edit')] = {
-        [singleKey('d', 'dotfiles')] = openPathInZed("/Users/shardul/dotfiles"),
-        [singleKey('i', 'internal')] = openPathInZed("/Users/shardul/src/github.com/dbnlAI/dbnl-internal"),
-        [singleKey('s', 'sdk')] = openPathInZed("/Users/shardul/src/github.com/dbnlAI/dbnl-sdk"),
-    },
+    -- top level
+    [singleKey('f', 'search files')] = openUrl("raycast://extensions/raycast/file-search/search-files"),
+    [singleKey('c', 'clipboard')] = openUrl("raycast://extensions/raycast/clipboard-history/clipboard-history"),
+
     [singleKey('o', 'open')] = {
-        [singleKey('b', 'browser')] = launchOrFocusApp("Google Chrome"),
-        [singleKey('t', 'terminal')] = launchOrFocusApp("Ghostty"),
+        [singleKey('f', 'finder')] = launchOrFocusApp("Finder"),
         [singleKey('m', 'mail')] = launchOrFocusApp("Mimestream"),
         [singleKey('s', 'slack')] = launchOrFocusApp("Slack"),
         [singleKey('c', 'calendar')] = chrome.LaunchOrFocusTab("https://calendar.google.com"),
-        [singleKey('e', 'zed')] = launchOrFocusApp("Zed"),
         [singleKey('z', 'zoom')] = {
-            [singleKey('z', 'open')] = launchOrFocusApp("zoom.us"),
+            [singleKey('o', 'open')] = launchOrFocusApp("zoom.us"),
             [singleKey('j', 'join')] = function() hs.eventtap.keyStroke({ "cmd", "alt", "cmd", "shift" }, "j") end,
             [singleKey('c', 'calendar')] = function() hs.eventtap.keyStroke({ "cmd", "alt", "ctrl", }, "c") end,
         },
@@ -75,12 +72,10 @@ local keyMap = {
     [singleKey('h', 'hammerspoon')] = {
         [singleKey('c', 'console')] = hs.toggleConsole,
         [singleKey('r', 'console')] = hs.reload,
-        [singleKey('e', 'edit')] = openPathInZed("/Users/shardul/dotfiles/home/.hammerspoon/init.lua"),
     },
     [singleKey('d', 'dbnl')] = {
         [singleKey('v', 'connect vpn')] = function() hs.eventtap.keyStroke({ "cmd", "ctrl", "alt" }, "v") end,
         [singleKey('s', 'aws sso')] = connectAwsSso,
-        [singleKey('g', 'github')] = openUrl("https://github.com/dbnlAI/dbnl-internal"),
         [singleKey('o', 'open+')] = {
             [singleKey('l', 'local')] = openUrl("http://localhost:5173/"),
             [singleKey('r', 'remote')] = openUrl("https://app-shardul.dev.dbnl.com"),
@@ -90,8 +85,6 @@ local keyMap = {
     },
     [singleKey('r', 'raycast')] = {
         [singleKey('e', 'emoji')] = openUrl("raycast://extensions/raycast/emoji-symbols/search-emoji-symbols"),
-        [singleKey('r', 'ai chat')] = openUrl("raycast://extensions/raycast/raycast-ai/ai-chat"),
-        [singleKey('f', 'search files')] = openUrl("raycast://extensions/raycast/file-search/search-files"),
         [singleKey('c', 'capture')] = {
             [singleKey('v', 'video')] = openUrl("raycast://extensions/Aayush9029/cleanshotx/record-screen"),
             [singleKey('c', 'copy')] = openUrl(
@@ -104,27 +97,15 @@ local keyMap = {
                 "raycast://extensions/raycast/file-search/search-files?fallbackText=cleanshot")
         },
     },
-    [singleKey('c', 'clipboard')] = openUrl("raycast://extensions/raycast/clipboard-history/clipboard-history"),
-    [singleKey('s', 'safari')] = launchOrFocusApp("Safari"),
     [singleKey('b', 'browser')] = {
         [singleKey('b', 'bookmarks')] = openUrl("raycast://extensions/raycast/browser-bookmarks/index"),
-        [singleKey('t', 'tabs')] = openUrl("raycast://extensions/Codely/google-chrome/search-tab"),
         [singleKey('c', 'copy tab title')] = chrome.CopyTabRichLink
     },
     [singleKey('w', 'window')] = {
+        [singleKey("t", "tiles")] = aerospace({ "layout", "tiles", "vertical", "horizontal" }),
+        [singleKey("s", "stack")] = aerospace({ "layout", "accordion", "vertical", "horizontal" }),
         [singleKey('f', 'float')] = aerospace({ "layout", "floating", "tiling" }),
         [singleKey('r', 'reload')] = aerospace({ "reload-config" }),
-        [singleKey('l', 'layout')] = {
-            [singleKey("t")] = aerospace({ "layout", "tiles", "vertical", "horizontal" }),
-            [singleKey("s")] = aerospace({ "layout", "accordion", "vertical", "horizontal" }),
-        },
-        [singleKey('s', 'space')] = {
-            [singleKey('tab', 'next')] = aerospace({ "move-workspace-to-monitor", "next", "--wrap-around" }),
-        },
-        [singleKey('m', 'monitor')] = {
-            [singleKey('l', 'right')] = aerospace({ "move-node-to-monitor", "right" }),
-            [singleKey('h', 'left')] = aerospace({ "move-node-to-monitor", "left" }),
-        },
         [singleKey('j', 'join')] = {
             [singleKey('h', 'left')] = aerospace({ "join-with", "left" }),
             [singleKey('j', 'down')] = aerospace({ "join-with", "down" }),
@@ -141,6 +122,56 @@ local keyMap = {
 }
 
 hs.hotkey.bind({}, 'f5', spoon.RecursiveBinder.recursiveBind(keyMap))
+
+-- hs.hotkey.bind({ "alt" }, "h", function()
+--     local win = hs.window.focusedWindow()
+--     if win then
+--         local wins = win:windowsToWest(nil, true, nil)
+--         if #wins > 0 then
+--             wins[1]:focus()
+--         end
+--     end
+-- end)
+--
+-- hs.hotkey.bind({ "alt" }, "l", function()
+--     local win = hs.window.focusedWindow()
+--     if win then
+--         local wins = win:windowsToEast(nil, true, nil)
+--         if #wins > 0 then
+--             wins[1]:focus()
+--         end
+--     end
+-- end)
+--
+-- hs.hotkey.bind({ "alt" }, "k", function()
+--     local win = hs.window.focusedWindow()
+--     if win then
+--         local wins = win:windowsToNorth()
+--         if #wins > 0 then
+--             wins[1]:focus()
+--         end
+--     end
+-- end)
+--
+-- hs.hotkey.bind({ "alt" }, "j", function()
+--     local win = hs.window.focusedWindow()
+--     if win then
+--         local wins = win:windowsToSouth()
+--         if #wins > 0 then
+--             wins[1]:focus()
+--         end
+--     end
+-- end)
+--
+-- local appMaps = {
+--     -- ["1"] = "Zed",
+--     ["3"] = "Google Chrome",
+--     ["0"] = "Ghostty"
+-- }
+--
+-- for bind, app in pairs(appMaps) do
+--     hs.hotkey.bind({ "alt" }, bind, launchOrFocusApp(app))
+-- end
 
 Watcher = hs.pathwatcher.new(os.getenv("HOME") .. "/dotfiles/home/.hammerspoon", hs.reload):start()
 hs.alert.show(" ✔︎")
