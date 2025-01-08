@@ -25,30 +25,17 @@ in
   };
 
   environment.systemPackages = [
-    pkgs.vim
     pkgs.neovim
     pkgs.git
     pkgs.fd
     pkgs.jq
     pkgs.bat
     pkgs.gh
-    pkgs.neofetch
-    pkgs.wget
     pkgs.ripgrep
     pkgs.darwin.trash
-    pkgs.kitty
-    pkgs.hyperfine
     pkgs.lazygit
-    pkgs.lazydocker
-    pkgs.blueutil
-    pkgs.nixd
-    pkgs.btop
-    pkgs.nil
     pkgs.zig
-    pkgs.zls
     pkgs._1password-cli
-    pkgs.nixfmt-rfc-style
-    pkgs.jujutsu
     pkgs.delta
     pkgs.zoxide
     zsh-autosuggestions
@@ -83,30 +70,23 @@ in
       "karabiner-elements"
       "dash"
       "nikitabobko/tap/aerospace"
-      "logseq"
-      "orbstack"
       "zed"
-      "slack"
-      "google-drive"
       "zoom"
       "1password"
       "hammerspoon"
       "google-chrome"
       "raycast"
       "spotify"
-      "dash"
+      "obsidian"
 
       # personal
       "zwift"
       "tailscale"
       "vlc"
-      "cursor"
       "cleanshot"
-      "bartender"
       "arq"
       "fantastical"
-      "obsidian"
-      "chatgpt"
+      "google-drive"
     ];
     onActivation.cleanup = "uninstall";
   };
