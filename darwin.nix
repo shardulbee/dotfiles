@@ -50,6 +50,7 @@ in
     pkgs.nixfmt-rfc-style
     pkgs.jujutsu
     pkgs.delta
+    pkgs.zoxide
     zsh-autosuggestions
     zsh-fast-syntax-highlighting
     fzf

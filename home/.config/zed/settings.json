@@ -1,4 +1,9 @@
 {
+  "languages": {
+    "Markdown": {
+      "show_inline_completions": false
+    }
+  },
   "assistant": {
     "default_model": {
       "provider": "anthropic",
@@ -23,6 +28,7 @@
   "tab_bar": {
     "show_nav_history_buttons": false
   },
+  "buffer_font_family": "JetBrainsMono Nerd Font",
   "current_line_highlight": "gutter",
   "format_on_save": "on",
   "lsp": {

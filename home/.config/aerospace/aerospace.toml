@@ -2,8 +2,8 @@ start-at-login = true
 accordion-padding = 5
 default-root-container-layout = 'tiles'
 key-mapping.preset = 'qwerty'
-on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
-on-focus-changed = ['move-mouse window-lazy-center']
+# on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+# on-focus-changed = ['move-mouse window-lazy-center']
 
 [gaps]
 inner.horizontal = 10
@@ -43,47 +43,21 @@ alt-0 = 'workspace Z'
 alt-shift-1 = 'move-node-to-workspace 1'
 alt-shift-2 = 'move-node-to-workspace 2'
 alt-shift-3 = 'move-node-to-workspace 3'
-
 alt-shift-4 = 'move-node-to-workspace 4'
 alt-shift-5 = 'move-node-to-workspace 5'
-alt-7hift-6 = 'move-node-to-workspace 6'
-
-alt-shift-4 = 'move-node-to-workspace 4'
-alt-shift-5 = 'move-node-Slack-workspace 5'
-alt-7hift-6 = 'move-node-to-workspace 6'
+alt-shift-6 = 'move-node-to-workspace 6'
+alt-shift-7 = 'move-node-to-workspace 7'
 alt-shift-8 = 'move-node-to-workspace 8'
 alt-shift-9 = 'move-node-to-workspace 9'
 alt-shift-0 = 'move-node-to-workspace Z'
-
-# example
-# [[on-window-detected]]
-# if.app-id = 'com.apple.systempreferences'
-# if.app-name-regex-substring = 'settings'
-# if.window-title-regex-substring = 'substring'
-# if.workspace = 'workspace-name'
-# if.during-aerospace-startup = true
-# check-further-callbacks = true
-# run = ['layout floating', 'move-node-to-workspace S']  # The callback itself
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Raycast'
-run = ['layout floating']
-
-[[on-window-detected]]
-if.app-name-regex-substring = '1Password'
-run = ['layout floating']
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Zed'
 run = ['move-node-to-workspace 1']
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'Cursor'
-run = ['move-node-to-workspace 1']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'kitty'
-run = ['move-node-to-workspace Z']
+if.app-name-regex-substring = 'iStat'
+run = ['layout floating']
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Ghostty'
@@ -92,23 +66,3 @@ run = ['layout floating', 'move-node-to-workspace Z']
 [[on-window-detected]]
 if.app-name-regex-substring = 'Chrome'
 run = ['move-node-to-workspace 3']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Logseq'
-run = ['move-node-to-workspace N']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Things'
-run = ['move-node-to-workspace 9']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Messages'
-run = ['move-node-to-workspace 8']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Mail'
-run = ['move-node-to-workspace 7']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Slack'
-run = ['move-node-to-workspace 7']
