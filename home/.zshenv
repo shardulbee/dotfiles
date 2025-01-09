@@ -1,7 +1,7 @@
 export XDG_CONFIG_HOME="$HOME/.config"
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 export EDITOR='nvim'
-export PATH="$PATH:$HOME/bin"
+export PATH="$PATH:$HOME/bin:/opt/homebrew/bin"
 export MANPAGER="col -bx | bat -l man -p"
 export FZF_DEFAULT_CMD="fd -tf --hidden"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_CMD"

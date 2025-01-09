@@ -17,11 +17,23 @@ require("lazy").setup({
   "tpope/vim-eunuch",     -- Unix shell commands integration
   "tpope/vim-surround",   -- Surroundings manipulation (parentheses, brackets, etc)
   "tpope/vim-sleuth",     -- Automatic indentation detection
-  "tpope/vim-fugitive",   -- Git integration
-  "tpope/vim-rhubarb",    -- GitHub integration
+
+  {
+    "tpope/vim-fugitive", -- Git integration
+    event="VeryLazy",
+    cmd="Git",
+    keys={
+      {"<leader>gs", "<cmd>Git<cr>", desc="Open Fugitive"},
+      {"P", "<cmd>Git push<cr>", desc="Push current branch", ft="fugitive"},
+      {"p", "<cmd>Git pull<cr>", desc="Pull current branch", ft="fugitive"}
+    }
+  },
+  { "tpope/vim-rhubarb", event="VeryLazy", cmd="Gbrowse" } ,
+
   { 'echasnovski/mini.surround', version = false, config = true },
   { 'echasnovski/mini.pairs', version = false, config = true },
   { 'echasnovski/mini.bracketed', version = false, config = true },
+  { 'echasnovski/mini.splitjoin', version = false, config = true },
   {
     "ibhagwan/fzf-lua",
     config = function()
@@ -186,6 +198,22 @@ require("lazy").setup({
     },
 
     config = function(_, _)
+      local function organize_imports()
+        local params = {
+          command = 'typescript.organizeImports',
+          arguments = { vim.fn.expand('%:p') },
+        }
+        vim.lsp.buf.execute_command(params)
+      end
+
+      vim.api.nvim_create_autocmd('LspAttach', {
+        callback = function(ev)
+          local client = vim.lsp.get_client_by_id(ev.data.client_id)
+          if client.name == "vtsls" then
+            vim.api.nvim_create_user_command("OrganizeImports", organize_imports, {desc = 'Organize Imports'})
+          end
+        end})
+
       require("mason").setup()
       require("mason-lspconfig").setup()
 
@@ -218,9 +246,23 @@ require("lazy").setup({
           --     require("rust-tools").setup {}
           -- end
       }
+
+
     end
   },
   {"windwp/nvim-ts-autotag", opts = {}},
+  {
+    'stevearc/conform.nvim',
+    opts = {
+      formatters_by_ft = {
+        lua = { "stylua" },
+        python = { "ruff" },
+        javascript = { "prettierd", "eslint", stop_after_first = false },
+        typescript = { "prettierd", "eslint", stop_after_first = false  },
+        typescriptreact = { "prettierd", "eslint", stop_after_first = false, lsp_format="last" }
+      },
+    },
+  }
 }, {})
 
 
