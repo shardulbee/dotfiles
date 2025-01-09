@@ -17,7 +17,16 @@ require("lazy").setup({
 	"tpope/vim-eunuch", -- Unix shell commands integration
 	"tpope/vim-surround", -- Surroundings manipulation (parentheses, brackets, etc)
 	"tpope/vim-sleuth", -- Automatic indentation detection
-	{ "tpope/vim-fugitive", event = "VeryLazy", cmd = "Git", keys = { { "<leader>gs", "<cmd>Git<cr>" } } },
+	{
+		"tpope/vim-fugitive",
+		event = "VeryLazy",
+		cmd = "Git",
+		keys = {
+			{ "<leader>gs", "<cmd>Git<cr>" },
+			{ "<A-p>", "<cmd>Git pull<cr>", ft = "fugitive" },
+			{ "<A-P>", "<cmd>Git push<cr>", ft = "fugitive" },
+		},
+	},
 	{ "tpope/vim-rhubarb", event = "VeryLazy", keys = { { "<leader>gb", "<cmd>GBrowse<cr>" } } },
 
 	{ "echasnovski/mini.surround", version = false, config = true },
@@ -48,8 +57,8 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
 			vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
 			vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
-			vim.keymap.set("n", "gs", fzfLua.lsp_document_symbols, opts)
-			vim.keymap.set("n", "gS", fzfLua.lsp_workspace_symbols, opts)
+			vim.keymap.set("n", "gl", fzfLua.lsp_document_symbols, opts)
+			vim.keymap.set("n", "gL", fzfLua.lsp_workspace_symbols, opts)
 		end,
 	},
 	{
