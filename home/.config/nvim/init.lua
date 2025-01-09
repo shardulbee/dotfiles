@@ -24,8 +24,6 @@ require("lazy").setup({
     cmd="Git",
     keys={
       {"<leader>gs", "<cmd>Git<cr>", desc="Open Fugitive"},
-      {"P", "<cmd>Git push<cr>", desc="Push current branch", ft="fugitive"},
-      {"p", "<cmd>Git pull<cr>", desc="Pull current branch", ft="fugitive"}
     }
   },
   { "tpope/vim-rhubarb", event="VeryLazy", cmd="Gbrowse" } ,
