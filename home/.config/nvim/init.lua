@@ -26,6 +26,10 @@ require("lazy").setup({
 			{ "<A-p>", "<cmd>Git pull<cr>", ft = "fugitive" },
 			{ "<A-P>", "<cmd>Git push<cr>", ft = "fugitive" },
 		},
+		config = function()
+			vim.opt.statusline = ""
+			vim.opt.statusline = "%f:%l:%c %m%=%{FugitiveStatusline()} %y"
+		end,
 	},
 	{ "tpope/vim-rhubarb", event = "VeryLazy", keys = { { "<leader>gb", "<cmd>GBrowse<cr>" } } },
 
@@ -133,8 +137,25 @@ require("lazy").setup({
 		end,
 	},
 	{
+		"JoosepAlviste/nvim-ts-context-commentstring",
+		opts = {
+			enable_autocmd = false,
+		},
+		config = function()
+			local get_option = vim.filetype.get_option
+			vim.filetype.get_option = function(filetype, option)
+				return option == "commentstring"
+						and require("ts_context_commentstring.internal").calculate_commentstring()
+					or get_option(filetype, option)
+			end
+		end,
+	},
+	{
 		"nvim-treesitter/nvim-treesitter",
-		dependencies = { { "nvim-treesitter/nvim-treesitter-textobjects", event = "VeryLazy" } },
+		dependencies = {
+			{ "nvim-treesitter/nvim-treesitter-textobjects", event = "VeryLazy" },
+			"JoosepAlviste/nvim-ts-context-commentstring",
+		},
 		build = ":TSUpdate",
 		event = { "VeryLazy" },
 		opts = {
@@ -249,9 +270,6 @@ require("lazy").setup({
 							buf_set_keymap("n", "<C-[>", function()
 								fzfLua.lsp_definitions({ jump_to_single_result = true })
 							end, opts)
-							buf_set_keymap("n", "<Esc>", function()
-								fzfLua.lsp_definitions({ jump_to_single_result = true })
-							end, opts)
 							buf_set_keymap("n", ",ca", fzfLua.lsp_code_actions, opts)
 							buf_set_keymap("n", "gd", vim.lsp.buf.definition, opts)
 							buf_set_keymap("n", "gr", vim.lsp.buf.references, opts)
@@ -266,6 +284,7 @@ require("lazy").setup({
 				--     require("rust-tools").setup {}
 				-- end
 			})
+			vim.diagnostic.config({ virtual_text = true })
 		end,
 	},
 	{ "windwp/nvim-ts-autotag", opts = {} },
