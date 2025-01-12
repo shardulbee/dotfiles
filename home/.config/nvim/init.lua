@@ -17,7 +17,7 @@ require("lazy").setup({
 	"direnv/direnv.vim", -- Integration with direnv for environment management
 	"LnL7/vim-nix", -- Nix language support
 	"tpope/vim-eunuch", -- Unix shell commands integration
-	"tpope/vim-unimpaired", -- Pairs of handy bracket mappings
+	-- "tpope/vim-unimpaired", -- Pairs of handy bracket mappings
 	"tpope/vim-surround", -- Surroundings manipulation (parentheses, brackets, etc)
 	"tpope/vim-sleuth", -- Automatic indentation detection
 	{
@@ -210,32 +210,6 @@ require("lazy").setup({
 			format_on_save = {
 				timeout_ms = 500,
 				lsp_format = "fallback",
-			},
-		},
-	},
-	{
-		"olimorris/codecompanion.nvim",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-treesitter/nvim-treesitter",
-		},
-		opts = {
-			strategies = {
-				chat = {
-					adapter = "anthropic",
-				},
-				inline = {
-					adapter = "anthropic",
-				},
-			},
-			adapters = {
-				anthropic = function()
-					return require("codecompanion.adapters").extend("anthropic", {
-						env = {
-							api_key = "cmd:op read 'op://Personal/Anthropic API Key - Neovim/credential'",
-						},
-					})
-				end,
 			},
 		},
 	},

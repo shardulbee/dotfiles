@@ -48,13 +48,6 @@ setopt autocd
 # -----------------------------------------------------------------------------
 # Sources
 # -----------------------------------------------------------------------------
-if command -v orb > /dev/null; then
-  source $HOME/.orbstack/shell/init.zsh
-else
-  echo "orbstack not found"
-  return 1
-fi
-
 if command -v direnv > /dev/null; then
   eval "$(direnv hook zsh)"
 else
