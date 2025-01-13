@@ -47,24 +47,11 @@ local function aerospace(args)
 	end
 end
 
-local function openPathInZed(path)
-	return function()
-		local task = hs.task.new("/opt/homebrew/bin/zed", function(_, stdout, stderr)
-			if stdout then
-				print(stdout)
-			end
-			if stderr then
-				print(stderr)
-			end
-		end, { path })
-		task:start()
-	end
-end
-
 local keyMap = {
 	-- top level
 	[singleKey("f", "search files")] = openUrl("raycast://extensions/raycast/file-search/search-files"),
 	[singleKey("c", "clipboard")] = openUrl("raycast://extensions/raycast/clipboard-history/clipboard-history"),
+	[singleKey("m", "search menu items")] = openUrl("raycast://extensions/raycast/navigation/search-menu-items"),
 
 	[singleKey("o", "open")] = {
 		[singleKey("f", "finder")] = launchOrFocusApp("Finder"),

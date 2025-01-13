@@ -1,43 +1,22 @@
 # vim: fdm=marker fdl=0
-{ inputs, lib, ... }:
+{ pkgs, inputs, lib, ... }:
 let
   stow = pkgs.stow;
   zsh-autosuggestions = pkgs.zsh-autosuggestions;
   zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
   fzf = pkgs.fzf;
   fzf-git-sh = pkgs.fzf-git-sh;
-  # pkgs-unstable = inputs.nixpkgs-unstable.legacyPackages.aarch64-darwin;
   pkgs = import inputs.nixpkgs {
-    system = "aarch64-darwin"; # whatever your system name is
+    system = "aarch64-darwin";
     config = {
-      allowUnfree = true;
       allowUnfreePredicate = _: true;
     };
   };
-  pkgs-unstable = import inputs.nixpkgs-unstable {
-    system = "aarch64-darwin"; # whatever your system name is
-    config = {
-      allowUnfree = true;
-      allowUnfreePredicate = _: true;
-    };
-  };
-in
-{
 
-  nixpkgs.config = {
-    allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "1password-cli" ];
-  };
-  users.users.shardul = {
-    name = "shardul";
-    home = "/Users/shardul";
-    isHidden = false;
-    shell = pkgs.zsh;
-  };
-
-  # -------------------------------------------------------
-  # Programs/packages
-  # -------------------------------------------------------
-  environment.systemPackages = [
+  commonPackages = [
+    zsh-autosuggestions
+    zsh-fast-syntax-highlighting
+    fzf
     pkgs.neovim
     pkgs.git
     pkgs.fd
@@ -46,16 +25,33 @@ in
     pkgs.gh
     pkgs.ripgrep
     pkgs.darwin.trash
-    pkgs.hyperfine
-    pkgs.lazygit
-    pkgs.btop
-    zsh-autosuggestions
-    zsh-fast-syntax-highlighting
-    fzf
     pkgs.zoxide
     pkgs.delta
+  ];
 
-    # for dbnl
+  commonCasks = [
+    "1password"
+    "hammerspoon"
+    "google-chrome"
+    "raycast"
+    "spotify"
+    "zoom"
+    "zed"
+    "nikitabobko/tap/aerospace"
+    "karabiner-elements"
+    "obsidian"
+  ];
+in
+{
+  users.users.shardul = {
+    name = "shardul";
+    home = "/Users/shardul";
+    isHidden = false;
+    shell = pkgs.zsh;
+  };
+
+  environment.systemPackages = [
+    # dbnl
     pkgs.awscli2
     pkgs.skaffold
     pkgs.python312
@@ -71,7 +67,7 @@ in
     pkgs.python311Packages.pip
     pkgs.python311Packages.venvShellHook
     pkgs.eslint
-  ];
+  ] ++ commonPackages;
 
   programs.zsh = {
     enable = true;
@@ -96,38 +92,25 @@ in
     enable = true;
     global.autoUpdate = true;
     brews = [
-      # for dbnl
+      # dbnl
       "postgresql@14"
       "helm"
     ];
     casks = [
-      "1password"
-      "hammerspoon"
-      "google-chrome"
-      "raycast"
-      "spotify"
-      "zoom"
-      "google-drive"
-      "zed"
-      "nikitabobko/tap/aerospace"
-      "karabiner-elements"
-      "obsidian"
-
-      # for dbnl
+      # dbnl
       "orbstack"
       "setapp"
       "google-cloud-sdk"
       "mimestream"
       "meetingbar"
       "slack"
-      "visual-studio-code"
-    ];
+    ] ++ commonCasks;
     onActivation.cleanup = "uninstall";
   };
   fonts.packages = with pkgs; [
     recursive
     (nerdfonts.override {
-      fonts = [ "Inconsolata" "JetBrainsMono" ];
+      fonts = [ "JetBrainsMono" ];
     })
   ];
 
