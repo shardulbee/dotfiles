@@ -124,5 +124,14 @@ function gpf {
   fi;
 }
 
+function try {
+  if [ -z "$1" ]; then
+      echo "Error: Program name required"
+      return 1
+  fi
+
+  nix run "nixpkgs#${1}"
+}
+
 # https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis "$@"; fi; }

@@ -70,7 +70,7 @@ require("lazy").setup({
 
 			local opts = { noremap = true, silent = true }
 			vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
-			vim.keymap.set("n", "<leader>h", fzfLua.help_tags, opts)
+			vim.keymap.set("n", "<leader>hh", fzfLua.help_tags, opts)
 			vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
 			vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
 			vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
@@ -80,11 +80,12 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>p", fzfLua.commands, opts)
 
 			vim.keymap.set("n", "<leader>gl", fzfLua.git_commits, opts)
-			vim.api.nvim_create_user_command("Gco", fzfLua.git_branches, { desc = "View git branches" })
+			vim.keymap.set("n", "<leader>co", fzfLua.git_branches, opts)
 		end,
 	},
 	{
 		"ellisonleao/gruvbox.nvim",
+
 		priority = 1000,
 		opts = {
 			contrast = "hard",
@@ -333,26 +334,6 @@ require("lazy").setup({
 					end
 				end)
 
-				-- map("n", "]h", function()
-				-- 	if vim.wo.diff then
-				-- 		return "]h"
-				-- 	end
-				-- 	vim.schedule(function()
-				-- 		gitsigns.next_hunk()
-				-- 	end)
-				-- 	return "<Ignore>"
-				-- end, { expr = true })
-				--
-				-- map("n", "[h", function()
-				-- 	if vim.wo.diff then
-				-- 		return "[h"
-				-- 	end
-				-- 	vim.schedule(function()
-				-- 		gitsigns.prev_hunk()
-				-- 	end)
-				-- 	return "<Ignore>"
-				-- end, { expr = true })
-
 				-- Actions
 				map("n", '"', gitsigns.preview_hunk)
 				map("n", "<leader>hb", function()
@@ -366,56 +347,6 @@ require("lazy").setup({
 				map("n", "<leader>td", gitsigns.toggle_deleted)
 			end,
 		},
-		-- opts = {
-		-- 	signs = {
-		-- 		add = { text = "┃" },
-		-- 		change = { text = "┃" },
-		-- 		delete = { text = "_" },
-		-- 		topdelete = { text = "‾" },
-		-- 		changedelete = { text = "~" },
-		-- 		untracked = { text = "┆" },
-		-- 	},
-		-- 	signs_staged = {
-		-- 		add = { text = "┃" },
-		-- 		change = { text = "┃" },
-		-- 		delete = { text = "_" },
-		-- 		topdelete = { text = "‾" },
-		-- 		changedelete = { text = "~" },
-		-- 		untracked = { text = "┆" },
-		-- 	},
-		-- 	signs_staged_enable = true,
-		-- 	signcolumn = true, -- Toggle with `:Gitsigns toggle_signs`
-		-- 	numhl = false, -- Toggle with `:Gitsigns toggle_numhl`
-		-- 	linehl = false, -- Toggle with `:Gitsigns toggle_linehl`
-		-- 	word_diff = false, -- Toggle with `:Gitsigns toggle_word_diff`
-		-- 	watch_gitdir = {
-		-- 		follow_files = true,
-		-- 	},
-		-- 	auto_attach = true,
-		-- 	attach_to_untracked = false,
-		-- 	current_line_blame = false, -- Toggle with `:Gitsigns toggle_current_line_blame`
-		-- 	current_line_blame_opts = {
-		-- 		virt_text = true,
-		-- 		virt_text_pos = "eol", -- 'eol' | 'overlay' | 'right_align'
-		-- 		delay = 1000,
-		-- 		ignore_whitespace = false,
-		-- 		virt_text_priority = 100,
-		-- 		use_focus = true,
-		-- 	},
-		-- 	current_line_blame_formatter = "<author>, <author_time:%R> - <summary>",
-		-- 	sign_priority = 6,
-		-- 	update_debounce = 100,
-		-- 	status_formatter = nil, -- Use default
-		-- 	max_file_length = 40000, -- Disable if file is longer than this (in lines)
-		-- 	preview_config = {
-		-- 		-- Options passed to nvim_open_win
-		-- 		border = "single",
-		-- 		style = "minimal",
-		-- 		relative = "cursor",
-		-- 		row = 0,
-		-- 		col = 1,
-		-- 	},
-		-- },
 	},
 }, {})
 
