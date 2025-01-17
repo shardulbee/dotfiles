@@ -18,14 +18,14 @@ require("lazy").setup({
 	"tpope/vim-surround", -- Surroundings manipulation (parentheses, brackets, etc)
 	"tpope/vim-sleuth", -- Automatic indentation detection
 	"ziglang/zig.vim",
+	"tpope/vim-unimpaired",
+	"tpope/vim-repeat",
 	{
 		"tpope/vim-fugitive",
 		event = "VeryLazy",
 		cmd = "Git",
 		keys = {
 			{ "<leader>gs", "<cmd>Git<cr>" },
-			{ "<A-p>", "<cmd>Git pull<cr>", ft = "fugitive" },
-			{ "<A-P>", "<cmd>Git push<cr>", ft = "fugitive" },
 		},
 		config = function()
 			vim.opt.statusline = ""
@@ -36,7 +36,6 @@ require("lazy").setup({
 
 	{ "echasnovski/mini.surround", version = false, config = true },
 	{ "echasnovski/mini.pairs", version = false, config = true },
-	{ "echasnovski/mini.bracketed", version = false, config = true },
 	{ "echasnovski/mini.splitjoin", version = false, config = true },
 	{
 		"ibhagwan/fzf-lua",
@@ -54,20 +53,40 @@ require("lazy").setup({
 						bat = { theme = "gruvbox-dark" },
 					},
 				},
+				git = {
+					commits = {
+						winopts = { preview = { vertical = "down:60%" } },
+						actions = {
+							["ctrl-o"] = {
+								fn = function(selected, _)
+									local commit = selected[1]:match("[^ ]+")
+									local cmd = "GBrowse " .. commit
+									vim.cmd(commit and cmd or "GBrowse")
+								end,
+							},
+						},
+					},
+				},
 			})
 
 			local opts = { noremap = true, silent = true }
 			vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
-			vim.keymap.set("n", "<leader>h", fzfLua.help_tags, opts)
+			vim.keymap.set("n", "<leader>hh", fzfLua.help_tags, opts)
 			vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
 			vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
 			vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
 			vim.keymap.set("n", "gl", fzfLua.lsp_document_symbols, opts)
 			vim.keymap.set("n", "gL", fzfLua.lsp_workspace_symbols, opts)
+			vim.keymap.set("n", "<leader>r", fzfLua.command_history, opts)
+			vim.keymap.set("n", "<leader>p", fzfLua.commands, opts)
+
+			vim.keymap.set("n", "<leader>gl", fzfLua.git_commits, opts)
+			vim.keymap.set("n", "<leader>co", fzfLua.git_branches, opts)
 		end,
 	},
 	{
 		"ellisonleao/gruvbox.nvim",
+
 		priority = 1000,
 		opts = {
 			contrast = "hard",
@@ -197,27 +216,6 @@ require("lazy").setup({
 					node_decremental = "<bs>",
 				},
 			},
-			textobjects = {
-				move = {
-					enable = true,
-					goto_next_start = {
-						["]f"] = "@function.outer",
-						["]c"] = "@class.outer",
-						["]a"] = "@parameter.inner",
-					},
-					goto_next_end = { ["]F"] = "@function.outer", ["]C"] = "@class.outer", ["]A"] = "@parameter.inner" },
-					goto_previous_start = {
-						["[f"] = "@function.outer",
-						["[c"] = "@class.outer",
-						["[a"] = "@parameter.inner",
-					},
-					goto_previous_end = {
-						["[F"] = "@function.outer",
-						["[C"] = "@class.outer",
-						["[A"] = "@parameter.inner",
-					},
-				},
-			},
 		},
 		main = "nvim-treesitter.configs",
 	},
@@ -271,6 +269,7 @@ require("lazy").setup({
 							buf_set_keymap("n", ",ca", fzfLua.lsp_code_actions, opts)
 							buf_set_keymap("n", "gd", vim.lsp.buf.definition, opts)
 							buf_set_keymap("n", "gr", vim.lsp.buf.references, opts)
+							buf_set_keymap("n", "cd", vim.lsp.buf.rename, opts)
 							buf_set_keymap("n", "<C-K>", vim.lsp.buf.signature_help, opts)
 							buf_set_keymap("n", "gR", fzfLua.lsp_finder, opts)
 						end,
@@ -300,6 +299,54 @@ require("lazy").setup({
 				typescript = { "prettierd", "eslint", stop_after_first = false },
 				typescriptreact = { "prettierd", "eslint", stop_after_first = false, lsp_format = "last" },
 			},
+		},
+	},
+	{
+		"lewis6991/gitsigns.nvim",
+		opts = {
+			current_line_blame_opts = {
+				virt_text_pos = "eol", -- 'eol' | 'overlay' | 'right_align'
+				delay = 200,
+				ignore_whitespace = true,
+			},
+			current_line_blame = true,
+			on_attach = function(bufnr)
+				local gitsigns = require("gitsigns")
+
+				local function map(mode, l, r, opts)
+					opts = opts or {}
+					opts.buffer = bufnr
+					vim.keymap.set(mode, l, r, opts)
+				end
+
+				map("n", "]c", function()
+					if vim.wo.diff then
+						vim.cmd.normal({ "]c", bang = true })
+					else
+						gitsigns.nav_hunk("next")
+					end
+				end)
+
+				map("n", "[c", function()
+					if vim.wo.diff then
+						vim.cmd.normal({ "[c", bang = true })
+					else
+						gitsigns.nav_hunk("prev")
+					end
+				end)
+
+				-- Actions
+				map("n", '"', gitsigns.preview_hunk)
+				map("n", "<leader>hb", function()
+					gitsigns.blame_line({ full = true })
+				end)
+				map("n", "<leader>tb", gitsigns.toggle_current_line_blame)
+				map("n", "<leader>hd", gitsigns.diffthis)
+				map("n", "<leader>hD", function()
+					gitsigns.diffthis("~")
+				end)
+				map("n", "<leader>td", gitsigns.toggle_deleted)
+			end,
 		},
 	},
 }, {})
@@ -388,3 +435,37 @@ vim.keymap.set("n", "<leader><space>", function()
 	-- Open file in Zed at current cursor position
 	vim.fn.system({ "zed", git_root, file .. ":" .. line .. ":" .. col })
 end, { noremap = true, silent = true })
+
+-- Toggle quickfix window
+local function toggle_quickfix()
+	local qf_exists = false
+	for _, win in pairs(vim.fn.getwininfo()) do
+		if win.quickfix == 1 and win.loclist == 0 then
+			qf_exists = true
+		end
+	end
+	if qf_exists then
+		vim.cmd("cclose")
+	else
+		vim.cmd("copen")
+	end
+end
+
+-- Toggle location list window
+local function toggle_loclist()
+	local loc_exists = false
+	for _, win in pairs(vim.fn.getwininfo()) do
+		if win.quickfix == 1 and win.loclist == 1 then
+			loc_exists = true
+		end
+	end
+	if loc_exists then
+		vim.cmd("lclose")
+	else
+		vim.cmd("lopen")
+	end
+end
+
+-- Set the keymaps
+vim.keymap.set("n", "<leader>q", toggle_quickfix, { silent = true, desc = "Toggle quickfix" })
+vim.keymap.set("n", "<leader>l", toggle_loclist, { silent = true, desc = "Toggle loclist" })

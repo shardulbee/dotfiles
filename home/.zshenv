@@ -1,9 +1,9 @@
-export XDG_CONFIG_HOME=$HOME/.config
-export ZDOTDIR=$XDG_CONFIG_HOME/zsh
-export CLICOLOR=1
-export EDITOR=nvim
+export XDG_CONFIG_HOME="$HOME/.config"
+export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
+export EDITOR='nvim'
+export PATH="$PATH:$HOME/bin:/opt/homebrew/bin"
 export MANPAGER="col -bx | bat -l man -p"
-export COLORTERM='truecolor'
 export FZF_DEFAULT_CMD="fd -tf --hidden"
-export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_CMD
-export PATH=$PATH:$HOME/bin:/opt/homebrew/bin
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_CMD"
+export CLICOLOR=1
+export COLORTERM='truecolor'

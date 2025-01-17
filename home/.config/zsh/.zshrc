@@ -52,12 +52,13 @@ if command -v direnv > /dev/null; then
   eval "$(direnv hook zsh)"
 else
   echo "direnv not found"
+  return 1
 fi
-
 if command -v zoxide > /dev/null; then
   eval "$(zoxide init zsh)"
 else
   echo "zoxide not found"
+  return 1
 fi
 # -----------------------------------------------------------------------------
 # Aliases
@@ -114,6 +115,15 @@ function gpf {
   else
     echo "Nope"
   fi;
+}
+
+function try {
+  if [ -z "$1" ]; then
+      echo "Error: Program name required"
+      return 1
+  fi
+
+  nix run "nixpkgs#${1}"
 }
 
 # https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072

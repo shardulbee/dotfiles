@@ -1,4 +1,4 @@
-{ inputs, lib, ... }:
+{ pkgs, inputs, lib, ... }:
 let
   stow = pkgs.stow;
   zsh-autosuggestions = pkgs.zsh-autosuggestions;
@@ -8,13 +8,38 @@ let
   pkgs = import inputs.nixpkgs {
     system = "aarch64-darwin";
     config = {
-      allowUnfreePredicate =
-        pkg:
-        builtins.elem (lib.getName pkg) [
-          "1password-cli"
-        ];
+      allowUnfreePredicate = _: true;
     };
   };
+
+  commonPackages = [
+    zsh-autosuggestions
+    zsh-fast-syntax-highlighting
+    fzf
+    pkgs.neovim
+    pkgs.git
+    pkgs.fd
+    pkgs.jq
+    pkgs.bat
+    pkgs.gh
+    pkgs.ripgrep
+    pkgs.darwin.trash
+    pkgs.zoxide
+    pkgs.delta
+  ];
+
+  commonCasks = [
+    "1password"
+    "hammerspoon"
+    "google-chrome"
+    "raycast"
+    "spotify"
+    "zoom"
+    "zed"
+    "nikitabobko/tap/aerospace"
+    "karabiner-elements"
+    "obsidian"
+  ];
 in
 {
   users.users.shardul = {
@@ -26,23 +51,7 @@ in
 
   environment.systemPackages = [
     pkgs.asdf
-    pkgs.neovim
-    pkgs.git
-    pkgs.fd
-    pkgs.jq
-    pkgs.bat
-    pkgs.gh
-    pkgs.ripgrep
-    pkgs.darwin.trash
-    pkgs.lazygit
-    pkgs.zig
-    pkgs._1password-cli
-    pkgs.delta
-    pkgs.zoxide
-    zsh-autosuggestions
-    zsh-fast-syntax-highlighting
-    fzf
-  ];
+  ] ++ commonPackages;
 
   programs.zsh = {
     enable = true;
@@ -66,21 +75,9 @@ in
   homebrew = {
     enable = true;
     global.autoUpdate = true;
+    brews = [
+    ];
     casks = [
-      # general
-      "karabiner-elements"
-      "dash"
-      "nikitabobko/tap/aerospace"
-      "zed"
-      "zoom"
-      "1password"
-      "hammerspoon"
-      "google-chrome"
-      "raycast"
-      "spotify"
-      "obsidian"
-
-      # personal
       "zwift"
       "tailscale"
       "vlc"
@@ -88,11 +85,11 @@ in
       "arq"
       "fantastical"
       "google-drive"
-    ];
+    ] ++ commonCasks;
     onActivation.cleanup = "uninstall";
   };
   fonts.packages = with pkgs; [
-    nerd-fonts.blex-mono
+    nerd-fonts.jetbrains-mono
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];
