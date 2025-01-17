@@ -25,6 +25,7 @@ in
   };
 
   environment.systemPackages = [
+    pkgs.asdf
     pkgs.neovim
     pkgs.git
     pkgs.fd

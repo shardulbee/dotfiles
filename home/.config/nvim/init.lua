@@ -1,4 +1,3 @@
--- vim: ts=2
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
 	vim.fn.system({
@@ -15,60 +14,30 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
 	"direnv/direnv.vim", -- Integration with direnv for environment management
-	"LnL7/vim-nix", -- Nix language support
 	"tpope/vim-eunuch", -- Unix shell commands integration
-	-- "tpope/vim-unimpaired", -- Pairs of handy bracket mappings
 	"tpope/vim-surround", -- Surroundings manipulation (parentheses, brackets, etc)
 	"tpope/vim-sleuth", -- Automatic indentation detection
+	"ziglang/zig.vim",
 	{
-		"tpope/vim-fugitive", -- Git integration
-		config = function()
-			---@diagnostic disable: undefined-field
-			vim.opt.statusline:append("%f:%l:%c %m")
-			vim.opt.statusline:append("%=")
-			vim.opt.statusline:append("%{FugitiveStatusline()}")
-			---@diagnostic enable: undefined-field
-		end,
-	},
-	"tpope/vim-rhubarb", -- GitHub integration
-	"tpope/vim-repeat", -- Enable repeating supported plugin maps
-	"tpope/vim-dispatch", -- Asynchronous build and test dispatcher
-	"williamboman/mason.nvim",
-	"williamboman/mason-lspconfig.nvim",
-	{ "echasnovski/mini.pairs", version = "*", config = true },
-	{
-		"neovim/nvim-lspconfig",
-		dependencies = {
-			{
-				"saghen/blink.cmp",
-				version = "v0.8.0",
-				opts = {
-					-- 'default' for mappings similar to built-in completion
-					-- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
-					-- 'enter' for mappings similar to 'super-tab' but with 'enter' to accept
-					-- See the full "keymap" documentation for information on defining your own keymap.
-					keymap = { preset = "enter" },
-					sources = {
-						default = { "lsp", "path", "snippets", "buffer" },
-						cmdline = {},
-					},
-				},
-			},
+		"tpope/vim-fugitive",
+		event = "VeryLazy",
+		cmd = "Git",
+		keys = {
+			{ "<leader>gs", "<cmd>Git<cr>" },
+			{ "<A-p>", "<cmd>Git pull<cr>", ft = "fugitive" },
+			{ "<A-P>", "<cmd>Git push<cr>", ft = "fugitive" },
 		},
 		config = function()
-			require("mason").setup()
-			local mason_lspconfig = require("mason-lspconfig")
-
-			local lspconfig = require("lspconfig")
-			local capabilities = require("blink.cmp").get_lsp_capabilities()
-			mason_lspconfig.setup_handlers({
-				-- default handler
-				function(server_name)
-					lspconfig[server_name].setup({ capabilities = capabilities })
-				end,
-			})
+			vim.opt.statusline = ""
+			vim.opt.statusline = "%f:%l:%c %m%=%{FugitiveStatusline()} %y"
 		end,
 	},
+	{ "tpope/vim-rhubarb", event = "VeryLazy", keys = { { "<leader>gb", "<cmd>GBrowse<cr>" } } },
+
+	{ "echasnovski/mini.surround", version = false, config = true },
+	{ "echasnovski/mini.pairs", version = false, config = true },
+	{ "echasnovski/mini.bracketed", version = false, config = true },
+	{ "echasnovski/mini.splitjoin", version = false, config = true },
 	{
 		"ibhagwan/fzf-lua",
 		config = function()
@@ -79,13 +48,8 @@ require("lazy").setup({
 					rg_opts = "--hidden --column --line-number --no-heading --color=always --smart-case --max-columns=4096 -e",
 				},
 				winopts = {
-					height = 0.90,
-					width = 0.90,
-					preview = {
-						winopts = {
-							number = false,
-						},
-					},
+					height = 0.9,
+					width = 0.9,
 					previewers = {
 						bat = { theme = "gruvbox-dark" },
 					},
@@ -93,48 +57,108 @@ require("lazy").setup({
 			})
 
 			local opts = { noremap = true, silent = true }
-			vim.keymap.set("n", "<C-p>", fzfLua.commands, opts)
-			vim.keymap.set("n", "gr", fzfLua.lsp_references, opts)
-			vim.keymap.set("n", "<leader>hh", fzfLua.help_tags, opts)
+			vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
+			vim.keymap.set("n", "<leader>h", fzfLua.help_tags, opts)
 			vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
 			vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
 			vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
-			vim.keymap.set("n", "gs", fzfLua.lsp_document_symbols, opts)
-			vim.keymap.set("n", "gS", fzfLua.lsp_workspace_symbols, opts)
-			vim.keymap.set("n", "<leader>gl", fzfLua.git_bcommits, opts)
-			vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
+			vim.keymap.set("n", "gl", fzfLua.lsp_document_symbols, opts)
+			vim.keymap.set("n", "gL", fzfLua.lsp_workspace_symbols, opts)
 		end,
 	},
 	{
 		"ellisonleao/gruvbox.nvim",
 		priority = 1000,
+		opts = {
+			contrast = "hard",
+		},
+		init = function()
+			vim.cmd([[colorscheme gruvbox]])
+		end,
+	},
+
+	{
+		"saghen/blink.cmp",
+		-- use a release tag to download pre-built binaries
+		version = "v0.9.3",
+
+		opts = {
+			-- 'default' for mappings similar to built-in completion
+			-- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
+			-- 'enter' for mappings similar to 'super-tab' but with 'enter' to accept
+			-- See the full "keymap" documentation for information on defining your own keymap.
+			keymap = { preset = "enter" },
+
+			appearance = {
+				-- Set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
+				-- Adjusts spacing to ensure icons are aligned
+				nerd_font_variant = "mono",
+			},
+
+			-- Default list of enabled providers defined so that you can extend it
+			-- elsewhere in your config, without redefining it, due to `opts_extend`
+			sources = {
+				default = { "lsp", "path", "buffer" },
+				cmdline = {},
+			},
+		},
+	},
+	"williamboman/mason-lspconfig.nvim",
+	{
+		"williamboman/mason.nvim",
+		cmd = "Mason",
+		build = ":MasonUpdate",
+		opts = {
+			ensure_installed = {
+				"stylua",
+				"shfmt",
+			},
+		},
+		config = function(_, opts)
+			require("mason").setup(opts)
+			local mr = require("mason-registry")
+			mr:on("package:install:success", function()
+				vim.defer_fn(function()
+					-- trigger FileType event to possibly load this newly installed LSP server
+					require("lazy.core.handler.event").trigger({
+						event = "FileType",
+						buf = vim.api.nvim_get_current_buf(),
+					})
+				end, 100)
+			end)
+
+			mr.refresh(function()
+				for _, tool in ipairs(opts.ensure_installed) do
+					local p = mr.get_package(tool)
+					if not p:is_installed() then
+						p:install()
+					end
+				end
+			end)
+		end,
+	},
+	{
+		"JoosepAlviste/nvim-ts-context-commentstring",
+		opts = {
+			enable_autocmd = false,
+		},
 		config = function()
-			require("gruvbox").setup({
-				contrast = "hard",
-			})
-			vim.cmd("colorscheme gruvbox")
+			local get_option = vim.filetype.get_option
+			vim.filetype.get_option = function(filetype, option)
+				return option == "commentstring"
+						and require("ts_context_commentstring.internal").calculate_commentstring()
+					or get_option(filetype, option)
+			end
 		end,
 	},
 	{
 		"nvim-treesitter/nvim-treesitter",
-		version = false,
+		dependencies = {
+			{ "nvim-treesitter/nvim-treesitter-textobjects", event = "VeryLazy" },
+			"JoosepAlviste/nvim-ts-context-commentstring",
+		},
 		build = ":TSUpdate",
 		event = { "VeryLazy" },
-		lazy = vim.fn.argc(-1) == 0, -- load treesitter early when opening a file from the cmdline
-		init = function(plugin)
-			-- PERF: add nvim-treesitter queries to the rtp and it's custom query predicates early
-			-- This is needed because a bunch of plugins no longer `require("nvim-treesitter")`, which
-			-- no longer trigger the **nvim-treesitter** module to be loaded in time.
-			-- Luckily, the only things that those plugins need are the custom queries, which we make available
-			-- during startup.
-			require("lazy.core.loader").add_to_rtp(plugin)
-			require("nvim-treesitter.query_predicates")
-		end,
-		cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
-		keys = {
-			{ "[x", desc = "Increment Selection" },
-			{ "]x", desc = "Decrement Selection", mode = "x" },
-		},
 		opts = {
 			highlight = { enable = true },
 			indent = { enable = true },
@@ -167,10 +191,10 @@ require("lazy").setup({
 			incremental_selection = {
 				enable = true,
 				keymaps = {
-					init_selection = "[x",
-					node_incremental = "[x",
+					init_selection = "<C-space>",
+					node_incremental = "<C-space>",
 					scope_incremental = false,
-					node_decremental = "]x",
+					node_decremental = "<bs>",
 				},
 			},
 			textobjects = {
@@ -195,21 +219,86 @@ require("lazy").setup({
 				},
 			},
 		},
-		config = function(_, opts)
-			require("nvim-treesitter.configs").setup(opts)
+		main = "nvim-treesitter.configs",
+	},
+	{
+		"neovim/nvim-lspconfig",
+		dependencies = {
+			"saghen/blink.cmp",
+			"williambowman/mason.nvim",
+			"williambowman/mason-lspconfig.nvim",
+		},
+
+		config = function(_, _)
+			local function organize_imports()
+				local params = {
+					command = "typescript.organizeImports",
+					arguments = { vim.fn.expand("%:p") },
+				}
+				vim.lsp.buf.execute_command(params)
+			end
+
+			vim.api.nvim_create_autocmd("LspAttach", {
+				callback = function(ev)
+					local client = vim.lsp.get_client_by_id(ev.data.client_id)
+					if client.name == "vtsls" then
+						vim.api.nvim_create_user_command(
+							"OrganizeImports",
+							organize_imports,
+							{ desc = "Organize Imports" }
+						)
+					end
+				end,
+			})
+
+			require("mason").setup()
+			require("mason-lspconfig").setup()
+
+			require("mason-lspconfig").setup_handlers({
+				-- The first entry (without a key) will be the default handler
+				-- and will be called for each installed server that doesn't have
+				-- a dedicated handler.
+				function(server_name) -- default handler (optional)
+					require("lspconfig")[server_name].setup({
+						capabilities = require("blink.cmp").get_lsp_capabilities(),
+						on_attach = function(_, bufnr)
+							local opts = { noremap = true, silent = true, buffer = bufnr }
+							local function buf_set_keymap(...)
+								vim.keymap.set(...)
+							end
+							local fzfLua = require("fzf-lua")
+
+							buf_set_keymap("n", ",ca", fzfLua.lsp_code_actions, opts)
+							buf_set_keymap("n", "gd", vim.lsp.buf.definition, opts)
+							buf_set_keymap("n", "gr", vim.lsp.buf.references, opts)
+							buf_set_keymap("n", "<C-K>", vim.lsp.buf.signature_help, opts)
+							buf_set_keymap("n", "gR", fzfLua.lsp_finder, opts)
+						end,
+					})
+				end,
+				-- Next, you can provide a dedicated handler for specific servers.
+				-- For example, a handler override for the `rust_analyzer`:
+				-- ["rust_analyzer"] = function ()
+				--     require("rust-tools").setup {}
+				-- end
+			})
+			vim.diagnostic.config({ virtual_text = true })
 		end,
 	},
+	{ "windwp/nvim-ts-autotag", opts = {} },
 	{
 		"stevearc/conform.nvim",
 		opts = {
-			formatters_by_ft = {
-				lua = { "stylua" },
-				python = { "ruff" },
-				rust = { "rustfmt", lsp_format = "fallback" },
-			},
 			format_on_save = {
 				timeout_ms = 500,
 				lsp_format = "fallback",
+			},
+			formatters_by_ft = {
+				lua = { "stylua" },
+				python = { "ruff" },
+				javascript = { "prettierd", "eslint", stop_after_first = false },
+				typescript = { "prettierd", "eslint", stop_after_first = false },
+				typescriptreact = { "prettierd", "eslint", stop_after_first = false, lsp_format = "last" },
 			},
 		},
 	},

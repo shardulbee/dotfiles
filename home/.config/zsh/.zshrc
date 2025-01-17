@@ -52,7 +52,12 @@ if command -v direnv > /dev/null; then
   eval "$(direnv hook zsh)"
 else
   echo "direnv not found"
-  return 1
+fi
+
+if command -v zoxide > /dev/null; then
+  eval "$(zoxide init zsh)"
+else
+  echo "zoxide not found"
 fi
 # -----------------------------------------------------------------------------
 # Aliases
