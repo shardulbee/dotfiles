@@ -51,6 +51,12 @@ require("lazy").setup({
 					previewers = {
 						bat = { theme = "gruvbox-dark" },
 					},
+					preview = {
+						hidden = true,
+					},
+				},
+				oldfiles = {
+					cwd_only = true,
 				},
 				git = {
 					commits = {
@@ -70,6 +76,7 @@ require("lazy").setup({
 
 			local opts = { noremap = true, silent = true }
 			vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
+			vim.keymap.set("n", "<A-t>", fzfLua.oldfiles, opts)
 			vim.keymap.set("n", "<leader>hh", fzfLua.help_tags, opts)
 			vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
 			vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
@@ -293,7 +300,7 @@ require("lazy").setup({
 			},
 			formatters_by_ft = {
 				lua = { "stylua" },
-				python = { "ruff" },
+				python = { "ruff_format", "ruff_fix", lsp_format = "last" },
 				javascript = { "prettierd", "eslint", stop_after_first = false },
 				typescript = { "prettierd", "eslint", stop_after_first = false },
 				typescriptreact = { "prettierd", "eslint", stop_after_first = false, lsp_format = "last" },
@@ -348,6 +355,39 @@ require("lazy").setup({
 			end,
 		},
 	},
+	{
+		"olimorris/codecompanion.nvim",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-treesitter/nvim-treesitter",
+		},
+		opts = {},
+		config = function()
+			require("codecompanion").setup({
+				adapters = {
+					copilot = function()
+						return require("codecompanion.adapters").extend("copilot", {
+							name = "copilot", -- Give this adapter a different name to differentiate it from the default ollama adapter
+							schema = {
+								model = {
+									default = "claude-3.5-sonnet",
+								},
+							},
+						})
+					end,
+				},
+				strategies = {
+					chat = {
+						adapter = "copilot",
+					},
+					inline = {
+						adapter = "copilot",
+					},
+				},
+			})
+		end,
+	},
+	"vim-test/vim-test",
 }, {})
 
 -- Settings section {{{
@@ -469,3 +509,14 @@ end
 -- Set the keymaps
 vim.keymap.set("n", "<leader>q", toggle_quickfix, { silent = true, desc = "Toggle quickfix" })
 vim.keymap.set("n", "<leader>l", toggle_loclist, { silent = true, desc = "Toggle loclist" })
+
+vim.keymap.set("n", "<leader>d", function()
+	vim.api.nvim_buf_delete(0, {})
+end)
+
+vim.api.nvim_create_user_command("Rebase", function()
+	vim.cmd("Git fetch origin")
+	vim.cmd("Git rebase origin/main")
+	local current_branch = vim.fn.system("git branch --show-current"):gsub("\n", "")
+	vim.cmd(string.format("Git push origin %s --force-with-lease", current_branch))
+end, {})
