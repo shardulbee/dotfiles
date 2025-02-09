@@ -3,3 +3,4 @@ macos-option-as-alt = true
 window-save-state = always
 macos-titlebar-style = tabs
 theme = GruvboxDarkHard
+command = fish

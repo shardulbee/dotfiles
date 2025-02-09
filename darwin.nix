@@ -1,10 +1,7 @@
 { pkgs, inputs, lib, ... }:
 let
   stow = pkgs.stow;
-  zsh-autosuggestions = pkgs.zsh-autosuggestions;
-  zsh-fast-syntax-highlighting = pkgs.zsh-fast-syntax-highlighting;
   fzf = pkgs.fzf;
-  fzf-git-sh = pkgs.fzf-git-sh;
   pkgs = import inputs.nixpkgs {
     system = "aarch64-darwin";
     config = {
@@ -13,8 +10,6 @@ let
   };
 
   commonPackages = [
-    zsh-autosuggestions
-    zsh-fast-syntax-highlighting
     fzf
     pkgs.neovim
     pkgs.git
@@ -46,26 +41,15 @@ in
     name = "shardul";
     home = "/Users/shardul";
     isHidden = false;
-    shell = pkgs.zsh;
+    shell = pkgs.fish;
   };
+  programs.fish.enable = true;
 
   environment.systemPackages = [
     pkgs.asdf
   ] ++ commonPackages;
 
-  programs.zsh = {
-    enable = true;
-    enableBashCompletion = false;
-    enableCompletion = false;
-    promptInit = "";
-    interactiveShellInit = ''
-      source ${zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-      source ${zsh-fast-syntax-highlighting}/share/zsh/site-functions/fast-syntax-highlighting.plugin.zsh
-      source ${fzf}/share/fzf/completion.zsh
-      source ${fzf}/share/fzf/key-bindings.zsh
-      source ${fzf-git-sh}/share/fzf-git-sh/fzf-git.sh
-    '';
-  };
+  # programs.fish.enable = true;
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
