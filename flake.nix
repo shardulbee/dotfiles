@@ -24,6 +24,11 @@
       url = "github:nikitabobko/homebrew-tap";
       flake = false;
     };
+    fuse-t = {
+      url = "github:macos-fuse-t/homebrew-cask";
+      flake = false;
+    };
+
   };
 
   outputs =
@@ -36,6 +41,7 @@
       homebrew-cask,
       homebrew-bundle,
       aerospace,
+      fuse-t
     }:
     {
       darwinConfigurations."turbochardo" = nix-darwin.lib.darwinSystem {
@@ -51,6 +57,7 @@
                 "homebrew/homebrew-cask" = homebrew-cask;
                 "homebrew/homebrew-bundle" = homebrew-bundle;
                 "nikitabobko/homebrew-tap" = aerospace;
+                "macos-fuse-t/homebrew-cask" = fuse-t;
               };
               mutableTaps = false;
             };

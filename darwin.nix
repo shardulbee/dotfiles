@@ -11,6 +11,8 @@ let
 
   commonPackages = [
     fzf
+    pkgs.zig
+    pkgs.nodejs
     pkgs.neovim
     pkgs.git
     pkgs.fd
@@ -46,7 +48,7 @@ in
   programs.fish.enable = true;
 
   environment.systemPackages = [
-    pkgs.asdf
+    pkgs.zig
   ] ++ commonPackages;
 
   # programs.fish.enable = true;
@@ -60,6 +62,7 @@ in
     enable = true;
     global.autoUpdate = true;
     brews = [
+      "asdf"
     ];
     casks = [
       "zwift"
@@ -69,6 +72,8 @@ in
       "arq"
       "fantastical"
       "google-drive"
+      "lm-studio"
+      # "macos-fuse-t/homebrew-cask/fuse-t"
     ] ++ commonCasks;
     onActivation.cleanup = "uninstall";
   };

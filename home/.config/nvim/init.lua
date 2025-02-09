@@ -268,6 +268,8 @@ require("lazy").setup({
 
 							buf_set_keymap("n", ",ca", fzfLua.lsp_code_actions, opts)
 							buf_set_keymap("n", "gd", vim.lsp.buf.definition, opts)
+							buf_set_keymap("n", "gD", vim.lsp.buf.type_definition, opts)
+							buf_set_keymap("n", "gI", vim.lsp.buf.implementation, opts)
 							buf_set_keymap("n", "gr", vim.lsp.buf.references, opts)
 							buf_set_keymap("n", "cd", vim.lsp.buf.rename, opts)
 							buf_set_keymap("n", "<C-K>", vim.lsp.buf.signature_help, opts)

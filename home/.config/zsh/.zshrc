@@ -128,3 +128,5 @@ function try {
 
 # https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis "$@"; fi; }
+
+. /opt/homebrew/opt/asdf/libexec/asdf.sh
