@@ -57,6 +57,12 @@ require("lazy").setup({
 					commits = {
 						winopts = { preview = { vertical = "down:60%" } },
 						actions = {
+							["ctrl-f"] = function(selected)
+								local commit = selected[1]:match("(%w+)")
+								vim.fn.system("git commit --fixup=" .. commit)
+								vim.fn.system("git rebase -i --autosquash " .. commit .. "^")
+							end,
+
 							["ctrl-o"] = {
 								fn = function(selected, _)
 									local commit = selected[1]:match("[^ ]+")
