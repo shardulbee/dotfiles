@@ -51,22 +51,21 @@ local keyMap = {
 	-- top level
 	[singleKey("f", "search files")] = openUrl("raycast://extensions/raycast/file-search/search-files"),
 	[singleKey("c", "clipboard")] = openUrl("raycast://extensions/raycast/clipboard-history/clipboard-history"),
-	[singleKey("m", "search menu items")] = openUrl("raycast://extensions/raycast/navigation/search-menu-items"),
 
+	[singleKey("z", "zoom")] = {
+		[singleKey("j", "join")] = function()
+			hs.eventtap.keyStroke({ "cmd", "ctrl", "alt", "cmd", "shift" }, "j")
+		end,
+		[singleKey("c", "calendar")] = function()
+			hs.eventtap.keyStroke({ "cmd", "alt", "ctrl" }, "c")
+		end,
+	},
 	[singleKey("o", "open")] = {
 		[singleKey("f", "finder")] = launchOrFocusApp("Finder"),
 		[singleKey("m", "mail")] = launchOrFocusApp("Mimestream"),
 		[singleKey("s", "slack")] = launchOrFocusApp("Slack"),
 		[singleKey("c", "calendar")] = chrome.LaunchOrFocusTab("https://calendar.google.com"),
-		[singleKey("z", "zoom")] = {
-			[singleKey("o", "open")] = launchOrFocusApp("zoom.us"),
-			[singleKey("j", "join")] = function()
-				hs.eventtap.keyStroke({ "cmd", "alt", "cmd", "shift" }, "j")
-			end,
-			[singleKey("c", "calendar")] = function()
-				hs.eventtap.keyStroke({ "cmd", "alt", "ctrl" }, "c")
-			end,
-		},
+		[singleKey("z", "zoom")] = launchOrFocusApp("zoom.us"),
 		[singleKey("n", "notes")] = launchOrFocusApp("Obsidian"),
 	},
 	[singleKey("h", "hammerspoon")] = {
@@ -74,9 +73,6 @@ local keyMap = {
 		[singleKey("r", "console")] = hs.reload,
 	},
 	[singleKey("d", "dbnl")] = {
-		[singleKey("v", "connect vpn")] = function()
-			hs.eventtap.keyStroke({ "cmd", "ctrl", "alt" }, "v")
-		end,
 		[singleKey("s", "aws sso")] = connectAwsSso,
 		[singleKey("o", "open+")] = {
 			[singleKey("l", "local")] = openUrl("http://localhost:8080/"),
@@ -86,7 +82,6 @@ local keyMap = {
 		},
 	},
 	[singleKey("r", "raycast")] = {
-		[singleKey("e", "emoji")] = openUrl("raycast://extensions/raycast/emoji-symbols/search-emoji-symbols"),
 		[singleKey("c", "capture")] = {
 			[singleKey("v", "video")] = openUrl("raycast://extensions/Aayush9029/cleanshotx/record-screen"),
 			[singleKey("c", "copy")] = openUrl(
@@ -122,62 +117,10 @@ local keyMap = {
 	[singleKey("j", "jira")] = {
 		[singleKey("o", "open issues")] = openUrl("raycast://extensions/raycast/jira/open-issues"),
 		[singleKey("s", "search")] = openUrl("raycast://extensions/raycast/jira/search-issues"),
-		[singleKey("c", "create")] = openUrl("raycast://extensions/raycast/jira/create-issue"),
-		[singleKey("f", "filters")] = openUrl("raycast://extensions/raycast/jira/my-filters"),
 	},
 }
 
 hs.hotkey.bind({}, "f5", spoon.RecursiveBinder.recursiveBind(keyMap))
-
--- hs.hotkey.bind({ "alt" }, "h", function()
---     local win = hs.window.focusedWindow()
---     if win then
---         local wins = win:windowsToWest(nil, true, nil)
---         if #wins > 0 then
---             wins[1]:focus()
---         end
---     end
--- end)
---
--- hs.hotkey.bind({ "alt" }, "l", function()
---     local win = hs.window.focusedWindow()
---     if win then
---         local wins = win:windowsToEast(nil, true, nil)
---         if #wins > 0 then
---             wins[1]:focus()
---         end
---     end
--- end)
---
--- hs.hotkey.bind({ "alt" }, "k", function()
---     local win = hs.window.focusedWindow()
---     if win then
---         local wins = win:windowsToNorth()
---         if #wins > 0 then
---             wins[1]:focus()
---         end
---     end
--- end)
---
--- hs.hotkey.bind({ "alt" }, "j", function()
---     local win = hs.window.focusedWindow()
---     if win then
---         local wins = win:windowsToSouth()
---         if #wins > 0 then
---             wins[1]:focus()
---         end
---     end
--- end)
---
--- local appMaps = {
---     -- ["1"] = "Zed",
---     ["3"] = "Google Chrome",
---     ["0"] = "Ghostty"
--- }
---
--- for bind, app in pairs(appMaps) do
---     hs.hotkey.bind({ "alt" }, bind, launchOrFocusApp(app))
--- end
 
 Watcher = hs.pathwatcher.new(os.getenv("HOME") .. "/dotfiles/home/.hammerspoon", hs.reload):start()
 hs.alert.show(" ✔︎")

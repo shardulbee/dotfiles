@@ -31,13 +31,20 @@ require("lazy").setup({
 			vim.opt.statusline = "%f:%l:%c %m%=%{FugitiveStatusline()} %y"
 		end,
 	},
-	{ "tpope/vim-rhubarb", event = "VeryLazy", keys = { { "<leader>gb", "<cmd>GBrowse<cr>" } } },
+	{
+		"tpope/vim-rhubarb",
+		event = "VeryLazy",
+		keys = {
+			{ "<leader>gb", "<cmd>GBrowse<cr>" },
+		},
+	},
 
 	{ "echasnovski/mini.surround", version = false, config = true },
 	{ "echasnovski/mini.pairs", version = false, config = true },
 	{ "echasnovski/mini.splitjoin", version = false, config = true },
 	{
 		"ibhagwan/fzf-lua",
+		event = "VeryLazy",
 		config = function()
 			local fzfLua = require("fzf-lua")
 
@@ -96,6 +103,9 @@ require("lazy").setup({
 		priority = 1000,
 		opts = {
 			contrast = "hard",
+			overrides = {
+				SignColumn = { bg = "#1d2021" },
+			},
 		},
 		init = function()
 			vim.cmd([[colorscheme gruvbox]])
@@ -229,8 +239,6 @@ require("lazy").setup({
 		"neovim/nvim-lspconfig",
 		dependencies = {
 			"saghen/blink.cmp",
-			"williambowman/mason.nvim",
-			"williambowman/mason-lspconfig.nvim",
 		},
 
 		config = function(_, _)
@@ -274,10 +282,13 @@ require("lazy").setup({
 
 							buf_set_keymap("n", ",ca", fzfLua.lsp_code_actions, opts)
 							buf_set_keymap("n", "gd", vim.lsp.buf.definition, opts)
-							buf_set_keymap("n", "gr", vim.lsp.buf.references, opts)
 							buf_set_keymap("n", "cd", vim.lsp.buf.rename, opts)
-							buf_set_keymap("n", "<C-K>", vim.lsp.buf.signature_help, opts)
-							buf_set_keymap("n", "gR", fzfLua.lsp_finder, opts)
+							buf_set_keymap("n", "]d", function()
+								vim.diagnostic.goto_next({ float = true, severity = vim.diagnostic.severity.ERROR })
+							end, opts)
+							buf_set_keymap("n", "[d", function()
+								vim.diagnostic.goto_prev({ float = true, severity = vim.diagnostic.severity.ERROR })
+							end, opts)
 						end,
 					})
 				end,
@@ -287,7 +298,7 @@ require("lazy").setup({
 				--     require("rust-tools").setup {}
 				-- end
 			})
-			vim.diagnostic.config({ virtual_text = true })
+			vim.diagnostic.config({ virtual_text = false })
 		end,
 	},
 	{ "windwp/nvim-ts-autotag", opts = {} },
@@ -317,77 +328,42 @@ require("lazy").setup({
 			},
 			current_line_blame = true,
 			on_attach = function(bufnr)
+				local opts = { remap = false, silent = true }
 				local gitsigns = require("gitsigns")
 
-				local function map(mode, l, r, opts)
-					opts = opts or {}
-					opts.buffer = bufnr
-					vim.keymap.set(mode, l, r, opts)
-				end
-
-				map("n", "]c", function()
+				vim.keymap.set("n", "]c", function()
 					if vim.wo.diff then
 						vim.cmd.normal({ "]c", bang = true })
 					else
 						gitsigns.nav_hunk("next")
 					end
-				end)
+				end, opts)
 
-				map("n", "[c", function()
+				vim.keymap.set("n", "[c", function()
 					if vim.wo.diff then
 						vim.cmd.normal({ "[c", bang = true })
 					else
 						gitsigns.nav_hunk("prev")
 					end
-				end)
+				end, opts)
 
 				-- Actions
-				map("n", '"', gitsigns.preview_hunk)
-				map("n", "<leader>hb", function()
-					gitsigns.blame_line({ full = true })
-				end)
-				map("n", "<leader>tb", gitsigns.toggle_current_line_blame)
-				map("n", "<leader>hd", gitsigns.diffthis)
-				map("n", "<leader>hD", function()
-					gitsigns.diffthis("~")
-				end)
-				map("n", "<leader>td", gitsigns.toggle_deleted)
+				vim.keymap.set("n", '"', gitsigns.preview_hunk, opts)
+				vim.keymap.set("n", "<leader>gd", gitsigns.diffthis, opts)
 			end,
 		},
 	},
 	{
-		"olimorris/codecompanion.nvim",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-treesitter/nvim-treesitter",
+		"vim-test/vim-test",
+		keys = {
+			{ "<leader>tn", "<cmd>TestNearest<cr>" },
+			{ "<leader>tf", "<cmd>TestFile<cr>" },
+
+			{ "<leader>tn", "<cmd>TestNearest -s<cr>", ft = "python" },
+			{ "<leader>tf", "<cmd>TestFile -s<cr>", ft = "python" },
+			{ "<leader>ts", "<cmd>TestSuite -nauto -s<cr>", ft = "python" },
 		},
-		opts = {},
-		config = function()
-			require("codecompanion").setup({
-				adapters = {
-					copilot = function()
-						return require("codecompanion.adapters").extend("copilot", {
-							name = "copilot", -- Give this adapter a different name to differentiate it from the default ollama adapter
-							schema = {
-								model = {
-									default = "claude-3.5-sonnet",
-								},
-							},
-						})
-					end,
-				},
-				strategies = {
-					chat = {
-						adapter = "copilot",
-					},
-					inline = {
-						adapter = "copilot",
-					},
-				},
-			})
-		end,
 	},
-	"vim-test/vim-test",
 }, {})
 
 -- Settings section {{{
@@ -426,7 +402,9 @@ vim.opt.hlsearch = false -- don't highlight search results
 vim.opt.incsearch = true -- search as you type
 vim.opt.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
 vim.opt.termguicolors = true
-vim.opt.signcolumn = "yes"
+vim.opt.title = true
+vim.opt.titlestring = "%{fnamemodify(getcwd(), ':t')}"
+
 -- }}}
 
 -- Create autocommand for trimming whitespace on save
@@ -520,3 +498,38 @@ vim.api.nvim_create_user_command("Rebase", function()
 	local current_branch = vim.fn.system("git branch --show-current"):gsub("\n", "")
 	vim.cmd(string.format("Git push origin %s --force-with-lease", current_branch))
 end, {})
+
+-- Function to add Python debugger breakpoint with proper indentation
+local function add_python_breakpoint()
+	local pos = vim.api.nvim_win_get_cursor(0)
+	local line = pos[1] - 1
+	-- Get the indentation of the current line
+	local current_line = vim.api.nvim_buf_get_lines(0, line, line + 1, false)[1]
+	local indent = current_line:match("^%s*")
+
+	vim.api.nvim_buf_set_lines(0, line, line, false, {
+		indent .. "import ipdb",
+		indent .. "ipdb.set_trace()",
+	})
+end
+
+-- Function to remove all Python debugger breakpoints
+local function remove_python_breakpoints()
+	local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+	local new_lines = {}
+	for _, line in ipairs(lines) do
+		if not line:match("ipdb") then
+			table.insert(new_lines, line)
+		end
+	end
+	vim.api.nvim_buf_set_lines(0, 0, -1, false, new_lines)
+end
+
+-- Set up autocommand to create mappings only for Python files
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "python",
+	callback = function()
+		vim.keymap.set("n", "<leader>9", add_python_breakpoint, { buffer = true })
+		vim.keymap.set("n", "<leader>0", remove_python_breakpoints, { buffer = true })
+	end,
+})
