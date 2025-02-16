@@ -2,24 +2,9 @@
 	detachedHead = false
 
 [alias]
+	c = "commit"
 	co = "checkout"
 	p = "push"
-    rm-merged = !git branch --format '%(refname:short) %(upstream:track)' | awk '$2 == \"[gone]\" { print $1 }' | xargs -r git branch -D
-    sync = !git switch main && git pull --prune && git rm-merged && git switch -
-    fogrom = "!f() { \
-        git fetch origin main; \
-        git merge-base --fork-point origin/main | \
-        xargs -I {} git rebase {} --onto origin/main; \
-    }; f"
-    rob = "!f() { \
-        branch=$1; \
-        git fetch origin main; \
-        git merge-base --fork-point origin/main | \
-        xargs -I {} git rebase {} --onto $branch; \
-    }; f"
-    wip = "!git add --all && git commit --no-verify -m 'wip'"
-
-
 
 [color]
 	diff = "auto"
