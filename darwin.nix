@@ -49,6 +49,7 @@ in
 
   environment.systemPackages = [
     pkgs.zig
+    pkgs.lowdown
   ] ++ commonPackages;
 
   # programs.fish.enable = true;

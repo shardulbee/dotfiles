@@ -1,4 +1,7 @@
 local chrome = require("chrome")
+local noises = require("hs.noises")
+local timer = require("hs.timer")
+local eventtap = require("hs.eventtap")
 
 hs.loadSpoon("RecursiveBinder")
 spoon.RecursiveBinder.escapeKey = { {}, "escape" } -- Press escape to abort
@@ -23,6 +26,62 @@ local function aerospace(args)
 	end
 end
 
+local function newScroller(delay, tick)
+	return { delay = delay, tick = tick, timer = nil }
+end
+
+Listener = nil
+PopclickListening = false
+TssScrollDown = newScroller(0.02, -10)
+
+local function startScroll(scroller)
+	if scroller.timer == nil then
+		scroller.timer = timer.doEvery(scroller.delay, function()
+			eventtap.scrollWheel({ 0, scroller.tick }, {}, "pixel")
+		end)
+	end
+end
+
+local function stopScroll(scroller)
+	if scroller.timer then
+		scroller.timer:stop()
+		scroller.timer = nil
+	end
+end
+
+local function scrollHandler(evNum)
+	-- alert.show(tostring(evNum))
+	if evNum == 1 then
+		startScroll(TssScrollDown)
+	elseif evNum == 2 then
+		stopScroll(TssScrollDown)
+	elseif evNum == 3 then
+		if hs.application.frontmostApplication():name() == "ReadKit" then
+			eventtap.keyStroke({}, "j")
+		else
+			eventtap.scrollWheel({ 0, 250 }, {}, "pixel")
+		end
+	end
+end
+
+local function popclickInit()
+	PopclickListening = false
+	local fn = scrollHandler
+	Listener = noises.new(fn)
+end
+popclickInit()
+
+local function popclickPlayPause()
+	if not PopclickListening then
+		Listener:start()
+		hs.alert.show("listening")
+	else
+		Listener:stop()
+		hs.alert.show("stopped listening")
+	end
+	PopclickListening = not PopclickListening
+end
+
 local keyMap = {
 	-- top level
 	[singleKey("f", "search files")] = openUrl("raycast://extensions/raycast/file-search/search-files"),
@@ -38,6 +97,7 @@ local keyMap = {
 	[singleKey("h", "hammerspoon")] = {
 		[singleKey("c", "console")] = hs.toggleConsole,
 		[singleKey("r", "console")] = hs.reload,
+		[singleKey("p", "popclick")] = popclickPlayPause,
 	},
 	[singleKey("r", "raycast")] = {
 		[singleKey("e", "emoji")] = openUrl("raycast://extensions/raycast/emoji-symbols/search-emoji-symbols"),

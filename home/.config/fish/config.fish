@@ -35,9 +35,10 @@ if status is-interactive
     alias rm='trash'
     alias gp='git p'
     alias rmfrfr='rm'
+    alias z=zi
 
     function gpf
-        if test (gcb) != "main"
+        if test (git rev-parse --abrev-ref HEAD) != "main"
             git push --force-with-lease
         else
             echo "Nope"
