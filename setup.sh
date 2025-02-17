@@ -47,6 +47,7 @@ PACKAGES=(
     "asdf"
     "direnv"
     "stow"
+    "lowdown"
 )
 
 brew install "${PACKAGES[@]}"
@@ -73,6 +74,7 @@ CASKS=(
     "google-drive"
     "ghostty"
     "nikitabobko/tap/aerospace"
+    "cursor"
 )
 
 brew install --cask "${CASKS[@]}"

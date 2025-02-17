@@ -26,6 +26,13 @@ require("lazy").setup({
 		cmd = "Git",
 		keys = {
 			{ "<leader>gs", "<cmd>Git<cr>" },
+			{
+				"Pf",
+				":Git push --force-with-lease",
+				mode = "n",
+				ft = "fugitive",
+				remap = false,
+			},
 		},
 		config = function()
 			vim.opt.statusline = ""
