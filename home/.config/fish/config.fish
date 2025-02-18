@@ -85,6 +85,14 @@ function fish_prompt
         end
     end
 
+    # Show backgrounded jobs
+    set -l jobs_count (jobs | count)
+    if test $jobs_count -gt 0
+        set_color blue
+        set -l pname (jobs -c | head -n1)
+        echo -n " [background:$pname]"
+    end
+
     set_color normal
     echo -n ' → '
 end
