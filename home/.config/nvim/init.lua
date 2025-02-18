@@ -88,8 +88,6 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
 			vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
 			vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
-			vim.keymap.set("n", "gl", fzfLua.lsp_document_symbols, opts)
-			vim.keymap.set("n", "gL", fzfLua.lsp_workspace_symbols, opts)
 			vim.keymap.set("n", "<leader>r", fzfLua.command_history, opts)
 			vim.keymap.set("n", "<leader>p", fzfLua.commands, opts)
 
@@ -281,7 +279,12 @@ require("lazy").setup({
 							local fzfLua = require("fzf-lua")
 
 							buf_set_keymap("n", ",ca", fzfLua.lsp_code_actions, opts)
+							buf_set_keymap("n", "gs", fzfLua.lsp_document_symbols, opts)
+							buf_set_keymap("n", "gl", fzfLua.lsp_document_symbols, opts)
+							buf_set_keymap("n", "gL", fzfLua.lsp_workspace_symbols, opts)
+
 							buf_set_keymap("n", "gd", vim.lsp.buf.definition, opts)
+							buf_set_keymap("n", "gr", vim.lsp.buf.references, opts)
 							buf_set_keymap("n", "cd", vim.lsp.buf.rename, opts)
 							buf_set_keymap("n", "]d", function()
 								vim.diagnostic.goto_next({ float = true, severity = vim.diagnostic.severity.ERROR })

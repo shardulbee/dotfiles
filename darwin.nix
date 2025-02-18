@@ -27,6 +27,7 @@ let
     pkgs.darwin.trash
     pkgs.zoxide
     pkgs.delta
+    pkgs.universal-ctags
   ];
 
   commonCasks = [

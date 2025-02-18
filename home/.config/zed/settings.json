@@ -18,7 +18,7 @@
   "assistant": {
     "default_model": {
       "provider": "copilot_chat",
-      "model": "o1-mini"
+      "model": "claude-3-5-sonnet"
     },
     "version": "2"
   },
