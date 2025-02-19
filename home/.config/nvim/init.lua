@@ -13,11 +13,12 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
+	"ziglang/zig.vim",
+
 	"direnv/direnv.vim", -- Integration with direnv for environment management
 	"tpope/vim-eunuch", -- Unix shell commands integration
 	"tpope/vim-surround", -- Surroundings manipulation (parentheses, brackets, etc)
 	"tpope/vim-sleuth", -- Automatic indentation detection
-	"ziglang/zig.vim",
 	"tpope/vim-unimpaired",
 	"tpope/vim-repeat",
 	{
@@ -421,66 +422,3 @@ vim.api.nvim_create_autocmd({ "VimResized" }, {
 		vim.api.nvim_command("wincmd =")
 	end,
 })
-
--- Define keymap to open current file in Zed
-vim.keymap.set("n", "<leader><space>", function()
-	-- Helper function to find the git root directory
-	local function find_git_root()
-		local current = vim.fn.expand("%:p:h")
-		while current ~= "/" do
-			if vim.fn.isdirectory(current .. "/.git") == 1 then
-				return current
-			end
-			current = vim.fn.fnamemodify(current, ":h")
-		end
-		return nil
-	end
-
-	-- Get the git root directory
-	local git_root = find_git_root()
-	if not git_root then
-		print("No git root found")
-		return
-	end
-
-	-- Get current file path and cursor position
-	local file = vim.fn.expand("%:p")
-	local line = vim.fn.line(".")
-	local col = vim.fn.col(".")
-	-- Open file in Zed at current cursor position
-	vim.fn.system({ "zed", git_root, file .. ":" .. line .. ":" .. col })
-end, { noremap = true, silent = true })
-
--- Toggle quickfix window
-local function toggle_quickfix()
-	local qf_exists = false
-	for _, win in pairs(vim.fn.getwininfo()) do
-		if win.quickfix == 1 and win.loclist == 0 then
-			qf_exists = true
-		end
-	end
-	if qf_exists then
-		vim.cmd("cclose")
-	else
-		vim.cmd("copen")
-	end
-end
-
--- Toggle location list window
-local function toggle_loclist()
-	local loc_exists = false
-	for _, win in pairs(vim.fn.getwininfo()) do
-		if win.quickfix == 1 and win.loclist == 1 then
-			loc_exists = true
-		end
-	end
-	if loc_exists then
-		vim.cmd("lclose")
-	else
-		vim.cmd("lopen")
-	end
-end
-
--- Set the keymaps
-vim.keymap.set("n", "<leader>q", toggle_quickfix, { silent = true, desc = "Toggle quickfix" })
-vim.keymap.set("n", "<leader>l", toggle_loclist, { silent = true, desc = "Toggle loclist" })
