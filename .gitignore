@@ -1,4 +1,4 @@
 result
 home/.config/github-copilot/hosts.json
-home/.config/karabiner/assets/
-home/.config/karabiner/automatic_backups/
+home/.config/karabiner/assets/*
+home/.config/karabiner/automatic_backups/*

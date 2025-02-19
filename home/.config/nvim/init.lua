@@ -13,12 +13,11 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-	"ziglang/zig.vim",
 
-	"direnv/direnv.vim", -- Integration with direnv for environment management
-	"tpope/vim-eunuch", -- Unix shell commands integration
-	"tpope/vim-surround", -- Surroundings manipulation (parentheses, brackets, etc)
-	"tpope/vim-sleuth", -- Automatic indentation detection
+	"direnv/direnv.vim",
+	"tpope/vim-eunuch",
+	"tpope/vim-surround",
+	"tpope/vim-sleuth",
 	"tpope/vim-unimpaired",
 	"tpope/vim-repeat",
 	{
@@ -27,26 +26,20 @@ require("lazy").setup({
 		cmd = "Git",
 		keys = {
 			{ "<leader>gs", "<cmd>Git<cr>" },
-			{
-				"Pf",
-				":Git push --force-with-lease",
-				mode = "n",
-				ft = "fugitive",
-				remap = false,
-			},
 		},
 		config = function()
 			vim.opt.statusline = ""
 			vim.opt.statusline = "%f:%l:%c %m%=%{FugitiveStatusline()} %y"
 		end,
 	},
-	{ "tpope/vim-rhubarb", event = "VeryLazy", keys = { { "<leader>gb", "<cmd>GBrowse<cr>" } } },
 
+	{ "tpope/vim-rhubarb", event = "VeryLazy" },
 	{ "echasnovski/mini.surround", version = false, config = true },
 	{ "echasnovski/mini.pairs", version = false, config = true },
 	{ "echasnovski/mini.splitjoin", version = false, config = true },
 	{
 		"ibhagwan/fzf-lua",
+		event = "VeryLazy",
 		config = function()
 			local fzfLua = require("fzf-lua")
 
@@ -60,17 +53,14 @@ require("lazy").setup({
 					previewers = {
 						bat = { theme = "gruvbox-dark" },
 					},
+					preview = {
+						hidden = true,
+					},
 				},
 				git = {
 					commits = {
 						winopts = { preview = { vertical = "down:60%" } },
 						actions = {
-							["ctrl-f"] = function(selected)
-								local commit = selected[1]:match("(%w+)")
-								vim.fn.system("git commit --fixup=" .. commit)
-								vim.fn.system("git rebase -i --autosquash " .. commit .. "^")
-							end,
-
 							["ctrl-o"] = {
 								fn = function(selected, _)
 									local commit = selected[1]:match("[^ ]+")
@@ -85,7 +75,7 @@ require("lazy").setup({
 
 			local opts = { noremap = true, silent = true }
 			vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
-			vim.keymap.set("n", "<leader>hh", fzfLua.help_tags, opts)
+			vim.keymap.set("n", "<leader>h", fzfLua.help_tags, opts)
 			vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
 			vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
 			vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
@@ -94,7 +84,6 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>r", fzfLua.command_history, opts)
 			vim.keymap.set("n", "<leader>p", fzfLua.commands, opts)
 
-			vim.keymap.set("n", "<leader>gl", fzfLua.git_commits, opts)
 			vim.keymap.set("n", "<leader>co", fzfLua.git_branches, opts)
 		end,
 	},
@@ -104,32 +93,22 @@ require("lazy").setup({
 		priority = 1000,
 		opts = {
 			contrast = "hard",
+			overrides = {
+				SignColumn = { bg = "#1d2021" },
+			},
 		},
 		init = function()
 			vim.cmd([[colorscheme gruvbox]])
 		end,
 	},
-
 	{
 		"saghen/blink.cmp",
-		-- use a release tag to download pre-built binaries
 		version = "v0.9.3",
-
 		opts = {
-			-- 'default' for mappings similar to built-in completion
-			-- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
-			-- 'enter' for mappings similar to 'super-tab' but with 'enter' to accept
-			-- See the full "keymap" documentation for information on defining your own keymap.
 			keymap = { preset = "enter" },
-
 			appearance = {
-				-- Set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
-				-- Adjusts spacing to ensure icons are aligned
 				nerd_font_variant = "mono",
 			},
-
-			-- Default list of enabled providers defined so that you can extend it
-			-- elsewhere in your config, without redefining it, due to `opts_extend`
 			sources = {
 				default = { "lsp", "path", "buffer" },
 				cmdline = {},
@@ -282,22 +261,25 @@ require("lazy").setup({
 
 							buf_set_keymap("n", ",ca", fzfLua.lsp_code_actions, opts)
 							buf_set_keymap("n", "gd", vim.lsp.buf.definition, opts)
-							buf_set_keymap("n", "gD", vim.lsp.buf.type_definition, opts)
-							buf_set_keymap("n", "gI", vim.lsp.buf.implementation, opts)
 							buf_set_keymap("n", "gr", vim.lsp.buf.references, opts)
 							buf_set_keymap("n", "cd", vim.lsp.buf.rename, opts)
-							buf_set_keymap("n", "<C-K>", vim.lsp.buf.signature_help, opts)
-							buf_set_keymap("n", "gR", fzfLua.lsp_finder, opts)
+							buf_set_keymap("n", "]d", function()
+								vim.diagnostic.goto_next({ float = true, severity = vim.diagnostic.severity.ERROR })
+							end, opts)
+							buf_set_keymap("n", "[d", function()
+								vim.diagnostic.goto_prev({ float = true, severity = vim.diagnostic.severity.ERROR })
+							end, opts)
+							buf_set_keymap("n", "]D", function()
+								vim.diagnostic.goto_next({ float = true })
+							end, opts)
+							buf_set_keymap("n", "[D", function()
+								vim.diagnostic.goto_prev({ float = true })
+							end, opts)
 						end,
 					})
 				end,
-				-- Next, you can provide a dedicated handler for specific servers.
-				-- For example, a handler override for the `rust_analyzer`:
-				-- ["rust_analyzer"] = function ()
-				--     require("rust-tools").setup {}
-				-- end
 			})
-			vim.diagnostic.config({ virtual_text = true })
+			vim.diagnostic.config({ virtual_text = false })
 		end,
 	},
 	{ "windwp/nvim-ts-autotag", opts = {} },
@@ -310,7 +292,7 @@ require("lazy").setup({
 			},
 			formatters_by_ft = {
 				lua = { "stylua" },
-				python = { "ruff" },
+				python = { "ruff_format", "ruff_fix", lsp_format = "last" },
 				javascript = { "prettierd", "eslint", stop_after_first = false },
 				typescript = { "prettierd", "eslint", stop_after_first = false },
 				typescriptreact = { "prettierd", "eslint", stop_after_first = false, lsp_format = "last" },
@@ -327,47 +309,44 @@ require("lazy").setup({
 			},
 			current_line_blame = true,
 			on_attach = function(bufnr)
+				local opts = { remap = false, silent = true }
 				local gitsigns = require("gitsigns")
 
-				local function map(mode, l, r, opts)
-					opts = opts or {}
-					opts.buffer = bufnr
-					vim.keymap.set(mode, l, r, opts)
-				end
-
-				map("n", "]c", function()
+				vim.keymap.set("n", "]c", function()
 					if vim.wo.diff then
 						vim.cmd.normal({ "]c", bang = true })
 					else
 						gitsigns.nav_hunk("next")
 					end
-				end)
+				end, opts)
 
-				map("n", "[c", function()
+				vim.keymap.set("n", "[c", function()
 					if vim.wo.diff then
 						vim.cmd.normal({ "[c", bang = true })
 					else
 						gitsigns.nav_hunk("prev")
 					end
-				end)
+				end, opts)
 
 				-- Actions
-				map("n", '"', gitsigns.preview_hunk)
-				map("n", "<leader>hb", function()
-					gitsigns.blame_line({ full = true })
-				end)
-				map("n", "<leader>tb", gitsigns.toggle_current_line_blame)
-				map("n", "<leader>hd", gitsigns.diffthis)
-				map("n", "<leader>hD", function()
-					gitsigns.diffthis("~")
-				end)
-				map("n", "<leader>td", gitsigns.toggle_deleted)
+				vim.keymap.set("n", '"', gitsigns.preview_hunk, opts)
+				vim.keymap.set("n", "<leader>gd", gitsigns.diffthis, opts)
 			end,
+		},
+	},
+	{
+		"vim-test/vim-test",
+		keys = {
+			{ "<leader>tn", "<cmd>TestNearest<cr>" },
+			{ "<leader>tf", "<cmd>TestFile<cr>" },
+
+			{ "<leader>tn", "<cmd>TestNearest -s<cr>", ft = "python" },
+			{ "<leader>tf", "<cmd>TestFile -s<cr>", ft = "python" },
+			{ "<leader>ts", "<cmd>TestSuite -nauto -s<cr>", ft = "python" },
 		},
 	},
 }, {})
 
--- Settings section {{{
 vim.cmd([[filetype plugin indent on]])
 vim.cmd([[syntax on]])
 vim.opt.wrap = false -- soft wrap off
@@ -403,9 +382,9 @@ vim.opt.hlsearch = false -- don't highlight search results
 vim.opt.incsearch = true -- search as you type
 vim.opt.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
 vim.opt.termguicolors = true
--- }}}
+vim.opt.title = true
+vim.opt.titlestring = "%{fnamemodify(getcwd(), ':t')}"
 
--- Create autocommand for trimming whitespace on save
 vim.api.nvim_create_augroup("TRIM_WHITESPACE", { clear = true })
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 	group = "TRIM_WHITESPACE",
@@ -413,12 +392,44 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 	command = [[%s/\s\+$//e]],
 })
 
--- Create autocommand to equalize window sizes when terminal is resized
 vim.api.nvim_create_augroup("RESIZE_NVIM", { clear = true })
 vim.api.nvim_create_autocmd({ "VimResized" }, {
 	group = "RESIZE_NVIM",
 	pattern = { "*" },
 	callback = function()
 		vim.api.nvim_command("wincmd =")
+	end,
+})
+
+vim.keymap.set("n", "<leader>d", function()
+	vim.api.nvim_buf_delete(0, {})
+end)
+
+-- Set up autocommand to create mappings only for Python files
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "python",
+	callback = function()
+		vim.keymap.set("n", "<leader>9", function()
+			local pos = vim.api.nvim_win_get_cursor(0)
+			local line = pos[1] - 1
+			-- Get the indentation of the current line
+			local current_line = vim.api.nvim_buf_get_lines(0, line, line + 1, false)[1]
+			local indent = current_line:match("^%s*")
+
+			vim.api.nvim_buf_set_lines(0, line, line, false, {
+				indent .. "import ipdb",
+				indent .. "ipdb.set_trace()",
+			})
+		end, { buffer = true })
+		vim.keymap.set("n", "<leader>0", function()
+			local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+			local new_lines = {}
+			for _, line in ipairs(lines) do
+				if not line:match("ipdb") then
+					table.insert(new_lines, line)
+				end
+			end
+			vim.api.nvim_buf_set_lines(0, 0, -1, false, new_lines)
+		end, { buffer = true })
 	end,
 })

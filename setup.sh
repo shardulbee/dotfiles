@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit on error. Erroring pipes fail the script. Undefined vars fail the script. Print commands before executing.
-set -euxo pipefail
+set -e
 
 # 1. Install Homebrew if not already installed
 if ! command -v brew >/dev/null 2>&1; then
@@ -10,94 +10,17 @@ if ! command -v brew >/dev/null 2>&1; then
 
     BREW_PATH="/opt/homebrew/bin/brew"
 
-    # Add to .zprofile for login shell environment setup
-    if ! grep -q "brew shellenv" "$HOME/.zprofile" 2>/dev/null; then
-        echo "# Homebrew environment setup" >> "$HOME/.zprofile"
-        echo "eval \"\$($BREW_PATH shellenv)\"" >> "$HOME/.zprofile"
-    fi
-
-    # Add to .zshrc for interactive shell setup
-    if ! grep -q "brew shellenv" "$HOME/.zshrc" 2>/dev/null; then
-        echo "# Homebrew environment setup" >> "$HOME/.zshrc"
-        echo "eval \"\$($BREW_PATH shellenv)\"" >> "$HOME/.zshrc"
-    fi
-
     # Initialize Homebrew in current session
     eval "$($BREW_PATH shellenv)"
+else
+    echo "brew installed, skipping"
 fi
 
-# 2. Install packages
-# Note: We let brew handle idempotency for package installation
+# 2. Install all packages from Brewfile
 echo "Installing Homebrew packages..."
-PACKAGES=(
-    "zig"
-    "nodejs"
-    "neovim"
-    "git"
-    "fd"
-    "jq"
-    "bat"
-    "gh"
-    "ripgrep"
-    "trash"
-    "zoxide"
-    "git-delta"
-    "fzf"
-    "fish"
-    "asdf"
-    "direnv"
-    "stow"
-    "lowdown"
-)
+brew bundle install
 
-brew install "${PACKAGES[@]}"
-
-# 3. Install casks
-# Note: We let brew handle idempotency for cask installation
-echo "Installing Homebrew casks..."
-CASKS=(
-    "1password"
-    "hammerspoon"
-    "google-chrome"
-    "raycast"
-    "spotify"
-    "zoom"
-    "zed"
-    "karabiner-elements"
-    "obsidian"
-    "zwift"
-    "tailscale"
-    "vlc"
-    "cleanshot"
-    "arq"
-    "fantastical"
-    "google-drive"
-    "ghostty"
-    "nikitabobko/tap/aerospace"
-    "cursor"
-)
-
-brew install --cask "${CASKS[@]}"
-
-# 6. Set up Fish shell
-# Only modify /etc/shells if fish isn't already in there
-if ! grep -q "$(which fish)" /etc/shells; then
-    echo "Adding Fish to allowed shells..."
-    echo "$(which fish)" | sudo tee -a /etc/shells
-fi
-
-# 7. Set up hostname
-# Only change hostname if it's different
-DESIRED_HOSTNAME="turbochardo"
-CURRENT_HOSTNAME=$(hostname)
-if [[ "$CURRENT_HOSTNAME" != "$DESIRED_HOSTNAME" ]]; then
-    echo "Setting hostname to $DESIRED_HOSTNAME..."
-    sudo scutil --set ComputerName "$DESIRED_HOSTNAME"
-    sudo scutil --set HostName "$DESIRED_HOSTNAME"
-    sudo scutil --set LocalHostName "$DESIRED_HOSTNAME"
-fi
-
-# 8. Set macOS defaults
+# 3. Set macOS defaults
 
 # Keyboard
 defaults write NSGlobalDomain InitialKeyRepeat -int 15
@@ -133,8 +56,7 @@ defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 defaults write NSGlobalDomain AppleInterfaceStyle -string "Dark"
 defaults write com.apple.menuextra.clock Show24Hour -bool true
 
-# 9. Enable Touch ID for sudo
-# Only modify if pam_tid.so isn't already in there
+# 4. Enable Touch ID for sudo
 if ! grep -q "pam_tid.so" /etc/pam.d/sudo; then
     echo "Enabling Touch ID for sudo..."
     sudo sed -i '' '2i\
@@ -142,15 +64,26 @@ auth       sufficient     pam_tid.so
 ' /etc/pam.d/sudo
 fi
 
-# Only try to stow if dotfiles directory exists
+# 5. Set up dotfiles with stow if directory exists
 if [[ -d "$HOME/dotfiles" ]]; then
     echo "Linking dotfiles..."
     cd "$HOME/dotfiles"
     stow --ignore=.DS_Store -R --no-folding --dotfiles --target="$HOME" home
 fi
 
-# Restart affected applications only if we made changes
-# Note: These are idempotent, so it's safe to run them always
+# 6. Set up Fish as default shell
+FISH_PATH="$(brew --prefix)/bin/fish"
+if ! grep -q "$FISH_PATH" /etc/shells; then
+    echo "Adding Fish to allowed shells..."
+    echo "$FISH_PATH" | sudo tee -a /etc/shells
+fi
+
+if [[ "$SHELL" != "$FISH_PATH" ]]; then
+    echo "Setting Fish as default shell..."
+    chsh -s "$FISH_PATH"
+fi
+
+# Restart affected applications
 echo "Restarting affected applications..."
 killall Dock || true
 killall Finder || true
