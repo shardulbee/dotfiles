@@ -1,12 +1,24 @@
 [advice]
 	detachedHead = false
 
+[alias]
+	pf = "!f() { if [[ $(git rev-parse --abbrev-ref HEAD) =~ ^(main|master)$ ]]; then echo 'ERROR: Cannot force push to main or master branch!'; else git push --force-with-lease; fi }; f"
+	wip = "commit -m 'wip' --no-verify"
+	amendf = "commit --amend --no-edit --no-verify"
+
 [color]
   branch = auto
   diff = auto
   interactive = auto
   status = auto
   ui = auto
+
+[status]
+  short = true
+	branch = true
+
+[format]
+  pretty = "%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset"
 
 [column]
 	io = "auto row dense"
