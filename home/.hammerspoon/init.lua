@@ -1,7 +1,7 @@
 local chrome = require("chrome")
 
 local function connectAwsSso()
-	local task = hs.task.new("/usr/local/bin/aws", function(exitCode, _, _)
+	local task = hs.task.new("/opt/homebrew/bin/aws", function(exitCode, _, _)
 		if exitCode == 0 then
 			hs.alert.show("AWS SSO Login Successful", {
 				atScreenEdge = 2,

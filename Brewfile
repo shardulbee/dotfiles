@@ -41,7 +41,7 @@ if Socket.gethostname == "turbochardo"
   cask "vlc"
   cask "zwift"
 else
-  brew "awscli"
+  # brew "awscli"
   brew "antlr"
   brew "oven-sh/bun/bun"
   brew "chart-testing"

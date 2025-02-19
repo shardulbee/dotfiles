@@ -13,31 +13,17 @@
                                 "type": "basic"
                             }
                         ]
-                    },
+                    }
                 ]
             },
-            "fn_function_keys": [
-                {
-                    "from": { "key_code": "f1" },
-                    "to": [{ "apple_vendor_keyboard_key_code": "brightness_down" }]
-                },
-                {
-                    "from": { "key_code": "f2" },
-                    "to": [{ "apple_vendor_keyboard_key_code": "brightness_up" }]
-                }
-            ],
-            "name": "Default",
+            "name": "Default profile",
             "selected": true,
             "simple_modifications": [
                 {
                     "from": { "key_code": "caps_lock" },
                     "to": [{ "key_code": "left_control" }]
                 }
-            ],
-            "virtual_hid_keyboard": {
-                "country_code": 0,
-                "keyboard_type_v2": "ansi"
-            }
+            ]
         }
     ]
 }
