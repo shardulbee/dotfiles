@@ -26,18 +26,8 @@ else
 end
 
 alias vim='nvim'
-alias blush='git commit --amend --no-edit --no-verify'
-alias ga='git add -A'
-alias gb="git for-each-ref --sort=-committerdate refs/heads/ --format='%(color:red)%(committerdate:short) %(color:yellow)%(objectname:short) %(color:white)%(refname:short)'"
-alias gfo='git fetch origin main'
-alias gd='git diff'
-alias gfogro='gfo && gro'
-alias gl='git log --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit --date=local'
-alias gro='git rebase origin/main'
-alias gs='git status --short --branch'
 alias cat='bat --style=plain,numbers,grid'
 alias rm='trash'
-alias gp='git p'
 alias rmfrfr='rm'
 alias z=zi
 alias gc="git commit"
