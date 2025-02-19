@@ -5,13 +5,14 @@ key-mapping.preset = 'qwerty'
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 on-focus-changed = ['move-mouse window-lazy-center']
 
+
 [gaps]
-inner.horizontal = 10
-inner.vertical = 10
-outer.left = 10
-outer.bottom = 10
-outer.top = 10
-outer.right = 10
+inner.horizontal = 5
+inner.vertical = 5
+outer.left = 5
+outer.bottom = 5
+outer.top = 5
+outer.right = 5
 
 [mode.main.binding]
 alt-h = 'focus --boundaries all-monitors-outer-frame left'
@@ -24,6 +25,7 @@ alt-shift-j = 'move down'
 alt-shift-k = 'move up'
 alt-shift-l = 'move right'
 
+alt-shift-space = 'move-workspace-to-monitor next --wrap-around'
 
 alt-shift-minus = 'resize smart -50'
 alt-shift-equal = 'resize smart +50'
@@ -66,6 +68,15 @@ run = ['layout tiling', 'move-node-to-workspace Z']
 [[on-window-detected]]
 if.app-name-regex-substring = 'Chrome'
 run = ['move-node-to-workspace 3']
+
+[[on-window-detected]]
+if.app-name-regex-substring = "Slack"
+run = ['move-node-to-workspace 7']
+
+[[on-window-detected]]
+if.app-name-regex-substring = "Mimestream"
+run = ['move-node-to-workspace 7']
+
 [[on-window-detected]]
 if.app-name-regex-substring = 'Dash'
 run = ['layout floating']
