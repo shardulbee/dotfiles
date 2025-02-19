@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit on error. Erroring pipes fail the script. Undefined vars fail the script. Print commands before executing.
-set -euxo pipefail
+set -e
 
 # 1. Install Homebrew if not already installed
 if ! command -v brew >/dev/null 2>&1; then
@@ -12,13 +12,15 @@ if ! command -v brew >/dev/null 2>&1; then
 
     # Initialize Homebrew in current session
     eval "$($BREW_PATH shellenv)"
+else
+    echo "brew installed, skipping"
 fi
 
 # 2. Install all packages from Brewfile
 echo "Installing Homebrew packages..."
-brew bundle install --file Brewfile.work
+brew bundle install
 
-# 4. Set macOS defaults
+# 3. Set macOS defaults
 
 # Keyboard
 defaults write NSGlobalDomain InitialKeyRepeat -int 15
@@ -54,7 +56,7 @@ defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 defaults write NSGlobalDomain AppleInterfaceStyle -string "Dark"
 defaults write com.apple.menuextra.clock Show24Hour -bool true
 
-# 5. Enable Touch ID for sudo
+# 4. Enable Touch ID for sudo
 if ! grep -q "pam_tid.so" /etc/pam.d/sudo; then
     echo "Enabling Touch ID for sudo..."
     sudo sed -i '' '2i\
@@ -62,14 +64,14 @@ auth       sufficient     pam_tid.so
 ' /etc/pam.d/sudo
 fi
 
-# 6. Set up dotfiles with stow if directory exists
+# 5. Set up dotfiles with stow if directory exists
 if [[ -d "$HOME/dotfiles" ]]; then
     echo "Linking dotfiles..."
     cd "$HOME/dotfiles"
     stow --ignore=.DS_Store -R --no-folding --dotfiles --target="$HOME" home
 fi
 
-# 7. Set up Fish as default shell
+# 6. Set up Fish as default shell
 FISH_PATH="$(brew --prefix)/bin/fish"
 if ! grep -q "$FISH_PATH" /etc/shells; then
     echo "Adding Fish to allowed shells..."

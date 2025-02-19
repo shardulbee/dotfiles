@@ -25,9 +25,8 @@ else
     echo "fzf not found"
 end
 
-alias vi='nvim'
 alias vim='nvim'
-alias blush='git commit --amend --no-edit'
+alias blush='git commit --amend --no-edit --no-verify'
 alias ga='git add -A'
 alias gb="git for-each-ref --sort=-committerdate refs/heads/ --format='%(color:red)%(committerdate:short) %(color:yellow)%(objectname:short) %(color:white)%(refname:short)'"
 alias gfo='git fetch origin main'

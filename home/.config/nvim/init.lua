@@ -13,6 +13,8 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
+
+	"direnv/direnv.vim",
 	"tpope/vim-eunuch",
 	"tpope/vim-surround",
 	"tpope/vim-sleuth",
@@ -30,14 +32,8 @@ require("lazy").setup({
 			vim.opt.statusline = "%f:%l:%c %m%=%{FugitiveStatusline()} %y"
 		end,
 	},
-	"direnv/direnv.vim",
-	{
-		"tpope/vim-rhubarb",
-		event = "VeryLazy",
-		keys = {
-			{ "<leader>gb", "<cmd>GBrowse<cr>" },
-		},
-	},
+
+	{ "tpope/vim-rhubarb", event = "VeryLazy" },
 	{ "echasnovski/mini.surround", version = false, config = true },
 	{ "echasnovski/mini.pairs", version = false, config = true },
 	{ "echasnovski/mini.splitjoin", version = false, config = true },

@@ -51,6 +51,7 @@ local keyMap = {
 	-- top level
 	[singleKey("f", "search files")] = openUrl("raycast://extensions/raycast/file-search/search-files"),
 	[singleKey("c", "clipboard")] = openUrl("raycast://extensions/raycast/clipboard-history/clipboard-history"),
+	[singleKey("d", "daily note")] = openUrl("obsidian://daily"),
 
 	[singleKey("z", "zoom")] = {
 		[singleKey("j", "join")] = function()

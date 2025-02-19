@@ -1,4 +1,3 @@
-macos-non-native-fullscreen = true
 macos-option-as-alt = true
 window-save-state = always
 macos-titlebar-style = tabs

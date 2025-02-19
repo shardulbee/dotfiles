@@ -1,7 +1,5 @@
-[alias]
-	co = "checkout"
-	p = "push"
-	b = "for-each-ref --sort=-committerdate refs/heads/ --format='%(color:red)%(committerdate:short) %(color:yellow)%(objectname:short) %(color:white)%(refname:short)'"
+[advice]
+	detachedHead = false
 
 [color]
   branch = auto

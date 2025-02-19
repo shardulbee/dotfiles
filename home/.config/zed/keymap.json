@@ -18,7 +18,6 @@
       "g r": "editor::FindAllReferences",
       ", c a": "editor::ToggleCodeActions",
 
-      // experimentmal
       "\\ t n": ["editor::SpawnNearestTask", { "reveal": "no_focus" }],
       "\\ t f": [
         "task::Spawn",
@@ -26,11 +25,6 @@
           "task_name": "Run test file",
           "reveal": "no_focus"
         }
-      ],
-      // Assuming you have a task labeled "echo hello"
-      "ctrl--": [
-        "task::Spawn",
-        { "task_name": "echo hello", "reveal_target": "center" }
       ]
     }
   },

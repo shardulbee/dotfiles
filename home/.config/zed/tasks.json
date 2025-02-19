@@ -3,9 +3,5 @@
     "label": "Run make",
     "command": "make",
     "use_new_terminal": false
-  },
-  {
-    "label": "start lazygit",
-    "command": "lazygit -p $ZED_WORKTREE_ROOT"
   }
 ]
