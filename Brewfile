@@ -32,6 +32,7 @@ if Socket.gethostname == "turbochardo"
   # Personal
   brew "lowdown"
   brew "trash"
+  brew "rbenv"
   cask "arq"
   cask "cleanshot"
   cask "cursor"
