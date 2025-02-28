@@ -1,7 +1,7 @@
 local chrome = require("chrome")
 
 local function connectAwsSso()
-	local task = hs.task.new("/opt/homebrew/bin/aws", function(exitCode, _, _)
+	local task = hs.task.new("/usr/local/bin/aws", function(exitCode, _, _)
 		if exitCode == 0 then
 			hs.alert.show("AWS SSO Login Successful", {
 				atScreenEdge = 2,
@@ -73,6 +73,7 @@ local keyMap = {
 		[singleKey("r", "console")] = hs.reload,
 	},
 	[singleKey("d", "dbnl")] = {
+		[singleKey("r", "repo")] = chrome.LaunchOrFocusTab("https://github.com/dbnlAI/dbnl-internal#"),
 		[singleKey("s", "aws sso")] = connectAwsSso,
 		[singleKey("o", "open+")] = {
 			[singleKey("l", "local")] = openUrl("http://localhost:8080/"),
@@ -82,6 +83,7 @@ local keyMap = {
 		},
 	},
 	[singleKey("r", "raycast")] = {
+		[singleKey("p", "pomodoro")] = openUrl("raycast://extensions/asubbotin/pomodoro/pomodoro-control-timer"),
 		[singleKey("c", "capture")] = {
 			[singleKey("v", "video")] = openUrl("raycast://extensions/Aayush9029/cleanshotx/record-screen"),
 			[singleKey("c", "copy")] = openUrl(

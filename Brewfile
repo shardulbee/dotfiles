@@ -16,6 +16,9 @@ brew "ripgrep"
 brew "stow"
 brew "universal-ctags"
 brew "zoxide"
+brew "direnv"
+brew "chrome-cli"
+cask "1password-cli"
 cask "1password"
 cask "aerospace"
 cask "ghostty"
@@ -52,7 +55,6 @@ else
   brew "kubectl"
   brew "postgresql@14"
   brew "skaffold"
-  brew "terraform"
   brew "xz"
 
   # Work-Only Casks
