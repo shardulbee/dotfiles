@@ -13,7 +13,8 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-
+	{ "folke/todo-comments.nvim", opts = {}, dependencies = { "nvim-lua/plenary.nvim" } },
+	"ActivityWatch/aw-watcher-vim",
 	"direnv/direnv.vim",
 	"tpope/vim-eunuch",
 	"tpope/vim-surround",
@@ -434,3 +435,39 @@ vim.api.nvim_create_autocmd("FileType", {
 		end, { buffer = true })
 	end,
 })
+
+vim.api.nvim_create_user_command("TogglePlan", function()
+	local planBufWin = vim.fn.bufwinnr("plan.md")
+
+	if planBufWin > 0 then
+		-- If window exists, close it
+		vim.cmd(planBufWin .. "wincmd c")
+	else
+		-- Calculate 40% of screen width
+		local width = math.floor(vim.o.columns * 0.4)
+
+		-- Open in right split
+		vim.cmd("botright vsplit plan.md")
+		vim.cmd("vertical resize " .. width)
+		vim.cmd("/^## Immediate Next-Up")
+		vim.cmd("normal! zz")
+	end
+end, {})
+
+-- Map it to leader-p
+vim.keymap.set("n", "<leader><space>", ":TogglePlan<CR>", { silent = true })
+
+-- Set wrap at linebreak for plaintext
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = {
+		"markdown",
+		"text",
+	},
+	callback = function()
+		vim.opt_local.wrap = true
+		vim.opt_local.linebreak = true -- wrap at word boundaries
+	end,
+})
+
+vim.keymap.set("n", "<leader>v", "<cmd>vsp<cr>", { silent = true, noremap = true })
+vim.keymap.set("n", "<leader>s", "<cmd>sp<cr>", { silent = true, noremap = true })
