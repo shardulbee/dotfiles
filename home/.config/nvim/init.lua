@@ -456,18 +456,5 @@ end, {})
 
 -- Map it to leader-p
 vim.keymap.set("n", "<leader><space>", ":TogglePlan<CR>", { silent = true })
-
--- Set wrap at linebreak for plaintext
-vim.api.nvim_create_autocmd("FileType", {
-	pattern = {
-		"markdown",
-		"text",
-	},
-	callback = function()
-		vim.opt_local.wrap = true
-		vim.opt_local.linebreak = true -- wrap at word boundaries
-	end,
-})
-
 vim.keymap.set("n", "<leader>v", "<cmd>vsp<cr>", { silent = true, noremap = true })
 vim.keymap.set("n", "<leader>s", "<cmd>sp<cr>", { silent = true, noremap = true })
