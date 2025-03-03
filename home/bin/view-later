@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+# Required parameters:
+# @raycast.schemaVersion 1
+# @raycast.title View Later List
+# @raycast.mode fullOutput
+
+# Optional parameters:
+# @raycast.icon 📋
+# @raycast.packageName Later List
+
+# Documentation:
+# @raycast.description View all items in your Later list
+# @raycast.author turbochardo
+
+# Define the file path
+file_path = File.expand_path("~/Documents/Notes/LATER.md")
+
+# Check if the file exists
+unless File.exist?(file_path)
+  puts "No Later list found. Add items using the 'Add to Later' command."
+  exit
+end
+
+# Read and display the contents of the file
+content = File.read(file_path)
+puts content
