@@ -13,6 +13,9 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
+	"nvim-lua/plenary.nvim",
+	"ActivityWatch/aw-watcher-vim",
+	{ "folke/todo-comments.nvim", opts = {} },
 	{
 		"vim-test/vim-test",
 		keys = {
@@ -553,148 +556,29 @@ vim.api.nvim_create_autocmd("FileType", {
 	end,
 })
 
--- greatest remap ever
--- paste over some text but dont copy replaced text to the paste buffer
-vim.keymap.set("x", "<leader>p", [["_dP]])
+vim.api.nvim_create_user_command("TogglePlan", function()
+	local planBufWin = vim.fn.bufwinnr("plan.md")
 
-local ft_group = vim.api.nvim_create_augroup("FileTypeMappings", { clear = true })
+	if planBufWin > 0 then
+		-- If window exists, close it
+		vim.cmd(planBufWin .. "wincmd c")
+	else
+		-- Calculate 40% of screen width
+		local width = math.floor(vim.o.columns * 0.4)
 
--- vim.api.nvim_create_autocmd("FileType", {
--- 	pattern = { "python" },
--- 	group = ft_group,
--- 	callback = function()
--- 		local function get_test_info()
--- 			local node = vim.treesitter.get_node()
--- 			if not node then
--- 				return nil, nil
--- 			end
---
--- 			local bufnr = vim.api.nvim_get_current_buf()
--- 			local class_name = nil
--- 			local func_name = nil
---
--- 			while node do
--- 				if node:type() == "function_definition" and not func_name then
--- 					local name_node = node:field("name")[1]
--- 					if name_node then
--- 						func_name = vim.treesitter.get_node_text(name_node, bufnr)
--- 					end
--- 				elseif node:type() == "class_definition" then
--- 					local name_node = node:field("name")[1]
--- 					if name_node then
--- 						class_name = vim.treesitter.get_node_text(name_node, bufnr)
--- 						break
--- 					end
--- 				end
--- 				node = node:parent()
--- 			end
---
--- 			return class_name, func_name
--- 		end
---
--- 		local test_buf_name = "pytest-runner"
--- 		local last_test_cmd = nil -- Store the last run command
---
--- 		local function run_in_term(cmd)
--- 			-- Store the current window
--- 			local current_win = vim.api.nvim_get_current_win()
---
--- 			-- Look for existing test window
--- 			local test_win = nil
--- 			local test_buf = nil
--- 			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
--- 				if vim.b[buf] and vim.b[buf].is_pytest_runner then
--- 					-- Check if buffer is valid
--- 					if vim.api.nvim_buf_is_valid(buf) then
--- 						-- Find window containing this buffer
--- 						for _, win in ipairs(vim.api.nvim_list_wins()) do
--- 							if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_buf(win) == buf then
--- 								test_win = win
--- 								test_buf = buf
--- 								break
--- 							end
--- 						end
--- 						if test_win then
--- 							break
--- 						end
--- 					end
--- 				end
--- 			end
---
--- 			if
--- 				test_win
--- 				and test_buf
--- 				and vim.api.nvim_buf_is_valid(test_buf)
--- 				and vim.api.nvim_win_is_valid(test_win)
--- 			then
--- 				-- If test window exists, focus it
--- 				vim.api.nvim_set_current_win(test_win)
--- 				-- Close any running terminal job
--- 				if vim.b[test_buf] and vim.b[test_buf].terminal_job_id then
--- 					vim.fn.jobstop(vim.b[test_buf].terminal_job_id)
--- 				end
---
--- 				-- Instead of trying to clear the buffer, create a new one
--- 				vim.cmd("enew")
--- 				vim.b.is_pytest_runner = true
--- 				vim.api.nvim_buf_set_name(0, test_buf_name)
--- 			else
--- 				-- Create new window at right side with 35% width
--- 				vim.cmd("vertical botright new")
--- 				vim.cmd("vertical resize " .. math.floor(vim.o.columns * 0.35))
--- 				-- Mark this buffer as our pytest runner
--- 				vim.b.is_pytest_runner = true
--- 				-- Set unique buffer name for human readability
--- 				vim.api.nvim_buf_set_name(0, test_buf_name)
--- 			end
---
--- 			-- Set buffer options
--- 			vim.bo.buftype = "nofile"
--- 			vim.bo.swapfile = false
--- 			-- Run the command in terminal
--- 			vim.fn.termopen(cmd)
--- 			-- Store the last run command
--- 			last_test_cmd = cmd
--- 			-- Return to original window
--- 			vim.api.nvim_set_current_win(current_win)
--- 		end
---
--- 		vim.keymap.set("n", "<leader>tn", function()
--- 			local class_name, func_name = get_test_info()
---
--- 			if func_name then
--- 				local test_path = vim.fn.expand("%")
--- 				local cmd
--- 				if class_name then
--- 					cmd = string.format("pytest %s::%s::%s -s", test_path, class_name, func_name)
--- 				else
--- 					cmd = string.format("pytest %s::%s -s", test_path, func_name)
--- 				end
--- 				run_in_term(cmd)
--- 			else
--- 				print("No test function found at cursor position")
--- 			end
--- 		end, { silent = true, noremap = true })
---
--- 		vim.keymap.set("n", "<leader>tf", function()
--- 			local cmd = string.format("pytest %s -s", vim.fn.expand("%"))
--- 			run_in_term(cmd)
--- 		end, { silent = true, noremap = true })
---
--- 		vim.keymap.set("n", "<leader>ts", function()
--- 			local cmd = string.format("py.test -nauto -s")
--- 			run_in_term(cmd)
--- 		end, { desc = "Run test suite", silent = true, noremap = true })
---
--- 		vim.keymap.set("n", "<leader>tl", function()
--- 			if last_test_cmd then
--- 				run_in_term(last_test_cmd)
--- 			else
--- 				print("No previous test command found")
--- 			end
--- 		end, { desc = "Run last test command", silent = true, noremap = true })
--- 	end,
--- })
+		-- Open in right split
+		vim.cmd("botright vsplit plan.md")
+		vim.cmd("vertical resize " .. width)
+		vim.cmd("/^## Immediate Next-Up")
+		vim.cmd("normal! zz")
+	end
+end, {})
+
+vim.keymap.set("n", "<leader><space>", ":TogglePlan<CR>", { silent = true })
+vim.keymap.set("n", "<leader>v", "<cmd>vsp<cr>", { silent = true, noremap = true })
+vim.keymap.set("n", "<leader>s", "<cmd>sp<cr>", { silent = true, noremap = true })
+vim.keymap.set("n", "<leader>gb", ":GBrowse<CR>", { noremap = true, silent = true })
+vim.keymap.set({ "v", "x" }, "<leader>gb", ":'<,'>GBrowse<CR>", { noremap = true, silent = true })
 
 vim.keymap.set(
 	"n",
@@ -709,13 +593,6 @@ vim.keymap.set(
 	{ silent = true, noremap = true, desc = "Git fetch origin" }
 )
 
-vim.api.nvim_create_autocmd("BufWinEnter", {
-	pattern = { "*.md" },
-	callback = function()
-		vim.opt.wrap = true
-	end,
-})
-
 vim.keymap.set(
 	"n",
 	"<leader>gpr",
@@ -725,6 +602,3 @@ vim.keymap.set(
 vim.api.nvim_create_user_command("GithubPRMerge", function()
 	vim.fn.system("gh pr merge --auto")
 end, {})
-
-vim.keymap.set("n", "<leader>gb", ":GBrowse<CR>", { noremap = true, silent = true })
-vim.keymap.set({ "v", "x" }, "<leader>gb", ":'<,'>GBrowse<CR>", { noremap = true, silent = true })

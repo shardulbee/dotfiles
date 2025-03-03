@@ -16,6 +16,7 @@ brew "ripgrep"
 brew "stow"
 brew "universal-ctags"
 brew "zoxide"
+brew "btop"
 brew "direnv"
 brew "chrome-cli"
 cask "1password-cli"
@@ -28,13 +29,14 @@ cask "karabiner-elements"
 cask "obsidian"
 cask "raycast"
 cask "spotify"
-cask "zed"
 cask "zoom"
+cask "activitywatch"
 
 if Socket.gethostname == "turbochardo"
   # Personal
   brew "lowdown"
   brew "trash"
+  brew "rbenv"
   cask "arq"
   cask "cleanshot"
   cask "cursor"
@@ -43,7 +45,9 @@ if Socket.gethostname == "turbochardo"
   cask "tailscale"
   cask "vlc"
   cask "zwift"
+  cask "dash"
 else
+  # install awscli manually
   # brew "awscli"
   brew "antlr"
   brew "oven-sh/bun/bun"
@@ -55,6 +59,8 @@ else
   brew "kubectl"
   brew "postgresql@14"
   brew "skaffold"
+  # install terraform manually
+  # brew "terraform"
   brew "xz"
 
   # Work-Only Casks
