@@ -13,14 +13,82 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-	{ "folke/todo-comments.nvim", opts = {}, dependencies = { "nvim-lua/plenary.nvim" } },
+	"nvim-lua/plenary.nvim",
 	"ActivityWatch/aw-watcher-vim",
+	{ "folke/todo-comments.nvim", opts = {} },
+	{
+		"vim-test/vim-test",
+		keys = {
+			{ "<leader>tf", "<cmd>TestFile<cr>" },
+			{ "<leader>tn", "<cmd>TestNearest<cr>" },
+			{ "<leader>ts", "<cmd>TestSuite<cr>" },
+			{ "<leader>ts", "<cmd>TestSuite -nauto<cr>", ft = "python" },
+			{ "<leader>tl", "<cmd>TestLast<cr>" },
+		},
+	},
+	{
+		"olimorris/codecompanion.nvim",
+		config = true,
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-treesitter/nvim-treesitter",
+		},
+		opts = {
+			adapters = {
+				copilot = function()
+					return require("codecompanion.adapters").extend("copilot", {
+						schema = {
+							model = {
+								order = 1,
+								mapping = "parameters",
+								type = "enum",
+								desc = "ID of the model to use. See the model endpoint compatibility table for details on which models work with the Chat API.",
+								---@type string|fun(): string
+								default = "claude-3.5-sonnet",
+								choices = {
+									["o3-mini-2025-01-31"] = { opts = { can_reason = true } },
+									["o1-2024-12-17"] = { opts = { can_reason = true } },
+									["o1-mini-2024-09-12"] = { opts = { can_reason = true } },
+									"claude-3.5-sonnet",
+									"claude-3.7-sonnet",
+									"claude-3.7-sonnet-thought",
+									"gpt-4o-2024-08-06",
+									"gemini-2.0-flash-001",
+								},
+							},
+						},
+					})
+				end,
+			},
+			strategies = {
+				chat = {
+					slash_commands = {
+						["file"] = {
+							opts = { provider = "fzf_lua" },
+						},
+						["symbols"] = {
+							opts = { provider = "fzf_lua" },
+						},
+						["buffer"] = {
+							opts = { provider = "fzf_lua" },
+						},
+					},
+					adapter = "copilot",
+				},
+				inline = {
+					adapter = "copilot",
+				},
+			},
+		},
+	},
 	"direnv/direnv.vim",
 	"tpope/vim-eunuch",
 	"tpope/vim-surround",
+	"tpope/vim-dispatch",
 	"tpope/vim-sleuth",
 	"tpope/vim-unimpaired",
 	"tpope/vim-repeat",
+	"tpope/vim-dadbod",
 	{
 		"tpope/vim-fugitive",
 		event = "VeryLazy",
@@ -109,6 +177,9 @@ require("lazy").setup({
 				nerd_font_variant = "mono",
 			},
 			sources = {
+				per_filetype = {
+					codecompanion = { "codecompanion" },
+				},
 				default = { "lsp", "path", "buffer" },
 				cmdline = {},
 			},
@@ -198,6 +269,16 @@ require("lazy").setup({
 				"vimdoc",
 				"xml",
 				"yaml",
+			},
+			textobjects = {
+				select = {
+					enable = true,
+					look = true,
+					keymaps = {
+						["if"] = "@function.inner",
+						["af"] = "@function.outer",
+					},
+				},
 			},
 			incremental_selection = {
 				enable = true,
@@ -336,17 +417,6 @@ require("lazy").setup({
 			end,
 		},
 	},
-	{
-		"vim-test/vim-test",
-		keys = {
-			{ "<leader>tn", "<cmd>TestNearest<cr>" },
-			{ "<leader>tf", "<cmd>TestFile<cr>" },
-
-			{ "<leader>tn", "<cmd>TestNearest -s<cr>", ft = "python" },
-			{ "<leader>tf", "<cmd>TestFile -s<cr>", ft = "python" },
-			{ "<leader>ts", "<cmd>TestSuite -nauto -s<cr>", ft = "python" },
-		},
-	},
 }, {})
 
 vim.cmd([[filetype plugin indent on]])
@@ -458,3 +528,28 @@ end, {})
 vim.keymap.set("n", "<leader><space>", ":TogglePlan<CR>", { silent = true })
 vim.keymap.set("n", "<leader>v", "<cmd>vsp<cr>", { silent = true, noremap = true })
 vim.keymap.set("n", "<leader>s", "<cmd>sp<cr>", { silent = true, noremap = true })
+vim.keymap.set("n", "<leader>gb", ":GBrowse<CR>", { noremap = true, silent = true })
+vim.keymap.set({ "v", "x" }, "<leader>gb", ":'<,'>GBrowse<CR>", { noremap = true, silent = true })
+
+vim.keymap.set(
+	"n",
+	"<leader>gfo",
+	"<cmd>Git fetch origin<cr>",
+	{ silent = true, noremap = true, desc = "Git fetch origin" }
+)
+vim.keymap.set(
+	"n",
+	"<leader>gro",
+	"<cmd>Git rebase origin/main<cr>",
+	{ silent = true, noremap = true, desc = "Git fetch origin" }
+)
+
+vim.keymap.set(
+	"n",
+	"<leader>gpr",
+	[[<cmd>silent !gh pr view --web<cr>]],
+	{ silent = true, noremap = true, desc = "View PR in browser" }
+)
+vim.api.nvim_create_user_command("GithubPRMerge", function()
+	vim.fn.system("gh pr merge --auto")
+end, {})

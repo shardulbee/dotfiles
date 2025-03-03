@@ -1,17 +1,21 @@
-if status is-interactive
+fish_add_path -aP /opt/homebrew/bin # append homebrew
+fish_add_path -p $HOME/bin
 
-set fish_greeting
-fish_add_path $HOME/bin /opt/homebrew/bin
+if command -sq /opt/homebrew/bin/direnv
+    /opt/homebrew/bin/direnv hook fish | source
+else
+    echo "direnv not found"
+end
+
 set -gx EDITOR 'nvim'
 set -gx MANPAGER "col -bx | bat -l man -p"
 set -gx FZF_DEFAULT_CMD "fd -tf --hidden"
 set -gx FZF_CTRL_T_COMMAND "$FZF_DEFAULT_CMD"
 
-if command -sq direnv
-    direnv hook fish | source
-else
-    echo "direnv not found"
-end
+if status is-interactive
+
+
+set fish_greeting
 
 if command -sq zoxide
     zoxide init fish | source

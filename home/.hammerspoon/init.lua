@@ -101,6 +101,7 @@ local keyMap = {
 	},
 	[singleKey("r", "raycast")] = {
 		[singleKey("e", "emoji")] = openUrl("raycast://extensions/raycast/emoji-symbols/search-emoji-symbols"),
+		[singleKey("p", "pomodoro")] = openUrl("raycast://extensions/asubbotin/pomodoro/pomodoro-control-timer"),
 		[singleKey("c", "capture")] = {
 			[singleKey("v", "video")] = openUrl("raycast://extensions/Aayush9029/cleanshotx/record-screen"),
 			[singleKey("c", "copy")] = openUrl(
