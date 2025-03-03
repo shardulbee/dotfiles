@@ -66,8 +66,7 @@ if.app-name-regex-substring = 'Ghostty'
 run = ['layout tiling', 'move-node-to-workspace Z']
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'Chrome'
-if.window-title-regex-substring = 'dbnl-productive'
+if.app-name-regex-substring = 'Brave'
 run = ['move-node-to-workspace 3']
 
 [[on-window-detected]]

@@ -27,44 +27,6 @@ require("lazy").setup({
 		},
 	},
 	{
-		"zbirenbaum/copilot.lua",
-		config = function()
-			require("copilot").setup({
-				panel = {
-					enabled = true,
-					auto_refresh = false,
-					keymap = {
-						jump_prev = "[[",
-						jump_next = "]]",
-						accept = "<CR>",
-						refresh = "gr",
-						open = "<M-CR>",
-					},
-					layout = {
-						position = "right", -- | top | left | right | horizontal | vertical
-						ratio = 0.4,
-					},
-				},
-				suggestion = {
-					enabled = true,
-					auto_trigger = true,
-					hide_during_completion = true,
-					debounce = 75,
-					keymap = {
-						accept = "<C-l>",
-						accept_word = false,
-						accept_line = false,
-						next = "<M-]>",
-						prev = "<M-[>",
-						dismiss = "<C-e>",
-					},
-				},
-			})
-			vim.keymap.set("i", "<M-CR>", require("copilot.panel").open, { silent = true, noremap = true })
-		end,
-	},
-
-	{
 		"olimorris/codecompanion.nvim",
 		config = true,
 		dependencies = {
@@ -455,18 +417,6 @@ require("lazy").setup({
 			end,
 		},
 	},
-	{
-		"vim-test/vim-test",
-		keys = {
-			{ "<leader>tn", "<cmd>TestNearest<cr>" },
-			{ "<leader>tf", "<cmd>TestFile<cr>" },
-
-			{ "<leader>tn", "<cmd>TestNearest -s<cr>", ft = "python" },
-			{ "<leader>tf", "<cmd>TestFile -s<cr>", ft = "python" },
-			{ "<leader>ts", "<cmd>TestSuite -nauto -s<cr>", ft = "python" },
-		},
-	},
-	"ActivityWatch/aw-watcher-vim",
 }, {})
 
 vim.cmd([[filetype plugin indent on]])
