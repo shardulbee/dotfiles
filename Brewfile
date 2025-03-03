@@ -31,6 +31,7 @@ cask "raycast"
 cask "spotify"
 cask "zoom"
 cask "activitywatch"
+cask "brave-browser"
 
 if Socket.gethostname == "turbochardo"
   # Personal

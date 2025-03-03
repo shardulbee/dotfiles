@@ -524,7 +524,6 @@ vim.api.nvim_create_user_command("TogglePlan", function()
 	end
 end, {})
 
--- Map it to leader-p
 vim.keymap.set("n", "<leader><space>", ":TogglePlan<CR>", { silent = true })
 vim.keymap.set("n", "<leader>v", "<cmd>vsp<cr>", { silent = true, noremap = true })
 vim.keymap.set("n", "<leader>s", "<cmd>sp<cr>", { silent = true, noremap = true })
