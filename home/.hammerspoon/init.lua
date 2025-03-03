@@ -1,10 +1,31 @@
 local chrome = require("chrome")
-local noises = require("hs.noises")
-local timer = require("hs.timer")
-local eventtap = require("hs.eventtap")
+
+local function connectAwsSso()
+	local task = hs.task.new("/usr/local/bin/aws", function(exitCode, _, _)
+		if exitCode == 0 then
+			hs.alert.show("AWS SSO Login Successful", {
+				atScreenEdge = 2,
+				strokeColor = { white = 0, alpha = 2 },
+				textFont = "Courier",
+				textSize = 20,
+			})
+		else
+			hs.alert.show("AWS SSO Login Failed", {
+				atScreenEdge = 2,
+				strokeColor = { white = 0, alpha = 2 },
+			})
+		end
+	end, { "sso", "login", "--profile", "app-dev" })
+	task:start()
+	hs.timer.doAfter(20, function()
+		task:terminate()
+	end)
+end
 
 hs.loadSpoon("RecursiveBinder")
+
 spoon.RecursiveBinder.escapeKey = { {}, "escape" } -- Press escape to abort
+
 local singleKey = spoon.RecursiveBinder.singleKey
 
 local function launchOrFocusApp(appName)
@@ -26,81 +47,42 @@ local function aerospace(args)
 	end
 end
 
-local function newScroller(delay, tick)
-	return { delay = delay, tick = tick, timer = nil }
-end
-
-Listener = nil
-PopclickListening = false
-TssScrollDown = newScroller(0.02, -10)
-
-local function startScroll(scroller)
-	if scroller.timer == nil then
-		scroller.timer = timer.doEvery(scroller.delay, function()
-			eventtap.scrollWheel({ 0, scroller.tick }, {}, "pixel")
-		end)
-	end
-end
-
-local function stopScroll(scroller)
-	if scroller.timer then
-		scroller.timer:stop()
-		scroller.timer = nil
-	end
-end
-
-local function scrollHandler(evNum)
-	-- alert.show(tostring(evNum))
-	if evNum == 1 then
-		startScroll(TssScrollDown)
-	elseif evNum == 2 then
-		stopScroll(TssScrollDown)
-	elseif evNum == 3 then
-		if hs.application.frontmostApplication():name() == "ReadKit" then
-			eventtap.keyStroke({}, "j")
-		else
-			eventtap.scrollWheel({ 0, 250 }, {}, "pixel")
-		end
-	end
-end
-
-local function popclickInit()
-	PopclickListening = false
-	local fn = scrollHandler
-	Listener = noises.new(fn)
-end
-popclickInit()
-
-local function popclickPlayPause()
-	if not PopclickListening then
-		Listener:start()
-		hs.alert.show("listening")
-	else
-		Listener:stop()
-		hs.alert.show("stopped listening")
-	end
-	PopclickListening = not PopclickListening
-end
-
 local keyMap = {
 	-- top level
 	[singleKey("f", "search files")] = openUrl("raycast://extensions/raycast/file-search/search-files"),
 	[singleKey("c", "clipboard")] = openUrl("raycast://extensions/raycast/clipboard-history/clipboard-history"),
-	[singleKey("d", "daily note")] = openUrl("obsidian://daily"),
 
+	[singleKey("z", "zoom")] = {
+		[singleKey("j", "join")] = function()
+			hs.eventtap.keyStroke({ "cmd", "ctrl", "alt", "cmd", "shift" }, "j")
+		end,
+		[singleKey("c", "calendar")] = function()
+			hs.eventtap.keyStroke({ "cmd", "alt", "ctrl" }, "c")
+		end,
+	},
 	[singleKey("o", "open")] = {
 		[singleKey("f", "finder")] = launchOrFocusApp("Finder"),
-		[singleKey("m", "mail")] = chrome.LaunchOrFocusTab("https://app.fastmail.com/mail/"),
-		[singleKey("c", "calendar")] = launchOrFocusApp("Fantastical"),
+		[singleKey("m", "mail")] = launchOrFocusApp("Mimestream"),
+		[singleKey("s", "slack")] = launchOrFocusApp("Slack"),
+		[singleKey("c", "calendar")] = chrome.LaunchOrFocusTab("https://calendar.google.com"),
+		[singleKey("z", "zoom")] = launchOrFocusApp("zoom.us"),
 		[singleKey("n", "notes")] = launchOrFocusApp("Obsidian"),
 	},
 	[singleKey("h", "hammerspoon")] = {
 		[singleKey("c", "console")] = hs.toggleConsole,
 		[singleKey("r", "console")] = hs.reload,
-		[singleKey("p", "popclick")] = popclickPlayPause,
+	},
+	[singleKey("d", "dbnl")] = {
+		[singleKey("r", "repo")] = chrome.LaunchOrFocusTab("https://github.com/dbnlAI/dbnl-internal#"),
+		[singleKey("s", "aws sso")] = connectAwsSso,
+		[singleKey("o", "open+")] = {
+			[singleKey("l", "local")] = openUrl("http://localhost:8080/"),
+			[singleKey("r", "remote")] = openUrl("https://app-shardul.dev.dbnl.com"),
+			[singleKey("d", "dev")] = openUrl("https://app.dev.dbnl.com"),
+			[singleKey("p", "prod")] = openUrl("https://app.dbnl.com"),
+		},
 	},
 	[singleKey("r", "raycast")] = {
-		[singleKey("e", "emoji")] = openUrl("raycast://extensions/raycast/emoji-symbols/search-emoji-symbols"),
 		[singleKey("p", "pomodoro")] = openUrl("raycast://extensions/asubbotin/pomodoro/pomodoro-control-timer"),
 		[singleKey("c", "capture")] = {
 			[singleKey("v", "video")] = openUrl("raycast://extensions/Aayush9029/cleanshotx/record-screen"),
@@ -133,6 +115,10 @@ local keyMap = {
 			[singleKey("k", "up")] = aerospace({ "join-with", "up" }),
 			[singleKey("l", "right")] = aerospace({ "join-with", "right" }),
 		},
+	},
+	[singleKey("j", "jira")] = {
+		[singleKey("o", "open issues")] = openUrl("raycast://extensions/raycast/jira/open-issues"),
+		[singleKey("s", "search")] = openUrl("raycast://extensions/raycast/jira/search-issues"),
 	},
 }
 
