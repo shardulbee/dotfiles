@@ -15,6 +15,44 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	"nvim-lua/plenary.nvim",
 	"ActivityWatch/aw-watcher-vim",
+	{
+		"zbirenbaum/copilot.lua",
+		config = function()
+			require("copilot").setup({
+				panel = {
+					enabled = true,
+					auto_refresh = false,
+					keymap = {
+						jump_prev = "[[",
+						jump_next = "]]",
+						accept = "<CR>",
+						refresh = "gr",
+						open = "<M-CR>",
+					},
+					layout = {
+						position = "right", -- | top | left | right | horizontal | vertical
+						ratio = 0.4,
+					},
+				},
+				suggestion = {
+					enabled = true,
+					auto_trigger = true,
+					hide_during_completion = true,
+					debounce = 75,
+					keymap = {
+						accept = "<C-l>",
+						accept_word = false,
+						accept_line = false,
+						next = "<M-]>",
+						prev = "<M-[>",
+						dismiss = "<C-e>",
+					},
+				},
+			})
+			vim.keymap.set("i", "<M-CR>", require("copilot.panel").open, { silent = true, noremap = true })
+		end,
+	},
+
 	{ "folke/todo-comments.nvim", opts = {} },
 	{
 		"vim-test/vim-test",
@@ -545,10 +583,17 @@ vim.keymap.set(
 
 vim.keymap.set(
 	"n",
-	"<leader>gpr",
-	[[<cmd>silent !gh pr view --web<cr>]],
+	"<leader>gvp",
+	[[<cmd>!gh pr view --web<cr>]],
 	{ silent = true, noremap = true, desc = "View PR in browser" }
 )
+vim.keymap.set(
+	"n",
+	"<leader>gvr",
+	[[<cmd>!gh repo view --web<cr>]],
+	{ silent = true, noremap = true, desc = "View PR in browser" }
+)
+
 vim.api.nvim_create_user_command("GithubPRMerge", function()
 	vim.fn.system("gh pr merge --auto")
 end, {})
