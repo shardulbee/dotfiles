@@ -1,3 +1,4 @@
+-- vim: set ts=2 sw=2
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
 	vim.fn.system({
@@ -9,10 +10,28 @@ if not vim.loop.fs_stat(lazypath) then
 		lazypath,
 	})
 end
--- Add lazy.nvim to Neovim's runtime path
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
+	{
+		"mfussenegger/nvim-lint",
+		config = function()
+			require("lint").linters_by_ft = {
+				python = { "mypy" },
+			}
+
+			-- Create autocmd group for linting
+			local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
+
+			-- Setup autocommands for automatic linting
+			vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "InsertLeave", "TextChanged" }, {
+				group = lint_augroup,
+				callback = function()
+					require("lint").try_lint()
+				end,
+			})
+		end,
+	},
 	"nvim-lua/plenary.nvim",
 	"ActivityWatch/aw-watcher-vim",
 	{
@@ -188,6 +207,18 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
 			vim.keymap.set("n", "<leader>r", fzfLua.command_history, opts)
 			vim.keymap.set("n", "<leader>p", fzfLua.commands, opts)
+			vim.keymap.set("n", "gt", fzfLua.tags, opts)
+			vim.keymap.set("n", "<leader>gfu", function()
+				fzfLua.git_commits({
+					prompt = "Git Fixup> ",
+					actions = {
+						["default"] = function(selected)
+							local commit_hash = selected[1]:match("(%S+)")
+							vim.cmd("Git commit --fixup=" .. commit_hash)
+						end,
+					},
+				})
+			end, { desc = "Git fixup commit" })
 
 			vim.keymap.set("n", "<leader>co", fzfLua.git_branches, opts)
 		end,
@@ -431,7 +462,13 @@ require("lazy").setup({
 			current_line_blame = true,
 			on_attach = function(bufnr)
 				local opts = { remap = false, silent = true }
-				local gitsigns = require("gitsigns")
+				local gitsigns = package.loaded.gitsigns
+				if vim.g.gitgutter_diff_base then
+					-- defer to ensure it happens after setup, I think this variable when set with -C might be set after the plugin has loaded
+					vim.defer_fn(function()
+						gitsigns.change_base(vim.g.gitgutter_diff_base, true)
+					end, 100)
+				end
 
 				vim.keymap.set("n", "]c", function()
 					if vim.wo.diff then
@@ -597,3 +634,33 @@ vim.keymap.set(
 vim.api.nvim_create_user_command("GithubPRMerge", function()
 	vim.fn.system("gh pr merge --auto")
 end, {})
+
+vim.keymap.set("n", "<leader>q", function()
+	local qf_exists = false
+	for _, win in pairs(vim.fn.getwininfo()) do
+		if win["quickfix"] == 1 then
+			qf_exists = true
+		end
+	end
+	if qf_exists then
+		vim.cmd("cclose")
+	else
+		vim.cmd("copen")
+	end
+end, { silent = true, noremap = true })
+
+vim.cmd([[
+  autocmd User DirenvLoaded :echo 'loaded direnv'
+]])
+
+vim.keymap.set("n", "!l", function()
+	vim.fn.jobstart({ "fish", "-lc", "ctags-build" }, {
+		on_exit = function(_, code)
+			if code == 0 then
+				vim.notify("CTags build completed", vim.log.levels.INFO)
+			else
+				vim.notify("CTags build failed", vim.log.levels.ERROR)
+			end
+		end,
+	})
+end)

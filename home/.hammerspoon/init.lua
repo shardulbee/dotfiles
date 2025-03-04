@@ -62,7 +62,8 @@ local keyMap = {
 	},
 	[singleKey("o", "open")] = {
 		[singleKey("f", "finder")] = launchOrFocusApp("Finder"),
-		[singleKey("m", "mail")] = launchOrFocusApp("Mimestream"),
+		-- [singleKey("m", "mail")] = launchOrFocusApp("Mimestream"),
+		[singleKey("m", "mail")] = chrome.LaunchOrFocusTab("https://mail.google.com"),
 		[singleKey("s", "slack")] = launchOrFocusApp("Slack"),
 		[singleKey("c", "calendar")] = chrome.LaunchOrFocusTab("https://calendar.google.com"),
 		[singleKey("z", "zoom")] = launchOrFocusApp("zoom.us"),
