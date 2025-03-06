@@ -69,6 +69,17 @@ alias rm='trash'
 alias rmfrfr='rm'
 alias z=zi
 alias gc="git commit"
+alias gp="git push"
+alias gfo="git fetch origin"
+alias gro="git rebase origin/main || git rebase origin/master"
+alias gfogro="gfo; and gro"
+alias blush="git commit --amend --no-edit"
+alias gs="git status"
+alias gl="git log"
+alias gco="git checkout"
+alias gcob="git checkout -b"
+alias gd="git diff"
+alias gdom="git diff origin/main"
 
 function gpf
     if test (git rev-parse --abrev-ref HEAD) != "main"
