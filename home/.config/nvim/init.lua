@@ -238,6 +238,24 @@ require("lazy").setup({
 					},
 				})
 			end, { desc = "Git fixup commit" })
+			vim.keymap.set("n", "<leader>gl", function()
+				require("fzf-lua").git_commits({
+					actions = {
+						-- ["default"] = function(selected)
+						-- 	-- Default behavior remains the same
+						-- 	require("fzf-lua").actions.git_checkout(selected)
+						-- end,
+						["ctrl-f"] = function(selected)
+							local commit_hash = selected[1]:match("(%S+)")
+							vim.cmd("Git commit --fixup=" .. commit_hash)
+						end,
+						["ctrl-r"] = function(selected)
+							local commit_hash = selected[1]:match("(%S+)")
+							vim.cmd("Git rebase -i " .. commit_hash)
+						end,
+					},
+				})
+			end, { silent = true, noremap = true })
 
 			vim.keymap.set("n", "<leader>co", fzfLua.git_branches, opts)
 		end,
@@ -508,6 +526,9 @@ require("lazy").setup({
 				-- Actions
 				vim.keymap.set("n", '"', gitsigns.preview_hunk, opts)
 				vim.keymap.set("n", "<leader>gd", gitsigns.diffthis, opts)
+				vim.keymap.set("n", "<leader>hs", gitsigns.stage_hunk, opts)
+				vim.keymap.set("n", "<leader>hu", gitsigns.undo_stage_hunk, opts)
+				vim.keymap.set("n", "<leader>hr", gitsigns.reset_hunk, opts)
 			end,
 		},
 	},
@@ -668,10 +689,6 @@ vim.keymap.set("n", "<leader>q", function()
 	end
 end, { silent = true, noremap = true })
 
-vim.cmd([[
-  autocmd User DirenvLoaded :echo 'loaded direnv'
-]])
-
 vim.keymap.set("n", "!l", function()
 	vim.fn.jobstart({ "fish", "-lc", "ctags-build" }, {
 		on_exit = function(_, code)
@@ -683,3 +700,41 @@ vim.keymap.set("n", "!l", function()
 		end,
 	})
 end)
+vim.api.nvim_create_user_command("Refresh", function()
+	-- Use vim-fugitive for git operations
+	vim.cmd("Git fetch origin")
+
+	-- After fetch completes, do the rebase
+	vim.cmd("Git rebase origin/main")
+
+	-- Show a message to indicate completion
+	vim.notify("Refreshed: fetched origin and rebased onto origin/main", vim.log.levels.INFO)
+end, {})
+
+-- <leader>gcc opens :CodeCompanionChat
+vim.keymap.set("n", "<leader>cc", "<cmd>CodeCompanionChat<cr>", { silent = true, noremap = true })
+vim.keymap.set({ "v", "x" }, "<leader>cc", ":'<,'>CodeCompanionChat<CR>", { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>cp", "<cmd>CodeCompanion<cr>", { silent = true, noremap = true })
+vim.keymap.set({ "v", "x" }, "<leader>cp", ":'<,'>CodeCompanion<CR>", { noremap = true, silent = true })
+
+vim.keymap.set("n", "<leader>pg", function()
+	local window_ids = vim.fn.win_findbuf(vim.fn.bufnr("postgresql://"))
+	if #window_ids > 0 then
+		-- Buffer exists and is visible, hide it
+		for _, win_id in ipairs(window_ids) do
+			vim.api.nvim_win_hide(win_id)
+		end
+	else
+		local buf_nr = vim.fn.bufnr("DB postgresql://")
+		if buf_nr ~= -1 then
+			-- Buffer exists but not visible, show it
+			vim.cmd("sb " .. buf_nr)
+		else
+			-- Buffer doesn't exist, create it
+			vim.cmd("DB postgresql://")
+		end
+	end
+end, { silent = true, noremap = true })
+
+vim.keymap.set("n", "]t", "<cmd>tabnext<cr>", { silent = true, noremap = true })
+vim.keymap.set("n", "[t", "<cmd>tabprevious<cr>", { silent = true, noremap = true })
