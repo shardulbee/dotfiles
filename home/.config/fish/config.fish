@@ -135,4 +135,8 @@ function fish_prompt
     echo -n ' → '
 end
 
+function fish_title
+    echo (basename (pwd))
+end
+
 end

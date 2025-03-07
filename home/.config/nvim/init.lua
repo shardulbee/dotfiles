@@ -174,7 +174,7 @@ require("lazy").setup({
 		},
 		config = function()
 			vim.opt.statusline = ""
-			vim.opt.statusline = "%f:%l:%c %m%=%{FugitiveStatusline()} %y"
+			vim.opt.statusline = "%f:%l:%c %m%=%y"
 		end,
 	},
 

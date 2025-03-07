@@ -4,6 +4,8 @@ macos-titlebar-style = tabs
 font-size = 18
 theme = GruvboxDarkHard
 
+title = "ghostty"
+
 keybind=cmd+w=text:\x06q
 keybind=cmd+shift+w=close_surface
 confirm-close-surface=false
@@ -22,3 +24,8 @@ keybind=alt+shift+left=text:\x06H
 keybind=alt+shift+right=text:\x06L
 keybind=alt+shift+down=text:\x06J
 keybind=alt+shift+up=text:\x06K
+
+initial-command="/opt/homebrew/bin/tmux new-session -As main"
+
+keybind=cmd+shift+t=new_split:right
+
