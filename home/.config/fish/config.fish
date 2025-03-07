@@ -1,11 +1,45 @@
-fish_add_path -aP /opt/homebrew/bin # append homebrew
-fish_add_path -p $HOME/bin
+# vim: ts=2 sw=2 et
 
-if command -sq /opt/homebrew/bin/direnv
-    /opt/homebrew/bin/direnv hook fish | source
-else
-    echo "direnv not found"
+fish_add_path -P /opt/homebrew/bin
+fish_add_path -P $HOME/bin
+direnv hook fish | source
+
+function file-list-tags
+    rg --hidden --sort path --files \
+        --glob '!target' \
+        --glob '!vendor' \
+        --type-not html \
+        --type-not css \
+        --type-not xml \
+        --type-not markdown \
+        --type-not jsonl \
+        --type-not yaml \
+        --type-not json \
+        --type-not diff \
+        --type-not asciidoc \
+        --type-not avro \
+        --type-not haml \
+        --type-not license \
+        --type-not log \
+        --type-not mk \
+        --type-not pdf \
+        --type-not protobuf \
+        --type-not readme \
+        --type-not tex \
+        --type-not thrift \
+        --type-not toml \
+        --type-not js \
+    > .file_list_tags
 end
+
+function ctags-build
+    file-list-tags
+    /opt/homebrew/bin/ctags -f tags -L .file_list_tags --sort=yes \
+        --langmap=TypeScript:.ts.tsx \
+        --langmap=JavaScript:.js.jsx \
+        --quiet=yes
+end
+
 
 set -gx EDITOR 'nvim'
 set -gx MANPAGER "col -bx | bat -l man -p"
@@ -35,6 +69,17 @@ alias rm='trash'
 alias rmfrfr='rm'
 alias z=zi
 alias gc="git commit"
+alias gp="git push"
+alias gfo="git fetch origin"
+alias gro="git rebase origin/main || git rebase origin/master"
+alias gfogro="gfo; and gro"
+alias blush="git commit --amend --no-edit"
+alias gs="git status"
+alias gl="git log"
+alias gco="git checkout"
+alias gcob="git checkout -b"
+alias gd="git diff"
+alias gdom="git diff origin/main"
 
 function gpf
     if test (git rev-parse --abrev-ref HEAD) != "main"
@@ -88,6 +133,10 @@ function fish_prompt
 
     set_color normal
     echo -n ' → '
+end
+
+function fish_title
+    echo (basename (pwd))
 end
 
 end

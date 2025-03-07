@@ -10,7 +10,7 @@ rescue LoadError
 end
 
 options = OpenStruct.new(
-  base: 'master',
+  base: 'main',
   dev_up: false,
   chrome: false,
   refresh: true,
@@ -59,12 +59,12 @@ end
 def remote_branch(string)
   # If string is something like "shopify/my-branch", split out remote/branch
   # If string is just "my-branch", default to "origin/my-branch"
-  if string =~ REMOTE_BRANCH_SPLIT
-    remote_suggested_name, remote_branch = string.split(REMOTE_BRANCH_SPLIT, 2)
-    [remote_suggested_name, remote_branch]
-  else
-    ['origin', string]
-  end
+  # if string =~ REMOTE_BRANCH_SPLIT
+  #   remote_suggested_name, remote_branch = string.split(REMOTE_BRANCH_SPLIT, 2)
+  #   [remote_suggested_name, remote_branch]
+  # else
+  ['origin', string]
+  # end
 end
 
 def repo
@@ -175,7 +175,7 @@ OptionParser.new do |opts|
     the diff in your editor.
   EOF
 
-  opts.on('-b', '--base BRANCH', 'Base to compare (default: origin/master)') do |value|
+  opts.on('-b', '--base BRANCH', 'Base to compare (default: origin/main)') do |value|
     options.base = value
   end
 
@@ -230,7 +230,8 @@ end
 
 remote_or_url = ARGV[0]
 if options.chrome
-  # Attempt to parse from current Chrome tab
+  # use brave
+  ENV['CHROME_BUNDLE_IDENTIFIER'] = 'com.brave.Browser'
   remote_or_url = safe_backticks('chrome-cli info')[GITHUB_PR_REGEX]
   raise 'Unable to find a Github pull request in current Chrome tab' if remote_or_url.nil? || remote_or_url.empty?
 end
