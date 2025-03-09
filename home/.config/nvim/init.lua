@@ -13,6 +13,12 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
+	{
+		"supermaven-inc/supermaven-nvim",
+		config = function()
+			require("supermaven-nvim").setup({})
+		end,
+	},
 	"preservim/vimux",
 	"nvim-lua/plenary.nvim",
 	"ActivityWatch/aw-watcher-vim",
