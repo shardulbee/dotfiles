@@ -14,24 +14,20 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
 	{
-		"christoomey/vim-tmux-navigator",
-		cmd = {
-			"TmuxNavigateLeft",
-			"TmuxNavigateDown",
-			"TmuxNavigateUp",
-			"TmuxNavigateRight",
-			"TmuxNavigatePrevious",
-			"TmuxNavigatorProcessList",
-		},
-		keys = {
-			{ "<c-h>", "<cmd><C-U>TmuxNavigateLeft<cr>" },
-			{ "<c-j>", "<cmd><C-U>TmuxNavigateDown<cr>" },
-			{ "<c-k>", "<cmd><C-U>TmuxNavigateUp<cr>" },
-			{ "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
-			{ "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
-		},
+		"supermaven-inc/supermaven-nvim",
+		cond = function()
+			return vim.fn.hostname() == "turbochardo"
+		end,
+		config = function()
+			require("supermaven-nvim").setup({})
+		end,
 	},
-	"preservim/vimux",
+	{
+		"preservim/vimux",
+		config = function()
+			vim.g["test#status"] = "vimux"
+		end,
+	},
 	{
 		"mfussenegger/nvim-lint",
 		config = function()
@@ -55,6 +51,9 @@ require("lazy").setup({
 	"ActivityWatch/aw-watcher-vim",
 	{
 		"zbirenbaum/copilot.lua",
+		cond = function()
+			return vim.fn.hostname() == "turbochardo"
+		end,
 		config = function()
 			require("copilot").setup({
 				panel = {
