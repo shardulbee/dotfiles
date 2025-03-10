@@ -245,10 +245,11 @@ require("lazy").setup({
 						-- 	-- Default behavior remains the same
 						-- 	require("fzf-lua").actions.git_checkout(selected)
 						-- end,
-						["ctrl-f"] = function(selected)
-							local commit_hash = selected[1]:match("(%S+)")
-							vim.cmd("Git commit --fixup=" .. commit_hash)
-						end,
+						-- cant use ctrl-f because it conflicts with tmux bind
+						-- ["ctrl-f"] = function(selected)
+						-- 	local commit_hash = selected[1]:match("(%S+)")
+						-- 	vim.cmd("Git commit --fixup=" .. commit_hash)
+						-- end,
 						["ctrl-r"] = function(selected)
 							local commit_hash = selected[1]:match("(%S+)")
 							vim.cmd("Git rebase -i " .. commit_hash)
