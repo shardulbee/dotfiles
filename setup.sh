@@ -71,6 +71,14 @@ if [[ -d "$HOME/dotfiles" ]]; then
     stow --ignore=.DS_Store -R --no-folding --dotfiles --target="$HOME" home
 fi
 
+# set git config user.email to work email based on hostname
+if [[ "$(hostname)" == "dbnl-shardul" ]]; then
+    find ~/src/github.com/dbnlAI -type d -name ".git" | while read gitdir; do
+      cd "$gitdir"
+      git config user.email "shardul@distributional.com"
+    done
+fi
+
 # 6. Set up Fish as default shell
 FISH_PATH="$(brew --prefix)/bin/fish"
 if ! grep -q "$FISH_PATH" /etc/shells; then
