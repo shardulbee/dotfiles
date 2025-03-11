@@ -4,8 +4,6 @@ macos-titlebar-style = tabs
 font-size = 18
 theme = GruvboxDarkHard
 
-title = "ghostty"
-
 keybind=cmd+w=text:\x06q
 keybind=cmd+shift+w=close_surface
 confirm-close-surface=false

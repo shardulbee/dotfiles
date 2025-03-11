@@ -25,7 +25,9 @@ require("lazy").setup({
 	{
 		"preservim/vimux",
 		config = function()
-			vim.g["test#status"] = "vimux"
+			vim.g["VimuxOrientation"] = "h"
+			vim.g["VimuxHeight"] = "40%"
+			vim.g["VimuxUseNearest"] = true
 		end,
 	},
 	{
@@ -34,17 +36,9 @@ require("lazy").setup({
 			require("lint").linters_by_ft = {
 				python = { "mypy" },
 			}
-
-			-- Create autocmd group for linting
-			local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
-
-			-- Setup autocommands for automatic linting
-			vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "InsertLeave", "TextChanged" }, {
-				group = lint_augroup,
-				callback = function()
-					require("lint").try_lint()
-				end,
-			})
+			vim.api.nvim_create_user_command("Lint", function()
+				require("lint").try_lint()
+			end, { desc = "Run linters" })
 		end,
 	},
 	"nvim-lua/plenary.nvim",
@@ -52,7 +46,7 @@ require("lazy").setup({
 	{
 		"zbirenbaum/copilot.lua",
 		cond = function()
-			return vim.fn.hostname() == "turbochardo"
+			return vim.fn.hostname() == "dbnl-shardul"
 		end,
 		config = function()
 			require("copilot").setup({
@@ -93,6 +87,10 @@ require("lazy").setup({
 	{ "folke/todo-comments.nvim", opts = {} },
 	{
 		"vim-test/vim-test",
+		dependencies = "preservim/vimux",
+		config = function()
+			vim.g["test#strategy"] = "vimux"
+		end,
 		keys = {
 			{ "<leader>tf", "<cmd>TestFile<cr>" },
 			{ "<leader>tn", "<cmd>TestNearest<cr>" },
@@ -188,6 +186,15 @@ require("lazy").setup({
 			local fzfLua = require("fzf-lua")
 
 			fzfLua.setup({
+				"fzf-tmux",
+				fzf_opts = {
+					["--ansi"] = "", -- Enable processing of ANSI color codes
+					["--prompt"] = "> ",
+					["--info"] = "hidden", -- Display style of finder info (num matches, etc)
+					["--layout"] = "reverse", -- Display from top of screen
+					["--cycle"] = "", -- Allow `<Up>` to go to the bottom
+					["--tmux"] = "center,80%,border-native",
+				},
 				grep = {
 					rg_opts = "--hidden --column --line-number --no-heading --color=always --smart-case --max-columns=4096 -e",
 				},
@@ -195,13 +202,23 @@ require("lazy").setup({
 					height = 0.9,
 					width = 0.9,
 					previewers = {
-						bat = { theme = "gruvbox-dark" },
+						bat = {
+							cmd = "/opt/homebrew/bin/bat",
+							args = "--color=always --style=numbers,changes --theme=gruvbox-dark",
+						},
 					},
 					preview = {
-						hidden = true,
+						horizontal = "right:60%",
+						-- hidden = true,
 					},
 				},
+				oldfiles = {
+					cwd_only = true,
+				},
 				git = {
+					branches = {
+						cmd_add = { "git", "checkout", "-b" },
+					},
 					commits = {
 						winopts = { preview = { vertical = "down:60%" } },
 						actions = {
@@ -219,13 +236,14 @@ require("lazy").setup({
 
 			local opts = { noremap = true, silent = true }
 			vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
+			vim.keymap.set("n", "<M-t>", fzfLua.oldfiles, opts)
 			vim.keymap.set("n", "<leader>h", fzfLua.help_tags, opts)
 			vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
 			vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
 			vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
 			vim.keymap.set("n", "<leader>r", fzfLua.command_history, opts)
 			vim.keymap.set("n", "<leader>p", fzfLua.commands, opts)
-			vim.keymap.set("n", "gt", fzfLua.tags, opts)
+			vim.keymap.set("n", "gt", fzfLua.tags_live_grep, opts)
 			vim.keymap.set("n", "<leader>gfu", function()
 				fzfLua.git_commits({
 					prompt = "Git Fixup> ",
