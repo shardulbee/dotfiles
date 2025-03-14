@@ -1,0 +1,39 @@
+macos-option-as-alt = true
+window-save-state = always
+macos-titlebar-style = tabs
+font-size = 18
+theme = GruvboxDarkHard
+
+keybind=cmd+w=text:\x06q
+keybind=cmd+shift+w=close_surface
+confirm-close-surface=false
+
+keybind=cmd+t=text:\x06c
+keybind=cmd+d=text:\x06v
+keybind=cmd+shift+d=text:\x06x
+
+keybind=cmd+shift+[=text:\x06p
+keybind=cmd+shift+]=text:\x06n
+
+keybind=cmd+]=text:\x06o
+keybind=cmd+[=text:\x06a
+
+keybind=alt+shift+left=text:\x06H
+keybind=alt+shift+right=text:\x06L
+keybind=alt+shift+down=text:\x06J
+keybind=alt+shift+up=text:\x06K
+keybind=cmd+enter=text:\x06z
+
+keybind=cmd+1=text:\x061
+keybind=cmd+2=text:\x062
+keybind=cmd+3=text:\x063
+keybind=cmd+4=text:\x064
+keybind=cmd+5=text:\x065
+keybind=cmd+6=text:\x066
+keybind=cmd+7=text:\x067
+keybind=cmd+8=text:\x068
+keybind=cmd+9=text:\x069
+
+initial-command="/opt/homebrew/bin/tmux new-session -As main"
+
+keybind=cmd+shift+t=new_split:right

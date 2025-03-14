@@ -1,0 +1,88 @@
+{
+  "scrollbar": {
+    "diagnostics": false,
+    "git_diff": false,
+    "selected_symbol": false,
+    "cursors": false,
+    "search_results": true
+  },
+  "tab_bar": {
+    "show_nav_history_buttons": false
+  },
+  "git": {
+    "inline_blame": {
+      "show_commit_summary": true
+    }
+  },
+
+  "assistant": {
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "claude-3-5-sonnet"
+    },
+    "version": "2"
+  },
+  "theme": "Gruvbox Dark Hard",
+  "buffer_line_height": {
+    "custom": 1.25
+  },
+  "vim_mode": true,
+  "ui_font_size": 16,
+  "buffer_font_size": 18,
+  "current_line_highlight": "gutter",
+  "buffer_font_family": "JetBrainsMono Nerd Font",
+  "languages": {
+    "Python": {
+      "language_servers": ["pyright"],
+      "format_on_save": {
+        "external": {
+          "command": "ruff",
+          "arguments": [
+            "check",
+            "--exit-zero",
+            "--fix",
+            "--stdin-filename",
+            "{buffer_path}",
+            "-"
+          ]
+        }
+      }
+    },
+    "TypeScript": {
+      "format_on_save": "on",
+      "formatter": [
+        {
+          "external": {
+            "command": "bun",
+            "arguments": [
+              "run",
+              "--cwd=./ui",
+              "--silent",
+              "prettier",
+              "--stdin-filepath",
+              "{buffer_path}"
+            ]
+          }
+        }
+      ]
+    },
+    "TSX": {
+      "format_on_save": "on",
+      "formatter": [
+        {
+          "external": {
+            "command": "bun",
+            "arguments": [
+              "run",
+              "--cwd=./ui",
+              "--silent",
+              "prettier",
+              "--stdin-filepath",
+              "{buffer_path}"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

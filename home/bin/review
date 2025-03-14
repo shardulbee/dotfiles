@@ -1,0 +1,344 @@
+#!/usr/bin/env ruby
+require 'optparse'
+require 'ostruct'
+require 'net/http'
+require 'json'
+
+begin
+  require 'byebug'
+rescue LoadError
+end
+
+options = OpenStruct.new(
+  base: 'main',
+  dev_up: false,
+  chrome: false,
+  refresh: true,
+  noop: false,
+  open: true,
+  path: false,
+  server: false,
+  clipboard: false,
+  up: false,
+  ctags: true,
+  changed_files: false
+)
+
+GITHUB_PR_REGEX = %r{https://github.com/([\w_-]+)/([\w_-]+)(/pull/(\d+))?}
+GITHUB_COMPARE_REGEX = %r{https://github.com/([\w_-]+)/([\w_-]+)/compare/([\w_-]+)}
+REMOTE_BRANCH_SPLIT = %r{/}
+
+def safe_system(command)
+  puts "\x1b[34m#{command}\x1b[0m"
+  system(command)
+  raise "Command: #{command} failed" unless $?.success?
+end
+
+def safe_backticks(command)
+  puts "\x1b[34m#{command}\x1b[0m"
+  output = `#{command}`
+  raise "Command: #{command} failed:\n#{output}" unless $?.success?
+  output
+end
+
+def ensure_in_right_directory(org, repo)
+  unless safe_backticks('pwd').include?(repo)
+    warn "#{repo} is not in the path, please change directory to it!"
+    exit 42
+  end
+end
+
+def ensure_remote(remote, org_and_repo)
+  # If we don't have the remote, attempt to add
+  if safe_backticks('git remote').split("\n").none? { |r| r.strip == remote }
+    repo_git = "git@github.com:#{org_and_repo}"
+    safe_backticks("git remote add #{remote} #{repo_git}")
+  end
+end
+
+def remote_branch(string)
+  # If string is something like "shopify/my-branch", split out remote/branch
+  # If string is just "my-branch", default to "origin/my-branch"
+  # if string =~ REMOTE_BRANCH_SPLIT
+  #   remote_suggested_name, remote_branch = string.split(REMOTE_BRANCH_SPLIT, 2)
+  #   [remote_suggested_name, remote_branch]
+  # else
+  ['origin', string]
+  # end
+end
+
+def repo
+  safe_backticks('basename $(git rev-parse --show-toplevel)').strip
+end
+
+def current_branch_tracking_remote
+  rev_parse = safe_backticks('git rev-parse HEAD --symbolic-full-name @{u}')
+  rev_parse.match(%r{refs/remotes/(.+)$})[1]
+end
+
+##
+# Use `gh` to get PR details. Input is either a PR URL or a compare URL:
+#   * If compare URL, we just return [org, repo, compareBranch].
+#   * If pull URL, fetch data from `gh pr view`.
+#
+# Returns [org, repo, branchString, pr_md_file, merge_commit_sha, base_branch].
+def org_repo_branch_from_url(url)
+  # If it's a compare URL (no PR number)
+  if url.match?(GITHUB_COMPARE_REGEX)
+    _, org, repo, branch_name = url.match(GITHUB_COMPARE_REGEX).to_a
+    return [org, repo, branch_name]
+  end
+
+  # Otherwise assume it's a pull URL
+  _, org, repo, _, pr_id = url.match(GITHUB_PR_REGEX).to_a
+  raise "Unable to parse GitHub PR from #{url}" unless pr_id
+
+  # Use GH to fetch PR data
+  pr_json_str = safe_backticks("gh pr view #{pr_id} --repo #{org}/#{repo} --json headRefName,baseRefName,title,body,mergeCommit,headRepositoryOwner,isCrossRepository")
+  pr_json     = JSON.parse(pr_json_str)
+
+  title      = pr_json['title']
+  body       = pr_json['body'] || ''
+  base_ref   = pr_json['baseRefName']
+  head_ref   = pr_json['headRefName']
+  merge_data = pr_json['mergeCommit']
+  merge_oid  = merge_data ? merge_data['oid'] : nil
+
+  # If cross-repo PR, combine the fork owner with the head branch
+  if pr_json['isCrossRepository']
+    head_owner = pr_json['headRepositoryOwner']['login']
+    branch_str = "#{head_owner}/#{head_ref}"
+  else
+    branch_str = head_ref
+  end
+
+  # Save PR body + title to a local markdown file
+  pr_file = "/tmp/pr_#{pr_id}.md"
+  File.open(pr_file, 'w+') do |f|
+    f.write("# #{title}\n\n")
+    f.write(body.gsub("\r\n", "\n"))
+  end
+
+  [org, repo, branch_str, pr_file, merge_oid, base_ref]
+end
+
+def pull_and_checkout(base_branch, base_remote, target_branch, target_remote, merge_commit = nil)
+  # fetch base
+  safe_system("git fetch #{base_remote} #{base_branch}")
+  if merge_commit
+    warn "\x1b[33mReviewing PR which has already been merged\x1b[0m"
+    safe_system("git checkout #{merge_commit}")
+    return
+  end
+
+  # fetch target
+  safe_system("git fetch #{target_remote} #{target_branch}")
+
+  # Checkout locally
+  local_branch_name = if target_remote == 'origin'
+                        target_branch
+                      else
+                        "#{target_remote}-#{target_branch}"
+                      end
+
+  if safe_backticks("git branch --list #{local_branch_name}").strip.empty?
+    safe_system("git checkout -b #{local_branch_name.inspect} --track #{target_remote}/#{target_branch}")
+  else
+    safe_system("git checkout #{local_branch_name.inspect}")
+  end
+
+  # rebase
+  safe_system("git pull --rebase #{target_remote} #{target_branch}")
+end
+
+def build_ctags(options)
+  safe_system("bash -i -c '(command -v ctags-build >/dev/null 2>&1 && ctags-build & )'") if options.ctags
+end
+
+def run_up(options)
+  build_ctags(options)
+  if !`bash -i -c -l 'command -v dev'`.empty? && File.exist?('dev.yml')
+    safe_system("bash -i -c -l 'dev up'")
+  elsif File.exist?('Gemfile.lock')
+    safe_system('bundle install')
+  elsif File.exist?('Cargo.toml')
+    safe_system('cargo build')
+  end
+end
+
+OptionParser.new do |opts|
+  opts.banner = <<~EOF
+    Usage: review [OPTIONS] [BRANCH or GITHUB URL]
+
+    review is a tool to make it easier to review code in your editor rather
+    than in the Github diff. It checks out the branch, rebases, and opens
+    the diff in your editor.
+  EOF
+
+  opts.on('-b', '--base BRANCH', 'Base to compare (default: origin/main)') do |value|
+    options.base = value
+  end
+
+  opts.on('-u', '--up', 'Install dependencies (default: no)') do |_val|
+    options.up = true
+  end
+
+  opts.on('-s', '--server', 'Run server, implies -u (default: no)') do |_val|
+    options.server = true
+    options.up = true
+  end
+
+  opts.on('', '--no-ctags', "Don't try to build ctags as part of up (default: yes)") do
+    options.ctags = false
+  end
+
+  opts.on('-p', '--path', 'Output just the path where the repo lives (default: no)') do |_val|
+    options.path = true
+  end
+
+  opts.on('', '--clipboard', 'Grab PR from clipboard if not passed (default: no)') do |_val|
+    options.clipboard = true
+  end
+
+  opts.on('-c', '--chrome', "Get content to review from Chrome's current tab (default: no)") do |_val|
+    options.chrome = true
+  end
+
+  opts.on('', '--noop', "Don't do anything, just show what you would do") do |_val|
+    options.noop = true
+  end
+
+  opts.on('-r', '--no-refresh', "Don't fetch latest upstream changes (default: yes)") do
+    options.refresh = false
+  end
+
+  opts.on('-o', '--no-open', "Don't open editor with changes (default: yes)") do
+    options.open = false
+  end
+
+  opts.on('-f', '--changed-files', 'List changed files (implies -r & no open)') do
+    options.changed_files = true
+    options.refresh = false
+    options.open = false
+  end
+end.parse!
+
+if options.up
+  run_up(options) if !options.noop
+  exit 0 if options.server || options.noop
+end
+
+remote_or_url = ARGV[0]
+if options.chrome
+  # use brave
+  ENV['CHROME_BUNDLE_IDENTIFIER'] = 'com.brave.Browser'
+  remote_or_url = safe_backticks('chrome-cli info')[GITHUB_PR_REGEX]
+  raise 'Unable to find a Github pull request in current Chrome tab' if remote_or_url.nil? || remote_or_url.empty?
+end
+
+if options.clipboard && (remote_or_url.nil? || remote_or_url.empty?)
+  remote_or_url = safe_backticks('pbpaste').strip
+end
+
+# If user only wants path, just output the repo name and exit
+if options.path
+  puts repo
+  exit 0
+end
+
+# If no argument or empty, fallback to current tracking remote
+if remote_or_url.nil? || remote_or_url.empty?
+  remote_or_url = current_branch_tracking_remote
+end
+
+# Attempt to parse a PR/compare URL. If it is not a URL, treat as branch.
+org = nil
+repo_name = nil
+pr_file = nil
+merge_commit = nil
+base_branch = options.base
+target_branch_str = remote_or_url
+
+if remote_or_url.start_with?('https://')
+  org, repo_name, target_branch_str, pr_file, merge_commit, base_branch_from_pr = org_repo_branch_from_url(remote_or_url)
+  base_branch = base_branch_from_pr if base_branch_from_pr
+end
+
+# If we do not have a valid remote or branch after that, bail
+if target_branch_str.nil? || target_branch_str.empty?
+  warn "Could not infer branch/remote from: #{remote_or_url.inspect}"
+  exit 1
+end
+
+# If we do have an org/repo, ensure we are in the right directory
+ensure_in_right_directory(org, repo_name) if org && repo_name
+
+# If no refresh, we won't do a fetch/pull
+if options.refresh && !merge_commit
+  base_remote, base_branch = remote_branch(base_branch)
+  target_remote, target_branch = remote_branch(target_branch_str)
+
+  # Make sure we have the correct remotes
+  if org && repo_name
+    ensure_remote(base_remote, "#{org}/#{repo_name}")
+    # If cross repo, it might have "forkOwner" in target_remote, so we handle that
+    # by turning e.g. "someone-fork" -> "someone-fork" and ensuring we point
+    # it to "someone/forkedRepo"
+    # However, if target_remote is "origin" or same org, skip special logic.
+    if target_remote != base_remote
+      # The string to pass as org/repo might differ if there's a slash
+      if target_remote.include?('-')
+        # e.g. "myfork-branch"? Or "myorg/myrepo"? Adjust as needed...
+        # This is a naive fallback. Adjust if needed for your workflows.
+        ensure_remote(target_remote, target_remote.gsub('-', '/') + "/#{repo_name}")
+      else
+        ensure_remote(target_remote, "#{target_remote}/#{repo_name}")
+      end
+    end
+  end
+
+  unless options.noop
+    pull_and_checkout(base_branch, base_remote, target_branch, target_remote, merge_commit)
+  end
+end
+
+# Figure out the commit range for diff
+if merge_commit
+  # Already merged
+  review_diff = 'HEAD~1'
+else
+  base_remote, base_branch = remote_branch(base_branch)
+  target_remote, target_branch = remote_branch(target_branch_str)
+  review_diff = "#{base_remote}/#{base_branch}...#{target_remote}/#{target_branch}"
+end
+
+if !options.changed_files && !options.noop
+  warn "\x1b[33mReviewing #{review_diff}\x1b[0m"
+end
+
+if options.changed_files
+  puts safe_backticks("git diff --name-only #{review_diff}")
+  exit 0
+end
+
+if options.noop
+  puts "NOOP: Would review diff: #{review_diff}"
+  exit 0
+end
+
+run_up(options) if options.up
+build_ctags(options)
+
+# Gather diff files so we can open them in the editor
+diffs = safe_backticks("git diff --name-only #{review_diff}").strip.split("\n")
+diffs.prepend(pr_file) if pr_file
+
+if options.open
+  gitgutter_diff_base = merge_commit ? 'HEAD~1' : "#{base_remote}/#{base_branch}"
+  # If using gitsigns: let g:gitgutter_diff_base = ...
+  # For a simpler approach, just do the standard diff:
+  file_list = diffs.join(' ')
+  vim_command = "nvim -c \"let g:gitgutter_diff_base = '#{gitgutter_diff_base}'\""
+  vim_command += " -c \":e!\" #{file_list}" unless file_list.empty?
+  safe_system(vim_command)
+end

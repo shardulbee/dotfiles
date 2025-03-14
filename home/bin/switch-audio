@@ -1,0 +1,169 @@
+#!/usr/bin/env ruby
+
+# Required parameters:
+# @raycast.schemaVersion 1
+# @raycast.title Switch Audio
+# @raycast.mode compact
+
+# Optional parameters:
+# @raycast.icon 🎙️
+# @raycast.argument1 { "type": "dropdown", "placeholder": "Select Audio Device", "data": [ {"title": "AirPods Max", "value": "08-ff-44-39-13-74"}, {"title": "Studio Display", "value": "AppleUSBAudioEngine:Apple Inc.:Studio Display"}, {"title": "MacBook Pro Speakers", "value": "BuiltInSpeakerDevice"}, {"title": "Work AirPods", "value": "44-1b-88-e1-7d-7f"}]}
+
+# Documentation:
+# @raycast.author turbochardo
+# @raycast.authorURL https://raycast.com/turbochardo
+
+require 'json'
+
+def install_dependency(package)
+  puts "Installing #{package}..."
+  unless system("brew install #{package}")
+    puts "Failed to install #{package}. Please install it manually."
+    exit 1
+  end
+end
+
+def check_dependencies
+  # Check for SwitchAudioSource
+  unless system('which SwitchAudioSource > /dev/null 2>&1')
+    install_dependency('switchaudio-osx')
+  end
+
+  # Check for blueutil
+  unless system('which blueutil > /dev/null 2>&1')
+    install_dependency('blueutil')
+  end
+end
+
+def is_bluetooth_device?(device_id)
+  # Check if the device ID matches a MAC address format (Bluetooth device)
+  return device_id =~ /^([0-9A-F]{2}-){5}[0-9A-F]{2}$/i
+end
+
+def get_audio_devices
+  # Get list of available audio devices in JSON format
+  begin
+    devices_json = `SwitchAudioSource -a -f json`
+    devices = devices_json.split("\n").map { |line| JSON.parse(line) }
+    return devices
+  rescue => e
+    puts "Error parsing audio devices: #{e.message}"
+    exit 1
+  end
+end
+
+def connect_bluetooth_device(device_id)
+  # Check if already connected
+  connected = `blueutil --is-connected #{device_id}`.strip.to_i == 1
+
+  if connected
+    puts "Bluetooth device already connected"
+    return true
+  else
+    # Get device name from paired devices
+    device_info = `blueutil --paired | grep -i "#{device_id}"`.strip
+    device_name = device_info.match(/name: "([^"]+)"/)&.captures&.first || "Unknown device"
+
+    puts "Connecting to #{device_name} (#{device_id})..."
+    unless system("blueutil --connect #{device_id}")
+      puts "Failed to connect to Bluetooth device"
+      return false
+    end
+
+    # Wait for connection to establish
+    max_attempts = 5
+    attempts = 0
+    connected = false
+
+    while attempts < max_attempts && !connected
+      sleep 1
+      connected = `blueutil --is-connected #{device_id}`.strip.to_i == 1
+      attempts += 1
+      print "." if !connected
+    end
+
+    if connected
+      puts "\nBluetooth device connected successfully"
+      return true
+    else
+      puts "\nFailed to verify Bluetooth connection"
+      return false
+    end
+  end
+end
+
+def switch_audio(device_id)
+  # Get all audio devices
+  devices = get_audio_devices
+
+  # Filter to output devices only
+  output_devices = devices.select { |d| d["type"] == "output" }
+
+  if is_bluetooth_device?(device_id)
+    # For Bluetooth devices, find the matching UID that contains the MAC address
+    target_device = output_devices.find { |d| d["uid"].downcase.include?(device_id.downcase) }
+
+    if target_device.nil?
+      puts "Could not find Bluetooth audio device with ID: #{device_id}"
+      return false
+    end
+
+    device_name = target_device["name"]
+  else
+    # For built-in devices, find by UID
+    target_device = output_devices.find { |d| d["uid"].include?(device_id) }
+
+    if target_device.nil?
+      puts "Could not find audio device with ID: #{device_id}"
+      return false
+    end
+
+    device_name = target_device["name"]
+  end
+
+  puts "Switching audio output to #{device_name}..."
+
+  # Switch using the device name (more reliable than UID)
+  unless system("SwitchAudioSource -s \"#{device_name}\"")
+    puts "Failed to switch audio output"
+    return false
+  end
+
+  puts "Audio output switched to #{device_name} successfully"
+  return true
+end
+
+# Main execution
+begin
+  # Check if device was provided
+  if ARGV.empty? || ARGV[0].nil? || ARGV[0].strip.empty?
+    puts "Error: No audio device selected"
+    exit 1
+  end
+
+  # Get the device ID
+  device_id = ARGV[0].strip
+
+  # Check dependencies
+  check_dependencies
+
+  # Handle device based on type
+  if is_bluetooth_device?(device_id)
+    if connect_bluetooth_device(device_id)
+      # Wait a moment for the audio system to recognize the connected device
+      sleep 1
+      exit 1 unless switch_audio(device_id)
+    else
+      exit 1
+    end
+  else
+    # For non-Bluetooth devices, just switch audio
+    exit 1 unless switch_audio(device_id)
+  end
+
+  exit 0
+rescue => e
+  puts "Error: #{e.message}"
+  puts e.backtrace if ENV['DEBUG']
+  exit 1
+end

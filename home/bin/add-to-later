@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+
+# Required parameters:
+# @raycast.schemaVersion 1
+# @raycast.title Add to Later
+# @raycast.mode silent
+
+# Optional parameters:
+# @raycast.icon 🕒
+# @raycast.argument1 { "type": "text", "placeholder": "Todo item" }
+# @raycast.packageName Later List
+
+# Documentation:
+# @raycast.description Add something that you want to do to a tickler file
+# @raycast.author turbochardo
+# @raycast.authorURL https://raycast.com/turbochardo
+
+require 'fileutils'
+
+# Get the input text
+todo_text = ARGV[0]
+
+# Define the file path
+file_path = File.expand_path("~/Documents/Notes/LATER.md")
+
+# Ensure the directory exists
+dir_path = File.dirname(file_path)
+FileUtils.mkdir_p(dir_path) unless Dir.exist?(dir_path)
+
+# Create the file if it doesn't exist
+unless File.exist?(file_path)
+  File.write(file_path, "# Later List\n\n")
+end
+
+# Append the todo item to the file
+File.open(file_path, "a") do |file|
+  file.puts "- [ ] #{todo_text}"
+end
+
+puts "Added to Later list: #{todo_text}"
