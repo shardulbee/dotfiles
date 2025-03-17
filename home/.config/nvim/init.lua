@@ -659,6 +659,9 @@ require("lazy").setup({
         -- Actions
         vim.keymap.set("n", '"', gitsigns.preview_hunk, opts)
         vim.keymap.set("n", "<leader>gd", gitsigns.diffthis, opts)
+        vim.keymap.set("n", "<leader>gdom", function()
+          gitsigns.diffthis("main", { vertical = true })
+        end, opts)
         vim.keymap.set("n", "<leader>hs", gitsigns.stage_hunk, opts)
         vim.keymap.set("n", "<leader>hu", gitsigns.undo_stage_hunk, opts)
         vim.keymap.set("n", "<leader>hr", gitsigns.reset_hunk, opts)
