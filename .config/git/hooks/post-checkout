@@ -1,0 +1,3 @@
+#!/usr/bin/env fish
+echo "Running ctags-build after checkout..."
+ctags-build

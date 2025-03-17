@@ -1,0 +1,51 @@
+{
+  // Editor and UI settings
+  "editor.fontFamily": "JetBrains Mono",
+  "editor.codeLensFontFamily": "JetBrains Mono",
+  "editor.inlayHints.fontFamily": "JetBrains Mono",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.renderLineHighlight": "gutter",
+  "editor.minimap.enabled": false,
+  "editor.accessibilitySupport": "off",
+  "workbench.colorTheme": "Gruvbox Dark Hard",
+  "workbench.statusBar.visible": false,
+  "workbench.activityBar.visible": false,
+  "breadcrumbs.enabled": false,
+  // File and workspace behavior
+  "explorer.confirmDelete": false,
+  "window.commandCenter": true,
+  // Language-specific settings
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  // Extension-specific settings
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
+  },
+  "zig.zls.path": "zls",
+  "zig.zls.enabled": "on",
+  "makefile.configureOnOpen": true,
+  // Git settings
+  "git.openRepositoryInParentFolders": "always",
+  // Cursor-specific settings
+  "cursor.composer.collapsePaneInputBoxPills": true,
+  "update.releaseTrack": "prerelease",
+  "workbench.editor.editorActionsLocation": "titleBar"
+}

@@ -1,0 +1,7 @@
+#!/usr/bin/env fish
+echo "Debug: post-commit hook started"
+echo "Debug: Current directory: "(pwd)
+echo "Debug: Git root: "(git rev-parse --show-toplevel)
+echo "Running ctags-build after commit..."
+ctags-build
+echo "Debug: post-commit hook finished"

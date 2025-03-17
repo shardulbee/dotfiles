@@ -1,6 +1,7 @@
+# vim: set ft=ruby
+
 require 'socket'
 
-# Common
 brew "bat"
 brew "fd"
 brew "fish"
@@ -11,7 +12,6 @@ brew "git-delta"
 brew "jq"
 brew "neovim"
 brew "nodejs"
-brew "pyenv"
 brew "ripgrep"
 brew "stow"
 brew "universal-ctags"
@@ -19,9 +19,11 @@ brew "zoxide"
 brew "btop"
 brew "direnv"
 brew "chrome-cli"
-brew "tmux"
-brew "eza"
 brew "age"
+brew "uv"
+brew "switchaudio-osx"
+brew "blueutil"
+cask "font-jetbrains-mono-nerd-font"
 cask "1password-cli"
 cask "1password"
 cask "aerospace"
@@ -33,30 +35,38 @@ cask "obsidian"
 cask "raycast"
 cask "spotify"
 cask "zoom"
-cask "activitywatch"
 cask "brave-browser"
+cask "kitty"
+cask "anki"
+cask "cursor"
+
+vscode "asvetliakov.vscode-neovim"
+vscode "jdinhlife.gruvbox"
+vscode "ms-python.debugpy"
+vscode "ms-python.python"
+vscode "ms-python.vscode-pylance"
+vscode "charliermarsh.ruff"
+vscode "esbenp.prettier-vscode"
+
 
 if Socket.gethostname == "turbochardo"
-  # Personal
   brew "lowdown"
   brew "trash"
   brew "rbenv"
-  tap "mutagen-io/mutagen"
-  brew "mutagen-io/mutagen/mutagen"
   brew "hyperfine"
   cask "arq"
   cask "cleanshot"
-  cask "cursor"
-  cask "fantastical"
   cask "google-drive"
   cask "tailscale"
   cask "vlc"
   cask "zwift"
   cask "dash"
-  cask "google-cloud-sdk"
+
+  vscode "bwork.zig-tools"
+  vscode "tiehuis.zig"
+  vscode "ziglang.vscode-zig"
 else
-  # install awscli manually
-  # brew "awscli"
+  # install awscli and terraform manually
   brew "antlr"
   brew "oven-sh/bun/bun"
   brew "chart-testing"
@@ -67,15 +77,10 @@ else
   brew "kubectl"
   brew "postgresql@14"
   brew "skaffold"
-  # install terraform manually
-  # brew "terraform"
   brew "xz"
-
-  # Work-Only Casks
   cask "orbstack"
   cask "setapp"
   cask "google-cloud-sdk"
-  cask "mimestream"
   cask "meetingbar"
   cask "slack"
 end

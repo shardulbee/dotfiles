@@ -18,7 +18,7 @@ fi
 
 # 2. Install all packages from Brewfile
 echo "Installing Homebrew packages..."
-brew bundle install
+brew bundle install --no-upgrade --cleanup
 
 # 3. Set macOS defaults
 
@@ -68,15 +68,10 @@ fi
 if [[ -d "$HOME/dotfiles" ]]; then
     echo "Linking dotfiles..."
     cd "$HOME/dotfiles"
-    stow --ignore=.DS_Store -R --no-folding --dotfiles --target="$HOME" home
-fi
-
-# set git config user.email to work email based on hostname
-if [[ "$(hostname)" == "dbnl-shardul" ]]; then
-    find ~/src/github.com/dbnlAI -type d -name ".git" | while read gitdir; do
-      cd "$gitdir"
-      git config user.email "shardul@distributional.com"
-    done
+    # First remove any existing links
+    stow -D --target="$HOME" .
+    # Then create new links, being verbose about what it's doing
+    stow -v --ignore=.DS_Store --ignore=setup.sh --ignore=Brewfile --ignore=README.md --ignore=stylua.toml --ignore='^\.git$' -R --dotfiles --target="$HOME" .
 fi
 
 # 6. Set up Fish as default shell

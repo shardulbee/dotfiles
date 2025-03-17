@@ -1,2 +1,26 @@
-home/.config/karabiner/assets/*
-home/.config/karabiner/automatic_backups/*
+# Ignore everything
+*
+
+# Except these
+!.gitignore
+!setup.sh
+!Brewfile
+!stylua.toml
+!README.md
+!.hushlogin
+!.config/
+!.hammerspoon/
+!bin/
+!Library/
+
+!.config/**
+!.hammerspoon/**
+!bin/**
+!Library/**
+
+
+# Explicitly allow scripts in bin/ cuz I have a bunch of ones that don't need to be ignored
+!bin/switch-audio
+!bin/secrets
+!bin/add-to-later
+!bin/cursor-to-kitty

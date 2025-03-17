@@ -1,7 +1,0 @@
-[
-  {
-    "label": "Run make",
-    "command": "make",
-    "use_new_terminal": false
-  }
-]
