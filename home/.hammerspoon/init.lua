@@ -82,142 +82,224 @@ local function popclickPlayPause()
   PopclickListening = not PopclickListening
 end
 
+function createNewTIL()
+  -- Prompt for TIL title
+  hs.focus()
+  local button, title = hs.dialog.textPrompt("New TIL", "Enter TIL title:", "", "Create", "Cancel")
+
+  if button ~= "Create" or title == "" then
+    return
+  end
+
+  -- Slugify the title
+  local slug = string.lower(title)
+  slug = string.gsub(slug, "[^%w%s-]", "")
+  slug = string.gsub(slug, "%s+", "-")
+  slug = string.gsub(slug, "^-+", "")
+  slug = string.gsub(slug, "-+$", "")
+
+  -- Get today's date in ISO format
+  local today = os.date("%Y-%m-%d")
+
+  -- Create file path
+  local filePath = os.getenv("HOME") .. "/src/github.com/shardulbee/shardul.baral.ca/til/" .. slug .. ".md"
+  local relativeFilePath = "til/" .. slug .. ".md"
+
+  -- Create frontmatter
+  local frontmatter = "---\ntitle: " .. title .. "\ncreated_at: " .. today .. "\n---\n\n"
+
+  -- Ensure directory exists
+  os.execute("mkdir -p " .. os.getenv("HOME") .. "/src/github.com/shardulbee/shardul.baral.ca/til/")
+
+  -- Write initial file with frontmatter
+  local file = io.open(filePath, "w")
+  if file then
+    file:write(frontmatter)
+    file:close()
+  else
+    hs.alert.show("Failed to create TIL file")
+    return
+  end
+
+  -- Full path to Homebrew tmux
+  local tmuxPath = "/usr/local/bin/tmux"
+  -- Check for arm64 homebrew location
+  if not hs.fs.attributes(tmuxPath) then
+    tmuxPath = "/opt/homebrew/bin/tmux"
+  end
+
+  -- Check if tmux is running
+  local tmuxRunning = os.execute(tmuxPath .. " has-session 2>/dev/null")
+
+  if tmuxRunning then
+    -- Escape quotes in the title for the commit message
+    local safeTitle = string.gsub(title, '"', '\\"')
+    local commitMsg = "Add TIL: " .. safeTitle
+
+    -- Create a workflow script that will:
+    -- 1. Open the file in vim
+    -- 2. After vim closes, perform git operations
+    -- 3. Close the pane when done
+    local workflowScript = [[
+  /opt/homebrew/bin/nvim "]] .. filePath .. [[" && \
+  cd "]] .. os.getenv("HOME") .. [[/src/github.com/shardulbee/shardul.baral.ca" && \
+  git add "]] .. relativeFilePath .. [[" && \
+  git commit -m "]] .. commitMsg .. [[" && \
+  git push && \
+  echo "TIL published! Closing in 2 seconds..." && \
+  sleep 2 && \
+  exit
+  ]]
+
+    -- Create a new tmux window with our workflow
+    os.execute(tmuxPath .. " new-window -n 'TIL' '" .. workflowScript .. "'")
+
+    hs.alert.show("Created new TIL: " .. slug .. " (tmux window opened)")
+  else
+    -- No tmux session, show a notification with the file path
+    hs.alert.show("Created new TIL: " .. slug .. "\nNo active tmux session found.\nFile path: " .. filePath)
+    -- Copy path to clipboard for easy access
+    hs.pasteboard.setContents(filePath)
+  end
+end
+
 local common = {
+  ["t"] = { alias = "til", fn = createNewTIL },
   ["s"] = {
-    "spotify",
-    {
+    alias = "spotify",
+    sub_mappings = {
       ["p"] = {
-        "playlistadd",
-        openUrl("raycast://extensions/mattisssa/spotify-player/addPlayingSongToPlaylist"),
+        alias = "playlistadd",
+        fn = openUrl("raycast://extensions/mattisssa/spotify-player/addPlayingSongToPlaylist"),
       },
       ["n"] = {
-        "now playing",
-        openUrl("raycast://extensions/mattisssa/spotify-player/nowPlaying"),
+        alias = "now playing",
+        fn = openUrl("raycast://extensions/mattisssa/spotify-player/nowPlaying"),
       },
     },
   },
   ["f"] = {
-    "search files",
-    openUrl("raycast://extensions/raycast/file-search/search-files"),
+    alias = "search files",
+    fn = openUrl("raycast://extensions/raycast/file-search/search-files"),
   },
-  ["c"] = { "clipboard", openUrl("raycast://extensions/raycast/clipboard-history/clipboard-history") },
+  ["c"] = { alias = "clipboard", fn = openUrl("raycast://extensions/raycast/clipboard-history/clipboard-history") },
   ["h"] = {
-    "hammerspoon",
-    {
-      ["c"] = { "console", hs.toggleConsole },
-      ["r"] = { "reload", hs.reload },
-      ["p"] = { "popclick", popclickPlayPause },
+    alias = "hammerspoon",
+    sub_mappings = {
+      ["c"] = { alias = "console", fn = hs.toggleConsole },
+      ["r"] = { alias = "reload", fn = hs.reload },
+      ["p"] = { alias = "popclick", fn = popclickPlayPause },
     },
   },
   ["r"] = {
-    "raycast",
-    {
-      ["e"] = { "emoji", openUrl("raycast://extensions/raycast/emoji-symbols/search-emoji-symbols") },
+    alias = "raycast",
+    sub_mappings = {
+      ["e"] = { alias = "emoji", fn = openUrl("raycast://extensions/raycast/emoji-symbols/search-emoji-symbols") },
       ["c"] = {
-        "capture",
-        {
-          ["v"] = { "video", openUrl("raycast://extensions/Aayush9029/cleanshotx/record-screen") },
+        alias = "capture",
+        sub_mappings = {
+          ["v"] = { alias = "video", fn = openUrl("raycast://extensions/Aayush9029/cleanshotx/record-screen") },
           ["c"] = {
-            "capture",
-            openUrl(
+            alias = "capture",
+            fn = openUrl(
               "raycast://extensions/Aayush9029/cleanshotx/capture-area?arguments=%7B%22action%22%3A%22copy%22%7D"
             ),
           },
           ["a"] = {
-            "annotate",
-            openUrl(
+            alias = "annotate",
+            fn = openUrl(
               "raycast://extensions/Aayush9029/cleanshotx/capture-area?arguments=%7B%22action%22%3A%22annotate%22%7D"
             ),
           },
           ["s"] = {
-            "save",
-            openUrl(
+            alias = "save",
+            fn = openUrl(
               "raycast://extensions/Aayush9029/cleanshotx/capture-area?arguments=%7B%22action%22%3A%22save%22%7D"
             ),
           },
           ["f"] = {
-            "find",
-            openUrl("raycast://extensions/raycast/file-search/search-files?fallbackText=cleanshot"),
+            alias = "find",
+            fn = openUrl("raycast://extensions/raycast/file-search/search-files?fallbackText=cleanshot"),
           },
         },
       },
     },
   },
   ["b"] = {
-    "browser",
-    {
-      ["b"] = { "bookmarks", openUrl("raycast://extensions/raycast/browser-bookmarks/index") },
-      ["c"] = { "copy tab title", chrome.CopyTabRichLink },
+    alias = "browser",
+    sub_mappings = {
+      ["b"] = { alias = "bookmarks", fn = openUrl("raycast://extensions/raycast/browser-bookmarks/index") },
+      ["c"] = { alias = "copy tab title", fn = chrome.CopyTabRichLink },
     },
   },
   ["w"] = {
-    "window",
-    {
-      ["t"] = { "tiles", aerospace({ "layout", "tiles", "vertical", "horizontal" }) },
-      ["s"] = { "stack", aerospace({ "layout", "accordion", "vertical", "horizontal" }) },
-      ["f"] = { "float", aerospace({ "layout", "floating", "tiling" }) },
-      ["r"] = { "reload", aerospace({ "reload-config" }) },
+    alias = "window",
+    sub_mappings = {
+      ["t"] = { alias = "tiles", fn = aerospace({ "layout", "tiles", "vertical", "horizontal" }) },
+      ["s"] = { alias = "stack", fn = aerospace({ "layout", "accordion", "vertical", "horizontal" }) },
+      ["f"] = { alias = "float", fn = aerospace({ "layout", "floating", "tiling" }) },
+      ["r"] = { alias = "reload", fn = aerospace({ "reload-config" }) },
       ["j"] = {
-        "join",
-        {
-          ["h"] = { "left", aerospace({ "join-with", "left" }) },
-          ["j"] = { "down", aerospace({ "join-with", "down" }) },
-          ["k"] = { "up", aerospace({ "join-with", "up" }) },
-          ["l"] = { "right", aerospace({ "join-with", "right" }) },
+        alias = "join",
+        sub_mappings = {
+          ["h"] = { alias = "left", fn = aerospace({ "join-with", "left" }) },
+          ["j"] = { alias = "down", fn = aerospace({ "join-with", "down" }) },
+          ["k"] = { alias = "up", fn = aerospace({ "join-with", "up" }) },
+          ["l"] = { alias = "right", fn = aerospace({ "join-with", "right" }) },
         },
       },
     },
   },
   ["o"] = {
-    "open",
-    {
-      -- ["f"] = { "finder", launchOrFocusApp("Finder") },
-      ["f"] = { "focus", openUrl("raycast://extensions/raycast/raycast-focus/start-focus-session") },
-      ["z"] = { "zoom", launchOrFocusApp("zoom.us") },
-      ["n"] = { "notes", launchOrFocusApp("Obsidian") },
+    alias = "open",
+    sub_mappings = {
+      -- ["f"] = { alias = "finder", fn = launchOrFocusApp("Finder") },
+      ["f"] = { alias = "focus", fn = openUrl("raycast://extensions/raycast/raycast-focus/start-focus-session") },
+      ["z"] = { alias = "zoom", fn = launchOrFocusApp("zoom.us") },
+      ["n"] = { alias = "notes", fn = launchOrFocusApp("Obsidian") },
     },
   },
 }
 
 local dbnl = {
   ["o"] = {
-    "open",
-    {
-      ["m"] = { "mail", chrome.LaunchOrFocusTab("https://mail.google.com") },
-      ["s"] = { "slack", launchOrFocusApp("Slack") },
-      ["c"] = { "calendar", chrome.LaunchOrFocusTab("https://calendar.google.com") },
+    alias = "open",
+    sub_mappings = {
+      ["m"] = { alias = "mail", fn = chrome.LaunchOrFocusTab("https://mail.google.com") },
+      ["s"] = { alias = "slack", fn = launchOrFocusApp("Slack") },
+      ["c"] = { alias = "calendar", fn = chrome.LaunchOrFocusTab("https://calendar.google.com") },
       ["t"] = {
-        "TODO",
-        openUrl(
+        alias = "TODO",
+        fn = openUrl(
           "raycast://extensions/raycast/raycast-notes/raycast-notes?context=%7B%22id%22:%22655B9E55-B0D4-43D8-A276-04BBB7B5C392%22%7D"
         ),
       },
     },
   },
   ["z"] = {
-    "zoom",
-    {
+    alias = "zoom",
+    sub_mappings = {
       ["j"] = {
-        "join",
-        function()
+        alias = "join",
+        fn = function()
           hs.eventtap.keyStroke({ "cmd", "ctrl", "alt", "cmd", "shift" }, "j")
         end,
       },
       ["c"] = {
-        "calendar",
-        function()
+        alias = "calendar",
+        fn = function()
           hs.eventtap.keyStroke({ "cmd", "alt", "ctrl" }, "c")
         end,
       },
     },
   },
   ["d"] = {
-    "dbnl",
-    {
-      ["r"] = { "repo", chrome.LaunchOrFocusTab("https://github.com/dbnlAI/dbnl-internal#") },
+    alias = "dbnl",
+    sub_mappings = {
+      ["r"] = { alias = "repo", fn = chrome.LaunchOrFocusTab("https://github.com/dbnlAI/dbnl-internal#") },
       ["s"] = {
-        "aws sso",
-        function()
+        alias = "aws sso",
+        fn = function()
           local task = hs.task.new("/usr/local/bin/aws", function(exitCode, _, _)
             if exitCode == 0 then
               hs.alert.show("AWS SSO Login Successful", {
@@ -240,31 +322,31 @@ local dbnl = {
         end,
       },
       ["o"] = {
-        "open+",
-        {
-          ["l"] = { "local", chrome.LaunchOrFocusTab("http://localhost:8080/") },
-          ["r"] = { "remote", chrome.LaunchOrFocusTab("https://app-shardul.dev.dbnl.com") },
-          ["d"] = { "dev", chrome.LaunchOrFocusTab("https://app.dev.dbnl.com") },
-          ["p"] = { "prod", chrome.LaunchOrFocusTab("https://app.dbnl.com") },
+        alias = "open+",
+        sub_mappings = {
+          ["l"] = { alias = "local", fn = chrome.LaunchOrFocusTab("http://localhost:8080/") },
+          ["r"] = { alias = "remote", fn = chrome.LaunchOrFocusTab("https://app-shardul.dev.dbnl.com") },
+          ["d"] = { alias = "dev", fn = chrome.LaunchOrFocusTab("https://app.dev.dbnl.com") },
+          ["p"] = { alias = "prod", fn = chrome.LaunchOrFocusTab("https://app.dbnl.com") },
         },
       },
     },
   },
   ["j"] = {
-    "jira",
-    {
-      ["o"] = { "open issues", openUrl("raycast://extensions/raycast/jira/open-issues") },
-      ["s"] = { "search", openUrl("raycast://extensions/raycast/jira/search-issues") },
+    alias = "jira",
+    sub_mappings = {
+      ["o"] = { alias = "open issues", fn = openUrl("raycast://extensions/raycast/jira/open-issues") },
+      ["s"] = { alias = "search", fn = openUrl("raycast://extensions/raycast/jira/search-issues") },
     },
   },
 }
 
 local personal = {
   ["o"] = {
-    "open",
-    {
-      ["m"] = { "mail", chrome.LaunchOrFocusTab("https://app.fastmail.com/mail/") },
-      ["c"] = { "calendar", launchOrFocusApp("Fantastical") },
+    alias = "open",
+    sub_mappings = {
+      ["m"] = { alias = "mail", fn = chrome.LaunchOrFocusTab("https://app.fastmail.com/mail/") },
+      ["c"] = { alias = "calendar", fn = launchOrFocusApp("Fantastical") },
     },
   },
 }
@@ -284,21 +366,27 @@ local function mergeMappings(base, extra)
       -- Key doesn't exist in result, simply copy it
       result[k] = v
     elseif type(result[k]) == "table" and type(v) == "table" then
-      if not (result[k][1] == v[1]) then
-        hs.showError("Conflict for key: " .. k)
+      -- Check for alias conflict
+      if result[k].alias ~= v.alias then
+        hs.showError("Alias conflict for key '" .. k .. "': '" .. result[k].alias .. "' vs '" .. v.alias .. "'")
       end
-      -- Both are tables with the same key format ([key] = {description, action})
-      if type(result[k][1]) == "string" and type(v[1]) == "string" then
-        -- If second element is a table in both, merge those tables recursively
-        if type(result[k][2]) == "table" and type(v[2]) == "table" then
-          result[k] = { result[k][1], mergeMappings(result[k][2], v[2]) }
-        else
-          -- Otherwise just use the extra value
-          result[k] = v
-        end
+
+      -- Check if both have sub_mappings (can be recursively merged)
+      if result[k].sub_mappings and v.sub_mappings then
+        -- Merge sub_mappings recursively
+        result[k] = {
+          alias = result[k].alias,
+          sub_mappings = mergeMappings(result[k].sub_mappings, v.sub_mappings),
+        }
+      elseif result[k].fn and v.fn then
+        -- Both have fn fields, prefer the extra one
+        result[k] = v
+      else
+        -- One has fn, one has sub_mappings, or some other conflict
+        hs.showError("Structure conflict for key '" .. k .. "'")
       end
     else
-      hs.showError("Conflict for key: " .. k)
+      hs.showError("Type conflict for key '" .. k .. "'")
     end
   end
 
@@ -308,15 +396,14 @@ end
 local function transform(t)
   local transformed = {}
   for keyChar, val in pairs(t) do
-    local name = val[1]
-    local childOrFn = val[2]
+    local name = val.alias
 
-    if type(childOrFn) == "table" then
+    if val.sub_mappings then
       -- Nested table => transform recursively
-      transformed[singleKey(keyChar, name)] = transform(childOrFn)
+      transformed[singleKey(keyChar, name)] = transform(val.sub_mappings)
     else
-      -- It's presumably a function or a Raycast openUrl
-      transformed[singleKey(keyChar, name)] = childOrFn
+      -- It's presumably a function (fn field)
+      transformed[singleKey(keyChar, name)] = val.fn
     end
   end
   return transformed

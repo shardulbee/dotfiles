@@ -51,7 +51,12 @@ require("lazy").setup({
     end,
   },
   "nvim-lua/plenary.nvim",
-  "ActivityWatch/aw-watcher-vim",
+  {
+    "ActivityWatch/aw-watcher-vim",
+    cond = function()
+      return vim.fn.hostname() == "dbnl-shardul"
+    end,
+  },
   {
     "zbirenbaum/copilot.lua",
     cond = function()
@@ -589,7 +594,7 @@ require("lazy").setup({
             settings = {
               Lua = {
                 diagnostics = {
-                  globals = { "vim", "hs" },
+                  globals = { "vim", "hs", "spoon" },
                 },
               },
             },

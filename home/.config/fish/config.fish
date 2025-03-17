@@ -75,14 +75,12 @@ if test (hostname) != "turbochardo"
     set -gx SECRETS_HOSTS "$HOME/Documents/secrets.hosts"
 end
 
-secrets activate | source
+secrets activate 2>/dev/null | source
 
 
 if status is-interactive
 set fish_greeting
 
-alias ls=eza
-alias lsfr=ls
 alias vi='nvim'
 alias vim='nvim'
 alias cat='bat --style=plain,numbers,grid'

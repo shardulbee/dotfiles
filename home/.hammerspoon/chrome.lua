@@ -3,7 +3,11 @@ local utf8 = require("utf8")
 Chrome = {}
 
 local CHROME_CLI_PATH = "/opt/homebrew/bin/chrome-cli"
-local CHROME_BUNDLE_IDENTIFIER = "com.brave.Browser"
+local hostname = hs.host.localizedName()
+print("hostname", hostname)
+local CHROME_BUNDLE_IDENTIFIER = string.find(hostname, "turbochardo", 1, true) and "com.google.Chrome"
+  or "com.brave.Browser"
+print("CHROME_BUNDLE_IDENTIFIER", CHROME_BUNDLE_IDENTIFIER)
 
 --------------------------------------------------------------------------------
 -- Helper: run a shell command via hs.task, collecting its output asynchronously.
@@ -116,7 +120,7 @@ end
 --------------------------------------------------------------------------------
 function Chrome.GetTabTitleAndUrl(callback)
   local frontApp = hs.application.frontmostApplication()
-  if frontApp:bundleID() ~= "com.google.Chrome" then
+  if frontApp:bundleID() ~= CHROME_BUNDLE_IDENTIFIER then
     if callback then
       callback(nil, nil, "Not in Chrome")
     end
@@ -176,7 +180,8 @@ function Chrome.LaunchOrFocusTab(tabURL)
         -- Otherwise open a new tab
         asyncReadCommandOutput({ "open", tabURL }, function() end)
       end
-      hs.application.launchOrFocus("Brave Browser")
+      local appName = string.find(hostname, "turbochardo", 1, true) and "Google Chrome" or "Brave Browser"
+      hs.application.launchOrFocus(appName)
     end)
   end
 end
