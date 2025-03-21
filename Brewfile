@@ -21,6 +21,9 @@ brew "direnv"
 brew "chrome-cli"
 brew "tmux"
 brew "age"
+brew "switchaudio-osx"
+brew "blueutil"
+cask "font-jetbrains-mono-nerd-font"
 cask "1password-cli"
 cask "1password"
 cask "aerospace"
@@ -70,11 +73,14 @@ else
   brew "xz"
 
   # Work-Only Casks
+  cask "activitywatch"
+  cask "cursor"
   cask "orbstack"
   cask "setapp"
   cask "google-cloud-sdk"
   cask "mimestream"
   cask "meetingbar"
   cask "slack"
+  cask "kitty"
 end
 

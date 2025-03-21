@@ -235,6 +235,7 @@ local common = {
   ["w"] = {
     alias = "window",
     sub_mappings = {
+      ["d"] = { alias = "disable", fn = aerospace({ "enable", "toggle" }) },
       ["t"] = { alias = "tiles", fn = aerospace({ "layout", "tiles", "vertical", "horizontal" }) },
       ["s"] = { alias = "stack", fn = aerospace({ "layout", "accordion", "vertical", "horizontal" }) },
       ["f"] = { alias = "float", fn = aerospace({ "layout", "floating", "tiling" }) },
@@ -335,6 +336,7 @@ local dbnl = {
   ["j"] = {
     alias = "jira",
     sub_mappings = {
+      ["c"] = { alias = "create issue", fn = openUrl("raycast://extensions/raycast/jira/create-issue") },
       ["o"] = { alias = "open issues", fn = openUrl("raycast://extensions/raycast/jira/open-issues") },
       ["s"] = { alias = "search", fn = openUrl("raycast://extensions/raycast/jira/search-issues") },
     },

@@ -18,7 +18,7 @@ fi
 
 # 2. Install all packages from Brewfile
 echo "Installing Homebrew packages..."
-brew bundle install
+brew bundle install --no-upgrade --cleanup
 
 # 3. Set macOS defaults
 

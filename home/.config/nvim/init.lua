@@ -1,5 +1,15 @@
 -- vim: set ts=2 sw=2
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+
+if vim.g.vscode then
+  -- set a keymap to run the ~/bin/cursor-to-kitty.sh script with the current file and line number in vscode
+  vim.keymap.set("n", "<leader><space>", function()
+    vim.fn.system("~/bin/cursor-to-kitty.sh " .. vim.fn.expand("%") .. " " .. vim.fn.line("."))
+  end, { desc = "Cursor to Kitty" })
+  vim.opt.clipboard = "unnamedplus" -- use the system clipboard
+  return
+end
+
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
     "git",
@@ -220,7 +230,6 @@ require("lazy").setup({
           ["--prompt"] = "> ",
           ["--info"] = "hidden", -- Display style of finder info (num matches, etc)
           ["--layout"] = "reverse", -- Display from top of screen
-          -- ["--tmux"] = "center,80%,border-native",
           ["--tmux"] = "center,80%",
         },
         grep = {
@@ -262,11 +271,8 @@ require("lazy").setup({
         git = {
           branches = {
             cmd_add = { "git", "checkout", "-b" },
-            -- cmd_delete = { "git", "branch", "--delete", "--force" },
             actions = {
               ["ctrl-r"] = function(selected, _)
-                -- get the fork point by passing the selected branch into git merge-base --fork-point {selected} HEAD
-                -- then call git rebase -i {fork-point} --onto {selected}
                 local fork_point = vim.fn.systemlist("git merge-base --fork-point " .. selected[1] .. " HEAD")[1]
                 if not fork_point then
                   vim.notify("No fork point found", vim.log.levels.ERROR)
@@ -332,15 +338,6 @@ require("lazy").setup({
       vim.keymap.set("n", "<leader>gl", function()
         require("fzf-lua").git_commits({
           actions = {
-            -- ["default"] = function(selected)
-            -- 	-- Default behavior remains the same
-            -- 	require("fzf-lua").actions.git_checkout(selected)
-            -- end,
-            -- cant use ctrl-f because it conflicts with tmux bind
-            -- ["ctrl-f"] = function(selected)
-            -- 	local commit_hash = selected[1]:match("(%S+)")
-            -- 	vim.cmd("Git commit --fixup=" .. commit_hash)
-            -- end,
             ["ctrl-r"] = function(selected)
               local commit_hash = selected[1]:match("(%S+)")
               vim.cmd("Git rebase -i " .. commit_hash)
@@ -874,3 +871,9 @@ end, { silent = true, noremap = true })
 
 vim.keymap.set("n", "]t", "<cmd>tabnext<cr>", { silent = true, noremap = true })
 vim.keymap.set("n", "[t", "<cmd>tabprevious<cr>", { silent = true, noremap = true })
+
+vim.keymap.set("n", "<leader><space>", function()
+  local file = vim.fn.shellescape(vim.fn.expand("%:p"))
+  local line = vim.fn.line(".")
+  vim.cmd(string.format("silent !cursor -g %s:%s", file, line))
+end, { desc = "Open file in Cursor" })

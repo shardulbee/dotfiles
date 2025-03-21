@@ -1,0 +1,35 @@
+{
+  "window.commandCenter": 1,
+  "workbench.colorTheme": "Gruvbox Dark Hard",
+  "files.autoSave": "afterDelay",
+  "window.confirmSaveUntitledWorkspace": false,
+  "vim.useSystemClipboard": true,
+  "editor.fontFamily": "JetBrains Mono",
+  "editor.codeLensFontFamily": "JetBrains Mono",
+  "editor.inlayHints.fontFamily": "JetBrains Mono",
+  "explorer.confirmDelete": false,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
+  }
+}

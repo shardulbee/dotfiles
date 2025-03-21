@@ -1,0 +1,20 @@
+// Place your key bindings in this file to override the defaults
+[
+    {
+        "key": "] d",
+        "command": "editor.action.marker.next",
+        "when": "editorTextFocus && vim.mode == 'Normal'"
+    },
+    {
+        "key": "[ d",
+        "command": "editor.action.marker.prev",
+        "when": "editorTextFocus && vim.mode == 'Normal'"
+    },
+    {
+        "key": "cmd+shift+v",
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "~/bin/cursor-to-kitty.sh ${file} ${lineNumber}\n"
+        }
+    }
+]
