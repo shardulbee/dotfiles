@@ -1,0 +1,18 @@
+font-size = 14
+scrollback-limit = 1000000000
+font-family = Berkeley Mono Trial
+window-title-font-family = Berkeley Mono Trial
+shell-integration = fish
+confirm-close-surface = false
+window-save-state = always
+
+keybind = alt+shift+left=resize_split:left,10
+keybind = alt+shift+right=resize_split:right,10
+keybind = alt+shift+down=resize_split:down,10
+keybind = alt+shift+up=resize_split:up,10
+
+keybind = cmd+shift+j=write_scrollback_file:open
+keybind = shift+enter=text:\n
+
+keybind = cmd+page_up=scroll_page_fractional:-0.5
+keybind = cmd+page_down=scroll_page_fractional:0.5

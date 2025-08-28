@@ -1,0 +1,54 @@
+[
+  {
+    "context": "Terminal",
+    "bindings": {
+      "ctrl-w h": "workspace::ActivatePaneLeft",
+      "ctrl-w l": "workspace::ActivatePaneRight",
+      "ctrl-w k": "workspace::ActivatePaneUp",
+      "ctrl-w j": "workspace::ActivatePaneDown"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "\\ t l": "task::Rerun",
+      "\\ g s": [
+        "task::Spawn",
+        { "task_name": "Open jjui", "reveal_target": "center" }
+      ],
+      "cmd-alt-g": [
+        "agent::NewExternalAgentThread",
+        {
+          "agent": "gemini"
+        }
+      ],
+      "\\ c": [
+        "agent::NewExternalAgentThread",
+        {
+          "agent": "claude_code"
+        }
+      ]
+    }
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "cmd-k": null,
+      "cmd-t": "workspace::NewTerminal"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "cmd-1": ["pane::ActivateItem", 0],
+      "cmd-2": ["pane::ActivateItem", 1],
+      "cmd-3": ["pane::ActivateItem", 2],
+      "cmd-4": ["pane::ActivateItem", 3],
+      "cmd-5": ["pane::ActivateItem", 4],
+      "cmd-6": ["pane::ActivateItem", 5],
+      "cmd-7": ["pane::ActivateItem", 6],
+      "cmd-8": ["pane::ActivateItem", 7],
+      "cmd-9": ["pane::ActivateItem", 8]
+    }
+  }
+]

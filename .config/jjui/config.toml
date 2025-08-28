@@ -1,0 +1,81 @@
+# jjui configuration for Gruvbox Dark Hard theme
+#
+[custom_commands]
+"new changeset after" = { key = [
+    "ctrl+a",
+], args = [
+    "new",
+    "-A",
+    "$change_id",
+    "--no-edit",
+] }
+
+
+# [ui.colors]
+# # Fix the selected/highlighted commit background
+# [ui.colors.selected]
+# fg = "#1d2021"  # Gruvbox bg0_h (dark background)
+# bg = "#fabd2f"  # Gruvbox yellow for visibility
+# bold = true
+#
+# # Normal text
+# [ui.colors.text]
+# fg = "#ebdbb2"  # Gruvbox fg0
+# bg = ""
+#
+# # Dimmed text
+# [ui.colors.dimmed]
+# fg = "#928374"  # Gruvbox gray
+# bg = ""
+#
+# # Border color
+# [ui.colors.border]
+# fg = "#504945"  # Gruvbox bg2
+# bg = ""
+#
+# # Menu selected items
+# [ui.colors.menu_selected]
+# fg = "#1d2021"  # Gruvbox bg0_h
+# bg = "#83a598"  # Gruvbox blue
+# bold = true
+#
+#
+# # Success messages
+# [ui.colors.success]
+# fg = "#b8bb26"  # Gruvbox bright green
+# bg = ""
+# bold = true
+#
+# # Error messages
+# [ui.colors.error]
+# fg = "#fb4934"  # Gruvbox bright red
+# bg = ""
+# bold = true
+#
+# # Title
+# [ui.colors.title]
+# fg = "#fabd2f"  # Gruvbox bright yellow
+# bg = ""
+# bold = true
+
+[ui]
+auto_refresh_interval = 1
+
+[leader.r]
+help = "Rebase"
+
+[leader.rm]
+help = "Rebase main"
+send = [":", "rebase -b @ -d main@origin", "enter"]
+
+[leader.nn]
+help = "New change"
+send = [":", "new --no-edit", "enter", "enter"]
+
+[leader.na]
+help = "After"
+send = [":", "new -A $change_id --no-edit", "enter"]
+
+[leader.nb]
+help = "Before"
+send = [":", "new -B $change_id --no-edit", "enter"]

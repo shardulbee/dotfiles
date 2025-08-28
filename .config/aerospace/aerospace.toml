@@ -1,0 +1,108 @@
+start-at-login = true
+accordion-padding = 0
+default-root-container-layout = 'tiles'
+key-mapping.preset = 'qwerty'
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+on-focus-changed = ['move-mouse window-lazy-center']
+
+
+[gaps]
+inner.horizontal = 5
+inner.vertical = 5
+outer.left = 5
+outer.bottom = 5
+outer.top = 5
+outer.right = 5
+
+[mode.main.binding]
+alt-h = 'focus left --boundaries all-monitors-outer-frame --boundaries-action wrap-around-all-monitors'
+alt-j = 'focus down --boundaries all-monitors-outer-frame --boundaries-action wrap-around-all-monitors'
+alt-k = 'focus up --boundaries all-monitors-outer-frame --boundaries-action wrap-around-all-monitors'
+alt-l = 'focus right --boundaries all-monitors-outer-frame --boundaries-action wrap-around-all-monitors'
+cmd-ctrl-l = 'focus-monitor right'
+cmd-ctrl-h = 'focus-monitor left'
+cmd-ctrl-right = 'focus-monitor right'
+cmd-ctrl-left = 'focus-monitor left'
+
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+
+alt-shift-space = 'move-node-to-monitor next --wrap-around'
+
+alt-shift-minus = 'resize smart -50'
+alt-shift-equal = 'resize smart +50'
+
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
+alt-0 = 'workspace Z'
+
+
+alt-shift-1 = 'move-node-to-workspace 1'
+alt-shift-2 = 'move-node-to-workspace 2'
+alt-shift-3 = 'move-node-to-workspace 3'
+alt-shift-4 = 'move-node-to-workspace 4'
+alt-shift-5 = 'move-node-to-workspace 5'
+alt-shift-6 = 'move-node-to-workspace 6'
+alt-shift-7 = 'move-node-to-workspace 7'
+alt-shift-8 = 'move-node-to-workspace 8'
+alt-shift-9 = 'move-node-to-workspace 9'
+alt-shift-0 = 'move-node-to-workspace Z'
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Zed'
+run = ['move-node-to-workspace 1']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Cursor'
+run = ['move-node-to-workspace 2']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Kitty'
+run = ['move-node-to-workspace Z']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Google Chrome'
+if.window-title-regex-substring = 'Shardul \(Personal\)'
+run = ['move-node-to-workspace 4']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Google Chrome'
+if.window-title-regex-substring = 'Shardul \(Work\)'
+run = ['move-node-to-workspace 3']
+
+[[on-window-detected]]
+if.app-name-regex-substring = "Slack"
+run = ['move-node-to-workspace 7']
+
+[[on-window-detected]]
+if.app-name-regex-substring = "Messages"
+run = ['move-node-to-workspace 8']
+
+[[on-window-detected]]
+if.app-name-regex-substring = "WhatsApp"
+run = ['move-node-to-workspace 8']
+
+[[on-window-detected]]
+if.app-name-regex-substring = "Anki"
+run = ['move-node-to-workspace 9']
+
+[[on-window-detected]]
+if.app-name-regex-substring = "Obsidian"
+run = ['move-node-to-workspace 9']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Dash'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.app-id = "com.mitchellh.ghostty"
+run = ["layout tiling", "move-node-to-workspace Z"]

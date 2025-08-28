@@ -1,0 +1,66 @@
+*
+!.gitignore
+
+!.claude/
+!.claude/CLAUDE.md
+!.claude/commands/
+!.claude/commands/**
+
+!.hammerspoon/
+!.hammerspoon/**
+
+!.hushlogin
+
+!.ssh/
+!.ssh/config
+
+!.config/
+
+!.config/aerospace/
+!.config/aerospace/**
+
+!.config/amp/
+!.config/amp/**
+
+!.config/atuin/
+!.config/atuin/**
+
+!.config/fish/
+!.config/fish/**
+.config/fish/fish_variables
+.config/fish/completions
+
+!.config/ghostty/
+!.config/ghostty/**
+
+!.config/git/
+!.config/git/**
+
+!.config/jj/
+!.config/jj/**
+
+!.config/jjui/
+!.config/jjui/**
+
+!.config/karabiner/
+!.config/karabiner/**
+
+!.config/mise/
+!.config/mise/**
+
+!.config/nvim/
+!.config/nvim/**
+
+!.config/tmux/
+!.config/tmux/**
+
+!.config/zed/
+!.config/zed/**
+.config/zed/prompts/*
+
+!Library/
+!Library/Application\ Support/
+!Library/Application\ Support/Cursor/
+!Library/Application\ Support/Cursor/User/
+!Library/Application\ Support/Cursor/User/settings.json
+!Library/Application\ Support/Cursor/User/keybindings.json
