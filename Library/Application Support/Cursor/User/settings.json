@@ -1,8 +1,7 @@
 {
-  // Editor and UI settings
-  "editor.fontFamily": "JetBrains Mono",
-  "editor.codeLensFontFamily": "JetBrains Mono",
-  "editor.inlayHints.fontFamily": "JetBrains Mono",
+  "editor.fontFamily": "Berkeley Mono Trial",
+  "editor.codeLensFontFamily": "Berkeley Mono Trial",
+  "editor.inlayHints.fontFamily": "Berkeley Mono Trial",
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit"
@@ -11,10 +10,8 @@
   "editor.minimap.enabled": false,
   "editor.accessibilitySupport": "off",
   "breadcrumbs.enabled": false,
-  // File and workspace behavior
   "explorer.confirmDelete": false,
   "window.commandCenter": true,
-  // Language-specific settings
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true
@@ -40,9 +37,7 @@
   },
   "zig.zls.path": "/opt/homebrew/bin/zls",
   "zig.zls.enabled": "on",
-  // Git settings
   "git.openRepositoryInParentFolders": "always",
-  // Cursor-specific settings
   "cursor.composer.collapsePaneInputBoxPills": true,
   "update.releaseTrack": "prerelease",
   "workbench.editor.editorActionsLocation": "titleBar",
@@ -85,10 +80,7 @@
   },
   "amp.experimental.fuzzySearch.enabled": true,
   "amp.tab.enabled": false,
-  "amp.commands.allowlist": [
-    "bin/rails",
-    "mise"
-  ],
+  "amp.commands.allowlist": ["bin/rails", "mise"],
   "terminal.integrated.defaultProfile.linux": "",
   "amp.dangerouslyAllowAll": true,
   "terminal.external.osxExec": "Ghostty.app",
@@ -97,11 +89,7 @@
   "amp.mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp@latest",
-        "--isolated",
-      ]
+      "args": ["-y", "@playwright/mcp@latest", "--isolated"]
     }
   },
   "amp.permissions": [
@@ -120,6 +108,11 @@
       "action": "allow"
     }
   ],
-  "workbench.colorTheme": "Gruvbox Dark Hard",
-  "extensions.ignoreRecommendations": true
+  "workbench.colorTheme": "One Dark Pro",
+  "extensions.ignoreRecommendations": true,
+  "editor.inlineSuggest.fontFamily": "Berkeley Mono Trial",
+  "debug.console.fontFamily": "Berkeley Mono Trial",
+  "scm.inputFontFamily": "Berkeley Mono Trial",
+  "terminal.integrated.fontFamily": "Berkeley Mono Trial",
+  "markdown.preview.fontFamily": "-apple-system, Berkeley Mono Trial, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif"
 }
