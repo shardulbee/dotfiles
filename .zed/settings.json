@@ -1,0 +1,7 @@
+{
+  "languages": {
+    "Lua": {
+      "enable_language_server": false
+    }
+  }
+}

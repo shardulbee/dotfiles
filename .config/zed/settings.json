@@ -64,8 +64,8 @@
   "buffer_font_family": "Berkeley Mono Trial",
   "theme": {
     "mode": "system",
-    "light": "One Light",
-    "dark": "One Dark"
+    "light": "Gruvbox Light Hard",
+    "dark": "Gruvbox Dark Hard"
   },
   "preview_tabs": {
     "enable_preview_from_code_navigation": true,

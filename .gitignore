@@ -26,9 +26,7 @@
 !.config/atuin/**
 
 !.config/fish/
-!.config/fish/**
-.config/fish/fish_variables
-.config/fish/completions
+!.config/fish/config.fish
 
 !.config/ghostty/
 !.config/ghostty/**
@@ -43,7 +41,7 @@
 !.config/jjui/**
 
 !.config/karabiner/
-!.config/karabiner/**
+!.config/karabiner/karabiner.json
 
 !.config/mise/
 !.config/mise/**
@@ -55,8 +53,9 @@
 !.config/tmux/**
 
 !.config/zed/
-!.config/zed/**
-.config/zed/prompts/*
+!.config/zed/keymap.json
+!.config/zed/settings.json
+!.config/zed/tasks.json
 
 !Library/
 !Library/Application\ Support/
@@ -64,3 +63,9 @@
 !Library/Application\ Support/Cursor/User/
 !Library/Application\ Support/Cursor/User/settings.json
 !Library/Application\ Support/Cursor/User/keybindings.json
+
+!bin/
+!bin/golink.rb
+
+!.zed/
+!.zed/settings.json

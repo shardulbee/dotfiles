@@ -50,5 +50,11 @@
       "cmd-8": ["pane::ActivateItem", 7],
       "cmd-9": ["pane::ActivateItem", 8]
     }
+  },
+  {
+    "context": "(VimControl && !menu)",
+    "bindings": {
+      "\\ g b": "editor::OpenPermalinkToLine"
+    }
   }
 ]

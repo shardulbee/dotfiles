@@ -5,6 +5,7 @@ window-title-font-family = Berkeley Mono Trial
 shell-integration = fish
 confirm-close-surface = false
 window-save-state = always
+theme = light:GruvboxLightHard,dark:GruvboxDarkHard
 
 keybind = alt+shift+left=resize_split:left,10
 keybind = alt+shift+right=resize_split:right,10

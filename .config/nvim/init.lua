@@ -1,5 +1,4 @@
 -- vim: set ts=2 sw=2
----@diagnostic disable: undefined-global
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -19,15 +18,30 @@ vim.g.python3_host_prog = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
 
 require("lazy").setup({
 	{
-		"itchyny/lightline.vim",
+		"ellisonleao/gruvbox.nvim",
+		priority = 1000,
+		config = true,
+		opts = {
+			contrast = "hard",
+		},
 		init = function()
-			vim.g.lightline = {
-				colorscheme = "onehalfdark",
-				active = {
-					right = { { "lineinfo" }, { "percent" }, { "filetype" } },
-				},
-			}
+			vim.cmd("colorscheme gruvbox")
 		end,
+	},
+	{
+		"nvim-lualine/lualine.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		config = true,
+		opts = {
+			sections = {
+				lualine_a = { "mode" },
+				lualine_b = { "diff", "diagnostics" },
+				lualine_c = { "filename" },
+				lualine_x = { "filetype" },
+				lualine_y = { "progress" },
+				lualine_z = { "location" },
+			},
+		},
 	},
 	{
 		"supermaven-inc/supermaven-nvim",
@@ -70,13 +84,6 @@ require("lazy").setup({
 				},
 				oldfiles = {
 					cwd_only = true,
-				},
-				files = {
-					fd_opts = "--color=never --type f --hidden --exclude .git --no-require-git",
-				},
-				grep = {
-					rg_opts = "--no-require-git --column --line-number --no-heading --color=always --smart-case "
-						.. "--max-columns=4096 -e",
 				},
 			})
 
@@ -252,6 +259,9 @@ require("lazy").setup({
 				on_init = function(client)
 					if client.workspace_folders then
 						local path = client.workspace_folders[1].name
+						if path == "/Users/shardul" then
+							return
+						end
 						if
 							path ~= vim.fn.stdpath("config")
 							and (vim.loop.fs_stat(path .. "/.luarc.json") or vim.loop.fs_stat(path .. "/.luarc.jsonc"))
@@ -373,5 +383,3 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 	pattern = { "*" },
 	command = [[%s/\s\+$//e]],
 })
-
-vim.cmd("colorscheme onehalfdark")
