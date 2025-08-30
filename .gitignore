@@ -68,8 +68,10 @@
 
 !bin/
 !bin/golink.rb
+!bin/telegram-notify
 
 !.zed/
 !.zed/settings.json
 
 !install
+!.stylua.toml
