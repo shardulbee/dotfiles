@@ -8,7 +8,7 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
   "project_panel": {
-    "hide_gitignore": true
+    "hide_gitignore": false
   },
   "ssh_connections": [
     {

@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -e
+
+DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+EXCLUDE=(
+    symlink-dotfiles.sh
+    README.md
+    LICENSE
+    .gitignore
+    .config/karabiner/karabiner.json
+)
+
+DIRECTORY_SYMLINKS=(
+    .config/karabiner
+)
+
+cd "$DOTFILES_DIR"
+
+for dir in "${DIRECTORY_SYMLINKS[@]}"; do
+    [ -d "$dir" ] && ln -sfn "$DOTFILES_DIR/$dir" "$HOME/$dir"
+    echo "Linked $dir"
+done
+
+git ls-files | while read -r file; do
+    skip=false
+    for excl in "${EXCLUDE[@]}"; do
+        [[ "$file" == "$excl" || "$file" == "$excl/"* ]] && skip=true && break
+    done
+    $skip && echo "Skipping $file" && continue
+
+    mkdir -p "$HOME/$(dirname "$file")"
+    ln -sfn "$DOTFILES_DIR/$file" "$HOME/$file"
+    echo "Linked $file"
+done

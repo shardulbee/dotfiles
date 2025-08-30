@@ -70,4 +70,4 @@
 !.zed/
 !.zed/settings.json
 
-!symlink-dotfiles.sh
+!install

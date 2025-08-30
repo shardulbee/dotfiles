@@ -1,4 +1,5 @@
 -- vim: set ts=2 sw=2
+---@diagnostic disable: undefined-global
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -27,6 +28,17 @@ require("lazy").setup({
 		init = function()
 			vim.cmd("colorscheme gruvbox")
 		end,
+	},
+	{
+		"stevearc/oil.nvim",
+		---@module 'oil'
+		---@type oil.SetupOpts
+		opts = {},
+		-- Optional dependencies
+		dependencies = { { "echasnovski/mini.icons", opts = {} } },
+		-- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
+		-- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+		lazy = false,
 	},
 	{
 		"nvim-lualine/lualine.nvim",
