@@ -19,6 +19,22 @@ vim.g.python3_host_prog = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
 
 require("lazy").setup({
 	{
+		"greggh/claude-code.nvim",
+		dependencies = {
+			"nvim-lua/plenary.nvim", -- Required for git operations
+		},
+		opts = {
+			command = "/Users/shardul/.claude/local/claude --dangerously-skip-permissions",
+		},
+		config = true,
+	},
+	{
+		"cormacrelf/dark-notify",
+		config = function()
+			require("dark_notify").run()
+		end,
+	},
+	{
 		"ellisonleao/gruvbox.nvim",
 		priority = 1000,
 		config = true,
@@ -31,13 +47,8 @@ require("lazy").setup({
 	},
 	{
 		"stevearc/oil.nvim",
-		---@module 'oil'
-		---@type oil.SetupOpts
 		opts = {},
-		-- Optional dependencies
 		dependencies = { { "echasnovski/mini.icons", opts = {} } },
-		-- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
-		-- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
 		lazy = false,
 	},
 	{
@@ -388,6 +399,12 @@ vim.opt.termguicolors = true
 vim.opt.title = true
 vim.opt.titlestring = "%{fnamemodify(getcwd(), ':t')}"
 vim.opt.tags = "./tags,./.tags"
+
+-- Pane navigation with Ctrl+hjkl
+vim.keymap.set("n", "<C-h>", "<C-w>h", { noremap = true, silent = true, desc = "Move to left pane" })
+vim.keymap.set("n", "<C-j>", "<C-w>j", { noremap = true, silent = true, desc = "Move to pane below" })
+vim.keymap.set("n", "<C-k>", "<C-w>k", { noremap = true, silent = true, desc = "Move to pane above" })
+vim.keymap.set("n", "<C-l>", "<C-w>l", { noremap = true, silent = true, desc = "Move to right pane" })
 
 vim.api.nvim_create_augroup("TRIM_WHITESPACE", { clear = true })
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
