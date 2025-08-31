@@ -1,6 +1,6 @@
 # Generate Commit and Push
 
-Create commit(s) with appropriate messages and push changes using jj workflow.
+Create a commit with an appropriate message and push changes using jj workflow.
 
 ## Usage
 
@@ -16,8 +16,8 @@ Create commit(s) with appropriate messages and push changes using jj workflow.
 ## Workflow Overview
 
 1. Check if @ is empty → Exit if no changes
-2. Analyze all changes → Decide single vs multiple commits
-3. Create commit(s) → Use appropriate jj commands
+2. Analyze all changes → Generate commit message
+3. Create commit → Use appropriate jj command
 4. Execute mode → new/tug/main specific behavior
 5. Push changes → Verify success
 
@@ -53,62 +53,29 @@ jj log --no-pager -r  "@ | ancestors(@, 10)" --no-graph -T 'separate(" | ",
 
 ### 3. Analyze Changes
 
-**CRITICAL**: Determine if changes should be split into multiple commits.
-
 **Run these analysis commands IN PARALLEL**:
 ```bash
-# PARALLEL EXECUTION - Run simultaneously for faster analysis:
+# PARALLEL EXECUTION - Run simultaneously for comprehensive analysis:
 # 1. See which files are modified
 jj status --no-pager
 
-# 2. Analyze ALL modified files shown in jj status output IN PARALLEL
+# 2. Read ALL modified files shown in jj status output IN PARALLEL
 # For each file path shown in jj status, run: jj diff <filepath>
 ```
 
-**Commit Splitting Decision Tree**:
+**IMPORTANT**: Read every modified file's diff in parallel to understand the full scope of changes. This will help generate an accurate and comprehensive commit message.
 
-Split into multiple commits when:
-- ✓ Changes affect different subsystems (e.g., Neovim config + unrelated shell scripts)
-- ✓ Changes have different purposes (bug fix + new feature)
-- ✓ Files are in different top-level directories and serve different functions
-- ✓ Changes could be reverted independently without breaking functionality
+### 4. Creating the Commit
 
-Keep in single commit when:
-- ✓ All changes are required for a single feature to work
-- ✓ All changes are configuration updates for the same tool
-- ✓ Changes fix a single issue across multiple files
-- ✓ Reverting any part would break the intended functionality
+After analyzing all changes, create a single commit with a well-crafted message:
 
-### 4. Creating Commits
-
-#### Multiple Commits (PREFERRED when changes are unrelated)
-
-For each logical group of changes:
-1. Create a new changeset: `jj new -B @ -m 'descriptive message' --no-edit`
-2. Squash relevant files into it: `jj squash --from @ --to @- file1 file2 ...`
-3. Repeat until the working changeset (@) is empty
-
-Example workflow:
 ```bash
-# Starting with mixed changes in working copy
-jj new -B @ -m 'Add neo-tree with jj support to Neovim' --no-edit
-jj squash --from @ --to @- .config/nvim/init.lua
-
-jj new -B @ -m 'Update aerospace workspace configuration' --no-edit
-jj squash --from @ --to @- .config/aerospace/aerospace.toml
-
-jj new -B @ -m 'Add new utility scripts' --no-edit
-jj squash --from @ --to @- bin/new-script bin/another-script
+jj commit -m "<your generated message>"
 ```
-
-#### Single Commit (ONLY when all changes are related)
-
-Only create a single commit when ALL changes are semantically related and belong together.
-Example: `jj commit -m "Add new keybindings to Ghostty config"`
 
 ### 5. Execute Mode-Specific Workflow
 
-After creating commit(s), execute the appropriate mode:
+After creating the commit, execute the appropriate mode:
 
 a) **Mode: new** (Push as anonymous branch):
    ```bash
@@ -136,13 +103,35 @@ d) **Mode: main** (Advance main):
 
 ## Commit Message Guidelines
 
-- Format: `<verb> <what changed>` (e.g., "Add jj support to neo-tree")
-- Use imperative mood: "Add", "Fix", "Update" (not "Added", "Fixed")
-- Max 72 chars first line
-- Be specific: "Add jj integration to neo-tree plugin" not "Update Neovim config"
-- For multi-file commits: Mention the primary change, not every file
-- If fixing an issue: Include "Fix: " prefix
-- Follow project conventions
+**CRITICAL: DO NOT USE SEMANTIC COMMIT FORMAT**
+- No prefixes like "feat:", "fix:", "chore:", etc.
+- Write natural, descriptive messages
+
+### Format
+- First line: Max 72 characters, summary of changes
+- If needed: Blank line, then more details in subsequent lines
+- Keep additional lines terse but informative
+- Focus on what changed and why, not how
+
+### Examples of Good Messages
+```
+Update Ghostty config with new keybindings and color scheme
+
+Reorganize Neovim plugin configuration for better performance
+- Lazy load heavy plugins
+- Optimize startup sequence
+- Remove unused configurations
+
+Fix shell completion issues in fish config
+```
+
+### Examples to Avoid
+```
+feat: add new feature     ❌ (semantic commit)
+Updated files             ❌ (too vague)
+Changes                   ❌ (meaningless)
+fix: bug                  ❌ (semantic commit + vague)
+```
 
 ## Error Handling
 

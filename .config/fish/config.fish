@@ -1,7 +1,7 @@
 # vim: ts=2 sw=2 et
 fish_add_path $HOME/bin $HOME/.local/bin /run/current-system/sw/bin /etc/profiles/per-user/$USER/bin /opt/homebrew/bin
 
-set -gx EDITOR 'nvim'
+set -gx EDITOR nvim
 set -gx SECRETS_PATH "$HOME/gdrive"
 set -gx FZF_DEFAULT_CMD "fd -tf --hidden --exclude '.git' --no-require-git"
 set -gx FZF_CTRL_T_COMMAND "$FZF_DEFAULT_CMD"
@@ -13,22 +13,29 @@ command -q secrets; and secrets activate fish | source
 command -q atuin; and atuin init fish --disable-up-arrow | source
 command -q zoxide; and zoxide init fish | source
 command -q orb; and source ~/.orbstack/shell/init2.fish 2>/dev/null
-if test -d "/Users/shardul/Library/pnpm"
-    set -gx PNPM_HOME "/Users/shardul/Library/pnpm"
+if test -d /Users/shardul/Library/pnpm
+    set -gx PNPM_HOME /Users/shardul/Library/pnpm
     if not string match -q -- $PNPM_HOME $PATH
         set -gx PATH "$PNPM_HOME" $PATH
     end
 end
 
-
 if status is-interactive
     set fish_greeting
+    bind \cf 'zi; commandline --function repaint'
 
-    alias vi='nvim'
-    alias vim='nvim'
-    alias rm='trash'
-    alias rmfrfr='rm'
-    alias cm=chezmoi
+    function vi -w nvim
+        nvim
+    end
+    function vim -w nvim
+        nvim
+    end
+    function rm -w trash
+        trash
+    end
+    function rmfrfr -w rm
+        rm
+    end
 
     function select_changeset
         set -l changesets (jj log -r 'all()' --no-graph --no-pager --color=always -T 'builtin_log_oneline' -n100 | fzf --reverse --ansi --accept-nth=1 --prompt="Select changeset: ")
@@ -52,7 +59,7 @@ if status is-interactive
             return 1
         end
 
-        claude -p "/genpr $base_id $head_id"
+        claude -p "/genpr $base $head"
     end
 
     function claude

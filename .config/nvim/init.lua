@@ -19,14 +19,31 @@ vim.g.python3_host_prog = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
 
 require("lazy").setup({
   {
-    "greggh/claude-code.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim", -- Required for git operations
-    },
-    opts = {
-      command = "/Users/shardul/.claude/local/claude --dangerously-skip-permissions",
-    },
+    "coder/claudecode.nvim",
+    dependencies = { "folke/snacks.nvim" },
     config = true,
+    opts = {
+      terminal_cmd = "~/.claude/local/claude --dangerously-skip-permissions",
+    },
+    keys = {
+      { "<leader>a", nil, desc = "AI/Claude Code" },
+      { "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude" },
+      { "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
+      { "<leader>ar", "<cmd>ClaudeCode --resume<cr>", desc = "Resume Claude" },
+      { "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
+      { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
+      { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
+      { "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Send to Claude" },
+      {
+        "<leader>as",
+        "<cmd>ClaudeCodeTreeAdd<cr>",
+        desc = "Add file",
+        ft = { "NvimTree", "neo-tree", "oil", "minifiles" },
+      },
+      -- Diff management
+      { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
+      { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
+    },
   },
   {
     "cormacrelf/dark-notify",
@@ -59,13 +76,14 @@ require("lazy").setup({
       sections = {
         lualine_a = { "mode" },
         lualine_b = { "diff", "diagnostics" },
-        lualine_c = { "filename" },
+        lualine_c = { { "filename", path = 1 } },
         lualine_x = { "filetype" },
         lualine_y = { "progress" },
         lualine_z = { "location" },
       },
     },
   },
+
   {
     "supermaven-inc/supermaven-nvim",
     opts = {
@@ -233,8 +251,12 @@ require("lazy").setup({
       },
       incremental_selection = {
         enable = true,
-        -- keymaps = {
-        -- },
+        keymaps = {
+          init_selection = "<space>", -- maps in normal mode to init the node/scope selection with space
+          node_incremental = "<space>", -- increment to the upper named parent
+          node_decremental = "<bs>", -- decrement to the previous node
+          scope_incremental = "<tab>", -- increment to the upper scope (as defined in locals.scm)
+        },
       },
     },
     main = "nvim-treesitter.configs",
