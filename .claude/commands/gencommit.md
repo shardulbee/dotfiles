@@ -67,10 +67,15 @@ jj status --no-pager
 
 ### 4. Creating the Commit
 
-After analyzing all changes, create a single commit with a well-crafted message:
+After analyzing all changes, create a single commit with a well-crafted message that ALWAYS includes:
+1. A concise first line (max 72 chars)
+2. A blank line
+3. A detailed summary of ALL changes
 
 ```bash
-jj commit -m "<your generated message>"
+jj commit -m "<first line summary>
+
+<detailed multi-line summary of all changes>"
 ```
 
 ### 5. Execute Mode-Specific Workflow
@@ -108,29 +113,44 @@ d) **Mode: main** (Advance main):
 - Write natural, descriptive messages
 
 ### Format
-- First line: Max 72 characters, summary of changes
-- If needed: Blank line, then more details in subsequent lines
-- Keep additional lines terse but informative
+**REQUIRED STRUCTURE:**
+- First line: Max 72 characters, concise summary of changes
+- **MANDATORY**: Blank line after first line
+- **MANDATORY**: Detailed bullet points of ALL changes made
+- Keep additional lines informative but concise
 - Focus on what changed and why, not how
+
+Every commit MUST have both a summary line AND detailed description, even for simple changes.
 
 ### Examples of Good Messages
 ```
 Update Ghostty config with new keybindings and color scheme
 
+- Switch from light/dark theme toggle to GruvboxDarkHard
+- Add cmd+z and cmd+enter for toggling split zoom
+- Configure page scrolling with cmd+page_up/down
+
 Reorganize Neovim plugin configuration for better performance
-- Lazy load heavy plugins
-- Optimize startup sequence
-- Remove unused configurations
+
+- Lazy load heavy plugins to reduce startup time
+- Optimize startup sequence by deferring non-essential plugins
+- Remove unused configurations and deprecated settings
+- Update treesitter incremental selection keymaps
 
 Fix shell completion issues in fish config
+
+- Convert aliases to proper function definitions
+- Add explicit wrapping for vi, vim, rm commands
+- Fix PATH ordering for homebrew and system binaries
 ```
 
 ### Examples to Avoid
 ```
 feat: add new feature     ❌ (semantic commit)
-Updated files             ❌ (too vague)
+Updated files             ❌ (too vague, no details)
 Changes                   ❌ (meaningless)
 fix: bug                  ❌ (semantic commit + vague)
+Update config             ❌ (missing detailed description)
 ```
 
 ## Error Handling
