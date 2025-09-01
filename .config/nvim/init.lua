@@ -17,12 +17,71 @@ vim.opt.rtp:prepend(lazypath)
 -- Configure Python host before loading plugins
 vim.g.python3_host_prog = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
 
+local noop_session_active = false
+local noop_terminal_provider = {
+  setup = function(_) end,
+
+  open = function(_, _, _, _)
+    noop_session_active = true
+  end,
+
+  close = function()
+    -- Mark session as inactive when closing
+    noop_session_active = false
+    print("ClaudeCode session closed")
+  end,
+
+  simple_toggle = function(cmd_string, env_table, effective_config)
+    -- Check if already active and print message
+    if noop_session_active then
+      print("ClaudeCode is already running, focusing")
+      return
+    end
+
+    -- Mark session as active when starting
+    noop_session_active = true
+    print("ClaudeCode session started")
+  end,
+
+  focus_toggle = function(cmd_string, env_table, effective_config)
+    print("Focused on Claude")
+  end,
+
+  get_active_bufnr = function()
+    return nil
+  end,
+
+  is_available = function()
+    return true
+  end,
+
+  -- Optional function
+  toggle = function(cmd_string, env_table, effective_config)
+    if noop_session_active then
+      print("ClaudeCode is already running")
+      return
+    end
+
+    -- Mark session as active when starting
+    noop_session_active = true
+    print("ClaudeCode session started")
+  end,
+
+  _get_terminal_for_test = function()
+    return nil
+  end,
+}
+
 require("lazy").setup({
   {
     "coder/claudecode.nvim",
     dependencies = { "folke/snacks.nvim" },
+    lazy = false,
     config = true,
     opts = {
+      terminal = {
+        provider = noop_terminal_provider,
+      },
       terminal_cmd = "~/.claude/local/claude --dangerously-skip-permissions",
     },
     keys = {

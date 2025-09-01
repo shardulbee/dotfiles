@@ -17,5 +17,4 @@ keybind = shift+enter=text:\n
 
 keybind = cmd+page_up=scroll_page_fractional:-0.5
 keybind = cmd+page_down=scroll_page_fractional:0.5
-keybind = cmd+z=toggle_split_zoom
 keybind = cmd+enter=toggle_split_zoom
