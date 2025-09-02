@@ -25,7 +25,12 @@
       "\\ c": [
         "agent::NewExternalAgentThread",
         {
-          "agent": "claude_code"
+          "agent": {
+            "custom": {
+              "name": "claude-code-acp",
+              "command": { "command": "claude-code-acp" }
+            }
+          }
         }
       ]
     }
@@ -54,7 +59,9 @@
   {
     "context": "(VimControl && !menu)",
     "bindings": {
-      "\\ g b": "editor::OpenPermalinkToLine"
+      "\\ g b": "editor::OpenPermalinkToLine",
+      "space": "editor::SelectLargerSyntaxNode",
+      "backspace": "editor::SelectSmallerSyntaxNode"
     }
   }
 ]

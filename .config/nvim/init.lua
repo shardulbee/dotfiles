@@ -14,425 +14,342 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Configure Python host before loading plugins
 vim.g.python3_host_prog = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
-
-local noop_session_active = false
-local noop_terminal_provider = {
-  setup = function(_) end,
-
-  open = function(_, _, _, _)
-    noop_session_active = true
-  end,
-
-  close = function()
-    -- Mark session as inactive when closing
-    noop_session_active = false
-    print("ClaudeCode session closed")
-  end,
-
-  simple_toggle = function(cmd_string, env_table, effective_config)
-    -- Check if already active and print message
-    if noop_session_active then
-      print("ClaudeCode is already running, focusing")
-      return
-    end
-
-    -- Mark session as active when starting
-    noop_session_active = true
-    print("ClaudeCode session started")
-  end,
-
-  focus_toggle = function(cmd_string, env_table, effective_config)
-    print("Focused on Claude")
-  end,
-
-  get_active_bufnr = function()
-    return nil
-  end,
-
-  is_available = function()
-    return true
-  end,
-
-  -- Optional function
-  toggle = function(cmd_string, env_table, effective_config)
-    if noop_session_active then
-      print("ClaudeCode is already running")
-      return
-    end
-
-    -- Mark session as active when starting
-    noop_session_active = true
-    print("ClaudeCode session started")
-  end,
-
-  _get_terminal_for_test = function()
-    return nil
-  end,
-}
-
 require("lazy").setup({
-  {
-    "coder/claudecode.nvim",
-    dependencies = { "folke/snacks.nvim" },
-    lazy = false,
-    config = true,
-    opts = {
-      terminal = {
-        provider = noop_terminal_provider,
-      },
-      terminal_cmd = "~/.claude/local/claude --dangerously-skip-permissions",
-    },
-    keys = {
-      { "<leader>a", nil, desc = "AI/Claude Code" },
-      { "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude" },
-      { "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
-      { "<leader>ar", "<cmd>ClaudeCode --resume<cr>", desc = "Resume Claude" },
-      { "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
-      { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
-      { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
-      { "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Send to Claude" },
-      {
-        "<leader>as",
-        "<cmd>ClaudeCodeTreeAdd<cr>",
-        desc = "Add file",
-        ft = { "NvimTree", "neo-tree", "oil", "minifiles" },
-      },
-      -- Diff management
-      { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
-      { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
-    },
+  dev = {
+    path = "/Users/shardul/Documents",
   },
-  {
-    "cormacrelf/dark-notify",
-    config = function()
-      require("dark_notify").run()
-    end,
-  },
-  {
-    "ellisonleao/gruvbox.nvim",
-    priority = 1000,
-    config = true,
-    opts = {
-      contrast = "hard",
-    },
-    init = function()
-      vim.cmd("colorscheme gruvbox")
-    end,
-  },
-  {
-    "stevearc/oil.nvim",
-    opts = {},
-    dependencies = { { "echasnovski/mini.icons", opts = {} } },
-    lazy = false,
-  },
-  {
-    "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = true,
-    opts = {
-      sections = {
-        lualine_a = { "mode" },
-        lualine_b = { "diff", "diagnostics" },
-        lualine_c = { { "filename", path = 1 } },
-        lualine_x = { "filetype" },
-        lualine_y = { "progress" },
-        lualine_z = { "location" },
+  spec = {
+    { "tpope/vim-fugitive" },
+    {
+      "shardulbee/jitser",
+      dev = true,
+      keys = {
+        { "<leader>gs", "<cmd>Jj<cr>", desc = "JJ Status" },
       },
     },
-  },
-
-  {
-    "supermaven-inc/supermaven-nvim",
-    opts = {
-      color = {
-        suggestion_color = "#ffffff",
-        cterm = 244,
+    {
+      "nvim-neo-tree/neo-tree.nvim",
+      branch = "v3.x",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "MunifTanjim/nui.nvim",
+        "nvim-tree/nvim-web-devicons", -- optional, but recommended
       },
-      log_level = "off",
-    },
-  },
-  "nvim-lua/plenary.nvim",
-  "direnv/direnv.vim",
-  "tpope/vim-eunuch",
-  "tpope/vim-surround",
-  "tpope/vim-dispatch",
-  "tpope/vim-sleuth",
-  "tpope/vim-unimpaired",
-  "tpope/vim-repeat",
-  "tpope/vim-dadbod",
-  "tpope/vim-vinegar",
-  { "echasnovski/mini.pairs", version = false, config = true },
-  { "echasnovski/mini.splitjoin", version = false, config = true },
-  {
-    "ibhagwan/fzf-lua",
-    event = "VeryLazy",
-    config = function()
-      local fzfLua = require("fzf-lua")
-
-      fzfLua.setup({
-        fzf_opts = {
-          ["--ansi"] = "",
-          ["--prompt"] = "> ",
-          ["--info"] = "hidden",
-          ["--layout"] = "reverse",
-        },
-        winopts = {
-          height = 0.9,
-          width = 0.9,
-        },
-        oldfiles = {
-          cwd_only = true,
-        },
-      })
-
-      local opts = { noremap = true, silent = true }
-      vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
-      vim.keymap.set("n", "<M-t>", fzfLua.oldfiles, opts)
-      vim.keymap.set("n", "<leader>h", fzfLua.help_tags, opts)
-      vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
-      vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
-      vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
-      vim.keymap.set("n", "<leader>r", fzfLua.command_history, opts)
-      vim.keymap.set("n", "<leader>z", "<cmd>Fzf<cr>", opts)
-    end,
-  },
-  {
-    "saghen/blink.cmp",
-    version = "v1.0.0",
-
-    opts = {
-      completion = {
-        list = { selection = { preselect = true, auto_insert = true } },
+      lazy = false, -- neo-tree will lazily load itself,
+      keys = {
+        { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle Neo-tree" },
       },
-      keymap = { preset = "enter" },
-      appearance = {
-        nerd_font_variant = "mono",
-      },
-      sources = {
-        default = { "lsp", "path", "buffer" },
-      },
-    },
-  },
-  "williamboman/mason-lspconfig.nvim",
-  {
-    "williamboman/mason.nvim",
-    cmd = "Mason",
-    build = ":MasonUpdate",
-    opts = {
-      ensure_installed = {
-        "stylua",
-        "shfmt",
-        "clangd",
-        "clang-format",
-        "rust-analyzer",
-        "rubyfmt",
-        "prettier",
-        "prettierd",
-        "eslint_d",
-        "lua-language-server",
-        "css-lsp",
-        "fixjson",
-        "html-lsp",
-        "zls",
-      },
-    },
-    config = function(_, opts)
-      require("mason").setup(opts)
-      local mr = require("mason-registry")
-      mr:on("package:install:success", function()
-        vim.defer_fn(function()
-          -- trigger FileType event to possibly load this newly installed LSP server
-          require("lazy.core.handler.event").trigger({
-            event = "FileType",
-            buf = vim.api.nvim_get_current_buf(),
-          })
-        end, 100)
-      end)
-
-      mr.refresh(function()
-        for _, tool in ipairs(opts.ensure_installed) do
-          local p = mr.get_package(tool)
-          if not p:is_installed() then
-            p:install()
-          end
-        end
-      end)
-    end,
-  },
-  {
-    "nvim-treesitter/nvim-treesitter",
-    dependencies = {
-      { "nvim-treesitter/nvim-treesitter-textobjects", event = "VeryLazy" },
-      "JoosepAlviste/nvim-ts-context-commentstring",
-    },
-    build = ":TSUpdate",
-    event = { "VeryLazy" },
-    opts = {
-      highlight = { enable = true },
-      indent = { enable = true },
-      ensure_installed = {
-        "bash",
-        "c",
-        "diff",
-        "html",
-        "javascript",
-        "jsdoc",
-        "json",
-        "jsonc",
-        "lua",
-        "luadoc",
-        "luap",
-        "markdown",
-        "markdown_inline",
-        "printf",
-        "python",
-        "query",
-        "regex",
-        "toml",
-        "tsx",
-        "typescript",
-        "vim",
-        "vimdoc",
-        "xml",
-        "yaml",
-      },
-      textobjects = {
-        select = {
-          enable = true,
-          look = true,
-          keymaps = {
-            ["if"] = "@function.inner",
-            ["af"] = "@function.outer",
+      opts = {
+        filesystem = {
+          filtered_items = {
+            hide_dotfiles = false,
+            hide_gitignored = true,
+            hide_hidden = false,
           },
         },
       },
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = "<space>", -- maps in normal mode to init the node/scope selection with space
-          node_incremental = "<space>", -- increment to the upper named parent
-          node_decremental = "<bs>", -- decrement to the previous node
-          scope_incremental = "<tab>", -- increment to the upper scope (as defined in locals.scm)
+    },
+    {
+      "coder/claudecode.nvim",
+      dependencies = { "folke/snacks.nvim" },
+      lazy = false,
+      config = true,
+      opts = {
+        terminal = {
+          provider = {
+            setup = function(_)
+              return nil
+            end,
+            open = function(_, _, _, _)
+              return true
+            end,
+            close = function()
+              return true
+            end,
+            simple_toggle = function(_, _, _) end,
+            focus_toggle = function(_, _, _) end,
+            get_active_bufnr = function()
+              return nil
+            end,
+            is_available = function()
+              return true
+            end,
+            toggle = function(_, _, _)
+              return nil
+            end,
+            _get_terminal_for_test = function()
+              return nil
+            end,
+          },
+        },
+        terminal_cmd = "~/.claude/local/claude --dangerously-skip-permissions",
+      },
+      keys = {
+        { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
+        { "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Send to Claude" },
+      },
+    },
+    {
+      "ellisonleao/gruvbox.nvim",
+      priority = 1000,
+      config = true,
+      opts = {
+        contrast = "hard",
+      },
+      init = function()
+        vim.cmd("colorscheme gruvbox")
+      end,
+    },
+    {
+      "nvim-lualine/lualine.nvim",
+      dependencies = { "nvim-tree/nvim-web-devicons" },
+      config = true,
+      opts = {
+        sections = {
+          lualine_a = { "mode" },
+          lualine_b = { "diff", "diagnostics" },
+          lualine_c = { { "filename", path = 1 } },
+          lualine_x = { "filetype" },
+          lualine_y = { "progress" },
+          lualine_z = { "location" },
         },
       },
     },
-    main = "nvim-treesitter.configs",
-  },
-  {
-    "neovim/nvim-lspconfig",
-    dependencies = {
-      { "mason-org/mason.nvim", opts = {} },
-      "mason-org/mason-lspconfig.nvim",
-      "saghen/blink.cmp",
+    {
+      "supermaven-inc/supermaven-nvim",
+      opts = {
+        color = {
+          suggestion_color = "#ffffff",
+          cterm = 244,
+        },
+        log_level = "off",
+      },
     },
-
-    config = function(_, _)
-      local on_attach = function(_, bufnr)
-        local opts = { noremap = true, silent = true, buffer = bufnr }
-        local function buf_set_keymap(...)
-          vim.keymap.set(...)
-        end
+    "direnv/direnv.vim",
+    "tpope/vim-eunuch",
+    "tpope/vim-surround",
+    "tpope/vim-dispatch",
+    "tpope/vim-sleuth",
+    "tpope/vim-unimpaired",
+    "tpope/vim-repeat",
+    "tpope/vim-dadbod",
+    "tpope/vim-vinegar",
+    { "echasnovski/mini.pairs", version = false, config = true },
+    { "echasnovski/mini.splitjoin", version = false, config = true },
+    {
+      "ibhagwan/fzf-lua",
+      event = "VeryLazy",
+      config = function()
         local fzfLua = require("fzf-lua")
 
-        buf_set_keymap("n", ",ca", fzfLua.lsp_code_actions, opts)
-        buf_set_keymap("n", "gl", fzfLua.lsp_document_symbols, opts)
+        fzfLua.setup({
+          fzf_opts = {
+            ["--ansi"] = "",
+            ["--prompt"] = "> ",
+            ["--info"] = "hidden",
+            ["--layout"] = "reverse",
+          },
+          winopts = {
+            height = 0.9,
+            width = 0.9,
+          },
+          oldfiles = {
+            cwd_only = true,
+          },
+        })
 
-        buf_set_keymap("n", "gd", vim.lsp.buf.definition, opts)
-        buf_set_keymap("n", "gr", vim.lsp.buf.references, opts)
-        buf_set_keymap("n", "cd", vim.lsp.buf.rename, opts)
-        buf_set_keymap("n", "]d", function()
-          vim.diagnostic.goto_next({ float = true })
-        end, opts)
-        buf_set_keymap("n", "[d", function()
-          vim.diagnostic.goto_prev({ float = true })
-        end, opts)
-      end
+        local opts = { noremap = true, silent = true }
+        vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
+        vim.keymap.set("n", "<M-t>", fzfLua.oldfiles, opts)
+        vim.keymap.set("n", "<leader>h", fzfLua.help_tags, opts)
+        vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
+        vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
+        vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
+        vim.keymap.set("n", "<leader>r", fzfLua.command_history, opts)
+        vim.keymap.set("n", "<leader>z", "<cmd>Fzf<cr>", opts)
+      end,
+    },
+    {
+      "saghen/blink.cmp",
+      version = "v1.0.0",
 
-      require("mason").setup()
-      require("mason-lspconfig").setup()
-
-      vim.lsp.config("*", {
-        capabilities = require("blink.cmp").get_lsp_capabilities(),
-        on_attach = on_attach,
-      })
-
-      -- vim.lsp.config.lua_ls = {
-      --   on_attach = on_attach,
-      --   on_init = function(client)
-      --     if client.workspace_folders then
-      --       local path = client.workspace_folders[1].name
-      --       if
-      --         path ~= vim.fn.stdpath("config")
-      --         and (vim.loop.fs_stat(path .. "/.luarc.json") or vim.loop.fs_stat(path .. "/.luarc.jsonc"))
-      --       then
-      --         return
-      --       end
-      --     end
-      --   end,
-      -- }
-
-      -- vtsls (Vue/TypeScript Language Server) configuration with memory optimizations for large projects
-      vim.diagnostic.config({ virtual_text = false })
-    end,
-  },
-  { "windwp/nvim-ts-autotag", opts = {} },
-  {
-    "stevearc/conform.nvim",
-    opts = {
-      format_on_save = {
-        timeout_ms = 3000,
-        lsp_format = "fallback",
-      },
-      formatters_by_ft = {
-        lua = { "stylua" },
-        python = { "ruff_format", "ruff_fix", lsp_format = "last" },
-        javascript = { "prettierd" },
-        typescript = { "prettierd" },
-        javascriptreact = { "prettierd" },
-        typescriptreact = { "prettierd" },
+      opts = {
+        completion = {
+          list = { selection = { preselect = true, auto_insert = true } },
+        },
+        keymap = { preset = "enter" },
+        appearance = {
+          nerd_font_variant = "mono",
+        },
+        sources = {
+          default = { "lsp", "path", "buffer" },
+        },
       },
     },
-  },
-  {
-    "lewis6991/gitsigns.nvim",
-    opts = {
-      current_line_blame_opts = {
-        virt_text_pos = "eol", -- 'eol' | 'overlay' | 'right_align'
-        delay = 200,
-        ignore_whitespace = true,
+    "williamboman/mason-lspconfig.nvim",
+    {
+      "williamboman/mason.nvim",
+      cmd = "Mason",
+      build = ":MasonUpdate",
+      opts = {
+        ensure_installed = {
+          "stylua",
+          "shfmt",
+          "clangd",
+          "clang-format",
+          "rust-analyzer",
+          "rubyfmt",
+          "prettier",
+          "prettierd",
+          "eslint_d",
+          "lua-language-server",
+          "css-lsp",
+          "fixjson",
+          "html-lsp",
+          "zls",
+        },
       },
-      current_line_blame = true,
-      on_attach = function(_)
-        local opts = { remap = false, silent = true }
-        local gitsigns = package.loaded.gitsigns
-        if vim.g.gitgutter_diff_base then
-          -- defer to ensure it happens after setup, I think this variable when set with -C might be set after the plugin has loaded
+      config = function(_, opts)
+        require("mason").setup(opts)
+        local mr = require("mason-registry")
+        mr:on("package:install:success", function()
           vim.defer_fn(function()
-            gitsigns.change_base(vim.g.gitgutter_diff_base, true)
+            -- trigger FileType event to possibly load this newly installed LSP server
+            require("lazy.core.handler.event").trigger({
+              event = "FileType",
+              buf = vim.api.nvim_get_current_buf(),
+            })
           end, 100)
+        end)
+
+        mr.refresh(function()
+          for _, tool in ipairs(opts.ensure_installed) do
+            local p = mr.get_package(tool)
+            if not p:is_installed() then
+              p:install()
+            end
+          end
+        end)
+      end,
+    },
+    {
+      "nvim-treesitter/nvim-treesitter",
+      dependencies = {
+        { "nvim-treesitter/nvim-treesitter-textobjects", event = "VeryLazy" },
+        "JoosepAlviste/nvim-ts-context-commentstring",
+      },
+      build = ":TSUpdate",
+      event = { "VeryLazy" },
+      opts = {
+        highlight = { enable = true },
+        indent = { enable = true },
+        ensure_installed = {
+          "bash",
+          "c",
+          "diff",
+          "html",
+          "javascript",
+          "jsdoc",
+          "json",
+          "jsonc",
+          "lua",
+          "luadoc",
+          "luap",
+          "markdown",
+          "markdown_inline",
+          "printf",
+          "python",
+          "query",
+          "regex",
+          "toml",
+          "tsx",
+          "typescript",
+          "vim",
+          "vimdoc",
+          "xml",
+          "yaml",
+        },
+        textobjects = {
+          select = {
+            enable = true,
+            look = true,
+            keymaps = {
+              ["if"] = "@function.inner",
+              ["af"] = "@function.outer",
+            },
+          },
+        },
+        incremental_selection = {
+          enable = true,
+          keymaps = {
+            init_selection = "<space>", -- maps in normal mode to init the node/scope selection with space
+            node_incremental = "<space>", -- increment to the upper named parent
+            node_decremental = "<bs>", -- decrement to the previous node
+            scope_incremental = "<tab>", -- increment to the upper scope (as defined in locals.scm)
+          },
+        },
+      },
+      main = "nvim-treesitter.configs",
+    },
+    {
+      "neovim/nvim-lspconfig",
+      dependencies = {
+        { "mason-org/mason.nvim", opts = {} },
+        "mason-org/mason-lspconfig.nvim",
+        "saghen/blink.cmp",
+      },
+
+      config = function(_, _)
+        local on_attach = function(_, bufnr)
+          local opts = { noremap = true, silent = true, buffer = bufnr }
+          local function buf_set_keymap(...)
+            vim.keymap.set(...)
+          end
+          local fzfLua = require("fzf-lua")
+
+          buf_set_keymap("n", ",ca", fzfLua.lsp_code_actions, opts)
+          buf_set_keymap("n", "gl", fzfLua.lsp_document_symbols, opts)
+
+          buf_set_keymap("n", "gd", vim.lsp.buf.definition, opts)
+          buf_set_keymap("n", "gr", vim.lsp.buf.references, opts)
+          buf_set_keymap("n", "cd", vim.lsp.buf.rename, opts)
+          buf_set_keymap("n", "]d", function()
+            vim.diagnostic.goto_next({ float = true })
+          end, opts)
+          buf_set_keymap("n", "[d", function()
+            vim.diagnostic.goto_prev({ float = true })
+          end, opts)
         end
 
-        vim.keymap.set("n", "]c", function()
-          if vim.wo.diff then
-            vim.cmd.normal({ "]c", bang = true })
-          else
-            gitsigns.nav_hunk("next")
-          end
-        end, opts)
+        require("mason").setup()
+        require("mason-lspconfig").setup()
 
-        vim.keymap.set("n", "[c", function()
-          if vim.wo.diff then
-            vim.cmd.normal({ "[c", bang = true })
-          else
-            gitsigns.nav_hunk("prev")
-          end
-        end, opts)
+        vim.lsp.config("*", {
+          capabilities = require("blink.cmp").get_lsp_capabilities(),
+          on_attach = on_attach,
+        })
 
-        -- Actions
-        vim.keymap.set("n", '"', gitsigns.preview_hunk, opts)
+        vim.diagnostic.config({ virtual_text = false })
       end,
+    },
+    { "windwp/nvim-ts-autotag", opts = {} },
+    {
+      "stevearc/conform.nvim",
+      opts = {
+        format_on_save = {
+          timeout_ms = 3000,
+          lsp_format = "fallback",
+        },
+        formatters_by_ft = {
+          lua = { "stylua" },
+          python = { "ruff_format", "ruff_fix", lsp_format = "last" },
+          javascript = { "prettierd" },
+          typescript = { "prettierd" },
+          javascriptreact = { "prettierd" },
+          typescriptreact = { "prettierd" },
+        },
+      },
     },
   },
 })

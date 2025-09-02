@@ -1,0 +1,344 @@
+#!/bin/bash
+
+# NixOS Proxmox LXC Container Setup Script with Tailscale
+# Based on: https://nixos.wiki/wiki/Proxmox_Linux_Container
+# This script automates the creation and configuration of a NixOS LXC container in Proxmox
+# with Tailscale support including SSH
+
+set -e  # Exit on any error
+
+# Configuration variables - MODIFY THESE AS NEEDED
+CTID=""
+CTNAME=""
+MEMORY="2048"
+SWAP="1024"
+DISK_SIZE="+100G"
+ARCH="amd64"
+BRIDGE="vmbr0"
+IP="dhcp"
+TEMPLATE_STORAGE="local"
+CONTAINER_STORAGE="local-lvm"
+NIXOS_RELEASE="24.11"
+TS_AUTHKEY=""  # Will be prompted for
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Logging functions
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Function to check if we're running on Proxmox
+check_proxmox() {
+    if ! command -v pct &> /dev/null; then
+        log_error "This script must be run on a Proxmox host (pct command not found)"
+        exit 1
+    fi
+}
+
+# Function to get next available container ID
+get_next_container_id() {
+    CTID=$(pvesh get /cluster/nextid)
+    log_info "Using container ID: $CTID"
+}
+
+# Function to prompt for hostname
+prompt_for_hostname() {
+    while [[ -z "$CTNAME" ]]; do
+        read -p "Enter hostname for the container: " CTNAME
+        if [[ -z "$CTNAME" ]]; then
+            log_warning "Hostname cannot be empty"
+        fi
+    done
+    log_info "Using hostname: $CTNAME"
+}
+
+# Function to prompt for Tailscale auth key
+prompt_for_tailscale_key() {
+    echo
+    log_info "Tailscale Setup"
+    log_info "You need a Tailscale auth key to automatically connect this container."
+    log_info "Generate one at: https://login.tailscale.com/admin/settings/keys"
+    log_warning "Recommended settings for the auth key:"
+    echo "  - Reusable: Yes (if you plan to create multiple containers)"
+    echo "  - Ephemeral: No (unless this is a temporary container)"
+    echo "  - Pre-approved: Yes (to avoid manual approval)"
+    echo "  - Tags: Consider adding a tag like 'tag:server' or 'tag:nixos'"
+    echo
+
+    while [[ -z "$TS_AUTHKEY" ]]; do
+        read -p "Enter your Tailscale auth key: " TS_AUTHKEY
+        echo
+        if [[ -z "$TS_AUTHKEY" ]]; then
+            log_warning "Auth key cannot be empty"
+        elif [[ ! "$TS_AUTHKEY" =~ ^tskey- ]]; then
+            log_warning "Auth key should start with 'tskey-'. Please verify the key."
+            read -p "Continue anyway? (y/N): " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                TS_AUTHKEY=""
+                continue
+            fi
+        fi
+    done
+    log_info "Tailscale auth key configured"
+}
+
+# Function to download NixOS tarball if it doesn't exist
+# Function to create the container
+create_container() {
+    local ctt="$TEMPLATE_STORAGE:vztmpl/nixos-system-x86_64-linux.tar.xz"
+
+    log_info "Creating container with ID $CTID..."
+
+    pct create "$CTID" "$ctt" \
+        --hostname="$CTNAME" \
+        --ostype=nixos \
+        --unprivileged=1 \
+        --features nesting=1 \
+        --net0 name=eth0,bridge="$BRIDGE",ip="$IP" \
+        --arch="$ARCH" \
+        --swap="$SWAP" \
+        --memory="$MEMORY" \
+        --storage="$CONTAINER_STORAGE"
+
+    log_success "Container $CTID created successfully"
+}
+
+# Function to configure Tailscale support in container config
+configure_tailscale_support() {
+    local config_file="/etc/pve/lxc/${CTID}.conf"
+
+    log_info "Configuring Tailscale support (/dev/tun access)..."
+
+    # Check if the configuration already exists
+    if grep -q "lxc.cgroup2.devices.allow: c 10:200 rwm" "$config_file" 2>/dev/null; then
+        log_info "Tailscale configuration already exists in container config"
+        return 0
+    fi
+
+    # Add Tailscale-specific configuration for unprivileged containers
+    cat >> "$config_file" << EOF
+
+# Tailscale configuration - allows access to /dev/tun for VPN
+lxc.cgroup2.devices.allow: c 10:200 rwm
+lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
+EOF
+
+    log_success "Added Tailscale support to container configuration"
+}
+
+# Function to configure and start the container
+configure_container() {
+    log_info "Resizing container disk to 100G..."
+    pct resize "$CTID" rootfs "$DISK_SIZE"
+
+    # Configure Tailscale support before starting
+    configure_tailscale_support
+
+    log_info "Starting container..."
+    pct start "$CTID"
+
+    # # Wait for container to be fully ready
+    # log_info "Waiting for container to be ready..."
+    # sleep 15
+
+    # log_success "Container started successfully"
+}
+
+# Function to setup the container
+setup_container() {
+    log_info "Setting up NixOS container..."
+
+    log_info "Deleting root password..."
+    pct exec "$CTID" -- sh -c "source /etc/set-environment && passwd --delete root"
+
+    log_info "Updating nix channels..."
+    pct exec "$CTID" -- sh -c "source /etc/set-environment && nix-channel --update"
+
+    log_info "Rebuilding NixOS with flake configuration..."
+    pct exec "$CTID" -- sh -c "source /etc/set-environment && nixos-rebuild switch --upgrade --flake github:shardulbee/nix-config#proxmox-lxc"
+
+    log_success "NixOS container setup completed"
+}
+
+# Function to setup dotfiles for shardul user
+setup_dotfiles() {
+    log_info "Setting up dotfiles for shardul user..."
+
+    log_info "Creating shardul user if it doesn't exist..."
+    pct exec "$CTID" -- sh -c "source /etc/set-environment && id shardul >/dev/null 2>&1 || useradd -m -s /bin/bash shardul"
+
+    log_info "Cloning dotfiles repository..."
+    pct exec "$CTID" -- sh -c "source /etc/set-environment && sudo -u shardul git clone https://github.com/shardulbee/dotfiles.git /home/shardul/dotfiles"
+
+    log_info "Installing dotfiles..."
+    pct exec "$CTID" -- sh -c "source /etc/set-environment && cd /home/shardul/dotfiles && sudo -u shardul make install"
+
+    log_success "Dotfiles setup completed"
+}
+
+# Function to install and configure Tailscale
+setup_tailscale() {
+    log_info "Installing and configuring Tailscale..."
+
+    # Enable and start tailscaled service
+    log_info "Starting tailscaled service..."
+    # Try to start the service - it might already be enabled from the installer
+    pct exec "$CTID" -- sh -c "source /etc/set-environment && systemctl enable tailscaled 2>/dev/null || true"
+    pct exec "$CTID" -- sh -c "source /etc/set-environment && systemctl start tailscaled 2>/dev/null || true"
+
+    # Wait for tailscaled to be ready
+    log_info "Waiting for tailscaled to start..."
+    sleep 10
+
+    # Check if tailscaled is running
+    if ! pct exec "$CTID" -- sh -c "source /etc/set-environment && systemctl is-active --quiet tailscaled"; then
+        log_error "Failed to start tailscaled service"
+        log_info "Checking service status..."
+        pct exec "$CTID" -- sh -c "source /etc/set-environment && systemctl status tailscaled || true"
+        return 1
+    fi
+
+    # Connect to Tailscale with SSH enabled
+    log_info "Connecting to Tailscale network with SSH enabled..."
+
+    # Use nix-shell if direct command not available
+    local tailscale_cmd="tailscale"
+    if ! pct exec "$CTID" -- sh -c "source /etc/set-environment && command -v tailscale >/dev/null 2>&1"; then
+        tailscale_cmd="nix-shell -p tailscale --run tailscale"
+    fi
+
+    pct exec "$CTID" -- sh -c "source /etc/set-environment && $tailscale_cmd up --auth-key=$TS_AUTHKEY --ssh --accept-risk=lose-ssh --hostname=$CTNAME"
+
+    # Wait a moment for connection to establish
+    sleep 5
+
+    # Verify the connection
+    log_info "Verifying Tailscale connection..."
+    local tailscale_status
+    tailscale_status=$(pct exec "$CTID" -- sh -c "source /etc/set-environment && $tailscale_cmd status --json" 2>/dev/null || echo "")
+
+    if [[ -n "$tailscale_status" ]] && echo "$tailscale_status" | grep -q '"BackendState":"Running"'; then
+        local tailscale_ip
+        tailscale_ip=$(pct exec "$CTID" -- sh -c "source /etc/set-environment && $tailscale_cmd ip" 2>/dev/null || echo "N/A")
+        log_success "Tailscale connected successfully!"
+        log_info "Tailscale IP: $tailscale_ip"
+
+        # Store the IP for later display
+        TAILSCALE_IP="$tailscale_ip"
+    else
+        log_warning "Tailscale connection status unclear. Please check manually with: tailscale status"
+        TAILSCALE_IP="N/A"
+
+        # Show some debug info
+        log_info "Debug: Checking tailscale status..."
+        pct exec "$CTID" -- sh -c "source /etc/set-environment && $tailscale_cmd status || echo 'Status command failed'"
+    fi
+}
+
+# Function to display completion information
+show_completion_info() {
+    log_success "NixOS Proxmox LXC container with Tailscale setup completed!"
+    echo
+    log_info "Container Details:"
+    echo "  - Container ID: $CTID"
+    echo "  - Container Name: $CTNAME"
+    echo "  - Memory: ${MEMORY}MB"
+    echo "  - Swap: ${SWAP}MB"
+    echo
+    log_info "Tailscale Configuration:"
+    echo "  - Tailscale IP: $TAILSCALE_IP"
+    echo "  - Tailscale SSH: Enabled"
+    echo "  - MagicDNS Name: ${CTNAME} (if MagicDNS is enabled in your tailnet)"
+    echo
+    log_info "Access Methods:"
+    echo "  - Proxmox Console: Via Proxmox web UI"
+    echo "  - Tailscale SSH: ssh root@${TAILSCALE_IP} (or ssh root@${CTNAME} if MagicDNS enabled)"
+    echo "  - Regular SSH: ssh root@<container-local-ip> (no password required)"
+    echo "  - Proxmox Shell: pct enter $CTID"
+    echo
+    log_info "Next Steps:"
+    echo "  1. Verify Tailscale connection: pct exec $CTID -- tailscale status"
+    echo "  2. Test SSH access via Tailscale: ssh root@$TAILSCALE_IP"
+    echo "  3. Configure Tailscale ACLs in your admin console if needed"
+    echo "  4. Customize /etc/nixos/configuration.nix as needed"
+    echo "  5. Run 'nixos-rebuild switch' after making changes"
+    echo
+    log_info "Tailscale Management:"
+    echo "  - Admin Console: https://login.tailscale.com/admin/machines"
+    echo "  - View SSH logs: journalctl -u ssh on the container"
+    echo "  - Tailscale logs: journalctl -u tailscaled on the container"
+    echo
+    log_warning "Security Notes:"
+    echo "  - This container is configured with passwordless root access"
+    echo "  - Tailscale SSH is enabled - access is controlled by your tailnet ACLs"
+    echo "  - Consider configuring proper SSH access rules in your Tailscale admin console"
+    echo "  - Review and update your tailnet policy file for proper access control"
+}
+
+# Main execution
+main() {
+    echo "=============================================="
+    echo "NixOS Proxmox LXC Container Setup with Tailscale"
+    echo "=============================================="
+    echo
+
+    # Get container ID and hostname
+    check_proxmox
+    get_next_container_id
+    prompt_for_hostname
+    prompt_for_tailscale_key
+
+    # Display current configuration
+    log_info "Configuration:"
+    echo "  Container ID: $CTID"
+    echo "  Container Name: $CTNAME"
+    echo "  Memory: ${MEMORY}MB"
+    echo "  Swap: ${SWAP}MB"
+    echo "  Disk Size: $DISK_SIZE"
+    echo "  Storage: $CONTAINER_STORAGE"
+    echo "  Bridge: $BRIDGE"
+    echo "  IP: $IP"
+    echo "  Tailscale: Enabled with SSH"
+    echo
+
+    # Confirmation prompt
+    read -p "Do you want to proceed with these settings? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        log_info "Setup cancelled by user"
+        exit 0
+    fi
+
+    # Run setup steps
+    create_container
+    configure_container
+    setup_container
+    setup_dotfiles
+    setup_tailscale
+    show_completion_info
+}
+
+# Error handling
+trap 'log_error "Script failed on line $LINENO. Container may be in an incomplete state."' ERR
+
+# Run main function
+main "$@"
