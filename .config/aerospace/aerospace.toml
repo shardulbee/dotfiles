@@ -63,20 +63,15 @@ run = ['move-node-to-workspace 1']
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Cursor'
-run = ['move-node-to-workspace 2']
+run = ['move-node-to-workspace 4']
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'Kitty'
+if.app-name-regex-substring = 'Ghostty'
 run = ['move-node-to-workspace Z']
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Google Chrome'
-if.window-title-regex-substring = 'Shardul \(Personal\)'
-run = ['move-node-to-workspace 4']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Google Chrome'
-if.window-title-regex-substring = 'Shardul \(Work\)'
+# if.window-title-regex-substring = 'Shardul \(Personal\)'
 run = ['move-node-to-workspace 3']
 
 [[on-window-detected]]
