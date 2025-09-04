@@ -1,10 +1,18 @@
 {
-  "amp.commands.allowlist": ["*"],
+  "amp.commands.allowlist": [
+    "*"
+  ],
   "amp.commands.strict": false,
   "amp.mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest", "--headless", "--isolated"]
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--headless",
+        "--isolated"
+      ]
     }
-  }
+  },
+  "amp.dangerouslyAllowAll": true
 }

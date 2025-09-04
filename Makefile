@@ -22,6 +22,8 @@ install:
 	@ln -sfn $(D)/bin/telegram-notify $(H)/bin/telegram-notify
 ifeq ($(OS),Darwin)
 	@mkdir -p $(H)/.config/{aerospace,amp,ghostty,zed} $(H)/.hammerspoon $(H)/.zed $(H)/Library/Application\ Support/Cursor/User
+	@rm -rf $(H)/Library/Application\ Support/espanso
+	@ln -sfn $(D)/.config/espanso $(H)/Library/Application\ Support/espanso
 	@ln -sfn $(D)/.config/aerospace/aerospace.toml $(H)/.config/aerospace/aerospace.toml
 	@ln -sfn $(D)/.config/amp/settings.json $(H)/.config/amp/settings.json
 	@ln -sfn $(D)/.config/ghostty/config $(H)/.config/ghostty/config

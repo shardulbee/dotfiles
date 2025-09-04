@@ -22,17 +22,7 @@
           "agent": "gemini"
         }
       ],
-      "\\ c": [
-        "agent::NewExternalAgentThread",
-        {
-          "agent": {
-            "custom": {
-              "name": "claude-code-acp",
-              "command": { "command": "claude-code-acp" }
-            }
-          }
-        }
-      ]
+      "\\ c": ["agent::NewExternalAgentThread", { "agent": "claude_code" }]
     }
   },
   {
