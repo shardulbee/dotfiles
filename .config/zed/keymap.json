@@ -53,5 +53,10 @@
       "space": "editor::SelectLargerSyntaxNode",
       "backspace": "editor::SelectSmallerSyntaxNode"
     }
+  },
+  {
+    "bindings": {
+      "cmd-enter": "workspace::ToggleZoom"
+    }
   }
 ]

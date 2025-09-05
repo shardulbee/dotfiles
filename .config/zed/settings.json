@@ -60,8 +60,8 @@
   "vim_mode": true,
   "ui_font_size": 16,
   "buffer_font_size": 14,
-  "ui_font_family": "Berkeley Mono Trial",
-  "buffer_font_family": "Berkeley Mono Trial",
+  "ui_font_family": "Berkeley Mono",
+  "buffer_font_family": "Berkeley Mono",
   "theme": {
     "mode": "system",
     "light": "Gruvbox Light Hard",
