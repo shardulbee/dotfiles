@@ -1,4 +1,4 @@
-sync_address = "http://100.111.141.8:8888"
+sync_address = "http://alpine-docker.tail8779.ts.net:8888"
 ## linux/mac: ~/.local/share/atuin/history.db
 ## windows: %USERPROFILE%/.local/share/atuin/history.db
 # db_path = "~/.history.db"
