@@ -25,16 +25,16 @@ if status is-interactive
     bind \cf 'zi; commandline --function repaint'
 
     function vi -w nvim
-        nvim
+        nvim $argv
     end
     function vim -w nvim
-        nvim
+        nvim $argv
     end
     function rm -w trash
-        trash
+        trash $argv
     end
     function rmfrfr -w rm
-        rm
+        rm $argv
     end
 
     function select_changeset
