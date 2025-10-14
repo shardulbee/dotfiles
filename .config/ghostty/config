@@ -5,7 +5,8 @@ window-title-font-family = Berkeley Mono
 shell-integration = fish
 confirm-close-surface = false
 window-save-state = always
-theme = GruvboxDarkHard
+theme = Gruvbox Dark Hard
+macos-titlebar-style = tabs
 
 keybind = alt+shift+left=resize_split:left,10
 keybind = alt+shift+right=resize_split:right,10

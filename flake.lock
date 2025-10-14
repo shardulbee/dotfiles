@@ -64,11 +64,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1756580163,
-        "narHash": "sha256-UkgQ3uxWPwLQiNhcZReFifLPD8h+xmH798ckTtia/+4=",
+        "lastModified": 1759824138,
+        "narHash": "sha256-gKJ03+H/UTmGCGV5mpthrcHw+oX4vubuiVKbvmYNk1I=",
         "owner": "idursun",
         "repo": "jjui",
-        "rev": "089610ed87d388fc929b52c3aaf8ddd5e247b844",
+        "rev": "5ef8eb8e7894ac8b792771bdaa4c05feb7de7886",
         "type": "github"
       },
       "original": {

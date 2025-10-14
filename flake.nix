@@ -121,6 +121,8 @@
               "karabiner-elements"
               "espanso"
               "macwhisper"
+              "claude"
+              "antinote"
             ];
             masApps = {
               "Things 3" = 904280696;
@@ -401,13 +403,13 @@
               system.activationScripts.dotfiles = {
                 text = ''
                   DOTFILES_DIR="/home/shardul/Documents/dotfiles"
-                  
+
                   # Clone or update dotfiles repository if needed
                   if [ ! -d "$DOTFILES_DIR" ]; then
                     echo "Cloning dotfiles repository..."
                     sudo -u shardul git clone https://github.com/shardulbee/dotfiles.git "$DOTFILES_DIR"
                   fi
-                  
+
                   # Run dotfile symlink installation if the repository exists
                   if [ -d "$DOTFILES_DIR" ] && [ -f "$DOTFILES_DIR/Makefile.dotfiles" ]; then
                     echo "Setting up dotfile symlinks..."

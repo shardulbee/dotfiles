@@ -20,14 +20,15 @@ require("lazy").setup({
     path = "/Users/shardul/Documents",
   },
   spec = {
-    { "tpope/vim-fugitive" },
+    "tpope/vim-fugitive",
+    "tpope/vim-rhubarb",
     {
-      "shardulbee/jitser",
-      dev = true,
-      keys = {
-        { "<leader>gs", "<cmd>Jj<cr>", desc = "JJ Status" },
+      "lewis6991/gitsigns.nvim",
+      opts = {
+        current_line_blame = true,
       },
     },
+
     {
       "nvim-neo-tree/neo-tree.nvim",
       branch = "v3.x",
@@ -48,46 +49,6 @@ require("lazy").setup({
             hide_hidden = false,
           },
         },
-      },
-    },
-    {
-      "coder/claudecode.nvim",
-      dependencies = { "folke/snacks.nvim" },
-      lazy = false,
-      config = true,
-      opts = {
-        terminal = {
-          provider = {
-            setup = function(_)
-              return nil
-            end,
-            open = function(_, _, _, _)
-              return true
-            end,
-            close = function()
-              return true
-            end,
-            simple_toggle = function(_, _, _) end,
-            focus_toggle = function(_, _, _) end,
-            get_active_bufnr = function()
-              return nil
-            end,
-            is_available = function()
-              return true
-            end,
-            toggle = function(_, _, _)
-              return nil
-            end,
-            _get_terminal_for_test = function()
-              return nil
-            end,
-          },
-        },
-        terminal_cmd = "~/.claude/local/claude --dangerously-skip-permissions",
-      },
-      keys = {
-        { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
-        { "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Send to Claude" },
       },
     },
     {
@@ -114,16 +75,6 @@ require("lazy").setup({
           lualine_y = { "progress" },
           lualine_z = { "location" },
         },
-      },
-    },
-    {
-      "supermaven-inc/supermaven-nvim",
-      opts = {
-        color = {
-          suggestion_color = "#ffffff",
-          cterm = 244,
-        },
-        log_level = "off",
       },
     },
     "direnv/direnv.vim",
@@ -391,9 +342,21 @@ vim.opt.hlsearch = false -- don't highlight search results
 vim.opt.incsearch = true -- search as you type
 vim.opt.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
 vim.opt.termguicolors = true
-vim.opt.title = true
-vim.opt.titlestring = "%{fnamemodify(getcwd(), ':t')}"
 vim.opt.tags = "./tags,./.tags"
+
+local function toggle_quickfix()
+  for _, win in ipairs(vim.fn.getwininfo()) do
+    if win.quickfix == 1 then
+      vim.cmd("cclose")
+      return
+    end
+  end
+  vim.cmd("copen")
+end
+
+vim.keymap.set("n", "<leader>c", toggle_quickfix, { noremap = true, silent = true, desc = "Toggle quickfix list" })
+vim.keymap.set("n", "<leader>gb", "<cmd>GBrowse<cr>", { noremap = true, silent = true, desc = "Open in browser" })
+vim.keymap.set("v", "<leader>gb", ":GBrowse<CR>", { silent = true, desc = "Open selection in browser" })
 
 -- Pane navigation with Ctrl+hjkl
 vim.keymap.set("n", "<C-h>", "<C-w>h", { noremap = true, silent = true, desc = "Move to left pane" })

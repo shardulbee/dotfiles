@@ -97,8 +97,18 @@ if status is-interactive
     end
 
     function fish_title
-        echo (basename (pwd))
+        set -l cwd (path basename (pwd))
+        if test -z "$cwd"
+            set cwd /
+        end
+        set -l cmd (status current-command)
+        if test -n "$cmd"
+            echo "$cmd - $cwd"
+        else
+            echo $cwd
+        end
     end
 
     set -gx MANPAGER "sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p -lman'"
 end
+eval (~/.local/try.rb init ~/Documents/scratch | string collect)
