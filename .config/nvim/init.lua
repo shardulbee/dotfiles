@@ -28,6 +28,12 @@ require("lazy").setup({
         current_line_blame = true,
       },
     },
+			"julienvincent/hunk.nvim",
+			cmd = { "DiffEditor" },
+			config = function()
+				require("hunk").setup()
+			end,
+		},
 
     {
       "nvim-neo-tree/neo-tree.nvim",
