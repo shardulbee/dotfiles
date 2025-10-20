@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+
+if ! command -v brew >/dev/null 2>&1; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_ENV_HINTS=1
+export HOMEBREW_NO_COLOR=1
+export HOMEBREW_NO_EMOJI=1
+export HOMEBREW_VERBOSE=
+
+brew bundle --file=Brewfile --cleanup --force
+
+# Add fish to /etc/shells and set as default shell
+fish_path="/opt/homebrew/bin/fish"
+if ! grep -q "$fish_path" /etc/shells; then
+    echo "$fish_path" | sudo tee -a /etc/shells > /dev/null
+fi
+if [ "$SHELL" != "$fish_path" ]; then
+    chsh -s "$fish_path"
+fi
+
+# Dock settings
+defaults write com.apple.dock autohide -bool true
+defaults write com.apple.dock mru-spaces -bool false
+defaults write com.apple.dock minimize-to-application -bool true
+defaults write com.apple.dock mineffect -string "scale"
+defaults write com.apple.dock launchanim -bool false
+defaults write com.apple.dock expose-animation-duration -float 0.0
+defaults write com.apple.dock orientation -string "bottom"
+defaults write com.apple.dock show-recents -bool false
+defaults write com.apple.dock static-only -bool true
+defaults write com.apple.dock expose-group-apps -bool true
+
+# Finder settings
+defaults write com.apple.finder CreateDesktop -bool false
+defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+defaults write com.apple.finder ShowPathbar -bool true
+
+# Global system preferences
+defaults write NSGlobalDomain InitialKeyRepeat -int 15
+defaults write NSGlobalDomain KeyRepeat -int 1
+defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
+defaults write -g com.apple.keyboard.fnState -bool false
+defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+defaults write NSGlobalDomain com.apple.trackpad.trackpadCornerClickBehavior -int 1
+defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticInlinePredictionEnabled -bool false
+defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+defaults write NSGlobalDomain AppleInterfaceStyle -string "Dark"
+
+# Menu bar settings
+defaults write com.apple.menuextra.clock Show24Hour -bool true
+
+# Disable Spotlight keyboard shortcuts
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 64 "{enabled = 0;}"
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 65 "{enabled = 0;}"
+
+# Touch ID for sudo
+if [ ! -f /etc/pam.d/sudo_local ]; then
+    sudo tee /etc/pam.d/sudo_local > /dev/null <<EOF
+auth       sufficient     pam_tid.so
+auth       sufficient     pam_smartcard.so
+auth       required       pam_opendirectory.so
+account    required       pam_permit.so
+password   required       pam_deny.so
+session    required       pam_permit.so
+EOF
+fi
+
+killall Dock
+killall Finder
+killall SystemUIServer
+
+stow --no-folding \
+    --target=$HOME \
+    --ignore=.DS_Store \
+    --ignore=setup \
+    --ignore=.stylua.toml \
+    --ignore=.git \
+    --ignore=.zed \
+    --ignore=Makefile \
+    --ignore=Brewfile \
+    .
+
+# Install tools via mise
+mise install
+
+echo "Done"
