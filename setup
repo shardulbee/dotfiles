@@ -79,16 +79,26 @@ killall Dock
 killall Finder
 killall SystemUIServer
 
-stow --no-folding \
-    --target=$HOME \
-    --ignore=.DS_Store \
-    --ignore=setup \
-    --ignore=.stylua.toml \
-    --ignore=.git \
-    --ignore=.zed \
-    --ignore=Makefile \
-    --ignore=Brewfile \
-    .
+# Create symlinks for all files
+dotfiles_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+find "$dotfiles_dir" -type f \
+    ! -path "*/.git/*" \
+    ! -path "*/.jj/*" \
+    ! -name ".DS_Store" \
+    ! -name ".gitignore" \
+    ! -name "setup" \
+    ! -name ".stylua.toml" \
+    ! -name "Makefile" \
+    ! -name "Brewfile" \
+    | while read -r file; do
+    rel_path="${file#$dotfiles_dir/}"
+    target="$HOME/$rel_path"
+    target_dir="$(dirname "$target")"
+
+    mkdir -p "$target_dir"
+    ln -sf "$file" "$target"
+done
 
 # Install tools via mise
 mise install

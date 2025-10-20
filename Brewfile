@@ -2,7 +2,6 @@ brew "git"
 brew "mise"
 brew "trash"
 brew "fish"
-brew "stow"
 
 cask "google-chrome"
 cask "1password"
