@@ -53,6 +53,7 @@ require("lazy").setup({
 					topdelete = { text = "" },
 					changedelete = { text = "▎" },
 				},
+				preview_config = { border = "rounded", },
 				on_attach = function(bufnr)
 					local gitsigns = require("gitsigns")
 
@@ -316,10 +317,16 @@ require("lazy").setup({
 					buf_set_keymap("n", "gr", vim.lsp.buf.references, opts)
 					buf_set_keymap("n", "cd", vim.lsp.buf.rename, opts)
 					buf_set_keymap("n", "]d", function()
-						vim.diagnostic.goto_next({ float = true })
+						vim.diagnostic.goto_next({
+							float = true,
+							severity = { min = vim.diagnostic.severity.WARN },
+						})
 					end, opts)
 					buf_set_keymap("n", "[d", function()
-						vim.diagnostic.goto_prev({ float = true })
+						vim.diagnostic.goto_prev({
+							float = true,
+							severity = { min = vim.diagnostic.severity.WARN },
+						})
 					end, opts)
 				end
 
@@ -331,7 +338,15 @@ require("lazy").setup({
 					on_attach = on_attach,
 				})
 
-				vim.diagnostic.config({ virtual_text = false })
+				vim.diagnostic.config({
+					virtual_text = true,
+					severity_sort = true,
+					update_in_insert = false,
+					underline = false,
+					float = {
+						border = "rounded",
+					},
+				})
 			end,
 		},
 		{ "windwp/nvim-ts-autotag", opts = {} },
