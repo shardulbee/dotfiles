@@ -1,7 +1,23 @@
 #!/usr/bin/env bash
 
-if ! command -v brew >/dev/null 2>&1; then
+hostname_value=""
+while [ -z "$hostname_value" ]; do
+    read -rp "Enter desired hostname for this Mac: " hostname_value
+done
+
+sudo scutil --set HostName "$hostname_value"
+sudo scutil --set LocalHostName "$hostname_value"
+sudo scutil --set ComputerName "$hostname_value"
+
+brew_path="/opt/homebrew/bin/brew"
+
+if [ ! -x "$brew_path" ]; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+if [ ! -x "$brew_path" ]; then
+    echo "Homebrew is not available after installation attempt." >&2
+    exit 1
 fi
 
 export HOMEBREW_NO_AUTO_UPDATE=1
@@ -10,7 +26,7 @@ export HOMEBREW_NO_COLOR=1
 export HOMEBREW_NO_EMOJI=1
 export HOMEBREW_VERBOSE=
 
-brew bundle --file=Brewfile --cleanup --force
+"$brew_path" bundle --file=Brewfile --cleanup --force
 
 # Add fish to /etc/shells and set as default shell
 fish_path="/opt/homebrew/bin/fish"

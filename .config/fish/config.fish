@@ -1,4 +1,3 @@
-# vim: ts=2 sw=2 et
 fish_add_path $HOME/bin $HOME/.local/bin /run/current-system/sw/bin /etc/profiles/per-user/$USER/bin /opt/homebrew/bin
 
 set -gx EDITOR nvim
@@ -38,36 +37,6 @@ if status is-interactive
         echo $changesets
     end
 
-    # Generate PR description using Claude
-    function genpr
-        # Select head changeset (current branch)
-        set -l head (select_changeset)
-        if test $status -ne 0
-            return 1
-        end
-
-        set -l base (select_changeset)
-        if test $status -ne 0
-            return 1
-        end
-
-        claude -p "/genpr $base $head"
-    end
-
-    function claude
-        if set -q SSH_CLIENT; or set -q SSH_TTY
-            if not set -q _SSH_DID_UNLOCK
-                echo "🔐 Unlocking keychain for Claude in SSH session..."
-                security unlock-keychain ~/Library/Keychains/login.keychain-db
-                set -gx _SSH_DID_UNLOCK 1
-            end
-        end
-        /Users/shardul/.claude/local/claude --dangerously-skip-permissions $argv
-    end
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # Prompt
-    # ─────────────────────────────────────────────────────────────────────────
     function fish_prompt
         set -l last_status $status
 

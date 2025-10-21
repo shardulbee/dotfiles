@@ -24,7 +24,7 @@ require("lazy").setup({
 		"tpope/vim-rhubarb",
 		{
 			"NicolasGB/jj.nvim",
-			dev = true,
+			dev = false,
 			opts = {},
 		},
 		{
