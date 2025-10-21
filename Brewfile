@@ -4,6 +4,8 @@ brew "git"
 brew "mise"
 brew "trash"
 brew "fish"
+brew "bash"
+brew "terminal-notifier"
 
 cask "google-chrome"
 cask "1password"
@@ -22,4 +24,9 @@ cask "macwhisper"
 cask "antinote"
 cask "bartender"
 cask "istat-menus"
-cask "tailscale" if hostname == "turbochardo"
+
+if hostname == "turbochardo"
+  cask "tailscale"
+else
+  cask "cursor"
+end

@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [ $# -eq 0 ]; then
+    echo "Usage: notify-pr-ready <pr-number-or-link>"
+    exit 1
+fi
+
+PR_INPUT="$1"
+
+if [[ "$PR_INPUT" =~ ^[0-9]+$ ]]; then
+    PR_NUMBER="$PR_INPUT"
+elif [[ "$PR_INPUT" =~ /pull/([0-9]+) ]]; then
+    PR_NUMBER="${BASH_REMATCH[1]}"
+else
+    echo "Error: Invalid PR number or link: $PR_INPUT"
+    exit 1
+fi
+
+PR_INFO=$(gh pr view "$PR_NUMBER" --json title,url)
+PR_TITLE=$(echo "$PR_INFO" | jq -r '.title')
+PR_URL=$(echo "$PR_INFO" | jq -r '.url')
+
+echo "Watching PR #$PR_NUMBER: $PR_TITLE"
+echo "URL: $PR_URL"
+
+gh pr checks --watch "$PR_NUMBER"
+
+CHECKS_OUTPUT=$(gh pr checks "$PR_NUMBER" --json conclusion 2>/dev/null || echo "[]")
+CHECKS_STATUS=$(echo "$CHECKS_OUTPUT" | jq -r '.[] | .conclusion' | sort -u)
+
+if [ -z "$CHECKS_STATUS" ]; then
+    terminal-notifier \
+        -title "PR Checks Complete" \
+        -message "PR #$PR_NUMBER: $PR_TITLE (No checks found)" \
+        -open "$PR_URL" \
+        -sound Basso
+    echo "ℹ PR has no checks configured"
+elif [ "$CHECKS_STATUS" = "SUCCESS" ]; then
+    terminal-notifier \
+        -title "PR Ready to Merge" \
+        -message "PR #$PR_NUMBER: $PR_TITLE" \
+        -open "$PR_URL" \
+        -sound Glass
+    echo "✓ PR is ready to merge!"
+else
+    terminal-notifier \
+        -title "PR Checks Complete" \
+        -message "PR #$PR_NUMBER: $PR_TITLE (Status: $CHECKS_STATUS)" \
+        -open "$PR_URL" \
+        -sound Basso
+    echo "✗ PR checks completed with status: $CHECKS_STATUS"
+fi

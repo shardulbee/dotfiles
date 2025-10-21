@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
-hostname_value=""
-while [ -z "$hostname_value" ]; do
-    read -rp "Enter desired hostname for this Mac: " hostname_value
-done
+read -rp "Enter desired hostname for this Mac (leave blank to skip): " hostname_value
 
-sudo scutil --set HostName "$hostname_value"
-sudo scutil --set LocalHostName "$hostname_value"
-sudo scutil --set ComputerName "$hostname_value"
+if [ -n "$hostname_value" ]; then
+    sudo scutil --set HostName "$hostname_value"
+    sudo scutil --set LocalHostName "$hostname_value"
+    sudo scutil --set ComputerName "$hostname_value"
+else
+    echo "No hostname provided; leaving existing hostname unchanged."
+fi
 
 brew_path="/opt/homebrew/bin/brew"
 
