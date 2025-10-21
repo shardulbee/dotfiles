@@ -155,11 +155,8 @@ require("lazy").setup({
 						["--layout"] = "reverse",
 					},
 					winopts = {
-						height = 0.9,
-						width = 0.9,
-					},
-					oldfiles = {
-						cwd_only = true,
+						height = 1.0,
+						width = 1.0,
 					},
 				})
 
