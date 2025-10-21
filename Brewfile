@@ -1,3 +1,5 @@
+hostname = `hostname`.strip
+
 brew "git"
 brew "mise"
 brew "trash"
@@ -20,4 +22,4 @@ cask "macwhisper"
 cask "antinote"
 cask "bartender"
 cask "istat-menus"
-cask "tailscale"
+cask "tailscale" if hostname == "turbochardo"

@@ -37,18 +37,6 @@ if [ "$SHELL" != "$fish_path" ]; then
     chsh -s "$fish_path"
 fi
 
-# Dock settings
-defaults write com.apple.dock autohide -bool true
-defaults write com.apple.dock mru-spaces -bool false
-defaults write com.apple.dock minimize-to-application -bool true
-defaults write com.apple.dock mineffect -string "scale"
-defaults write com.apple.dock launchanim -bool false
-defaults write com.apple.dock expose-animation-duration -float 0.0
-defaults write com.apple.dock orientation -string "bottom"
-defaults write com.apple.dock show-recents -bool false
-defaults write com.apple.dock static-only -bool true
-defaults write com.apple.dock expose-group-apps -bool true
-
 # Finder settings
 defaults write com.apple.finder CreateDesktop -bool false
 defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"

@@ -139,8 +139,6 @@ require("lazy").setup({
 		"tpope/vim-sleuth",
 		"tpope/vim-unimpaired",
 		"tpope/vim-repeat",
-		"tpope/vim-dadbod",
-		"tpope/vim-vinegar",
 		{ "echasnovski/mini.pairs", version = false, config = true },
 		{ "echasnovski/mini.splitjoin", version = false, config = true },
 		{
@@ -364,29 +362,26 @@ vim.cmd([[filetype plugin indent on]])
 vim.cmd([[syntax on]])
 
 -- Define mode display function
-vim.opt.wrap = false -- soft wrap off
-vim.opt.scrolloff = 10 -- scroll once the cursor is < 10 lines from the bottom
-vim.opt.showmatch = true -- briefly jump to the matching bracket when the closing one is entered
-vim.opt.matchtime = 3 -- how long to jump to the matching bracket
-vim.opt.tabstop = 2 -- number of spaces to insert when tab is pressed (also controls the number of spaces used for < and >)
-vim.opt.shiftwidth = 2 -- number of spaces to use for autoindent
-vim.opt.expandtab = true -- use spaces instead of tabs
-vim.opt.number = true -- show line numbers
-vim.opt.ruler = true -- show the current line and column number
-vim.opt.laststatus = 3 -- always show the status line
-vim.opt.showmode = false -- show what editing mode we are in
-vim.opt.writebackup = false -- don't backup file when writing
-vim.opt.swapfile = false -- don't create swap files which allow you to recover from crashes even if you didn't save
-vim.opt.showcmd = false -- don't show the command you are typing on the last line
-vim.opt.autowrite = true -- automatically write the file when switching buffers
-vim.opt.hidden = true -- allow switching buffers without saving
-vim.opt.clipboard = "unnamed" -- use the system clipboard
-vim.opt.backspace = "indent,eol,start" -- allow backspacing over everything
-vim.opt.smartindent = true -- autoindent based on the previous line
-vim.opt.autoread = true -- automatically reload files that have changed on disk
-vim.opt.linebreak = true -- wrap long lines at characters in 'breakat'
-vim.opt.ttimeoutlen = 0 -- don't wait for key codes to complete
-vim.opt.ignorecase = true -- ignore case when searching
+vim.opt.wrap = false
+vim.opt.scrolloff = 10
+vim.opt.showmatch = true
+vim.opt.matchtime = 3
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.expandtab = true
+vim.opt.number = true
+vim.opt.laststatus = 3
+vim.opt.showmode = false
+vim.opt.writebackup = false
+vim.opt.swapfile = false
+vim.opt.showcmd = false
+vim.opt.autowrite = true
+vim.opt.clipboard = "unnamed"
+vim.opt.backspace = "indent,eol,start"
+vim.opt.smartindent = true
+vim.opt.linebreak = true
+vim.opt.ttimeoutlen = 0
+vim.opt.ignorecase = true
 vim.opt.incsearch = false
 vim.opt.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
 
