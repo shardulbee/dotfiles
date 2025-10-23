@@ -5,8 +5,8 @@ set -gx FZF_DEFAULT_CMD "fd -tf --hidden --exclude '.git' --no-require-git"
 set -gx FZF_CTRL_T_COMMAND "$FZF_DEFAULT_CMD"
 
 command -q fzf; and fzf --fish | source
-command -q mise; and mise activate fish | source
 command -q direnv; and direnv hook fish | source
+command -q mise; and mise activate fish | source
 command -q atuin; and atuin init fish --disable-up-arrow | source
 command -q zoxide; and zoxide init fish | source
 command -q orb; and source ~/.orbstack/shell/init2.fish 2>/dev/null

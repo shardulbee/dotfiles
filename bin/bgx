@@ -8,6 +8,9 @@ if [[ "$1" == "-t" ]]; then
     shift
 fi
 
-[[ -z "$session" ]] && session="bg-$$"
+if [[ -z "$session" ]]; then
+    read -p "Enter session name: " session
+    [[ -z "$session" ]] && session="bg-$$"
+fi
 
 tmux has-session -t "$session" 2>/dev/null && tmux new-window -t "$session" bash -c "$*; read -p $'\n[Press Enter to close] '" || tmux new-session -d -s "$session" bash -c "$*; read -p $'\n[Press Enter to close] '"

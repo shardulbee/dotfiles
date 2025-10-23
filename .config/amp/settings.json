@@ -1,4 +1,13 @@
 {
   "amp.commands.strict": false,
-  "amp.dangerouslyAllowAll": true
+  "amp.dangerouslyAllowAll": true,
+  "amp.mcpServers": {
+    "buildkite": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.buildkite.com/mcp"
+      ]
+    }
+  }
 }

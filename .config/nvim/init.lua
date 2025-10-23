@@ -24,7 +24,7 @@ require("lazy").setup({
 		"tpope/vim-rhubarb",
 		{
 			"NicolasGB/jj.nvim",
-			dev = false,
+			dev = true,
 			opts = {},
 		},
 		{
@@ -53,7 +53,7 @@ require("lazy").setup({
 					topdelete = { text = "" },
 					changedelete = { text = "▎" },
 				},
-				preview_config = { border = "rounded", },
+				preview_config = { border = "rounded" },
 				on_attach = function(bufnr)
 					local gitsigns = require("gitsigns")
 
@@ -133,7 +133,10 @@ require("lazy").setup({
 				},
 			},
 		},
-		"direnv/direnv.vim",
+		{
+			"NotAShelf/direnv.nvim",
+			opts = {},
+		},
 		"tpope/vim-eunuch",
 		"tpope/vim-surround",
 		"tpope/vim-dispatch",
@@ -350,6 +353,22 @@ require("lazy").setup({
 			end,
 		},
 		{ "windwp/nvim-ts-autotag", opts = {} },
+		{
+			"vim-test/vim-test",
+			keys = {
+				{ "<leader>tn", "<cmd>TestNearest<cr>", desc = "Run nearest test" },
+				{ "<leader>tf", "<cmd>TestFile<cr>", desc = "Run current file tests" },
+				{ "<leader>tl", "<cmd>TestLast<cr>", desc = "Re-run last test" },
+			},
+			config = function()
+				vim.g["test#strategy"] = "neovim"
+				for _, ft in ipairs({ "javascript", "typescript" }) do
+					vim.g[string.format("test#%s#runner", ft)] = "jest"
+					vim.g[string.format("test#%s#jest#executable", ft)] =
+						"node --expose-gc --max-old-space-size=5000 --stack-trace-limit=1000 --experimental-vm-modules --trace-uncaught node_modules/jest/bin/jest.js --logHeapUsage --runInBand --forceExit"
+				end
+			end,
+		},
 		{
 			"stevearc/conform.nvim",
 			opts = {
