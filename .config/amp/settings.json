@@ -6,7 +6,7 @@
       "command": "npx",
       "args": [
         "mcp-remote",
-        "https://mcp.buildkite.com/mcp"
+        "https://mcp.buildkite.com/mcp/readonly"
       ]
     }
   }

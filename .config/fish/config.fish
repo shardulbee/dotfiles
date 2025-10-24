@@ -3,6 +3,7 @@ fish_add_path $HOME/bin $HOME/.local/bin /run/current-system/sw/bin /etc/profile
 set -gx EDITOR nvim
 set -gx FZF_DEFAULT_CMD "fd -tf --hidden --exclude '.git' --no-require-git"
 set -gx FZF_CTRL_T_COMMAND "$FZF_DEFAULT_CMD"
+set -x SECRETS_PATH $HOME/Library/Mobile\ Documents/com\~apple\~CloudDocs
 
 command -q fzf; and fzf --fish | source
 command -q direnv; and direnv hook fish | source
@@ -72,3 +73,4 @@ if status is-interactive
 
     set -gx MANPAGER "sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p -lman'"
 end
+eval (~/.local/try.rb init ~/Documents/scratch | string collect)

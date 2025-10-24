@@ -1,0 +1,34 @@
+[
+  {
+    "label": "Open jjui",
+    "command": "jjui",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "allow_concurrent_runs": false,
+    "reveal_target": "center",
+    "hide": "always"
+  },
+  {
+    "label": "Open changed files",
+    "command": "jj",
+    "args": [
+      "diff",
+      "--from",
+      "'fork_point(@|main)'",
+      "--to",
+      "@",
+      "--name-only",
+      "|",
+      "xargs",
+      "-I{}",
+      "echo",
+      "'\"{}\"'",
+      "|",
+      "xargs",
+      "zed"
+    ],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "allow_concurrent_runs": false,
+    "reveal_target": "center",
+    "hide": "always"
+  }
+]

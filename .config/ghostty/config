@@ -1,4 +1,4 @@
-font-size = 16
+font-size = 14
 scrollback-limit = 1000000000
 font-family = Berkeley Mono
 window-title-font-family = Berkeley Mono
@@ -8,16 +8,8 @@ window-save-state = always
 theme = Gruvbox Dark Hard
 macos-titlebar-style = tabs
 
-keybind = alt+shift+left=resize_split:left,10
-keybind = alt+shift+right=resize_split:right,10
-keybind = alt+shift+down=resize_split:down,10
-keybind = alt+shift+up=resize_split:up,10
-
 keybind = cmd+page_up=scroll_page_fractional:-0.5
 keybind = cmd+page_down=scroll_page_fractional:0.5
 keybind = cmd+enter=toggle_split_zoom
 
 keybind = option+backspace=text:\x1b\x7f
-
-keybind = cmd+r=prompt_surface_title
-keybind = shift+enter=text:\x1b\r

@@ -1,5 +1,7 @@
 -- vim: set ts=2 sw=2
 ---@diagnostic disable: undefined-global
+---
+---
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -22,18 +24,6 @@ require("lazy").setup({
 	spec = {
 		"tpope/vim-fugitive",
 		"tpope/vim-rhubarb",
-		{
-			"NicolasGB/jj.nvim",
-			dev = true,
-			opts = {},
-		},
-		{
-			"julienvincent/hunk.nvim",
-			cmd = { "DiffEditor" },
-			config = function()
-				require("hunk").setup()
-			end,
-		},
 		{
 			"lewis6991/gitsigns.nvim",
 			opts = {
@@ -113,6 +103,7 @@ require("lazy").setup({
 			config = true,
 			opts = {
 				contrast = "hard",
+				inverse = true,
 			},
 			init = function()
 				vim.cmd("colorscheme gruvbox")
@@ -429,6 +420,7 @@ vim.keymap.set("n", "<leader>gb", "<cmd>GBrowse<cr>", { noremap = true, silent =
 vim.keymap.set("v", "<leader>gb", ":GBrowse<CR>", { silent = true, desc = "Open selection in browser" })
 
 vim.keymap.set("n", "gl", "<cmd>nohl<cr>", { silent = true, desc = "Remove search highlighting" })
+vim.keymap.set("n", "<leader>gs", "<cmd>J status<cr>", { noremap = true, silent = true, desc = "Jujutsu status" })
 
 vim.api.nvim_create_augroup("TRIM_WHITESPACE", { clear = true })
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {

@@ -62,16 +62,11 @@ if.app-name-regex-substring = 'Zed'
 run = ['move-node-to-workspace 1']
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'Cursor'
-run = ['move-node-to-workspace 4']
-
-[[on-window-detected]]
 if.app-name-regex-substring = 'Ghostty'
 run = ['move-node-to-workspace Z']
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Google Chrome'
-# if.window-title-regex-substring = 'Shardul \(Personal\)'
 run = ['move-node-to-workspace 3']
 
 [[on-window-detected]]
@@ -79,25 +74,5 @@ if.app-name-regex-substring = "Slack"
 run = ['move-node-to-workspace 7']
 
 [[on-window-detected]]
-if.app-name-regex-substring = "Messages"
-run = ['move-node-to-workspace 8']
-
-[[on-window-detected]]
-if.app-name-regex-substring = "WhatsApp"
-run = ['move-node-to-workspace 8']
-
-[[on-window-detected]]
-if.app-name-regex-substring = "Anki"
-run = ['move-node-to-workspace 9']
-
-[[on-window-detected]]
-if.app-name-regex-substring = "Obsidian"
-run = ['move-node-to-workspace 9']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Dash'
+if.app-name-regex-substring = 'Antinote'
 run = ['layout floating']
-
-[[on-window-detected]]
-if.app-id = "com.mitchellh.ghostty"
-run = ["layout tiling", "move-node-to-workspace Z"]

@@ -1,0 +1,74 @@
+{
+    "window.commandCenter": true,
+    "typescript.tsserver.maxTsServerMemory": 4000,
+    "workbench.colorTheme": "Gruvbox Dark Hard",
+    "vim.useSystemClipboard": true,
+    "jest.runMode": "on-demand",
+    "cursor.composer.shouldChimeAfterChatFinishes": true,
+    "editor.fontFamily": "Berkeley Mono, Menlo, Monaco, 'Courier New', monospace",
+    "editor.inlayHints.fontFamily": "Berkeley Mono",
+    "editor.inlineSuggest.fontFamily": "Berkeley Mono",
+    "debug.console.fontFamily": "Berkeley Mono",
+    "scm.inputFontFamily": "Berkeley Mono",
+    "markdown.preview.fontFamily": "Berkeley Mono, -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif",
+    // "git.blame.statusBarItem.enabled": false,
+    "workbench.colorCustomizations": {
+        "statusBar.background": "#005f5f",
+        "statusBar.noFolderBackground": "#005f5f",
+        "statusBar.debuggingBackground": "#005f5f",
+        "statusBar.foreground": "#ffffff",
+        "statusBar.debuggingForeground": "#ffffff"
+    },
+    "vim.showmodename": false,
+    "git.enableStatusBarSync": false,
+    // "git.blame.statusBarItem.template": "",
+    // Disable the minimap for improved rendering performance
+    "editor.minimap.enabled": false,
+    // Disable CodeLens to reduce background processing, especially in large files
+    "editor.codeLens": false,
+    // Disable automatic formatting on save or paste if it's causing lag
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
+    // Disable restoring previous windows on startup for faster launch times
+    "window.restoreWindows": "none",
+    // Prevent the editor from restoring view state for faster loading of files
+    "workbench.editor.restoreViewState": false,
+    // Prevent restoring the undo stack from previous sessions
+    "files.restoreUndoStack": false,
+    // Set the startup editor to 'none' to avoid loading a default editor on launch
+    "workbench.startupEditor": "none",
+    // Optimize large file handling
+    "editor.largeFileOptimizations": true,
+    // Limit the visible open editors in the explorer sidebar to reduce UI rendering
+    "explorer.openEditors.visible": 1,
+    "vim.normalModeKeyBindings": [
+            {
+                "before": ["K"],
+                "commands": ["editor.action.showHover"]
+            },
+            {
+                "before": ["]", "c"],
+                "commands": ["workbench.action.editor.nextChange"]
+            },
+            {
+                "before": ["[", "c"],
+                "commands": ["workbench.action.editor.previousChange"]
+            },
+            {
+                "before": ["]", "d"],
+                "commands": ["editor.action.marker.next"]
+            },
+            {
+                "before": ["[", "d"],
+                "commands": ["editor.action.marker.prev"]
+            },
+        ],
+        "git.blame.statusBarItem.enabled": true,
+        "[typescript]": {
+            "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[jsonc]": {
+            "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "terminal.integrated.defaultProfile.osx": "fish",
+}

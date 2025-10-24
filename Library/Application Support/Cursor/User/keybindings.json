@@ -1,0 +1,53 @@
+// Place your key bindings in this file to override the defaults
+[
+  {
+    "key": "cmd+i",
+    "command": "composerMode.agent"
+  },
+  {
+    "key": "ctrl+w ]",
+    "command": "editor.action.revealDefinitionAside",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+w h",
+    "command": "workbench.action.focusLeftGroup",
+    "when": "editorTextFocus && vim.active"
+  },
+  {
+    "key": "ctrl+w l",
+    "command": "workbench.action.focusRightGroup",
+    "when": "editorTextFocus && vim.active"
+  },
+  {
+    "key": "ctrl+w k",
+    "command": "workbench.action.focusAboveGroup",
+    "when": "editorTextFocus && vim.active"
+  },
+  {
+    "key": "ctrl+w j",
+    "command": "workbench.action.focusBelowGroup",
+    "when": "editorTextFocus && vim.active"
+  },
+  {
+    "key": "cmd+alt+f",
+    "command": "search.action.openNewEditorToSide",
+    "args": {
+      "query": "",
+      "filesToInclude": "${file}",
+      "caseSensitive": true,
+      "onlyOpenEditors": true
+    },
+    "when": "editorFocus || editorIsOpen"
+  },
+  {
+    "key": "alt+down",
+    "command": "search.action.focusNextSearchResult",
+    "when": "searchViewletVisible"
+  },
+  {
+    "key": "alt+up",
+    "command": "search.action.focusPreviousSearchResult",
+    "when": "searchViewletVisible"
+  },
+]

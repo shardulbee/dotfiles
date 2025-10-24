@@ -1,0 +1,74 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "",
+    "bindings": {
+      "cmd-,": "zed::OpenSettingsFile"
+    }
+  },
+  {
+    "context": "EmptyPane || SharedScreen || vim_mode == normal",
+    "bindings": {
+      "ctrl-s": "projects::OpenRecent"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "\\ space": ["task::Spawn", { "task_name": "Build" }],
+      "cmd-alt-ctrl-shift-x": "dev::OpenKeyContextView",
+      "\\ a c": ["agent::NewExternalAgentThread", { "agent": "claude_code" }],
+      "\\ a x": ["agent::NewExternalAgentThread", { "agent": "codex" }],
+      "\\ e k": "zed::OpenKeymapFile",
+      "cmd-shift-f": [
+        "pane::DeploySearch",
+        { "excluded_files": "*.json, *.har" }
+      ]
+    }
+  },
+  {
+    "context": "Pane",
+    "bindings": {
+      "cmd-shift-f": [
+        "pane::DeploySearch",
+        { "excluded_files": "*.json, *.har, *.spec.ts" }
+      ]
+    }
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "cmd-t": "workspace::NewTerminal"
+    }
+  },
+  {
+    "context": "Editor && vim_mode == normal",
+    "bindings": {
+      "\"": "editor::ToggleSelectedDiffHunks",
+      "\\ g b": "editor::OpenPermalinkToLine",
+      "\\ c p": "editor::CopyRelativePath"
+    }
+  },
+  {
+    "context": "Editor && vim_mode == visual && !menu",
+    "bindings": {
+      "v": "editor::SelectLargerSyntaxNode",
+      "V": "editor::SelectSmallerSyntaxNode"
+    }
+  },
+  {
+    "context": "Dock",
+    "bindings": {
+      "ctrl-w h": "workspace::ActivatePaneLeft",
+      "ctrl-w l": "workspace::ActivatePaneRight",
+      "ctrl-w k": "workspace::ActivatePaneUp",
+      "ctrl-w j": "workspace::ActivatePaneDown"
+    }
+  }
+]

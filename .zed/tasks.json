@@ -1,0 +1,7 @@
+[
+  {
+    "label": "Build",
+    "command": "./setup",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  }
+]
