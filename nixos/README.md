@@ -2,19 +2,15 @@
 
 Absolute minimum NixOS config with Niri.
 
-## Setup
+## Install
+
+One command from your machine:
 
 ```bash
-# Copy to /etc/nixos/
-sudo cp configuration.nix /etc/nixos/
-
-# Rebuild
-sudo nixos-rebuild switch
-
-# Copy niri config
-mkdir -p ~/.config/niri
-cp niri.kdl ~/.config/niri/config.kdl
+sudo nixos-rebuild switch --flake github:shardulbee/dotfiles?dir=nixos
 ```
+
+That's it. Everything configured, including niri keybinds.
 
 ## What's included
 
@@ -47,8 +43,8 @@ ln -sf ~/dotfiles/.config/fish ~/.config/fish
 
 ## Add packages
 
-Edit `/etc/nixos/configuration.nix`, add to `environment.systemPackages`, then:
+Edit `configuration.nix`, add to `environment.systemPackages`, then:
 
 ```bash
-sudo nixos-rebuild switch
+sudo nixos-rebuild switch --flake .#nixos
 ```
