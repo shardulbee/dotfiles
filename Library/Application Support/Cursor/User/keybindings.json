@@ -1,10 +1,6 @@
 // Place your key bindings in this file to override the defaults
 [
   {
-    "key": "cmd+i",
-    "command": "composerMode.agent"
-  },
-  {
     "key": "ctrl+w ]",
     "command": "editor.action.revealDefinitionAside",
     "when": "editorTextFocus"
@@ -50,4 +46,75 @@
     "command": "search.action.focusPreviousSearchResult",
     "when": "searchViewletVisible"
   },
+  {
+    "key": "cmd+t",
+    "command": "workbench.action.terminal.new",
+    "when": "terminal.visible && terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+`",
+    "command": "-workbench.action.terminal.new",
+    "when": "terminalProcessSupported || terminalWebExtensionContributedProfile"
+  },
+  {
+    "key": "cmd+w",
+    "command": "workbench.action.terminal.kill",
+    "when": "terminalFocus && (terminalHasBeenCreated || terminalIsOpen || terminalProcessSupported)"
+  },
+  {
+    "key": "shift+cmd+\\",
+    "command": "workbench.action.focusAuxiliaryBar"
+  },
+  {
+    "key": "alt+right",
+    "command": "editor.action.inlineDiffs.nextDiffFile",
+    "when": "editorTextFocus && inlineDiffs.hasInlineDiffsInAnyEditor && vim.mode == 'Normal'"
+  },
+  {
+    "key": "alt+l",
+    "command": "-editor.action.inlineDiffs.nextDiffFile",
+    "when": "editorTextFocus && inlineDiffs.hasInlineDiffsInAnyEditor"
+  },
+  {
+    "key": "alt+left",
+    "command": "editor.action.inlineDiffs.previousDiffFile",
+    "when": "editorTextFocus && inlineDiffs.hasInlineDiffsInAnyEditor && vim.mode == 'Normal'"
+  },
+  {
+    "key": "alt+h",
+    "command": "-editor.action.inlineDiffs.previousDiffFile",
+    "when": "editorTextFocus && inlineDiffs.hasInlineDiffsInAnyEditor"
+  },
+  {
+    "key": "ctrl+w h",
+    "command": "workbench.action.focusSideBar",
+    "when": "editorFocus && activeEditorGroupIndex == 1"
+  },
+  {
+    "key": "ctrl+w",
+    "command": "-workbench.action.switchWindow"
+  },
+  {
+    "key": "ctrl+w l",
+    "command": "workbench.action.focusFirstEditorGroup",
+    "when": "sideBarFocus && sideBarVisible"
+  },
+  {
+    "key": "cmd+,",
+    "command": "-workbench.action.openSettings"
+  },
+  {
+    "key": "cmd+,",
+    "command": "workbench.action.openSettingsJson"
+  },
+  {
+    "key": "ctrl+w j",
+    "command": "terminal.focus",
+    "when": "editorFocus"
+  },
+  {
+    "key": "ctrl+w k",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "!editorFocus && terminalFocus"
+  }
 ]

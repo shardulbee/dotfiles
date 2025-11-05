@@ -108,5 +108,22 @@ EOF
     done
 
     mise install
+    
+    # Install TurboCode extension for Cursor
+    echo "Building and installing TurboCode extension..."
+    if [ -d "$dotfiles_dir/turbocode" ]; then
+        cd "$dotfiles_dir/turbocode"
+        npm install
+        npm run compile
+        
+        # Check if cursor command is available
+        if command -v cursor >/dev/null 2>&1; then
+            cursor --install-extension "$dotfiles_dir/turbocode/turbocode-0.0.1.vsix"
+        else
+            echo "Warning: cursor command not found. Install extension manually from:"
+            echo "  $dotfiles_dir/turbocode/turbocode-0.0.1.vsix"
+        fi
+    fi
+    
     echo "Done"
 fi

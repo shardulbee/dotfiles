@@ -1,74 +1,148 @@
 {
-    "window.commandCenter": true,
-    "typescript.tsserver.maxTsServerMemory": 4000,
-    "workbench.colorTheme": "Gruvbox Dark Hard",
-    "vim.useSystemClipboard": true,
-    "jest.runMode": "on-demand",
-    "cursor.composer.shouldChimeAfterChatFinishes": true,
-    "editor.fontFamily": "Berkeley Mono, Menlo, Monaco, 'Courier New', monospace",
-    "editor.inlayHints.fontFamily": "Berkeley Mono",
-    "editor.inlineSuggest.fontFamily": "Berkeley Mono",
-    "debug.console.fontFamily": "Berkeley Mono",
-    "scm.inputFontFamily": "Berkeley Mono",
-    "markdown.preview.fontFamily": "Berkeley Mono, -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif",
-    // "git.blame.statusBarItem.enabled": false,
-    "workbench.colorCustomizations": {
-        "statusBar.background": "#005f5f",
-        "statusBar.noFolderBackground": "#005f5f",
-        "statusBar.debuggingBackground": "#005f5f",
-        "statusBar.foreground": "#ffffff",
-        "statusBar.debuggingForeground": "#ffffff"
+  // === Editor Appearance & Behavior ===
+  "editor.fontFamily": "Berkeley Mono",
+  "editor.minimap.enabled": false,
+  "editor.scrollbar.vertical": "hidden",
+  "editor.scrollbar.horizontal": "hidden",
+  "editor.codeLens": false,
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.largeFileOptimizations": true,
+  "editor.stickyScroll.maxLineCount": 1,
+  "editor.renderLineHighlight": "none",
+  "editor.suggest.showIcons": false,
+  "editor.occurrencesHighlight": "off",
+  "editor.lightbulb.enabled": "off",
+  "editor.gotoLocation.multipleDeclarations": "goto",
+  "editor.gotoLocation.multipleTypeDefinitions": "goto",
+  "editor.gotoLocation.multipleImplementations": "goto",
+
+  "outline.icons": false,
+
+  "explorer.openEditors.visible": 1,
+  "workbench.startupEditor": "none",
+  "workbench.editor.restoreViewState": false,
+  "workbench.activityBar.location": "hidden",
+"workbench.colorTheme": "Gruvbox Dark Hard",
+"window.restoreWindows": "none",
+
+  // === Vim Extension Settings ===
+  "vim.useSystemClipboard": true,
+  "vim.visualstar": true,
+  "vim.showmodename": false,
+  "vim.normalModeKeyBindings": [
+    {
+      "before": ["K"],
+      "commands": ["editor.action.showHover"]
     },
-    "vim.showmodename": false,
-    "git.enableStatusBarSync": false,
-    // "git.blame.statusBarItem.template": "",
-    // Disable the minimap for improved rendering performance
-    "editor.minimap.enabled": false,
-    // Disable CodeLens to reduce background processing, especially in large files
-    "editor.codeLens": false,
-    // Disable automatic formatting on save or paste if it's causing lag
-    "editor.formatOnSave": false,
-    "editor.formatOnPaste": false,
-    // Disable restoring previous windows on startup for faster launch times
-    "window.restoreWindows": "none",
-    // Prevent the editor from restoring view state for faster loading of files
-    "workbench.editor.restoreViewState": false,
-    // Prevent restoring the undo stack from previous sessions
-    "files.restoreUndoStack": false,
-    // Set the startup editor to 'none' to avoid loading a default editor on launch
-    "workbench.startupEditor": "none",
-    // Optimize large file handling
-    "editor.largeFileOptimizations": true,
-    // Limit the visible open editors in the explorer sidebar to reduce UI rendering
-    "explorer.openEditors.visible": 1,
-    "vim.normalModeKeyBindings": [
-            {
-                "before": ["K"],
-                "commands": ["editor.action.showHover"]
-            },
-            {
-                "before": ["]", "c"],
-                "commands": ["workbench.action.editor.nextChange"]
-            },
-            {
-                "before": ["[", "c"],
-                "commands": ["workbench.action.editor.previousChange"]
-            },
-            {
-                "before": ["]", "d"],
-                "commands": ["editor.action.marker.next"]
-            },
-            {
-                "before": ["[", "d"],
-                "commands": ["editor.action.marker.prev"]
-            },
-        ],
-        "git.blame.statusBarItem.enabled": true,
-        "[typescript]": {
-            "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[jsonc]": {
-            "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "terminal.integrated.defaultProfile.osx": "fish",
+    {
+      "before": ["]", "c"],
+      "commands": ["workbench.action.editor.nextChange"]
+    },
+    {
+      "before": ["[", "c"],
+      "commands": ["workbench.action.editor.previousChange"]
+    },
+    {
+      "before": ["]", "d"],
+      "commands": ["editor.action.marker.next"]
+    },
+    {
+      "before": ["[", "d"],
+      "commands": ["editor.action.marker.prev"]
+    },
+    {
+      "before": ["<leader>", "F"],
+      "commands": ["search.action.openEditor"]
+    },
+    {
+      "before": ["<leader>", "m"],
+      "commands": ["bookmarks.toggle"]
+    },
+    {
+      "before": ["<leader>", "b"],
+      "commands": ["bookmarks.listFromAllFiles"]
+    },
+    {
+      "before": ["<leader>", "g", "b"],
+      "commands": ["turbocode.github.openPermalink"]
+    },
+    {
+      "before": ["<leader>", "g", "B"],
+      "commands": ["turbocode.github.openPermalinkOnMain"]
+    },
+    {
+      "before": ["<leader>", "e", "k"],
+      "commands": ["workbench.action.openGlobalKeybindingsFile"]
+    },
+    {
+      "before": ["<leader>", "e", "s"],
+      "commands": ["workbench.action.openSettingsJson"]
+    },
+    {
+        "before": ["g", "r", "r"],
+        "commands": ["editor.action.goToReferences"],
+    }
+  ],
+  "vim.visualModeKeyBindings": [
+    {
+      "before": ["v"],
+      "commands": ["editor.action.smartSelect.expand"]
+    },
+    {
+      "before": ["V"],
+      "commands": ["editor.action.smartSelect.shrink"]
+    },
+    {
+      "before": ["<leader>", "g", "b"],
+      "commands": ["turbocode.github.openPermalink"]
+    },
+    {
+      "before": ["<leader>", "g", "B"],
+      "commands": ["turbocode.github.openPermalinkOnMain"]
+    }
+  ],
+
+  // === Git Integration ===
+  "git.enableStatusBarSync": false,
+  "git.blame.statusBarItem.enabled": true,
+  "git.blame.editorDecoration.enabled": false,
+
+  // === Terminal ===
+  "terminal.integrated.defaultProfile.osx": "fish",
+
+  // === Programming Language Tooling ===
+  "typescript.tsserver.maxTsServerMemory": 10000,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // === Miscellaneous ===
+  "cursor.composer.shouldChimeAfterChatFinishes": true,
+  "jest.runMode": "on-demand",
+  "files.restoreUndoStack": false,
+  "editor.fontSize": 13,
+  "workbench.editor.showTabs": "multiple",
+  "workbench.editor.editorActionsLocation": "hidden",
+  "search.seedOnFocus": true,
+  "search.seedWithNearestWord": true,
+  "cursor.windowSwitcher.sidebarHoverCollapsed": true,
+  "search.searchEditor.defaultNumberOfContextLines": 20,
+  "search.searchEditor.reusePriorSearchConfiguration": true,
+  "search.searchEditor.focusResultsOnSearch": true,
+  "explorer.confirmDelete": false,
+  "vim.foldfix": true,
+"workbench.editor.enablePreviewFromCodeNavigation": true,
+"workbench.layoutControl.enabled": false,
+"editor.codeLensFontFamily": "Berkeley Mono",
+"editor.inlayHints.fontFamily": "Berkeley Mono",
+"editor.inlineSuggest.fontFamily": "Berkeley Mono",
+"debug.console.fontFamily": "Berkeley Mono",
+"scm.inputFontFamily": "Berkeley Mono",
+"terminal.integrated.fontFamily": "Berkeley Mono",
+"accessibility.dimUnfocused.enabled": true,
+"accessibility.dimUnfocused.opacity": 0.4
 }

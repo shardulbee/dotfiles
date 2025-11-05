@@ -57,7 +57,7 @@
     swww hyprlock waybar
     pavucontrol blueman networkmanagerapplet btop
     chromium _1password _1password-cli
-    gcc
+    gcc zoxide atuin
   ];
 
   system.stateVersion = "24.05";
