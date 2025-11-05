@@ -1,4 +1,4 @@
 # jjui configuration for Gruvbox Dark Hard theme
 [ui]
-auto_refresh_interval = 1
+# auto_refresh_interval = 1
 theme = "gruvbox-dark-hard"
