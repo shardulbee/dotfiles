@@ -32,6 +32,9 @@
     "dark": "Gruvbox Dark Hard"
   },
   "terminal": {
+    "shell": {
+      "program": "fish"
+    },
     "line_height": "standard",
     "button": false,
     "toolbar": { "breadcrumbs": false }

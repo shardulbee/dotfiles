@@ -1,84 +1,83 @@
 #!/usr/bin/env bash
+set -e
 
-read -rp "Enter desired hostname for this Mac (leave blank to skip): " hostname_value
+dotfiles_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-if [ -n "$hostname_value" ]; then
-    sudo scutil --set HostName "$hostname_value"
-    sudo scutil --set LocalHostName "$hostname_value"
-    sudo scutil --set ComputerName "$hostname_value"
-else
-    echo "No hostname provided; leaving existing hostname unchanged."
-fi
+# Detect OS
+if [ "$(uname)" = "Linux" ]; then
+    # NixOS setup
+    echo "Installing NixOS configuration..."
+    sudo cp "$dotfiles_dir/nixos/configuration.nix" /etc/nixos/
+    sudo nixos-rebuild switch
 
-brew_path="/opt/homebrew/bin/brew"
+    # Symlink dotfiles (exclude macOS-only stuff)
+    find "$dotfiles_dir/.config" -type f \
+        ! -path "*/.config/zed/*" \
+        ! -path "*/.config/aerospace/*" \
+        ! -path "*/.config/mise/*" \
+        | while read -r file; do
+        rel_path="${file#$dotfiles_dir/}"
+        target="$HOME/$rel_path"
+        mkdir -p "$(dirname "$target")"
+        ln -sf "$file" "$target"
+    done
 
-if [ ! -x "$brew_path" ]; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
+    [ -f "$dotfiles_dir/.hushlogin" ] && ln -sf "$dotfiles_dir/.hushlogin" "$HOME/.hushlogin"
 
-if [ ! -x "$brew_path" ]; then
-    echo "Homebrew is not available after installation attempt." >&2
-    exit 1
-fi
+    echo "Done. Log out and select Niri."
 
-export HOMEBREW_NO_AUTO_UPDATE=1
-export HOMEBREW_NO_ENV_HINTS=1
-export HOMEBREW_NO_COLOR=1
-export HOMEBREW_NO_EMOJI=1
-export HOMEBREW_VERBOSE=
+elif [ "$(uname)" = "Darwin" ]; then
+    # macOS setup
+    read -rp "Enter desired hostname (leave blank to skip): " hostname_value
 
-"$brew_path" bundle --file=Brewfile --cleanup --force
+    if [ -n "$hostname_value" ]; then
+        sudo scutil --set HostName "$hostname_value"
+        sudo scutil --set LocalHostName "$hostname_value"
+        sudo scutil --set ComputerName "$hostname_value"
+    fi
 
-if ! command -v amp >/dev/null 2>&1; then
-    curl -fsSL https://ampcode.com/install.sh | bash
-fi
+    brew_path="/opt/homebrew/bin/brew"
+    if [ ! -x "$brew_path" ]; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
 
-if ! command -v claude >/dev/null 2>&1; then
-    curl -fsSL https://claude.ai/install.sh | bash -s latest
-fi
+    export HOMEBREW_NO_AUTO_UPDATE=1
+    export HOMEBREW_NO_ENV_HINTS=1
+    "$brew_path" bundle --file=Brewfile --cleanup --force
 
-# Add fish to /etc/shells and set as default shell
-fish_path="/opt/homebrew/bin/fish"
-if ! grep -q "$fish_path" /etc/shells; then
-    echo "$fish_path" | sudo tee -a /etc/shells > /dev/null
-fi
-if [ "$SHELL" != "$fish_path" ]; then
-    chsh -s "$fish_path"
-fi
+    command -v amp >/dev/null 2>&1 || curl -fsSL https://ampcode.com/install.sh | bash
+    command -v claude >/dev/null 2>&1 || curl -fsSL https://claude.ai/install.sh | bash -s latest
 
-# Finder settings
-defaults write com.apple.finder CreateDesktop -bool false
-defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
-defaults write com.apple.finder ShowPathbar -bool true
+    fish_path="/opt/homebrew/bin/fish"
+    grep -q "$fish_path" /etc/shells || echo "$fish_path" | sudo tee -a /etc/shells > /dev/null
+    [ "$SHELL" != "$fish_path" ] && chsh -s "$fish_path"
 
-# Global system preferences
-defaults write NSGlobalDomain InitialKeyRepeat -int 15
-defaults write NSGlobalDomain KeyRepeat -int 1
-defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
-defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
-defaults write -g com.apple.keyboard.fnState -bool false
-defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
-defaults write NSGlobalDomain com.apple.trackpad.trackpadCornerClickBehavior -int 1
-defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticInlinePredictionEnabled -bool false
-defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
-defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
-defaults write NSGlobalDomain AppleInterfaceStyle -string "Dark"
+    # macOS preferences
+    defaults write com.apple.finder CreateDesktop -bool false
+    defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+    defaults write com.apple.finder ShowPathbar -bool true
+    defaults write NSGlobalDomain InitialKeyRepeat -int 15
+    defaults write NSGlobalDomain KeyRepeat -int 1
+    defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+    defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
+    defaults write -g com.apple.keyboard.fnState -bool false
+    defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+    defaults write NSGlobalDomain com.apple.trackpad.trackpadCornerClickBehavior -int 1
+    defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+    defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+    defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+    defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+    defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+    defaults write NSGlobalDomain NSAutomaticInlinePredictionEnabled -bool false
+    defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+    defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+    defaults write NSGlobalDomain AppleInterfaceStyle -string "Dark"
+    defaults write com.apple.menuextra.clock Show24Hour -bool true
+    defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 64 "{enabled = 0;}"
+    defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 65 "{enabled = 0;}"
 
-# Menu bar settings
-defaults write com.apple.menuextra.clock Show24Hour -bool true
-
-# Disable Spotlight keyboard shortcuts
-defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 64 "{enabled = 0;}"
-defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 65 "{enabled = 0;}"
-
-# Touch ID for sudo
-if [ ! -f /etc/pam.d/sudo_local ]; then
-    sudo tee /etc/pam.d/sudo_local > /dev/null <<EOF
+    if [ ! -f /etc/pam.d/sudo_local ]; then
+        sudo tee /etc/pam.d/sudo_local > /dev/null <<EOF
 auth       sufficient     pam_tid.so
 auth       sufficient     pam_smartcard.so
 auth       required       pam_opendirectory.so
@@ -86,34 +85,28 @@ account    required       pam_permit.so
 password   required       pam_deny.so
 session    required       pam_permit.so
 EOF
+    fi
+
+    killall Dock Finder SystemUIServer 2>/dev/null || true
+
+    # Symlink all dotfiles
+    find "$dotfiles_dir" -type f \
+        ! -path "*/.git/*" \
+        ! -path "*/.jj/*" \
+        ! -path "*/nixos/*" \
+        ! -name ".DS_Store" \
+        ! -name ".gitignore" \
+        ! -name "setup" \
+        ! -name ".stylua.toml" \
+        ! -name "Makefile" \
+        ! -name "Brewfile" \
+        | while read -r file; do
+        rel_path="${file#$dotfiles_dir/}"
+        target="$HOME/$rel_path"
+        mkdir -p "$(dirname "$target")"
+        ln -sf "$file" "$target"
+    done
+
+    mise install
+    echo "Done"
 fi
-
-killall Dock
-killall Finder
-killall SystemUIServer
-
-# Create symlinks for all files
-dotfiles_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-find "$dotfiles_dir" -type f \
-    ! -path "*/.git/*" \
-    ! -path "*/.jj/*" \
-    ! -name ".DS_Store" \
-    ! -name ".gitignore" \
-    ! -name "setup" \
-    ! -name ".stylua.toml" \
-    ! -name "Makefile" \
-    ! -name "Brewfile" \
-    | while read -r file; do
-    rel_path="${file#$dotfiles_dir/}"
-    target="$HOME/$rel_path"
-    target_dir="$(dirname "$target")"
-
-    mkdir -p "$target_dir"
-    ln -sf "$file" "$target"
-done
-
-# Install tools via mise
-mise install
-
-echo "Done"

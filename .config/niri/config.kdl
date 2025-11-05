@@ -18,7 +18,10 @@ layout {
     }
 }
 
-spawn-at-startup "fuzzel"
+spawn-at-startup "waybar"
+spawn-at-startup "swww-daemon"
+spawn-at-startup "nm-applet" "--indicator"
+spawn-at-startup "blueman-applet"
 
 binds {
     Mod+Space { spawn "fuzzel"; }
@@ -60,4 +63,6 @@ binds {
 
     Mod+F { fullscreen-window; }
     Mod+Shift+F { maximize-column; }
+
+    Mod+Shift+Escape { spawn "hyprlock"; }
 }
