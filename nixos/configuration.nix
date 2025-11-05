@@ -55,6 +55,7 @@
     git jujutsu neovim ripgrep fd fzf
     swww hyprlock waybar
     pavucontrol blueman networkmanagerapplet btop
+    chromium _1password _1password-cli
   ];
 
   system.stateVersion = "24.05";

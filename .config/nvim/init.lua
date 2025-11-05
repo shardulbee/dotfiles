@@ -16,7 +16,12 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-vim.g.python3_host_prog = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
+-- Only set python3 host if the path exists (macOS has virtualenvs, NixOS doesn't)
+local python_path = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
+if vim.fn.filereadable(python_path) == 1 then
+	vim.g.python3_host_prog = python_path
+end
+
 require("lazy").setup({
 	dev = {
 		path = "/Users/shardul/Documents",
