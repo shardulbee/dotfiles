@@ -9,6 +9,7 @@
   imports = lib.optional (builtins.pathExists /etc/nixos/hardware-configuration.nix)
     /etc/nixos/hardware-configuration.nix;
 
+  nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   boot.loader.systemd-boot.enable = lib.mkDefault true;
@@ -56,6 +57,7 @@
     swww hyprlock waybar
     pavucontrol blueman networkmanagerapplet btop
     chromium _1password _1password-cli
+    gcc
   ];
 
   system.stateVersion = "24.05";

@@ -4,9 +4,6 @@ input {
             layout "us"
         }
     }
-    touchpad {
-        natural-scroll true
-    }
 }
 
 layout {

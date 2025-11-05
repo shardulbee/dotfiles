@@ -4,12 +4,8 @@
 ---
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-vim.notify("lazypath: " .. lazypath)
-vim.notify("exists: " .. tostring(vim.loop.fs_stat(lazypath) ~= nil))
-
 if not vim.loop.fs_stat(lazypath) then
-	vim.notify("Cloning lazy.nvim...")
-	local result = vim.fn.system({
+	vim.fn.system({
 		"git",
 		"clone",
 		"--filter=blob:none",
@@ -17,15 +13,8 @@ if not vim.loop.fs_stat(lazypath) then
 		"--branch=stable",
 		lazypath,
 	})
-	vim.notify("Clone result: " .. result)
-	if vim.v.shell_error ~= 0 then
-		vim.notify("Failed to clone lazy.nvim (exit " .. vim.v.shell_error .. "):\n" .. result, vim.log.levels.ERROR)
-		return
-	end
 end
-vim.notify("Prepending to rtp: " .. lazypath)
 vim.opt.rtp:prepend(lazypath)
-vim.notify("RTP prepended")
 
 -- Only set python3 host if the path exists (macOS has virtualenvs, NixOS doesn't)
 local python_path = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
@@ -33,13 +22,7 @@ if vim.fn.filereadable(python_path) == 1 then
 	vim.g.python3_host_prog = python_path
 end
 
-local lazy = require("lazy")
-if type(lazy) ~= "table" then
-	vim.notify("lazy.nvim loaded but returned: " .. type(lazy), vim.log.levels.ERROR)
-	return
-end
-
-lazy.setup({
+require("lazy").setup({
 	dev = {
 		path = vim.fn.expand("~/Documents"),
 	},
@@ -50,21 +33,6 @@ lazy.setup({
 			"lewis6991/gitsigns.nvim",
 			opts = {
 				current_line_blame = true,
-				signs = {
-					add = { text = "▎" },
-					change = { text = "▎" },
-					delete = { text = "" },
-					topdelete = { text = "" },
-					changedelete = { text = "▎" },
-					untracked = { text = "▎" },
-				},
-				signs_staged = {
-					add = { text = "▎" },
-					change = { text = "▎" },
-					delete = { text = "" },
-					topdelete = { text = "" },
-					changedelete = { text = "▎" },
-				},
 				preview_config = { border = "rounded" },
 				on_attach = function(bufnr)
 					local gitsigns = require("gitsigns")
@@ -96,36 +64,12 @@ lazy.setup({
 				end,
 			},
 		},
-
-		{
-			"nvim-neo-tree/neo-tree.nvim",
-			branch = "v3.x",
-			dependencies = {
-				"nvim-lua/plenary.nvim",
-				"MunifTanjim/nui.nvim",
-				"nvim-tree/nvim-web-devicons", -- optional, but recommended
-			},
-			lazy = false, -- neo-tree will lazily load itself,
-			keys = {
-				{ "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle Neo-tree" },
-			},
-			opts = {
-				filesystem = {
-					filtered_items = {
-						hide_dotfiles = false,
-						hide_gitignored = true,
-						hide_hidden = false,
-					},
-				},
-			},
-		},
 		{
 			"ellisonleao/gruvbox.nvim",
 			priority = 1000,
 			config = true,
 			opts = {
 				contrast = "hard",
-				inverse = true,
 			},
 			init = function()
 				vim.cmd("colorscheme gruvbox")
@@ -146,10 +90,6 @@ lazy.setup({
 				},
 			},
 		},
-		{
-			"NotAShelf/direnv.nvim",
-			opts = {},
-		},
 		"tpope/vim-eunuch",
 		"tpope/vim-surround",
 		"tpope/vim-dispatch",
@@ -165,12 +105,12 @@ lazy.setup({
 				local fzfLua = require("fzf-lua")
 
 				fzfLua.setup({
-					fzf_opts = {
-						["--ansi"] = "",
-						["--prompt"] = "> ",
-						["--info"] = "hidden",
-						["--layout"] = "reverse",
-					},
+					-- fzf_opts = {
+					-- 	["--ansi"] = "",
+					-- 	["--prompt"] = "> ",
+					-- 	["--info"] = "hidden",
+					-- 	["--layout"] = "reverse",
+					-- },
 					winopts = {
 						height = 1.0,
 						width = 1.0,
@@ -179,14 +119,11 @@ lazy.setup({
 
 				local opts = { noremap = true, silent = true }
 				vim.keymap.set("n", "<C-t>", fzfLua.files, opts)
-				vim.keymap.set("n", "<M-t>", fzfLua.oldfiles, opts)
 				vim.keymap.set("n", "<leader>h", fzfLua.help_tags, opts)
 				vim.keymap.set("n", "<leader>b", fzfLua.buffers, opts)
 				vim.keymap.set("n", "<leader>f", fzfLua.blines, opts)
 				vim.keymap.set("n", "<leader>F", fzfLua.live_grep_native, opts)
-				vim.keymap.set("n", "<leader>r", fzfLua.command_history, opts)
 				vim.keymap.set("n", "<leader>z", "<cmd>Fzf<cr>", opts)
-				vim.keymap.set("v", "<leader>*", ":FzfLua grep_visual<cr>", opts)
 			end,
 		},
 		{
@@ -254,10 +191,6 @@ lazy.setup({
 		},
 		{
 			"nvim-treesitter/nvim-treesitter",
-			dependencies = {
-				{ "nvim-treesitter/nvim-treesitter-textobjects", event = "VeryLazy" },
-				"JoosepAlviste/nvim-ts-context-commentstring",
-			},
 			build = ":TSUpdate",
 			event = { "VeryLazy" },
 			opts = {
@@ -289,23 +222,12 @@ lazy.setup({
 					"xml",
 					"yaml",
 				},
-				textobjects = {
-					select = {
-						enable = true,
-						look = true,
-						keymaps = {
-							["if"] = "@function.inner",
-							["af"] = "@function.outer",
-						},
-					},
-				},
 				incremental_selection = {
 					enable = true,
 					keymaps = {
-						init_selection = "<space>", -- maps in normal mode to init the node/scope selection with space
-						node_incremental = "<space>", -- increment to the upper named parent
-						node_decremental = "<bs>", -- decrement to the previous node
-						scope_incremental = "<tab>", -- increment to the upper scope (as defined in locals.scm)
+						init_selection = "v",
+						node_incremental = "v",
+						node_decremental = "V",
 					},
 				},
 			},
