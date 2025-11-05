@@ -4,8 +4,12 @@
 ---
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+vim.notify("lazypath: " .. lazypath)
+vim.notify("exists: " .. tostring(vim.loop.fs_stat(lazypath) ~= nil))
+
 if not vim.loop.fs_stat(lazypath) then
-	vim.fn.system({
+	vim.notify("Cloning lazy.nvim...")
+	local result = vim.fn.system({
 		"git",
 		"clone",
 		"--filter=blob:none",
@@ -13,8 +17,15 @@ if not vim.loop.fs_stat(lazypath) then
 		"--branch=stable",
 		lazypath,
 	})
+	vim.notify("Clone result: " .. result)
+	if vim.v.shell_error ~= 0 then
+		vim.notify("Failed to clone lazy.nvim (exit " .. vim.v.shell_error .. "):\n" .. result, vim.log.levels.ERROR)
+		return
+	end
 end
+vim.notify("Prepending to rtp: " .. lazypath)
 vim.opt.rtp:prepend(lazypath)
+vim.notify("RTP prepended")
 
 -- Only set python3 host if the path exists (macOS has virtualenvs, NixOS doesn't)
 local python_path = vim.fn.expand("~/.virtualenvs/neovim/bin/python3")
@@ -22,9 +33,15 @@ if vim.fn.filereadable(python_path) == 1 then
 	vim.g.python3_host_prog = python_path
 end
 
-require("lazy").setup({
+local lazy = require("lazy")
+if type(lazy) ~= "table" then
+	vim.notify("lazy.nvim loaded but returned: " .. type(lazy), vim.log.levels.ERROR)
+	return
+end
+
+lazy.setup({
 	dev = {
-		path = "/Users/shardul/Documents",
+		path = vim.fn.expand("~/Documents"),
 	},
 	spec = {
 		"tpope/vim-fugitive",
