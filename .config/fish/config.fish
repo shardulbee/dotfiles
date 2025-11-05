@@ -1,9 +1,10 @@
-fish_add_path $HOME/bin $HOME/.local/bin
-
 if test (uname) = Linux
+    # NixOS: wrappers must come first for setuid binaries (sudo, etc)
+    fish_add_path --prepend /run/wrappers/bin
+    fish_add_path $HOME/.local/bin $HOME/bin
     fish_add_path /run/current-system/sw/bin /etc/profiles/per-user/$USER/bin
 else if test (uname) = Darwin
-    fish_add_path /opt/homebrew/bin
+    fish_add_path $HOME/bin $HOME/.local/bin /opt/homebrew/bin
     set -x SECRETS_PATH $HOME/Library/Mobile\ Documents/com\~apple\~CloudDocs
 end
 
