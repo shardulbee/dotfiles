@@ -144,5 +144,5 @@
 "scm.inputFontFamily": "Berkeley Mono",
 "terminal.integrated.fontFamily": "Berkeley Mono",
 "accessibility.dimUnfocused.enabled": true,
-"accessibility.dimUnfocused.opacity": 0.4
+"accessibility.dimUnfocused.opacity": 0.8
 }

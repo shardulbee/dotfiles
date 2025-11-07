@@ -58,8 +58,12 @@ alt-shift-9 = 'move-node-to-workspace 9'
 alt-shift-0 = 'move-node-to-workspace Z'
 
 [[on-window-detected]]
-if.app-name-regex-substring = 'Zed'
+if.app-name-regex-substring = 'Cursor'
 run = ['move-node-to-workspace 1']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Zed'
+run = ['move-node-to-workspace 2']
 
 [[on-window-detected]]
 if.app-name-regex-substring = 'Ghostty'
