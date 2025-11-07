@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+When making changes in the turbocode/src/ directory, always run `npm install` and `npm run compile` once the changes are complete.

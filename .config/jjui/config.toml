@@ -1,3 +1,7 @@
+[custom_commands."rebase mine"]
+key = ["T"]
+args = ["rebase", "-b", "mutable()", "-d", "main"]
+
 [ui.colors]
 "text"      = { fg = "#d5c4a1", bg = "#1d2021" }
 "dimmed"    = { fg = "#665c54", bg = "#1d2021" }

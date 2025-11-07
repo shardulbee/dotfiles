@@ -18,23 +18,12 @@
   {
     "key": "ctrl+w k",
     "command": "workbench.action.focusAboveGroup",
-    "when": "editorTextFocus && vim.active"
+    "when": "editorTextFocus && vim.active && editorFocus"
   },
   {
     "key": "ctrl+w j",
     "command": "workbench.action.focusBelowGroup",
-    "when": "editorTextFocus && vim.active"
-  },
-  {
-    "key": "cmd+alt+f",
-    "command": "search.action.openNewEditorToSide",
-    "args": {
-      "query": "",
-      "filesToInclude": "${file}",
-      "caseSensitive": true,
-      "onlyOpenEditors": true
-    },
-    "when": "editorFocus || editorIsOpen"
+    "when": "editorTextFocus && vim.active && editorFocus"
   },
   {
     "key": "alt+down",
@@ -51,6 +40,12 @@
     "command": "workbench.action.terminal.new",
     "when": "terminal.visible && terminalFocus"
   },
+  {
+    "key": "cmd+w",
+    "command": "workbench.action.terminal.killActiveTab",
+    "when": "terminal.visible && terminalFocus"
+  },
+
   {
     "key": "ctrl+shift+`",
     "command": "-workbench.action.terminal.new",
@@ -115,6 +110,52 @@
   {
     "key": "ctrl+w k",
     "command": "workbench.action.focusActiveEditorGroup",
-    "when": "!editorFocus && terminalFocus"
-  }
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+g",
+    "command": "-workbench.view.scm",
+    "when": "workbench.scm.active"
+  },
+  {
+    "key": "ctrl+shift+g",
+    "command": "runCommands",
+    "args": {"commands": [
+      "workbench.action.createTerminalEditor",
+      {
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+          "text": "jjui; exit\n"
+        }
+      }
+    ]},
+  },
+  {
+    "key": "ctrl+shift+p",
+    "command": "runCommands",
+    "when": "!auxiliaryBarVisible",
+    "args": {
+      "commands": [
+        "workbench.action.focusFirstEditorGroup",
+        "workbench.action.closeSidebar",
+        "workbench.action.closePanel",
+        "workbench.action.joinAllGroups"
+      ]
+    }
+  },
+  {
+    "key": "ctrl+shift+p",
+    "command": "runCommands",
+    "when": "auxiliaryBarVisible",
+    "args": {
+      "commands": [
+        "workbench.action.focusFirstEditorGroup",
+        "workbench.action.closeSidebar",
+        "workbench.action.toggleAuxiliaryBar",
+        "workbench.action.closePanel",
+        "workbench.action.joinAllGroups"
+      ]
+    }
+  },
+
 ]

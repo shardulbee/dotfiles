@@ -28,6 +28,34 @@ if status is-interactive
         nvim $argv
     end
 
+    function ghostty_tab
+        # Run a command in a new Ghostty tab
+        set cmd (string join ' ' $argv)
+        
+        osascript -e '
+        tell application "System Events"
+            if not (exists process "Ghostty") then
+                error "Ghostty is not running"
+            end if
+            if not (exists window 1 of process "Ghostty") then
+                error "No Ghostty windows found"
+            end if
+        end tell
+        
+        tell application "Ghostty" to activate
+        delay 0.2
+        
+        tell application "System Events"
+            tell process "Ghostty"
+                keystroke "t" using command down
+                delay 0.3
+                keystroke "'"$cmd"'"
+                keystroke return
+            end tell
+        end tell
+        ' 2>&1
+    end
+
     function fish_prompt
         set -l last_status $status
 

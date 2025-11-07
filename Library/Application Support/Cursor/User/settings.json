@@ -1,6 +1,14 @@
 {
   // === Editor Appearance & Behavior ===
+  "editor.fontSize": 14,
   "editor.fontFamily": "Berkeley Mono",
+  "editor.codeLensFontFamily": "Berkeley Mono",
+  "editor.inlayHints.fontFamily": "Berkeley Mono",
+  "editor.inlineSuggest.fontFamily": "Berkeley Mono",
+  "debug.console.fontFamily": "Berkeley Mono",
+  "scm.inputFontFamily": "Berkeley Mono",
+  "terminal.integrated.fontFamily": "Berkeley Mono",
+
   "editor.minimap.enabled": false,
   "editor.scrollbar.vertical": "hidden",
   "editor.scrollbar.horizontal": "hidden",
@@ -23,12 +31,11 @@
   "workbench.startupEditor": "none",
   "workbench.editor.restoreViewState": false,
   "workbench.activityBar.location": "hidden",
-"workbench.colorTheme": "Gruvbox Dark Hard",
-"window.restoreWindows": "none",
 
   // === Vim Extension Settings ===
   "vim.useSystemClipboard": true,
   "vim.visualstar": true,
+  "vim.foldfix": true,
   "vim.showmodename": false,
   "vim.normalModeKeyBindings": [
     {
@@ -82,6 +89,22 @@
     {
         "before": ["g", "r", "r"],
         "commands": ["editor.action.goToReferences"],
+    },
+    {
+      "before": ["<leader>", "g", "s"],
+      "commands": [
+        "workbench.action.createTerminalEditor",
+        {
+          "command": "workbench.action.terminal.sendSequence",
+          "args": {
+            "text": "jjui; exit\n"
+          }
+        }
+      ]
+    },
+    {
+      "before": ["<leader>", "s", "d"],
+      "commands": ["workbench.action.debug.start"]
     }
   ],
   "vim.visualModeKeyBindings": [
@@ -124,7 +147,6 @@
   "cursor.composer.shouldChimeAfterChatFinishes": true,
   "jest.runMode": "on-demand",
   "files.restoreUndoStack": false,
-  "editor.fontSize": 13,
   "workbench.editor.showTabs": "multiple",
   "workbench.editor.editorActionsLocation": "hidden",
   "search.seedOnFocus": true,
@@ -134,15 +156,13 @@
   "search.searchEditor.reusePriorSearchConfiguration": true,
   "search.searchEditor.focusResultsOnSearch": true,
   "explorer.confirmDelete": false,
-  "vim.foldfix": true,
-"workbench.editor.enablePreviewFromCodeNavigation": true,
-"workbench.layoutControl.enabled": false,
-"editor.codeLensFontFamily": "Berkeley Mono",
-"editor.inlayHints.fontFamily": "Berkeley Mono",
-"editor.inlineSuggest.fontFamily": "Berkeley Mono",
-"debug.console.fontFamily": "Berkeley Mono",
-"scm.inputFontFamily": "Berkeley Mono",
-"terminal.integrated.fontFamily": "Berkeley Mono",
-"accessibility.dimUnfocused.enabled": true,
-"accessibility.dimUnfocused.opacity": 0.8
+  "workbench.editor.enablePreviewFromCodeNavigation": true,
+  "workbench.layoutControl.enabled": false,
+  "accessibility.dimUnfocused.enabled": true,
+  "accessibility.dimUnfocused.opacity": 0.8,
+  "git.openDiffOnClick": false,
+  "workbench.colorTheme": "Gruvbox Dark Hard",
+  "amp.url": "https://ampcode.com/",
+  "editor.wordBasedSuggestions": "off",
+  "amp.tab.enabled": true
 }
