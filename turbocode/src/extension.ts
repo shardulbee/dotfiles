@@ -1,16 +1,24 @@
 import * as vscode from 'vscode';
 import { generatePermalink } from './permalink';
 import { JjLogProvider } from './jjLogProvider';
-import { execJj, getBookmarks } from './jjUtils';
+import { execJj, getBookmarks, isJjRepository, getWorkspaceRoot } from './jjUtils';
 
-const LOG_URI = vscode.Uri.parse('jj://log');
+const LOG_URI = vscode.Uri.parse('jj://log/log');
 let logProvider: JjLogProvider;
+let outputChannel: vscode.OutputChannel;
 
 /**
  * Activate the extension
  */
 export function activate(context: vscode.ExtensionContext) {
-    console.log('TurboCode extension is now active');
+    // Create output channel for debugging
+    outputChannel = vscode.window.createOutputChannel('TurboCode');
+    outputChannel.appendLine('=== TurboCode extension is now active ===');
+    outputChannel.appendLine('Extension activation complete');
+    outputChannel.show(true); // Show the output channel
+    
+    console.log('=== TurboCode extension is now active ===');
+    console.log('Extension activation complete');
 
     // Register the "Open GitHub Permalink" command
     const openPermalinkCommand = vscode.commands.registerCommand(
@@ -30,8 +38,20 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Register JJ log provider
     logProvider = new JjLogProvider();
+    // Set output channel for logging
+    const { setOutputChannel } = require('./jjLogProvider');
+    setOutputChannel(outputChannel);
     const registration = vscode.workspace.registerTextDocumentContentProvider('jj', logProvider);
     context.subscriptions.push(registration);
+    
+    // Clean up on deactivate
+    context.subscriptions.push({
+        dispose: () => {
+            if (logProvider && typeof (logProvider as any).dispose === 'function') {
+                (logProvider as any).dispose();
+            }
+        }
+    });
 
     // Register JJ commands
     registerJjCommands(context);
@@ -47,23 +67,87 @@ function registerJjCommands(context: vscode.ExtensionContext): void {
     // Open log view
     context.subscriptions.push(
         vscode.commands.registerCommand('jj.log.open', async () => {
-            const doc = await vscode.workspace.openTextDocument(LOG_URI);
-            await vscode.window.showTextDocument(doc, { preview: false });
+            // Check if we're in a JJ repository
+            const workspaceRoot = getWorkspaceRoot();
+            if (!workspaceRoot) {
+                vscode.window.showErrorMessage('No workspace folder open');
+                return;
+            }
+
+            const isJjRepo = await isJjRepository();
+            if (!isJjRepo) {
+                vscode.window.showErrorMessage(`Not a JJ repository: ${workspaceRoot}`);
+                return;
+            }
+
+            try {
+                const doc = await vscode.workspace.openTextDocument(LOG_URI);
+                const editor = await vscode.window.showTextDocument(doc, { 
+                    preview: false,
+                    viewColumn: vscode.ViewColumn.Active
+                });
+                
+                // Set a custom title if possible
+                if (editor) {
+                    // The document should now have content from the provider
+                    console.log('JJ log view opened, document URI:', doc.uri.toString());
+                }
+            } catch (error: any) {
+                vscode.window.showErrorMessage(`Failed to open JJ log: ${error.message}`);
+                console.error('Error opening JJ log:', error);
+            }
         })
     );
 
     // Toggle expand
     context.subscriptions.push(
         vscode.commands.registerCommand('jj.log.toggleExpand', async () => {
-            const editor = vscode.window.activeTextEditor;
-            if (!editor || editor.document.uri.scheme !== 'jj') {
-                return;
-            }
+            try {
+                vscode.window.showInformationMessage('Toggle expand command called!');
+                
+                const editor = vscode.window.activeTextEditor;
+                if (!editor) {
+                    vscode.window.showWarningMessage('No active editor');
+                    return;
+                }
+                
+                if (editor.document.uri.scheme !== 'jj') {
+                    vscode.window.showWarningMessage(`Wrong scheme: ${editor.document.uri.scheme}. Please open the JJ log view first (Cmd+Shift+J)`);
+                    return;
+                }
 
-            const line = editor.selection.active.line;
-            const commit = logProvider.getCommitAtLine(line);
-            if (commit) {
-                logProvider.toggleExpand(commit.commitId);
+                const line = editor.selection.active.line;
+                // Get all mapped lines for debugging
+                const mappedLines = logProvider.getMappedLines();
+                const isLoading = logProvider.isContentLoadingNow();
+                console.log(`Toggle expand - Line ${line} (UI shows ${line + 1}), Mapped lines:`, mappedLines, `Is loading: ${isLoading}`);
+                
+                // Check if content is actually loaded by checking if we have mappings
+                // The loading flag might be stuck, so we check mappings instead
+                if (mappedLines.length === 0) {
+                    if (isLoading) {
+                        vscode.window.showWarningMessage(`Log view is still loading. Please wait a moment and try again.`);
+                    } else {
+                        vscode.window.showWarningMessage(`No commits mapped! The log view may not be fully loaded. Try refreshing (gR or Cmd+Shift+P > "JJ: Refresh Log").`);
+                    }
+                    return;
+                }
+                
+                vscode.window.showInformationMessage(`Checking line ${line} (UI shows ${line + 1}). Found ${mappedLines.length} mapped commits.`);
+                
+                const commit = logProvider.getCommitAtLine(line);
+                
+                if (commit) {
+                    const wasExpanded = logProvider.isExpanded(commit.commitId);
+                    logProvider.toggleExpand(commit.commitId);
+                    const status = wasExpanded ? 'Collapsed' : 'Expanded';
+                    vscode.window.showInformationMessage(`JJ: ${status} commit ${commit.commitId.substring(0, 8)}`);
+                } else {
+                    vscode.window.showWarningMessage(`No commit found at line ${line}. Move cursor to a commit line.`);
+                }
+            } catch (error: any) {
+                vscode.window.showErrorMessage(`Error in toggleExpand: ${error.message}`);
+                console.error('Error in toggleExpand:', error);
             }
         })
     );

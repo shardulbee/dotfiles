@@ -77,63 +77,63 @@
       },
       {
         "command": "jj.log.toggleExpand",
-        "key": "enter",
-        "when": "resourceScheme == jj"
+        "key": "g e",
+        "when": "editorTextFocus && resourceScheme == jj && !vim.active"
       },
       {
         "command": "jj.log.toggleExpand",
-        "key": "space",
-        "when": "resourceScheme == jj"
+        "key": "ctrl+e",
+        "when": "editorTextFocus && resourceScheme == jj"
       },
       {
         "command": "jj.log.edit",
-        "key": "e",
-        "when": "resourceScheme == jj"
+        "key": "g c",
+        "when": "editorTextFocus && resourceScheme == jj"
       },
       {
         "command": "jj.log.describe",
-        "key": "D",
-        "when": "resourceScheme == jj"
+        "key": "g d",
+        "when": "editorTextFocus && resourceScheme == jj"
       },
       {
         "command": "jj.log.rebase",
-        "key": "R",
-        "when": "resourceScheme == jj"
+        "key": "g r",
+        "when": "editorTextFocus && resourceScheme == jj"
       },
       {
         "command": "jj.log.squash",
-        "key": "X",
-        "when": "resourceScheme == jj"
+        "key": "g s",
+        "when": "editorTextFocus && resourceScheme == jj"
       },
       {
         "command": "jj.log.abandon",
-        "key": "A",
-        "when": "resourceScheme == jj"
+        "key": "g a",
+        "when": "editorTextFocus && resourceScheme == jj"
       },
       {
         "command": "jj.log.openPatch",
-        "key": "o",
-        "when": "resourceScheme == jj"
+        "key": "g p",
+        "when": "editorTextFocus && resourceScheme == jj"
       },
       {
         "command": "jj.log.bookmark",
-        "key": "b",
-        "when": "resourceScheme == jj"
+        "key": "g b",
+        "when": "editorTextFocus && resourceScheme == jj"
       },
       {
         "command": "jj.log.fetch",
-        "key": "F",
-        "when": "resourceScheme == jj"
+        "key": "g f",
+        "when": "editorTextFocus && resourceScheme == jj"
       },
       {
         "command": "jj.log.push",
-        "key": "P",
-        "when": "resourceScheme == jj"
+        "key": "g P",
+        "when": "editorTextFocus && resourceScheme == jj"
       },
       {
         "command": "jj.log.refresh",
-        "key": "r",
-        "when": "resourceScheme == jj"
+        "key": "g R",
+        "when": "editorTextFocus && resourceScheme == jj"
       }
     ]
   },
