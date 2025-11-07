@@ -19,6 +19,121 @@
       {
         "command": "turbocode.github.openPermalinkOnMain",
         "title": "TurboCode: Open GitHub Permalink on Main"
+      },
+      {
+        "command": "jj.log.open",
+        "title": "JJ: Open Log View"
+      },
+      {
+        "command": "jj.log.toggleExpand",
+        "title": "JJ: Toggle Expand Commit"
+      },
+      {
+        "command": "jj.log.edit",
+        "title": "JJ: Edit/Checkout Commit"
+      },
+      {
+        "command": "jj.log.describe",
+        "title": "JJ: Describe Commit"
+      },
+      {
+        "command": "jj.log.rebase",
+        "title": "JJ: Rebase Commit"
+      },
+      {
+        "command": "jj.log.squash",
+        "title": "JJ: Squash into Current"
+      },
+      {
+        "command": "jj.log.abandon",
+        "title": "JJ: Abandon Commit"
+      },
+      {
+        "command": "jj.log.openPatch",
+        "title": "JJ: Open Patch"
+      },
+      {
+        "command": "jj.log.bookmark",
+        "title": "JJ: Bookmark Actions"
+      },
+      {
+        "command": "jj.log.fetch",
+        "title": "JJ: Fetch"
+      },
+      {
+        "command": "jj.log.push",
+        "title": "JJ: Push Bookmark"
+      },
+      {
+        "command": "jj.log.refresh",
+        "title": "JJ: Refresh Log"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "jj.log.open",
+        "key": "ctrl+shift+j",
+        "mac": "cmd+shift+j"
+      },
+      {
+        "command": "jj.log.toggleExpand",
+        "key": "enter",
+        "when": "resourceScheme == jj"
+      },
+      {
+        "command": "jj.log.toggleExpand",
+        "key": "space",
+        "when": "resourceScheme == jj"
+      },
+      {
+        "command": "jj.log.edit",
+        "key": "e",
+        "when": "resourceScheme == jj"
+      },
+      {
+        "command": "jj.log.describe",
+        "key": "D",
+        "when": "resourceScheme == jj"
+      },
+      {
+        "command": "jj.log.rebase",
+        "key": "R",
+        "when": "resourceScheme == jj"
+      },
+      {
+        "command": "jj.log.squash",
+        "key": "X",
+        "when": "resourceScheme == jj"
+      },
+      {
+        "command": "jj.log.abandon",
+        "key": "A",
+        "when": "resourceScheme == jj"
+      },
+      {
+        "command": "jj.log.openPatch",
+        "key": "o",
+        "when": "resourceScheme == jj"
+      },
+      {
+        "command": "jj.log.bookmark",
+        "key": "b",
+        "when": "resourceScheme == jj"
+      },
+      {
+        "command": "jj.log.fetch",
+        "key": "F",
+        "when": "resourceScheme == jj"
+      },
+      {
+        "command": "jj.log.push",
+        "key": "P",
+        "when": "resourceScheme == jj"
+      },
+      {
+        "command": "jj.log.refresh",
+        "key": "r",
+        "when": "resourceScheme == jj"
       }
     ]
   },
