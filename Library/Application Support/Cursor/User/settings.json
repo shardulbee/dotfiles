@@ -8,6 +8,10 @@
   "debug.console.fontFamily": "Berkeley Mono",
   "scm.inputFontFamily": "Berkeley Mono",
   "terminal.integrated.fontFamily": "Berkeley Mono",
+  "terminal.integrated.lineHeight": 0,
+  "editor.fontLigatures": true,
+  "editor.fontWeight": "normal",
+  "editor.lineHeight": 0,
 
   "editor.minimap.enabled": false,
   "editor.scrollbar.vertical": "hidden",
@@ -158,11 +162,9 @@
   "explorer.confirmDelete": false,
   "workbench.editor.enablePreviewFromCodeNavigation": true,
   "workbench.layoutControl.enabled": false,
-  "accessibility.dimUnfocused.enabled": true,
-  "accessibility.dimUnfocused.opacity": 0.8,
   "git.openDiffOnClick": false,
   "workbench.colorTheme": "Gruvbox Dark Hard",
   "amp.url": "https://ampcode.com/",
   "editor.wordBasedSuggestions": "off",
-  "amp.tab.enabled": true
+  "amp.tab.enabled": true,
 }

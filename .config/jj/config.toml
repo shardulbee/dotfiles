@@ -4,6 +4,7 @@ email = "shardul@baral.ca"
 
 [ui]
 default-command = "log"
+graph.style = 'square'
 
 [aliases]
 tug = ["bookmark", "move", "--from", "heads(::@- & bookmarks())", "--to", "@-"]
@@ -12,5 +13,5 @@ fetch = ["git", "fetch"]
 [revsets]
 log = 'present(@) | ancestors(immutable_heads().., 2) | present(trunk())'
 
-[templates]
-log = 'builtin_log_oneline'
+[template-aliases]
+'format_timestamp(timestamp)' = 'timestamp.ago()'

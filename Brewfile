@@ -44,6 +44,8 @@ cask "cursor"
 cask "codex"
 cask "1password-cli"
 cask "dash"
+cask "font-jetbrains-mono-nerd-font"
+cask "font-caskaydia-cove-nerd-font"
 
 if hostname == "turbochardo"
   cask "tailscale"
