@@ -1,5 +1,6 @@
 import { execFile } from "child_process";
 import { promisify } from "util";
+import { stripAnsi } from "./ansi";
 
 const execFileAsync = promisify(execFile);
 
@@ -19,8 +20,10 @@ export async function execJj(args: string[], cwd: string): Promise<string> {
 }
 
 export function parseLogOutput(output: string): CommitInfo[] {
+  // Strip ANSI codes before parsing to handle both colored and uncolored output
+  const cleanOutput = stripAnsi(output);
   const commits: CommitInfo[] = [];
-  const lines = output.split("\n");
+  const lines = cleanOutput.split("\n");
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -60,7 +63,7 @@ export function parseLogOutput(output: string): CommitInfo[] {
 }
 
 export function getLogCommand(n: number = 100): string[] {
-  return ["log", "-n", String(n), "--color=never", "-T", "builtin_log_compact"];
+  return ["log", "-n", String(n), "--color=always", "-T", "builtin_log_compact"];
 }
 
 export async function getBookmarks(cwd: string): Promise<string[]> {

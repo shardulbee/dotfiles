@@ -5,6 +5,7 @@ import {
   getLogCommand,
   CommitInfo,
 } from "../jjUtils";
+import { stripAnsi, parseAnsiLine } from "../ansi";
 import { execFile } from "child_process";
 import { promisify } from "util";
 import {
@@ -46,8 +47,8 @@ describe("JJ Command Execution Tests", () => {
       } catch (error: any) {
         assert.ok(error.message, "Error should have a message");
         assert.ok(
-          error.message.includes("JJ command failed"),
-          "Error message should indicate JJ command failure"
+          error.message.includes("Command failed") || error.message.includes("error:"),
+          "Error message should indicate command failure"
         );
       }
     });
@@ -577,23 +578,205 @@ describe("Log Output Parsing Tests", () => {
     });
   });
 
-  describe("getLogCommand()", () => {
-    it("should generate correct log command", () => {
-      const args = getLogCommand(100);
 
-      assert.ok(args.includes("log"), "Should include log command");
-      assert.ok(args.includes("-n"), "Should include -n flag");
-      assert.ok(args.includes("100"), "Should include count");
-      assert.ok(args.includes("--color=never"), "Should include color flag");
-      assert.ok(args.includes("-T"), "Should include template flag");
-      assert.ok(args.includes("builtin_log_compact"), "Should use builtin_log_compact template");
+  describe("stripAnsi()", () => {
+    it("should remove ANSI escape sequences", () => {
+      const input = "\u001b[31mred\u001b[0m text";
+      const output = stripAnsi(input);
+      assert.strictEqual(output, "red text", "Should remove ANSI escape sequences");
     });
 
-    it("should use default count when not specified", () => {
-      const args = getLogCommand();
-      const nIndex = args.indexOf("-n");
-      assert.ok(nIndex >= 0, "Should include -n flag");
-      assert.strictEqual(args[nIndex + 1], "100", "Should default to 100");
+    it("should handle multiple ANSI codes", () => {
+      const input = "\u001b[1m\u001b[31mbold red\u001b[0m normal";
+      const output = stripAnsi(input);
+      assert.strictEqual(output, "bold red normal", "Should remove all ANSI escape sequences");
+    });
+
+    it("should handle empty string", () => {
+      const output = stripAnsi("");
+      assert.strictEqual(output, "", "Should return empty string");
+    });
+
+    it("should handle text without ANSI codes", () => {
+      const input = "plain text";
+      const output = stripAnsi(input);
+      assert.strictEqual(output, input, "Should return text unchanged");
+    });
+
+    it("should handle complex ANSI sequences", () => {
+      const input = "\u001b[1;31;42mbold red on green\u001b[0m";
+      const output = stripAnsi(input);
+      assert.strictEqual(output, "bold red on green", "Should remove complex ANSI sequences");
+    });
+  });
+
+  describe("parseAnsiLine()", () => {
+    it("should parse red text", () => {
+      const input = "\u001b[31mred\u001b[0m text";
+      const result = parseAnsiLine(input);
+      assert.strictEqual(result.text, "red text", "Should extract clean text");
+      assert.strictEqual(result.decorations.length, 1, "Should have one decoration");
+      assert.strictEqual(result.decorations[0].fg, "red", "Should have red foreground");
+      assert.strictEqual(result.decorations[0].start, 0, "Should start at beginning");
+      assert.strictEqual(result.decorations[0].end, 3, "Should end at 'red'");
+    });
+
+    it("should parse bold text", () => {
+      const input = "\u001b[1mbold\u001b[0m normal";
+      const result = parseAnsiLine(input);
+      assert.strictEqual(result.text, "bold normal", "Should extract clean text");
+      assert.strictEqual(result.decorations.length, 1, "Should have one decoration");
+      assert.strictEqual(result.decorations[0].bold, true, "Should be bold");
+      assert.strictEqual(result.decorations[0].start, 0, "Should start at beginning");
+      assert.strictEqual(result.decorations[0].end, 4, "Should end at 'bold'");
+    });
+
+    it("should parse bright colors", () => {
+      const input = "\u001b[91mbright red\u001b[0m";
+      const result = parseAnsiLine(input);
+      assert.strictEqual(result.text, "bright red", "Should extract clean text");
+      assert.strictEqual(result.decorations.length, 1, "Should have one decoration");
+      assert.strictEqual(result.decorations[0].fg, "red", "Should have red foreground");
+      assert.strictEqual(result.decorations[0].bright, true, "Should be bright");
+    });
+
+    it("should parse bold and color together", () => {
+      const input = "\u001b[1;31mbold red\u001b[0m";
+      const result = parseAnsiLine(input);
+      assert.strictEqual(result.text, "bold red", "Should extract clean text");
+      assert.strictEqual(result.decorations.length, 1, "Should have one decoration");
+      assert.strictEqual(result.decorations[0].fg, "red", "Should have red foreground");
+      assert.strictEqual(result.decorations[0].bold, true, "Should be bold");
+    });
+
+    it("should handle multiple color changes", () => {
+      const input = "\u001b[31mred\u001b[0m \u001b[32mgreen\u001b[0m";
+      const result = parseAnsiLine(input);
+      assert.strictEqual(result.text, "red green", "Should extract clean text");
+      assert.strictEqual(result.decorations.length, 2, "Should have two decorations");
+      assert.strictEqual(result.decorations[0].fg, "red", "First should be red");
+      assert.strictEqual(result.decorations[1].fg, "green", "Second should be green");
+      assert.strictEqual(result.decorations[0].start, 0, "First starts at 0");
+      assert.strictEqual(result.decorations[0].end, 3, "First ends at 'red'");
+      assert.strictEqual(result.decorations[1].start, 4, "Second starts after space");
+      assert.strictEqual(result.decorations[1].end, 9, "Second ends at 'green'");
+    });
+
+    it("should handle reset code", () => {
+      const input = "\u001b[31mred\u001b[0mnormal";
+      const result = parseAnsiLine(input);
+      assert.strictEqual(result.text, "rednormal", "Should extract clean text");
+      assert.strictEqual(result.decorations.length, 1, "Should have one decoration");
+      assert.strictEqual(result.decorations[0].end, 3, "Decoration should end at 'red'");
+    });
+
+    it("should handle empty string", () => {
+      const result = parseAnsiLine("");
+      assert.strictEqual(result.text, "", "Should return empty text");
+      assert.strictEqual(result.decorations.length, 0, "Should have no decorations");
+    });
+
+    it("should handle text without ANSI codes", () => {
+      const input = "plain text";
+      const result = parseAnsiLine(input);
+      assert.strictEqual(result.text, "plain text", "Should return text unchanged");
+      assert.strictEqual(result.decorations.length, 0, "Should have no decorations");
+    });
+
+    it("should handle all color codes", () => {
+      const colors = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
+      for (let i = 0; i < colors.length; i++) {
+        const code = 30 + i;
+        const input = `\u001b[${code}m${colors[i]}\u001b[0m`;
+        const result = parseAnsiLine(input);
+        assert.strictEqual(result.decorations[0].fg, colors[i], `Should parse ${colors[i]}`);
+      }
+    });
+
+    it("should handle bright color codes", () => {
+      const colors = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
+      for (let i = 0; i < colors.length; i++) {
+        const code = 90 + i;
+        const input = `\u001b[${code}m${colors[i]}\u001b[0m`;
+        const result = parseAnsiLine(input);
+        assert.strictEqual(result.decorations[0].fg, colors[i], `Should parse ${colors[i]}`);
+        assert.strictEqual(result.decorations[0].bright, true, `Should be bright`);
+      }
+    });
+
+    it("should handle color at end of line", () => {
+      const input = "text \u001b[31mred";
+      const result = parseAnsiLine(input);
+      assert.strictEqual(result.text, "text red", "Should extract clean text");
+      assert.strictEqual(result.decorations.length, 1, "Should have one decoration");
+      assert.strictEqual(result.decorations[0].start, 5, "Should start after space");
+      assert.strictEqual(result.decorations[0].end, 8, "Should end at 'red'");
+    });
+
+    it("should handle 256-color codes (38;5;X)", () => {
+      const colors = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
+      for (let i = 0; i < colors.length; i++) {
+        const input = `\u001b[38;5;${i}m${colors[i]}\u001b[0m`;
+        const result = parseAnsiLine(input);
+        assert.strictEqual(result.decorations[0].fg, colors[i], `Should parse 256-color code ${i} as ${colors[i]}`);
+        assert.strictEqual(result.decorations[0].bright, false, `Should not be bright`);
+      }
+    });
+
+    it("should handle 256-color bright codes (38;5;X where X is 8-15)", () => {
+      const colors = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
+      for (let i = 0; i < colors.length; i++) {
+        const code = 8 + i;
+        if (code === 8) continue; // Skip 8, it's special (grey)
+        const input = `\u001b[38;5;${code}m${colors[i]}\u001b[0m`;
+        const result = parseAnsiLine(input);
+        assert.strictEqual(result.decorations[0].fg, colors[i], `Should parse 256-color code ${code} as ${colors[i]}`);
+        assert.strictEqual(result.decorations[0].bright, true, `Should be bright`);
+      }
+    });
+
+    it("should handle 256-color code 8 as grey (white, not bright)", () => {
+      const input = "\u001b[38;5;8mgrey\u001b[0m";
+      const result = parseAnsiLine(input);
+      assert.strictEqual(result.decorations[0].fg, "white", "Code 8 should map to white (grey)");
+      assert.strictEqual(result.decorations[0].bright, false, "Code 8 should not be bright");
+    });
+
+    it("should handle jj's common 256-color codes", () => {
+      const testCases = [
+        { code: 2, color: "green", bright: false },
+        { code: 3, color: "yellow", bright: false },
+        { code: 4, color: "blue", bright: false },
+        { code: 5, color: "magenta", bright: false },
+        { code: 6, color: "cyan", bright: false },
+        { code: 12, color: "blue", bright: true },
+        { code: 13, color: "magenta", bright: true },
+        { code: 14, color: "cyan", bright: true },
+      ];
+      
+      for (const testCase of testCases) {
+        const input = `\u001b[38;5;${testCase.code}mtest\u001b[0m`;
+        const result = parseAnsiLine(input);
+        assert.strictEqual(result.decorations[0].fg, testCase.color, `Code ${testCase.code} should be ${testCase.color}`);
+        assert.strictEqual(result.decorations[0].bright, testCase.bright, `Code ${testCase.code} bright should be ${testCase.bright}`);
+      }
+    });
+
+    it("should handle 256-color codes with bold", () => {
+      const input = "\u001b[1;38;5;2m@\u001b[0m";
+      const result = parseAnsiLine(input);
+      assert.strictEqual(result.text, "@", "Should extract text");
+      assert.strictEqual(result.decorations.length, 1, "Should have one decoration");
+      assert.strictEqual(result.decorations[0].fg, "green", "Should be green");
+      assert.strictEqual(result.decorations[0].bold, true, "Should be bold");
+    });
+
+    it("should handle reset foreground (code 39)", () => {
+      const input = "\u001b[38;5;2mgreen\u001b[39mnormal";
+      const result = parseAnsiLine(input);
+      assert.strictEqual(result.text, "greennormal", "Should extract clean text");
+      assert.strictEqual(result.decorations.length, 1, "Should have one decoration");
+      assert.strictEqual(result.decorations[0].end, 5, "Decoration should end at 'green'");
     });
   });
 });

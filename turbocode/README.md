@@ -4,19 +4,16 @@ Custom productivity utilities for VS Code.
 
 ## Features
 
-- **Open GitHub Permalink**: Opens a permalink to the current line or selection in GitHub using the current commit SHA
-- **Open GitHub Permalink on Main**: Opens a permalink to the current line or selection in GitHub using the main branch
+### GitHub Integration
 
-## Usage
+- `TurboCode: Open GitHub Permalink` - Opens a permalink to the current line or selection in GitHub using the current commit SHA
+- `TurboCode: Open GitHub Permalink on Main` - Opens a permalink to the current line or selection in GitHub using the main branch
 
-1. Open a file in a git repository with a GitHub remote
-2. Place your cursor on a line or select multiple lines
-3. Run one of the commands:
-   - `TurboCode: Open GitHub Permalink` - Uses current commit SHA
-   - `TurboCode: Open GitHub Permalink on Main` - Uses main branch
+### JJ Integration
 
-## Requirements
-
-- File must be in a git repository
-- Repository must have an `origin` remote pointing to GitHub
-
+- `JJ: Open Log View` - Opens the JJ log view
+- `JJ: Toggle Expand Commit` - Toggles the expand state of the current commit
+- `JJ: Edit Commit` - Edits the commit at the cursor
+- `JJ: Describe Commit` - Describes the commit at the cursor
+- `JJ: Rebase Commit` - Rebases the commit at the cursor
+- `JJ: Squash into Current` - Squashes the commit at the cursor into its parent

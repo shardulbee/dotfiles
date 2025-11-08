@@ -16,6 +16,15 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('turbocode.github.openPermalinkOnMain', () => openGitHubPermalink(true))
     );
 
+    context.subscriptions.push(
+        vscode.workspace.onDidChangeTextDocument((e) => {
+            const editor = vscode.window.activeTextEditor;
+            if (editor?.document === e.document && e.document.uri.scheme === 'jj') {
+                logProvider.applyDecorations(editor);
+            }
+        })
+    );
+
     registerJjCommands(context);
 }
 
@@ -23,7 +32,8 @@ function registerJjCommands(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('jj.log.open', async () => {
             const doc = await vscode.workspace.openTextDocument(LOG_URI);
-            await vscode.window.showTextDocument(doc, { preview: false, viewColumn: vscode.ViewColumn.Active });
+            const editor = await vscode.window.showTextDocument(doc, { preview: false, viewColumn: vscode.ViewColumn.Active });
+            logProvider.applyDecorations(editor);
         }),
         vscode.commands.registerCommand('jj.log.toggleExpand', async () => {
             const editor = vscode.window.activeTextEditor;
@@ -186,7 +196,9 @@ function registerJjCommands(context: vscode.ExtensionContext): void {
         }),
         vscode.commands.registerCommand('jj.log.refresh', async () => {
             logProvider.refresh();
-            setTimeout(() => logProvider.restoreCursorPosition(), 100);
+            await logProvider.restoreCursorPosition();
+            const editor = vscode.window.activeTextEditor;
+            if (editor?.document.uri.scheme === 'jj') logProvider.applyDecorations(editor);
         })
     );
 }
@@ -211,10 +223,12 @@ async function getSelectedCommit() {
     return commit;
 }
 
-function showSuccessAndRefresh(message: string): void {
+async function showSuccessAndRefresh(message: string): Promise<void> {
     vscode.window.showInformationMessage(message);
     logProvider.refresh();
-    setTimeout(() => logProvider.restoreCursorPosition(), 100);
+    await logProvider.restoreCursorPosition();
+    const editor = vscode.window.activeTextEditor;
+    if (editor?.document.uri.scheme === 'jj') logProvider.applyDecorations(editor);
 }
 
 async function openGitHubPermalink(useMain: boolean): Promise<void> {

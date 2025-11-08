@@ -5,6 +5,7 @@ import {
   getLogCommand,
   CommitInfo,
 } from "./jjUtils";
+import { stripAnsi, parseAnsiLine, DecorationRange } from "./ansi";
 
 const LOG_URI = vscode.Uri.parse("jj://log/log");
 
@@ -14,6 +15,8 @@ export class JjLogProvider implements vscode.TextDocumentContentProvider {
   private lineToCommit = new Map<number, CommitInfo>();
   private commitToLine = new Map<string, number>();
   private lastSelectedCommitId: string | undefined;
+  private lineDecorations = new Map<number, DecorationRange[]>();
+  private activeDecorations: vscode.TextEditorDecorationType[] = [];
 
   readonly onDidChange = this._onDidChange.event;
 
@@ -84,52 +87,58 @@ export class JjLogProvider implements vscode.TextDocumentContentProvider {
       if (!rawOutput?.trim())
         return "Error: JJ log command returned empty output.";
 
-      const commits = parseLogOutput(rawOutput);
+      // Strip ANSI for parsing to avoid breaking commit detection
+      const strippedOutput = stripAnsi(rawOutput);
+      const commits = parseLogOutput(strippedOutput);
       if (commits.length === 0)
-        return "No commits found.\n\n" + rawOutput.substring(0, 500);
+        return "No commits found.\n\n" + strippedOutput.substring(0, 500);
 
       this.lineToCommit.clear();
       this.commitToLine.clear();
-      const lines: string[] = [];
-      let currentLine = 0;
-      const originalLines = rawOutput.split("\n");
+      const linesWithAnsi: string[] = [];
+      const originalLinesColored = rawOutput.split("\n");
+      const originalLinesStripped = strippedOutput.split("\n");
 
       for (const commit of commits) {
-        let commitLine = "";
+        let commitLineStripped = "";
+        let commitLineColored = "";
         let commitLineIndex = -1;
-        for (let j = 0; j < originalLines.length; j++) {
+        for (let j = 0; j < originalLinesStripped.length; j++) {
           if (
-            originalLines[j].includes(commit.changeId) &&
-            originalLines[j].includes(commit.commitId)
+            originalLinesStripped[j].includes(commit.changeId) &&
+            originalLinesStripped[j].includes(commit.commitId)
           ) {
-            commitLine = originalLines[j];
+            commitLineStripped = originalLinesStripped[j];
+            commitLineColored = originalLinesColored[j];
             commitLineIndex = j;
             break;
           }
         }
-        if (!commitLine) continue;
+        if (!commitLineStripped) continue;
 
-        lines.push(commitLine);
+        const currentLine = linesWithAnsi.length;
+        linesWithAnsi.push(commitLineColored);
         this.lineToCommit.set(currentLine, commit);
         this.commitToLine.set(commit.commitId, currentLine);
-        currentLine++;
 
         if (commit.summary) {
-          let descLine = "";
+          let descLineColored = "";
           if (
-            commitLineIndex + 1 < originalLines.length &&
-            originalLines[commitLineIndex + 1].match(/^[\s│├╭╰╯╮─◆~]*\s+/)
+            commitLineIndex + 1 < originalLinesColored.length &&
+            originalLinesStripped[commitLineIndex + 1].match(/^[\s│├╭╰╯╮─◆~]*\s+/)
           ) {
-            descLine = originalLines[commitLineIndex + 1];
+            descLineColored = originalLinesColored[commitLineIndex + 1];
           }
-          if (!descLine) {
-            const indent =
-              commitLine.match(/^(\s*[│├╭╰╯╮─◆@~ ]*)/)?.[1] || "  ";
-            descLine = indent + commit.summary;
+          if (!descLineColored) {
+            const indentMatch = commitLineStripped.match(/^(\s*[│├╭╰╯╮─◆@~ ]*)/);
+            const indent = indentMatch?.[1] || "  ";
+            // Try to preserve ANSI styling from commit line for the indent
+            const commitLineAnsiMatch = commitLineColored.match(/^(\u001b\[[0-9;]*m)*/);
+            const ansiPrefix = commitLineAnsiMatch?.[0] || "";
+            descLineColored = ansiPrefix + indent + commit.summary;
           }
-          lines.push(descLine);
-          this.lineToCommit.set(currentLine, commit);
-          currentLine++;
+          linesWithAnsi.push(descLineColored);
+          this.lineToCommit.set(currentLine + 1, commit);
         }
 
         if (this.expandedCommits.has(commit.commitId)) {
@@ -139,22 +148,31 @@ export class JjLogProvider implements vscode.TextDocumentContentProvider {
               "-r",
               commit.commitId,
               "--summary",
-              "--color=never",
+              "--color=always",
               "-T",
               "",
             ],
             workspaceRoot
           );
-          lines.push(
-            ...files
-              .split("\n")
-              .filter((line: string) => line && !line.startsWith("...")),
-            ""
-          );
+          const fileLines = files
+            .split("\n")
+            .filter((line: string) => line && !line.startsWith("..."));
+          linesWithAnsi.push(...fileLines, "");
         }
       }
 
-      return lines.join("\n");
+      // Parse ANSI line by line
+      this.lineDecorations.clear();
+      const cleanLines: string[] = [];
+      for (let i = 0; i < linesWithAnsi.length; i++) {
+        const parsed = parseAnsiLine(linesWithAnsi[i]);
+        cleanLines.push(parsed.text);
+        if (parsed.decorations.length > 0) {
+          this.lineDecorations.set(i, parsed.decorations);
+        }
+      }
+
+      return cleanLines.join("\n");
     } catch (error: any) {
       return `Error loading JJ log:\n\n${
         error.message || String(error)
@@ -162,7 +180,37 @@ export class JjLogProvider implements vscode.TextDocumentContentProvider {
     }
   }
 
+  applyDecorations(editor: vscode.TextEditor): void {
+    if (editor.document.uri.scheme !== "jj") return;
+    
+    for (const dec of this.activeDecorations) dec.dispose();
+    this.activeDecorations = [];
+    
+    const styleToRanges = new Map<string, vscode.Range[]>();
+    for (const [lineNum, decorations] of this.lineDecorations) {
+      for (const dec of decorations) {
+        const key = `${dec.fg || ''}:${dec.bright ? 'b' : ''}:${dec.bold ? 'B' : ''}`;
+        if (!styleToRanges.has(key)) styleToRanges.set(key, []);
+        styleToRanges.get(key)!.push(new vscode.Range(lineNum, dec.start, lineNum, dec.end));
+      }
+    }
+    
+    for (const [key, ranges] of styleToRanges) {
+      const [fg, bright, bold] = key.split(':');
+      const opts: vscode.DecorationRenderOptions = {};
+      if (fg) {
+        const name = bright ? `terminal.ansiBright${fg[0].toUpperCase() + fg.slice(1)}` : `terminal.ansi${fg[0].toUpperCase() + fg.slice(1)}`;
+        opts.color = new vscode.ThemeColor(name);
+      }
+      if (bold) opts.fontWeight = 'bold';
+      const type = vscode.window.createTextEditorDecorationType(opts);
+      editor.setDecorations(type, ranges);
+      this.activeDecorations.push(type);
+    }
+  }
+
   dispose(): void {
+    for (const dec of this.activeDecorations) dec.dispose();
     this._onDidChange.dispose();
   }
 }
