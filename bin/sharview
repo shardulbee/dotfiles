@@ -1,0 +1,89 @@
+#!/usr/bin/env node
+
+// Search SHARVIEW comments in the current directory and print:
+//   file:line_after_comment — note
+
+import { spawnSync } from "node:child_process";
+
+// no path args, always search ".".
+if (process.argv.length > 2) {
+  console.error("Usage: sharview");
+  process.exit(2);
+}
+
+const rg = spawnSync(
+  "rg",
+  [
+    "--json",
+    "--hidden",
+    "--ignore-case",
+    "-g",
+    "!.jj", // ignore jj
+    "-g",
+    "!.git", // ignore git
+    "-g",
+    "!**/bin/sharview", // ignore this file
+    "sharview:", // this is the string we're searching for
+    ".", // always default to cwd
+  ],
+  {
+    encoding: "utf8",
+    maxBuffer: 200 * 1024 * 1024,
+  },
+);
+
+if (rg.error || rg.status > 1) {
+  console.error(rg.error?.message || rg.stderr || rg.stdout || "rg failed");
+  process.exit(1);
+}
+
+if (!rg.stdout) process.exit(0);
+
+for (const row of rg.stdout.split("\n")) {
+  if (!row) continue;
+
+  let event;
+  try {
+    event = JSON.parse(row);
+  } catch (error) {
+    console.error(`Failed to parse rg JSON: ${error.message}`);
+    process.exit(1);
+  }
+
+  if (event.type !== "match") continue;
+
+  const path = event.data?.path?.text;
+  const line = event.data?.line_number;
+  const rawLine = event.data?.lines?.text;
+
+  if (!path || typeof line !== "number" || typeof rawLine !== "string")
+    continue;
+
+  // Only accept comment-start lines; ignore code/string hits.
+  const trimmed = rawLine.trimStart();
+  const prefixes = ["//", "#", "--", "/*", "<!--", ";", "*", "%"];
+
+  let commentBody = null;
+  for (const prefix of prefixes) {
+    if (!trimmed.startsWith(prefix)) continue;
+    commentBody = trimmed.slice(prefix.length).trimStart();
+    break;
+  }
+  if (commentBody === null) continue;
+
+  // Marker must be first thing in the comment body: `// SHARVIEW: note`
+  const marker = "sharview:";
+  if (!commentBody.toLowerCase().startsWith(marker)) continue;
+
+  let note = commentBody.slice(marker.length);
+
+  // Trim common closing tokens for block/html comments.
+  note = note.replace(/\s*\*\/\s*$/, "");
+  note = note.replace(/\s*-->\s*$/, "");
+  note = note.trim();
+
+  const targetLine = line + 1; // note applies to line after comment
+
+  if (note) console.log(`${path}:${targetLine} — ${note}`);
+  else console.log(`${path}:${targetLine}`);
+}

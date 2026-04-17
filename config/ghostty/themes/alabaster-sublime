@@ -1,0 +1,41 @@
+# Alabaster Light - based on tonsky/sublime-scheme-alabaster
+# https://github.com/tonsky/sublime-scheme-alabaster
+
+background = #f7f7f7
+foreground = #000000
+cursor-color = #007acc
+cursor-text = #f7f7f7
+selection-background = #bfdbfe
+selection-foreground = #000000
+
+# black
+palette = 0=#000000
+palette = 8=#777777
+
+# red
+palette = 1=#aa3731
+palette = 9=#f05050
+
+# green
+palette = 2=#448c27
+palette = 10=#60cb00
+
+# yellow
+palette = 3=#cb9000
+palette = 11=#ffbc5d
+
+# blue
+palette = 4=#325cc0
+palette = 12=#007acc
+
+# magenta
+palette = 5=#7a3e9d
+palette = 13=#e64ce6
+
+# cyan
+palette = 6=#0083b2
+palette = 14=#00aacb
+
+# white
+palette = 7=#bbbbbb
+palette = 15=#ffffff

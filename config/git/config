@@ -1,0 +1,10 @@
+[init]
+	defaultBranch = "main"
+
+[user]
+	name = "Shardul Baral"
+	email = "shardul@baral.ca"
+[credential]
+	helper = cache --timeout=3600
+[credential "https://github.com"]
+	helper = !/opt/homebrew/bin/gh auth git-credential

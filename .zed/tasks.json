@@ -1,0 +1,8 @@
+[
+  {
+    "label": "setup",
+    "command": "./setup",
+    "hide": "on_success",
+    "reveal": "no_focus",
+  },
+]

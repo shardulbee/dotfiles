@@ -1,0 +1,47 @@
+{
+  "title_bar": {
+    "show_onboarding_banner": false,
+    "show_user_picture": false,
+    "show_sign_in": false,
+  },
+  "diff_view_style": "unified",
+  "buffer_font_size": 18,
+  "buffer_font_weight": 300,
+  "terminal": {
+    "font_weight": 300,
+  },
+  "ssh_connections": [
+    {
+      "host": "tlab",
+      "username": "shardul",
+      "args": [],
+      "projects": [
+        {
+          "paths": [
+            "/home/shardul/Documents/dotfiles"
+          ]
+        },
+        {
+          "paths": [
+            "/home/shardul/Documents/nix-config"
+          ]
+        }
+      ]
+    }
+  ],
+  "theme": {
+    "mode": "system",
+    "light": "Alabaster BG",
+    "dark": "Alabaster Dark",
+  },
+  "buffer_font_family": "JetBrainsMono Nerd Font Mono",
+  "agent": {
+    "inline_assistant_model": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6-thinking-latest",
+    },
+  },
+  "vim_mode": true,
+  "use_system_window_tabs": true,
+  "load_direnv": "direct",
+}

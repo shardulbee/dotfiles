@@ -1,0 +1,5 @@
+font-size = 18
+scrollback-limit = 1000000000
+shell-integration = fish
+shell-integration-features = ssh-terminfo,ssh-env
+theme = dark:Alabaster Sublime Dark,light:Alabaster Sublime

@@ -1,0 +1,34 @@
+[
+  {
+    "label": "Run jjui",
+    "command": "jjui",
+    "reveal_target": "center",
+    "hide": "always",
+    "allow_concurrent_runs": false,
+    "use_new_terminal": false,
+  },
+  {
+    "label": "pi",
+    "command": "pi",
+    "hide": "on_success",
+    "reveal_target": "center",
+  },
+  {
+    "label": "cursor-agent",
+    "command": "agent",
+    "hide": "on_success",
+    "reveal_target": "center",
+  },
+  {
+    "label": "sharview",
+    "command": "sharview | pbcopy",
+    "hide": "on_success",
+    "reveal_target": "center",
+  },
+  {
+    "label": "View Repository on GitHub",
+    "command": "gh repo view --web",
+    "hide": "always",
+    "reveal": "never",
+  },
+]

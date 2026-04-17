@@ -1,0 +1,9 @@
+# One Light selection contrast overrides
+"selected" = { bg = "#d0d7de", fg = "#383a42", bold = true }
+"revisions selected" = { bg = "#d0d7de" }
+"revisions details selected" = { bg = "#c8ccd4" }
+"evolog selected" = { bg = "#c8ccd4", fg = "#383a42", bold = true }
+"menu selected" = { bg = "#c8ccd4", fg = "#383a42" }
+"confirmation selected" = { bg = "#c8ccd4", fg = "#383a42" }
+"undo confirmation selected" = { bg = "#c8ccd4", fg = "#383a42" }
+"revset completion selected" = { bg = "#c8ccd4", fg = "#383a42" }

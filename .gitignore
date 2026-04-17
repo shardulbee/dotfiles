@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+Brewfile.lock.json
+
+# deps
+**/node_modules/
+
+# Machine-specific configs
+.config/fish/local.fish
+
+# Nix build output
+result
+scratch/

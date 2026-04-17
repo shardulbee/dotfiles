@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")"
+DOT="$PWD"
+
+link() {
+  ln -snf "$1" "$2"
+}
+
+mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim,ghostty/themes,zed} "$HOME/.pi/agent/extensions" "$HOME/bin"
+
+link "$DOT/config/fish/config.fish" "$HOME/.config/fish/config.fish"
+link "$DOT/config/git/config" "$HOME/.config/git/config"
+link "$DOT/config/git/ignore" "$HOME/.config/git/ignore"
+link "$DOT/config/jj/config.toml" "$HOME/.config/jj/config.toml"
+link "$DOT/config/jjui/config.lua" "$HOME/.config/jjui/config.lua"
+link "$DOT/config/jjui/themes" "$HOME/.config/jjui/themes"
+link "$DOT/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+link "$DOT/bin/sharview" "$HOME/bin/sharview"
+link "$DOT/config/pi/extensions/theme.ts" "$HOME/.pi/agent/extensions/theme.ts"
+link "$DOT/config/pi/models.json" "$HOME/.pi/agent/models.json"
+link "$DOT/config/pi/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
+
+if [ "$(uname)" = "Darwin" ]; then
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "error: brew not found" >&2
+    exit 1
+  fi
+  brew bundle --file="$DOT/Brewfile" --cleanup --force
+
+  link "$DOT/config/ghostty/config" "$HOME/.config/ghostty/config"
+  link "$DOT/config/ghostty/themes/alabaster-sublime" "$HOME/.config/ghostty/themes/Alabaster Sublime"
+  link "$DOT/config/ghostty/themes/alabaster-sublime-dark" "$HOME/.config/ghostty/themes/Alabaster Sublime Dark"
+  link "$DOT/config/zed/keymap.json" "$HOME/.config/zed/keymap.json"
+  link "$DOT/config/zed/settings.json" "$HOME/.config/zed/settings.json"
+  link "$DOT/config/zed/tasks.json" "$HOME/.config/zed/tasks.json"
+fi

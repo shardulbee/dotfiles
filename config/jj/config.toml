@@ -1,0 +1,12 @@
+[user]
+name = "Shardul Baral"
+email = "shardul@baral.ca"
+
+[ui]
+default-command = 'log'
+
+[template-aliases]
+'format_timestamp(timestamp)' = 'timestamp.ago()'
+
+[revset-aliases]
+"immutable_heads()" = 'trunk() | (untracked_remote_bookmarks() & ~author(substring:"cursoragent")) | tags()'

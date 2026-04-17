@@ -1,0 +1,74 @@
+[
+    {
+        "context": "",
+        "bindings": {
+            "cmd-,": "zed::OpenSettingsFile",
+            "cmd-shift-space": "workspace::NewCenterTerminal",
+            "cmd-ctrl-[": "window::ShowPreviousWindowTab",
+            "cmd-ctrl-]": "window::ShowNextWindowTab"
+        }
+    },
+    {
+        "context": "Workspace",
+        "bindings": {
+            "alt-j": ["task::Spawn", { "task_name": "Run jjui" }],
+            "cmd-shift-d": "git::BranchDiff",
+            ", y": "editor::CopyRelativePath",
+            ", g b": "editor::OpenPermalinkToLine",
+            ", f e": [
+                "pane::DeploySearch",
+                { "excluded_files": "*.har, *.json, *.spec.ts, inlinedbaml.ts" }
+            ],
+            ", f f": [
+                "pane::DeploySearch",
+                { "excluded_files": "", "included_files": "" }
+            ]
+        }
+    },
+    {
+        "context": "Editor && vim_mode == normal && !menu",
+        "bindings": {
+            ", c": [
+                "action::Sequence",
+                [
+                    "vim::InsertLineAbove",
+                    ["workspace::SendKeystrokes", "cmd-/ SHARVIEW: space"]
+                ]
+            ]
+        }
+    },
+    {
+        "context": "Editor && vim_mode == visual && !menu",
+        "bindings": {
+            "v": "editor::SelectLargerSyntaxNode",
+            "V": "editor::SelectSmallerSyntaxNode"
+        }
+    },
+    {
+        "context": "Terminal && !Dock",
+        "bindings": {
+            "ctrl-h": "workspace::ActivatePaneLeft",
+            "ctrl-l": "workspace::ActivatePaneRight",
+            "ctrl-k": "workspace::ActivatePaneUp",
+            "ctrl-j": "workspace::ActivatePaneDown"
+        }
+    },
+    {
+        "context": "Editor",
+        "bindings": {
+            "ctrl-h": "workspace::ActivatePaneLeft",
+            "ctrl-l": "workspace::ActivatePaneRight",
+            "ctrl-k": "workspace::ActivatePaneUp",
+            "ctrl-j": "workspace::ActivatePaneDown"
+        }
+    },
+    {
+        "context": "Dock",
+        "bindings": {
+            "ctrl-h": "workspace::ActivatePaneLeft",
+            "ctrl-l": "workspace::ActivatePaneRight",
+            "ctrl-k": "workspace::ActivatePaneUp",
+            "ctrl-j": "workspace::ActivatePaneDown"
+        }
+    }
+]
