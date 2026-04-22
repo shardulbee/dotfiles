@@ -8,7 +8,7 @@ link() {
   ln -snf "$1" "$2"
 }
 
-mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim,ghostty/themes,zed} "$HOME/.pi/agent/extensions" "$HOME/bin"
+mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim,ghostty/themes,zed} "$HOME/.pi/agent/"{extensions,skills} "$HOME/bin"
 
 link "$DOT/config/fish/config.fish" "$HOME/.config/fish/config.fish"
 link "$DOT/config/git/config" "$HOME/.config/git/config"
@@ -20,6 +20,7 @@ link "$DOT/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
 link "$DOT/bin/sharview" "$HOME/bin/sharview"
 link "$DOT/config/pi/extensions/theme.ts" "$HOME/.pi/agent/extensions/theme.ts"
 link "$DOT/config/pi/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
+link "$DOT/config/pi/skills/jj" "$HOME/.pi/agent/skills/jj"
 
 if [ "$(uname)" = "Darwin" ]; then
   if ! command -v brew >/dev/null 2>&1; then
