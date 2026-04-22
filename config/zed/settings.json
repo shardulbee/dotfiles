@@ -35,10 +35,29 @@
     "dark": "Alabaster Dark",
   },
   "buffer_font_family": "JetBrainsMono Nerd Font Mono",
+  "language_models": {
+    "openai_compatible": {
+      "Fireworks": {
+        "api_url": "https://api.fireworks.ai/inference/v1",
+        "available_models": [
+          {
+            "name": "accounts/fireworks/models/kimi-k2p6",
+            "display_name": "Kimi K2.6",
+            "max_tokens": 131072
+          }
+        ]
+      }
+    }
+  },
   "agent": {
+    "default_model": {
+      "provider": "Fireworks",
+      "model": "accounts/fireworks/models/kimi-k2p6",
+      "enable_thinking": false
+    },
     "inline_assistant_model": {
       "provider": "anthropic",
-      "model": "claude-sonnet-4-6-thinking-latest",
+      "model": "claude-sonnet-4-6-latest"
     },
   },
   "vim_mode": true,
