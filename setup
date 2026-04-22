@@ -19,7 +19,6 @@ link "$DOT/config/jjui/themes" "$HOME/.config/jjui/themes"
 link "$DOT/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
 link "$DOT/bin/sharview" "$HOME/bin/sharview"
 link "$DOT/config/pi/extensions/theme.ts" "$HOME/.pi/agent/extensions/theme.ts"
-link "$DOT/config/pi/models.json" "$HOME/.pi/agent/models.json"
 link "$DOT/config/pi/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
 
 if [ "$(uname)" = "Darwin" ]; then
