@@ -7,6 +7,3 @@ default-command = 'log'
 
 [template-aliases]
 'format_timestamp(timestamp)' = 'timestamp.ago()'
-
-[revset-aliases]
-"immutable_heads()" = 'trunk() | (untracked_remote_bookmarks() & ~author(substring:"cursoragent")) | tags()'
