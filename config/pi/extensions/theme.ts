@@ -49,10 +49,13 @@ export default function (pi: ExtensionAPI) {
 		}
 		inFlight = false;
 		lastMode = null;
+		if (!ctx.hasUI) {
+			return;
+		}
 		ctx.ui.setTheme("dark");
 
 		pollTimer = setInterval(() => {
-			if (inFlight || !process.stdin.isTTY || !process.stdout.isTTY) {
+			if (inFlight || !ctx.hasUI || !process.stdin.isTTY || !process.stdout.isTTY) {
 				return;
 			}
 			inFlight = true;
