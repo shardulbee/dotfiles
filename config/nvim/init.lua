@@ -9,53 +9,58 @@ vim.pack.add({
   "https://github.com/tpope/vim-sleuth",
   "https://github.com/ibhagwan/fzf-lua",
   "https://github.com/nvim-treesitter/nvim-treesitter",
+  "https://github.com/neovim/nvim-lspconfig",
 })
 
-vim.opt.termguicolors = true
-pcall(vim.cmd.colorscheme, "alabaster")
+vim.o.termguicolors = true
+vim.o.wrap = false
+vim.o.scrolloff = 10
+vim.o.tabstop = 2
+vim.o.shiftwidth = 2
+vim.o.expandtab = true
+vim.o.number = true
+vim.o.laststatus = 3
+vim.o.writebackup = false
+vim.o.swapfile = false
+vim.o.autowrite = true
+vim.o.clipboard = "unnamedplus"
+vim.o.smartindent = true
+vim.o.linebreak = true
+vim.o.ttimeoutlen = 0
+vim.o.ignorecase = true
+vim.o.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
 
-pcall(function()
-  require("nvim-treesitter.configs").setup({ highlight = { enable = true }, indent = { enable = true } })
-  require("nvim-treesitter").install({ "bash", "html", "javascript", "json", "lua", "markdown", "python", "tsx", "typescript", "vim", "vimdoc", "yaml" })
-end)
+vim.cmd.colorscheme("alabaster")
 
-local fzf = require("fzf-lua")
-vim.keymap.set("n", "<C-t>", fzf.files)
-vim.keymap.set("n", "<leader><leader>", fzf.builtin)
+require("nvim-treesitter").setup({
+  highlight = { enable = true },
+  indent = { enable = true },
+  ensure_installed = {
+    "bash", "html", "javascript", "json", "lua", "markdown",
+    "python", "tsx", "typescript", "vim", "vimdoc", "yaml",
+  },
+})
+
+require("fzf-lua")
+local map = vim.keymap.set
+map("n", "<leader>t", function() require("fzf-lua").files() end)
+map("n", "<leader>f", function() require("fzf-lua").live_grep() end)
+map("n", "<leader>h", function() require("fzf-lua").helptags() end)
+map("n", "<leader><leader>", function() require("fzf-lua").builtin() end)
+
+
+vim.diagnostic.config({
+  signs = false,
+})
+
+map("n", "<leader>d", vim.diagnostic.setloclist)
 
 vim.lsp.enable({ "lua_ls", "vtsls" })
+
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
-    vim.lsp.completion.enable(true, args.data.client_id, args.buf, { autotrigger = true })
-    vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = args.buf })
+    vim.bo[args.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
   end,
 })
 
-local o = vim.opt
-o.wrap = false
-o.scrolloff = 10
-o.tabstop = 2
-o.shiftwidth = 2
-o.expandtab = true
-o.number = true
-o.laststatus = 3
-o.writebackup = false
-o.swapfile = false
-o.autowrite = true
-o.clipboard = "unnamedplus"
-o.smartindent = true
-o.linebreak = true
-o.ttimeoutlen = 0
-o.ignorecase = true
-o.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
-
-local map = vim.keymap.set
-map("n", "gl", "<cmd>nohl<cr>")
-map("n", "<leader>d", "<cmd>bd<cr>")
-map("n", "<leader>q", "<cmd>q<cr>")
-map("n", "<leader>ww", "<cmd>w<cr>")
 map("n", "<leader>y", function() vim.fn.setreg("+", vim.fn.expand("%")) end)
-for _, k in ipairs({ "h", "j", "k", "l" }) do
-  map("", "<C-" .. k .. ">", "<C-w>" .. k)
-  map("t", "<C-" .. k .. ">", "<C-\\><C-n><C-w>" .. k)
-end
