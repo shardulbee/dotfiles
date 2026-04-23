@@ -19,6 +19,7 @@ link "$DOT/config/jjui/themes" "$HOME/.config/jjui/themes"
 link "$DOT/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
 link "$DOT/bin/sharview" "$HOME/bin/sharview"
 link "$DOT/config/pi/extensions/theme.ts" "$HOME/.pi/agent/extensions/theme.ts"
+link "$DOT/config/pi/extensions/tps.ts" "$HOME/.pi/agent/extensions/tps.ts"
 link "$DOT/config/pi/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
 link "$DOT/config/pi/skills/jj" "$HOME/.pi/agent/skills/jj"
 
