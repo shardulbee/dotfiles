@@ -1,3 +1,5 @@
+tap "neurosnap/tap"
+
 # Shared CLI tools
 brew "fish"
 brew "git"
@@ -14,6 +16,9 @@ brew "yazi"
 brew "zoxide"
 brew "atuin"
 brew "hyperfine"
+brew "ffmpeg"
+brew "qemu"
+brew "zmx"
 brew "jj"
 brew "jjui"
 brew "node"
