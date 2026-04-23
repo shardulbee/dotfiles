@@ -1,8 +1,18 @@
 {
+  "outline_panel": {
+    "dock": "left",
+  },
   "project_panel": {
     "dock": "left",
   },
   "disable_ai": true,
+  "collaboration_panel": {
+    "button": false,
+  },
+  "close_panel_on_toggle": true,
+  "git_panel": {
+    "button": false,
+  },
   "title_bar": {
     "show_onboarding_banner": false,
     "show_user_picture": false,
