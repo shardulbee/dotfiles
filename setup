@@ -8,7 +8,7 @@ link() {
   ln -snf "$1" "$2"
 }
 
-mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim,ghostty/themes,zed} "$HOME/.pi/agent/"{extensions,skills} "$HOME/bin"
+mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/lua,ghostty/themes,zed} "$HOME/.pi/agent/"{extensions,skills} "$HOME/bin"
 
 link "$DOT/config/fish/config.fish" "$HOME/.config/fish/config.fish"
 link "$DOT/config/git/config" "$HOME/.config/git/config"
@@ -17,6 +17,7 @@ link "$DOT/config/jj/config.toml" "$HOME/.config/jj/config.toml"
 link "$DOT/config/jjui/config.lua" "$HOME/.config/jjui/config.lua"
 link "$DOT/config/jjui/themes" "$HOME/.config/jjui/themes"
 link "$DOT/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+link "$DOT/config/nvim/pi.lua" "$HOME/.config/nvim/lua/pi.lua"
 link "$DOT/bin/sharview" "$HOME/bin/sharview"
 link "$DOT/config/pi/extensions/theme.ts" "$HOME/.pi/agent/extensions/theme.ts"
 link "$DOT/config/pi/extensions/tps.ts" "$HOME/.pi/agent/extensions/tps.ts"
