@@ -30,3 +30,5 @@ handoff.md
 .plans
 *.http
 scratch/
+
+.pi/extensions/
