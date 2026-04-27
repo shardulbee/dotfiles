@@ -27,7 +27,15 @@ vim.o.ignorecase = true
 vim.o.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
 vim.o.foldmethod = "expr"
 vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.o.foldenable = false
+vim.o.foldlevel = 99
+vim.o.foldlevelstart = 99
+vim.keymap.set("n", "za", function()
+  if vim.fn.foldclosed(".") == -1 then
+    pcall(vim.cmd, "normal! zc")
+  else
+    pcall(vim.cmd, "normal! zO")
+  end
+end)
 
 vim.cmd.colorscheme("alabaster")
 
