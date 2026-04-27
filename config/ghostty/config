@@ -3,3 +3,6 @@ scrollback-limit = 1000000000
 shell-integration = fish
 shell-integration-features = ssh-terminfo,ssh-env
 theme = dark:Alabaster Sublime Dark,light:Alabaster Sublime
+
+keybind = ctrl+cmd+bracket_left=goto_window:previous
+keybind = ctrl+cmd+bracket_right=goto_window:next
