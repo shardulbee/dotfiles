@@ -31,9 +31,9 @@ vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
 vim.keymap.set("n", "za", function()
   if vim.fn.foldclosed(".") == -1 then
-    pcall(vim.cmd, "normal! zc")
+    pcall(function() vim.cmd("normal! zc") end)
   else
-    pcall(vim.cmd, "normal! zO")
+    pcall(function() vim.cmd("normal! zO") end)
   end
 end)
 
@@ -65,6 +65,8 @@ local function hunk_buf_text(buf)
   return table.concat(lines, "\n") .. "\n"
 end
 
+---@param buf? integer
+---@return integer[][]
 local function jj_hunks(buf)
   buf = buf or 0
   local file = vim.api.nvim_buf_get_name(buf)
@@ -89,10 +91,12 @@ local function jj_hunks(buf)
   -- New file / missing in base: compare against empty text.
   local base = base_result.code == 0 and base_result.stdout or ""
 
-  return vim.text.diff(base, hunk_buf_text(buf), {
+  local diff = vim.text.diff(base, hunk_buf_text(buf), {
     result_type = "indices",
     algorithm = "histogram",
   }) or {}
+  ---@cast diff integer[][]
+  return diff
 end
 
 local function hunk_lnum(h, max)
@@ -407,18 +411,22 @@ local pi = require("pi")
 map("n", "<leader><space>", pi.with_context)
 map("n", "<leader>y", function() vim.fn.setreg("+", vim.fn.expand("%")) end)
 
--- Add SHARVIEW comments
 map("n", "<leader>c", function()
-  local cs = vim.bo.commentstring
-  if cs == "" or not cs:find("%%s") then cs = "# %s" end
-  local before, after = cs:match("^(.-)%%s(.-)$")
+  local comment_prefix, comment_suffix = vim.bo.commentstring:match("^(.-)%%s(.-)$")
+  if not comment_prefix then
+    vim.notify("SHARVIEW: missing commentstring", vim.log.levels.ERROR)
+    return
+  end
+  comment_suffix = comment_suffix or ""
+
   local row = vim.api.nvim_win_get_cursor(0)[1]
   local indent = vim.api.nvim_get_current_line():match("^%s*") or ""
-  local prefix = indent .. before .. "SHARVIEW: "
-  vim.api.nvim_buf_set_lines(0, row - 1, row - 1, false, { prefix .. after })
+  local prefix = indent .. comment_prefix .. "SHARVIEW: "
+
+  vim.api.nvim_buf_set_lines(0, row - 1, row - 1, false, { prefix .. comment_suffix })
   vim.api.nvim_win_set_cursor(0, { row, #prefix })
-  vim.cmd(#after > 0 and "startinsert" or "startinsert!")
-end)
+  vim.cmd("startinsert")
+end, { desc = "insert SHARVIEW comment" })
 
 -- :Diffmain — review every changed file vs `main` in a new tab.
 -- Layout: scratch buffer (jj://main) on the left, real editable file on the right.
