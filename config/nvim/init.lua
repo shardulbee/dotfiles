@@ -356,6 +356,24 @@ map("n", "<leader>p", fzflua.commands)
 map("n", "<leader>b", fzflua.buffers)
 map("n", "<leader><leader>", fzflua.builtin)
 
+map("n", "<m-j>", function()
+  vim.cmd("tabnew")
+
+  local buf = vim.api.nvim_get_current_buf()
+  vim.fn.jobstart({ "jjui" }, {
+    term = true,
+    on_exit = function()
+      vim.schedule(function()
+        if vim.api.nvim_buf_is_valid(buf) then
+          vim.api.nvim_buf_delete(buf, { force = true })
+        end
+      end)
+    end,
+  })
+
+  vim.cmd("startinsert")
+end, { desc = "jjui" })
+
 
 vim.diagnostic.config({
   signs = false,
