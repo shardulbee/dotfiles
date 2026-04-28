@@ -353,6 +353,7 @@ map("n", "<leader>f", fzflua.live_grep)
 map("n", "<leader>h", fzflua.helptags)
 map("n", "<leader>r", fzflua.command_history)
 map("n", "<leader>p", fzflua.commands)
+map("n", "<leader>b", fzflua.buffers)
 map("n", "<leader><leader>", fzflua.builtin)
 
 
