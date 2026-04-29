@@ -407,8 +407,6 @@ vim.lsp.config("vtsls", {
 
 vim.lsp.enable({ "lua_ls", "vtsls" })
 
-local pi = require("pi")
-map("n", "<leader><space>", pi.with_context)
 map("n", "<leader>y", function() vim.fn.setreg("+", vim.fn.expand("%")) end)
 
 map("n", "<leader>c", function()
