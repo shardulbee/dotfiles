@@ -8,7 +8,7 @@ link() {
   ln -snf "$1" "$2"
 }
 
-mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/lua,ghostty/themes,zed} "$HOME/.pi/agent/"{extensions,skills} "$HOME/bin"
+mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/lua,ghostty/themes,zed} "$HOME/.pi/agent/"{extensions,skills} "$HOME/bin" "$HOME/.npm-global/bin"
 
 link "$DOT/config/fish/config.fish" "$HOME/.config/fish/config.fish"
 link "$DOT/config/git/config" "$HOME/.config/git/config"
@@ -37,3 +37,20 @@ if [ "$(uname)" = "Darwin" ]; then
   link "$DOT/config/zed/settings.json" "$HOME/.config/zed/settings.json"
   link "$DOT/config/zed/tasks.json" "$HOME/.config/zed/tasks.json"
 fi
+
+command -v npm >/dev/null 2>&1 || {
+  echo "error: npm not found" >&2
+  exit 1
+}
+npm config set prefix "$HOME/.npm-global"
+
+command -v fish >/dev/null 2>&1 || {
+  echo "error: fish not found" >&2
+  exit 1
+}
+fish <<'EOF'
+set -U fish_greeting
+fish_add_path -U -m "$HOME/bin"
+fish_add_path -U -m "$HOME/.npm-global/bin"
+fish_add_path -U -m --append /opt/homebrew/bin
+EOF
