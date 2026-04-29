@@ -1,6 +1,3 @@
-fish_add_path $HOME/bin $HOME/.npm-global/bin
-test -d /opt/homebrew/bin; and fish_add_path /opt/homebrew/bin
-
 if set -q ZED_TERM; and not set -q SSH_CONNECTION
     set -gx EDITOR "zed --wait"
 else
