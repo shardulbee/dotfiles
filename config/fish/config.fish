@@ -7,8 +7,6 @@ else
     set -gx EDITOR "nvim"
 end
 
-test -f ~/.config/secrets; and source ~/.config/secrets
-
 command -q fzf; and fzf --fish | source
 command -q atuin; and atuin init fish --disable-up-arrow | source
 command -q zoxide; and zoxide init fish | source
