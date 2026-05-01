@@ -52,7 +52,7 @@ export default function (pi: ExtensionAPI) {
 		if (!ctx.hasUI) {
 			return;
 		}
-		ctx.ui.setTheme("dark");
+		ctx.ui.setTheme("light");
 
 		pollTimer = setInterval(() => {
 			if (inFlight || !ctx.hasUI || !process.stdin.isTTY || !process.stdout.isTTY) {
