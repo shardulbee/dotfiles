@@ -4,6 +4,24 @@ set -euo pipefail
 cd "$(dirname "$0")"
 DOT="$PWD"
 
+export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+command -v nix >/dev/null || { echo "error: install Nix first" >&2; exit 1; }
+
+# install or upgrade dev tools
+if ! nix profile list --json | grep -q '"dev":'; then
+    nix profile add "$DOT#dev"
+else
+    nix profile upgrade dev
+fi
+
+# set fish as login shell
+fish="$(command -v fish)"
+grep -qxF "$fish" /etc/shells || printf '%s\n' "$fish" | sudo tee -a /etc/shells >/dev/null
+
+login_shell="$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')"
+[ "$login_shell" = "$fish" ] || chsh -s "$fish"
+
 link() {
   ln -snf "$1" "$2"
 }
@@ -23,6 +41,7 @@ link "$DOT/config/pi/extensions/tps.ts" "$HOME/.pi/agent/extensions/tps.ts"
 link "$DOT/config/pi/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
 link "$DOT/config/pi/skills/jj" "$HOME/.pi/agent/skills/jj"
 
+# macOS apps + config
 if [ "$(uname)" = "Darwin" ]; then
   if ! command -v brew >/dev/null 2>&1; then
     echo "error: brew not found" >&2
@@ -38,21 +57,6 @@ if [ "$(uname)" = "Darwin" ]; then
   link "$DOT/config/zed/tasks.json" "$HOME/.config/zed/tasks.json"
 fi
 
-command -v npm >/dev/null 2>&1 || {
-  echo "error: npm not found" >&2
-  exit 1
-}
-npm config set prefix "$HOME/.npm-global"
+printf 'prefix=%s/.npm-global\n' "$HOME" > "$HOME/.npmrc"
 
-command -v fish >/dev/null 2>&1 || {
-  echo "error: fish not found" >&2
-  exit 1
-}
-fish <<'EOF'
-set -U fish_greeting
-fish_add_path -U -m "$HOME/bin"
-fish_add_path -U -m "$HOME/.npm-global/bin"
-if test (uname) = Darwin
-  fish_add_path -U -m --append /opt/homebrew/bin
-end
-EOF
+echo "========================================DONE================================="
