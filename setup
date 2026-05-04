@@ -18,7 +18,9 @@ fi
 
 # set fish as login shell
 fish="$(command -v fish)"
-grep -qxF "$fish" /etc/shells || printf '%s\n' "$fish" | sudo tee -a /etc/shells >/dev/null
+if [ -w /etc/shells ]; then
+    grep -qxF "$fish" /etc/shells || printf '%s\n' "$fish" | sudo tee -a /etc/shells >/dev/null
+fi
 
 [[ "$SHELL" == *fish* ]] || chsh -s "$fish" 2>/dev/null || sudo chsh -s "$fish" "$USER"
 
