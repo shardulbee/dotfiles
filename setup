@@ -52,5 +52,7 @@ fish <<'EOF'
 set -U fish_greeting
 fish_add_path -U -m "$HOME/bin"
 fish_add_path -U -m "$HOME/.npm-global/bin"
-fish_add_path -U -m --append /opt/homebrew/bin
+if test (uname) = Darwin
+  fish_add_path -U -m --append /opt/homebrew/bin
+end
 EOF
