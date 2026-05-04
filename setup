@@ -9,10 +9,11 @@ export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/opt/homeb
 command -v nix >/dev/null || { echo "error: install Nix first" >&2; exit 1; }
 
 # install or upgrade dev tools
-if ! nix profile list --json | grep -q '"dev":'; then
-    nix profile add "$DOT#dev"
+# Check if dotfiles flake is already in the profile; if so upgrade, else add.
+if nix profile list | grep -qF "$DOT"; then
+    nix profile upgrade "$DOT#dev"
 else
-    nix profile upgrade dev
+    nix profile add "$DOT#dev"
 fi
 
 # set fish as login shell
