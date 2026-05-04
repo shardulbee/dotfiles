@@ -5,5 +5,11 @@ email = "shardul@baral.ca"
 [ui]
 default-command = 'log'
 
+[aliases]
+# Move the closest bookmark to the current commit. Useful when working on a
+# named branch, creating a bunch of commits, and then needing to update the
+# bookmark before pushing.
+tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@-"]
+
 [template-aliases]
 'format_timestamp(timestamp)' = 'timestamp.ago()'

@@ -53,6 +53,18 @@ description: Complete jj version control reference. Use when you need the full c
 - `trunk()` = main/master remote branch
 - `bookmarks()` = all bookmark targets
 
+## Aliases
+
+Add these to `~/.jjconfig.toml` or `.jj/config.toml`:
+
+```toml
+[aliases]
+# Move the closest bookmark to the current commit. Useful when working on a
+# named bookmark, creating commits, and needing to update the bookmark before
+# pushing.
+tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@-"]
+```
+
 ## Tips
 
 - `jj squash`, `jj split`, `jj commit`, `jj describe` all open an editor by default. Always pass `-m "message"` to avoid interactive editors.

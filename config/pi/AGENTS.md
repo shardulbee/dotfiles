@@ -26,6 +26,7 @@ Common commands:
 - `jj squash -m "msg"` — amend `@-` with current changes
 - `jj restore` — discard all changes in `@`
 - `jj bookmark create <name> -r <rev>` / `jj bookmark move <name> --to <rev>` / `jj bookmark list`
+- `jj tug` — move closest bookmark from `@-` to `@` (alias: `bookmark move --from closest_bookmark(@-) --to @-`)
 - `jj rebase -b @ -o main` — rebase onto main
 - `jj undo` — revert last operation
 
