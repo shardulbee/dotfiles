@@ -11,7 +11,7 @@ command -v nix >/dev/null || { echo "error: install Nix first" >&2; exit 1; }
 # install or upgrade dev tools
 # Check if dotfiles flake is already in the profile; if so upgrade, else add.
 if nix profile list | grep -qF "$DOT"; then
-    nix profile upgrade "$DOT#dev"
+    nix profile upgrade dev
 else
     nix profile add "$DOT#dev"
 fi
