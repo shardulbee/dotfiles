@@ -30,6 +30,7 @@
             bun
             uv
             lua-language-server
+            tree-sitter
             direnv
           ];
         };
