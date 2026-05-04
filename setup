@@ -19,8 +19,13 @@ fi
 fish="$(command -v fish)"
 grep -qxF "$fish" /etc/shells || printf '%s\n' "$fish" | sudo tee -a /etc/shells >/dev/null
 
-login_shell="$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')"
-[ "$login_shell" = "$fish" ] || chsh -s "$fish"
+if [ "$(uname)" = "Darwin" ]; then
+    login_shell="$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')"
+    [ "$login_shell" = "$fish" ] || chsh -s "$fish"
+else
+    login_shell="$(getent passwd "$USER" | cut -d: -f7)"
+    [ "$login_shell" = "$fish" ] || sudo chsh -s "$fish" "$USER"
+fi
 
 link() {
   ln -snf "$1" "$2"
