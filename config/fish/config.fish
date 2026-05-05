@@ -26,3 +26,8 @@ command -q zoxide; and zoxide init fish | source
 
 # Machine-specific settings
 test -f "$HOME/.config/fish/local.fish"; and source "$HOME/.config/fish/local.fish"
+
+# Aliases
+function vim --wraps=nvim --description 'alias vim=nvim'
+    nvim $argv
+end
