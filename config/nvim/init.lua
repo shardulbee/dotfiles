@@ -3,7 +3,7 @@
 vim.g.mapleader = ","
 
 vim.pack.add({
-  "https://github.com/p00f/alabaster.nvim",
+
   "https://github.com/tpope/vim-surround",
   "https://github.com/ibhagwan/fzf-lua",
   "https://github.com/nvim-treesitter/nvim-treesitter",
@@ -37,7 +37,7 @@ vim.keymap.set("n", "za", function()
   end
 end)
 
-vim.cmd.colorscheme("alabaster")
+vim.cmd.colorscheme("alabaster_bg")
 
 -- nicer diffs everywhere: histogram algorithm + soft pastels
 vim.opt.diffopt:append("algorithm:histogram")

@@ -10,7 +10,7 @@ command -v nix >/dev/null || { echo "error: install Nix first" >&2; exit 1; }
 
 # install or upgrade dev tools
 # Check if dotfiles flake is already in the profile; if so upgrade, else add.
-if nix profile list | grep -qF "$DOT"; then
+if nix profile list | grep -F "$DOT" > /dev/null; then
     nix profile upgrade dev
 else
     nix profile add "$DOT#dev"
@@ -28,7 +28,7 @@ link() {
   ln -snf "$1" "$2"
 }
 
-mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/lua,ghostty/themes,zed} "$HOME/.pi/agent/"{extensions,skills} "$HOME/bin" "$HOME/.npm-global/bin"
+mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/lua,nvim/colors,ghostty/themes,zed} "$HOME/.pi/agent/"{extensions,skills} "$HOME/bin" "$HOME/.npm-global/bin"
 
 link "$DOT/config/fish/config.fish" "$HOME/.config/fish/config.fish"
 link "$DOT/config/git/config" "$HOME/.config/git/config"
@@ -37,6 +37,7 @@ link "$DOT/config/jj/config.toml" "$HOME/.config/jj/config.toml"
 link "$DOT/config/jjui/config.lua" "$HOME/.config/jjui/config.lua"
 link "$DOT/config/jjui/themes" "$HOME/.config/jjui/themes"
 link "$DOT/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+link "$DOT/config/nvim/colors/alabaster_bg.lua" "$HOME/.config/nvim/colors/alabaster_bg.lua"
 link "$DOT/bin/sharview" "$HOME/bin/sharview"
 link "$DOT/config/pi/extensions/theme.ts" "$HOME/.pi/agent/extensions/theme.ts"
 link "$DOT/config/pi/extensions/tps.ts" "$HOME/.pi/agent/extensions/tps.ts"
