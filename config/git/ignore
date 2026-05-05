@@ -32,3 +32,4 @@ handoff.md
 scratch/
 
 .pi/extensions/
+.zed/tasks.json

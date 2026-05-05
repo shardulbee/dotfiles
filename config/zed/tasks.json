@@ -8,19 +8,13 @@
     "use_new_terminal": false,
   },
   {
-    "label": "pi",
+    "label": "Run pi",
     "command": "pi",
     "hide": "on_success",
     "reveal_target": "center",
   },
   {
-    "label": "cursor-agent",
-    "command": "agent",
-    "hide": "on_success",
-    "reveal_target": "center",
-  },
-  {
-    "label": "sharview",
+    "label": "Run sharview",
     "command": "sharview | pbcopy",
     "hide": "on_success",
     "reveal_target": "center",
