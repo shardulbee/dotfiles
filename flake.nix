@@ -39,6 +39,7 @@
               vtsls
               tree-sitter
               direnv
+              go
             ];
           };
         in {
