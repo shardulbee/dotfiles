@@ -36,6 +36,7 @@ link "$DOT/config/pi/extensions/tps.ts" "$HOME/.pi/agent/extensions/tps.ts"
 link "$DOT/config/pi/extensions/fast.ts" "$HOME/.pi/agent/extensions/fast.ts"
 link "$DOT/config/pi/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
 link "$DOT/config/pi/skills/jj" "$HOME/.pi/agent/skills/jj"
+link "$DOT/config/pi/skills/librarian" "$HOME/.pi/agent/skills/librarian"
 
 # macOS config
 if [ "$(uname)" = "Darwin" ]; then
