@@ -49,5 +49,4 @@ if [ "$(uname)" = "Darwin" ]; then
 fi
 
 printf 'prefix=%s/.npm-global\n' "$HOME" > "$HOME/.npmrc"
-
-echo "========================================DONE================================="
+echo "Done."
