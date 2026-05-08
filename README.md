@@ -13,13 +13,19 @@ To make fish your login shell, edit `/etc/shells` and put `which fish` there. Th
 chsh -s "$(which fish)"
 ```
 
-macOS apps/tools:
+macOS tools:
 
 ```sh
 brew install \
   trash \
   qemu \
-  neurosnap/tap/zmx \
+  neurosnap/tap/zmx
+```
+
+macOS apps:
+
+```sh
+brew install --cask \
   1password \
   1password-cli \
   ghostty \
