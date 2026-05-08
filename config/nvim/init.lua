@@ -25,18 +25,6 @@ vim.o.smartindent = true
 vim.o.ttimeoutlen = 0
 vim.o.ignorecase = true
 vim.o.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
-vim.o.foldmethod = "expr"
-vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.o.foldlevel = 99
-vim.o.foldlevelstart = 99
-vim.keymap.set("n", "za", function()
-  if vim.fn.foldclosed(".") == -1 then
-    pcall(function() vim.cmd("normal! zc") end)
-  else
-    pcall(function() vim.cmd("normal! zO") end)
-  end
-end)
-
 vim.cmd.colorscheme("alabaster_bg")
 
 -- nicer diffs everywhere: histogram algorithm + soft pastels
