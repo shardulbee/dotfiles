@@ -20,17 +20,13 @@
               git
               neovim
               tmux
-              htop
               fd
               ripgrep
-              bat
               fzf
               jq
               gh
-              yazi
               zoxide
               atuin
-              hyperfine
               jujutsu
               jjui
               nodejs
@@ -39,7 +35,6 @@
               vtsls
               tree-sitter
               direnv
-              go
             ];
           };
         in {
