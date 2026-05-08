@@ -7,8 +7,8 @@ nix run nixpkgs#jujutsu -- git clone https://github.com/shardulbee/dotfiles ~/Do
 ~/Documents/dotfiles/setup
 ```
 
-macOS apps:
+macOS apps/tools:
 
 ```sh
-brew install --cask 1password 1password-cli ghostty google-chrome obsidian raycast slack spotify tailscale-app anki zed font-jetbrains-mono-nerd-font
+brew install trash qemu neurosnap/tap/zmx 1password 1password-cli ghostty google-chrome obsidian raycast slack spotify tailscale-app anki zed font-jetbrains-mono-nerd-font
 ```
