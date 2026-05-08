@@ -48,6 +48,7 @@ link "$DOT/config/nvim/colors/alabaster_bg.lua" "$HOME/.config/nvim/colors/alaba
 link "$DOT/bin/sharview" "$HOME/bin/sharview"
 link "$DOT/config/pi/extensions/theme.ts" "$HOME/.pi/agent/extensions/theme.ts"
 link "$DOT/config/pi/extensions/tps.ts" "$HOME/.pi/agent/extensions/tps.ts"
+link "$DOT/config/pi/extensions/fast.ts" "$HOME/.pi/agent/extensions/fast.ts"
 link "$DOT/config/pi/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
 link "$DOT/config/pi/skills/jj" "$HOME/.pi/agent/skills/jj"
 
