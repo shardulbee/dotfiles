@@ -7,12 +7,10 @@ nix run nixpkgs#jujutsu -- git clone https://github.com/shardulbee/dotfiles ~/Do
 ~/Documents/dotfiles/setup
 ```
 
-To make fish your login shell:
+To make fish your login shell, edit `/etc/shells` and put `which fish` there. Then run:
 
 ```sh
-fish_path="$HOME/.nix-profile/bin/fish"
-grep -qxF "$fish_path" /etc/shells || printf '%s\n' "$fish_path" | sudo tee -a /etc/shells
-chsh -s "$fish_path"
+chsh -s "$(which fish)"
 ```
 
 macOS apps/tools:
