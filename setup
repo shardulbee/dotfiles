@@ -16,24 +16,9 @@ else
     nix profile add "$DOT#dev"
 fi
 
-# set fish as login shell
-fish="$(command -v fish)"
-if [ -w /etc/shells ]; then
-    grep -qxF "$fish" /etc/shells || printf '%s\n' "$fish" | sudo tee -a /etc/shells >/dev/null
-fi
-
-[[ "$SHELL" == *fish* ]] || chsh -s "$fish" 2>/dev/null || sudo chsh -s "$fish" "$USER"
-
 link() {
   ln -snf "$1" "$2"
 }
-
-# remove broken symlinks in ~ (max depth 4)
-if command -v fd >/dev/null 2>&1; then
-    fd -H -t l -d 4 . "$HOME" -x sh -c '[ -e "$1" ] || rm -f "$1"' _ {} 2>/dev/null
-else 
-    echo "Could not find `fd` program - not cleaning up broken symlinks"
-fi
 
 mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/lua,nvim/colors,ghostty/themes,zed} "$HOME/.pi/agent/"{extensions,skills} "$HOME/bin" "$HOME/.npm-global/bin"
 
