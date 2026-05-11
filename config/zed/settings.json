@@ -48,4 +48,15 @@
   "vim_mode": true,
   "use_system_window_tabs": true,
   "load_direnv": "direct",
+  "languages": {
+    "Nix": {
+      "language_servers": ["nil", "!nixds"],
+      "formatter": {
+        "external": {
+          "command": "nixfmt",
+          "arguments": ["--"],
+        },
+      },
+    },
+  },
 }

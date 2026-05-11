@@ -35,6 +35,8 @@
               vtsls
               tree-sitter
               direnv
+              nil
+              nixfmt
             ];
           };
         in {
