@@ -108,6 +108,7 @@ vim.lsp.config("vtsls", {
 vim.lsp.enable({ "lua_ls", "vtsls" })
 
 map("n", "<leader>y", function() vim.fn.setreg("+", vim.fn.expand("%")) end)
+map("n", "<leader>e", ":Explore<cr>")
 
 map("n", "<leader>c", function()
   local comment_prefix, comment_suffix = vim.bo.commentstring:match("^(.-)%%s(.-)$")
