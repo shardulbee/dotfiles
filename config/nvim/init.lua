@@ -3,7 +3,6 @@
 vim.g.mapleader = ","
 
 vim.pack.add({
-
   "https://github.com/tpope/vim-surround",
   "https://github.com/ibhagwan/fzf-lua",
   "https://github.com/nvim-treesitter/nvim-treesitter",
@@ -26,15 +25,6 @@ vim.o.ttimeoutlen = 0
 vim.o.ignorecase = true
 vim.o.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
 vim.cmd.colorscheme("alabaster_bg")
-
--- nicer diffs everywhere: histogram algorithm + soft pastels
-vim.opt.diffopt:append("algorithm:histogram")
-vim.opt.fillchars:append({ diff = " " })
-vim.api.nvim_set_hl(0, "DiffAdd",    { bg = "#dafbe1" })
-vim.api.nvim_set_hl(0, "DiffDelete", { bg = "#ffebe9", fg = "#ffebe9" })
-vim.api.nvim_set_hl(0, "DiffChange", { bg = "NONE" })
-vim.api.nvim_set_hl(0, "DiffText",   { bg = "#fff5b1", bold = true })
-
 
 vim.defer_fn(function()
   require("nvim-treesitter").install({
