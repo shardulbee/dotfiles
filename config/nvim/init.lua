@@ -24,7 +24,7 @@ vim.o.smartindent = true
 vim.o.ttimeoutlen = 0
 vim.o.ignorecase = true
 vim.o.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
-vim.cmd.colorscheme("alabaster_bg")
+vim.cmd.colorscheme("alabaster")
 
 vim.defer_fn(function()
   require("nvim-treesitter").install({
