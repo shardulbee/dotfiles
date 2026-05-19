@@ -20,7 +20,7 @@ link() {
   ln -snf "$1" "$2"
 }
 
-mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/lua,nvim/colors,ghostty/themes,zed} "$HOME/.pi/agent/"{extensions,skills} "$HOME/bin" "$HOME/.npm-global/bin"
+mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/lua,nvim/colors,ghostty/themes,zed} "$HOME/.pi/agent/extensions" "$HOME/.agents/skills" "$HOME/.codex" "$HOME/bin" "$HOME/.npm-global/bin"
 
 link "$DOT/config/fish/config.fish" "$HOME/.config/fish/config.fish"
 link "$DOT/config/git/config" "$HOME/.config/git/config"
@@ -34,10 +34,10 @@ link "$DOT/bin/sharview" "$HOME/bin/sharview"
 link "$DOT/config/pi/extensions/theme.ts" "$HOME/.pi/agent/extensions/theme.ts"
 link "$DOT/config/pi/extensions/tps.ts" "$HOME/.pi/agent/extensions/tps.ts"
 link "$DOT/config/pi/extensions/codex-usage.ts" "$HOME/.pi/agent/extensions/codex-usage.ts"
-link "$DOT/config/pi/extensions/fast.ts" "$HOME/.pi/agent/extensions/fast.ts"
-link "$DOT/config/pi/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
-link "$DOT/config/pi/skills/jj" "$HOME/.pi/agent/skills/jj"
-link "$DOT/config/pi/skills/librarian" "$HOME/.pi/agent/skills/librarian"
+link "$DOT/config/agents/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
+link "$DOT/config/agents/AGENTS.md" "$HOME/.codex/AGENTS.md"
+link "$DOT/config/agents/skills/jj" "$HOME/.agents/skills/jj"
+link "$DOT/config/agents/skills/librarian" "$HOME/.agents/skills/librarian"
 
 # macOS config
 if [ "$(uname)" = "Darwin" ]; then
