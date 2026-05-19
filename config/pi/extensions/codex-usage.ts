@@ -19,6 +19,8 @@ let usage: CodexUsage | undefined;
 let fetchedAtMs = 0;
 
 async function fetchUsage(ctx: ExtensionContext): Promise<CodexUsage | undefined> {
+  if (ctx.signal?.aborted) return;
+
   const token = await ctx.modelRegistry.getApiKeyForProvider(PROVIDER);
   if (!token) return;
 
@@ -38,11 +40,15 @@ async function fetchUsage(ctx: ExtensionContext): Promise<CodexUsage | undefined
 async function refreshUsage(ctx: ExtensionContext): Promise<void> {
   if (usage && Date.now() - fetchedAtMs < TTL_MS) return;
 
-  const next = await fetchUsage(ctx);
-  if (!next) return;
+  try {
+    const next = await fetchUsage(ctx);
+    if (!next) return;
 
-  usage = next;
-  fetchedAtMs = Date.now();
+    usage = next;
+    fetchedAtMs = Date.now();
+  } catch {
+    return;
+  }
 }
 
 function usageLine(theme: Theme, width: number): string[] {
@@ -85,8 +91,12 @@ async function update(ctx: ExtensionContext): Promise<void> {
   showWidget(ctx);
 }
 
+function updateLater(ctx: ExtensionContext): void {
+  void update(ctx).catch(() => undefined);
+}
+
 export default function (pi: ExtensionAPI) {
-  pi.on("session_start", (_event, ctx) => void update(ctx));
-  pi.on("model_select", (_event, ctx) => void update(ctx));
-  pi.on("agent_end", (_event, ctx) => void update(ctx));
+  pi.on("session_start", (_event, ctx) => updateLater(ctx));
+  pi.on("model_select", (_event, ctx) => updateLater(ctx));
+  pi.on("agent_end", (_event, ctx) => updateLater(ctx));
 }
