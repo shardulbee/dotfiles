@@ -28,6 +28,7 @@ macOS apps:
 brew install --cask \
   1password \
   1password-cli \
+  codex-app \
   ghostty \
   google-chrome \
   obsidian \
