@@ -4,8 +4,8 @@
     "bindings": {
       "cmd-,": "zed::OpenSettingsFile",
       "cmd-shift-space": "workspace::NewCenterTerminal",
-      "cmd-ctrl-[": "window::ShowPreviousWindowTab",
-      "cmd-ctrl-]": "window::ShowNextWindowTab",
+      "cmd-ctrl-[": "multi_workspace::PreviousThread",
+      "cmd-ctrl-]": "multi_workspace::NextThread",
     },
   },
   {
@@ -77,4 +77,14 @@
       "ctrl-j": "workspace::ActivatePaneDown",
     },
   },
+  {
+    "bindings": {
+      "cmd-`": "workspace::ToggleZoom"
+    }
+  },
+  {
+    "unbind": {
+      "shift-escape": "workspace::ToggleZoom"
+    }
+  }
 ]
