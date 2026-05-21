@@ -9,7 +9,7 @@
   },
   "agent_servers": {
     "pi-acp": {
-      "type": "registry"
+      "type": "registry",
     },
     "codex-acp": {
       "default_config_options": {
@@ -109,6 +109,8 @@
   },
   "project_panel": {
     "dock": "left",
+    "hide_gitignore": true,
+    "hide_root": true,
   },
   "collaboration_panel": {
     "button": false,
