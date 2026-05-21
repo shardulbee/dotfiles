@@ -1,8 +1,28 @@
 [
   {
+    "context": "Workspace > ThreadsSidebar",
+    "bindings": {
+      "cmd-backspace": "agent::ArchiveSelectedThread",
+      "cmd-ctrl-enter": "multi_workspace::FocusWorkspaceSidebar",
+    },
+  },
+  {
+    "context": "!(Workspace > ThreadsSidebar)",
+    "bindings": {
+      "cmd-ctrl-enter": [
+        "action::Sequence",
+        [
+          "multi_workspace::FocusWorkspaceSidebar",
+          ["workspace::SendKeystrokes", "down down"],
+        ],
+      ],
+    },
+  },
+  {
     "context": "",
     "bindings": {
       "cmd-,": "zed::OpenSettingsFile",
+      "cmd-shift-,": "zed::OpenKeymapFile",
       "cmd-shift-space": "workspace::NewCenterTerminal",
       "cmd-ctrl-[": "multi_workspace::PreviousThread",
       "cmd-ctrl-]": "multi_workspace::NextThread",
@@ -79,12 +99,12 @@
   },
   {
     "bindings": {
-      "cmd-`": "workspace::ToggleZoom"
-    }
+      "cmd-`": "workspace::ToggleZoom",
+    },
   },
   {
     "unbind": {
-      "shift-escape": "workspace::ToggleZoom"
-    }
-  }
+      "shift-escape": "workspace::ToggleZoom",
+    },
+  },
 ]

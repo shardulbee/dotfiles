@@ -60,7 +60,8 @@ export default function (pi: ExtensionAPI) {
         inFlight ||
         !ctx.hasUI ||
         !process.stdin.isTTY ||
-        !process.stdout.isTTY
+        !process.stdout.isTTY ||
+        !process.stdin.isRaw
       ) {
         return;
       }

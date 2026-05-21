@@ -1,239 +1,108 @@
 import { completeSimple } from "@earendil-works/pi-ai";
-import type { AssistantMessage, UserMessage } from "@earendil-works/pi-ai";
 import type {
   ExtensionAPI,
   ExtensionContext,
-  SessionEntry,
-  SessionMessageEntry,
 } from "@earendil-works/pi-coding-agent";
 
-const PROVIDER = "google";
-const MODEL_ID = "gemini-3.5-flash";
-const THINKING = "low" as const;
-const EARLY_TITLE_CHECKPOINTS = [1, 3, 5] as const;
-const RECURRING_TITLE_INTERVAL = 5;
-const STATE_TYPE = "auto-title-state";
-const MAX_TITLE_CHARS = 72;
-const MAX_MESSAGE_CHARS = 1_500;
-const MAX_TRANSCRIPT_CHARS = 24_000;
-
-const SYSTEM_PROMPT = [
-  "You update concise titles for pi coding-agent sessions.",
-  "Use the previous title plus only the new transcript since that title was chosen.",
-  "Keep the title stable if the new transcript is a continuation of the same task.",
-  "Change it when the session direction, goal, or outcome materially changed.",
-  `Return only the title as plain text. The title must be <= ${MAX_TITLE_CHARS} characters, concrete, and have no trailing punctuation.`,
-].join("\n");
-
-type AutoTitleState = { title: string };
-type TitlePoint = { title: string; index: number; userMessages: number };
-type TextPart = { type: string; text?: string };
-
-function isUserMessage(entry: SessionEntry): boolean {
-  return entry.type === "message" && entry.message.role === "user";
-}
-
-function countUserMessages(entries: SessionEntry[]): number {
-  return entries.filter(isUserMessage).length;
-}
-
-function latestTitleCheckpoint(userMessages: number): number {
-  let checkpoint = 0;
-  for (const earlyCheckpoint of EARLY_TITLE_CHECKPOINTS) {
-    if (userMessages >= earlyCheckpoint) checkpoint = earlyCheckpoint;
-  }
-
-  const lastEarlyCheckpoint =
-    EARLY_TITLE_CHECKPOINTS[EARLY_TITLE_CHECKPOINTS.length - 1] ?? 0;
-  if (userMessages > lastEarlyCheckpoint) {
-    checkpoint = Math.max(
-      checkpoint,
-      Math.floor(userMessages / RECURRING_TITLE_INTERVAL) *
-        RECURRING_TITLE_INTERVAL,
-    );
-  }
-
-  return checkpoint;
-}
-
-function latestState(entries: SessionEntry[]) {
-  for (let i = entries.length - 1; i >= 0; i--) {
-    const entry = entries[i];
-    if (entry.type !== "custom" || entry.customType !== STATE_TYPE) continue;
-
-    const title = (entry.data as AutoTitleState | undefined)?.title;
-    if (typeof title === "string") return { index: i, title };
-  }
-}
-
-function latestSessionInfo(entries: SessionEntry[]) {
-  for (let i = entries.length - 1; i >= 0; i--) {
-    const entry = entries[i];
-    if (entry.type === "session_info")
-      return { index: i, title: entry.name ?? "" };
-  }
-}
-
-function getTitlePoint(entries: SessionEntry[]): TitlePoint {
-  const state = latestState(entries);
-  const info = latestSessionInfo(entries);
-  const point = info && (!state || info.index > state.index) ? info : state;
-
-  return point
-    ? {
-        ...point,
-        userMessages: countUserMessages(entries.slice(0, point.index + 1)),
-      }
-    : { title: "", index: -1, userMessages: 0 };
-}
-
-function trimBlock(text: string, maxChars = MAX_MESSAGE_CHARS): string {
-  const compact = text
-    .replace(/[ \t]+/g, " ")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-  return compact.length <= maxChars
-    ? compact
-    : `${compact.slice(0, maxChars).trim()}…`;
-}
-
-function textFromContent(
-  content: string | readonly TextPart[] | undefined,
-): string {
-  if (typeof content === "string") return content;
-  return (content ?? [])
-    .map((part) =>
-      part.type === "text"
-        ? (part.text ?? "")
-        : part.type === "image"
-          ? "[image]"
-          : "",
-    )
-    .filter(Boolean)
-    .join("\n")
-    .trim();
-}
-
-function messageBlock(entry: SessionMessageEntry): string | undefined {
-  const { message } = entry;
-  if (message.role !== "user" && message.role !== "assistant") return undefined;
-
-  const label = message.role === "user" ? "User" : "Assistant";
-  const text = trimBlock(textFromContent(message.content));
-  return text ? `[${label}]\n${text}` : undefined;
-}
-
-function recentTranscript(entries: SessionEntry[]): string {
-  const blocks: string[] = [];
-  for (const entry of entries) {
-    if (entry.type === "message") {
-      const block = messageBlock(entry);
-      if (block) blocks.push(block);
-    }
-  }
-
-  const transcript = blocks.join("\n\n").trim();
-  return transcript.length <= MAX_TRANSCRIPT_CHARS
-    ? transcript
-    : `[Earlier recent transcript truncated]\n${transcript.slice(-MAX_TRANSCRIPT_CHARS).trim()}`;
-}
-
-function buildUserPrompt(
-  previousTitle: string,
-  transcript: string,
-): UserMessage {
-  return {
-    role: "user",
-    content: [
-      `Previous title: ${previousTitle || "(none)"}`,
-      "",
-      "New transcript since that title:",
-      transcript,
-      "",
-      "Update the title for the whole session. Return only the title as plain text.",
-    ].join("\n"),
-    timestamp: Date.now(),
-  };
-}
-
-function assistantText(message: AssistantMessage): string {
-  return message.content
-    .filter((part) => part.type === "text")
-    .map((part) => part.text)
-    .join("\n")
-    .trim();
-}
-
-function cleanTitle(raw: string): string {
-  const title = raw
-    .trim()
-    .replace(/[.!?。！？]+$/gu, "")
-    .trim();
-  return title &&
-    title.length <= MAX_TITLE_CHARS &&
-    !/[\r\n`{}[\]]/u.test(title)
-    ? title
-    : "";
-}
-
-async function generateTitle(
-  ctx: ExtensionContext,
-  previousTitle: string,
-  transcript: string,
-): Promise<string> {
-  const model = ctx.modelRegistry.find(PROVIDER, MODEL_ID);
-  if (!model) return "";
-
-  const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-  if (!auth.ok) return "";
-
-  const response = await completeSimple(
-    model,
-    {
-      systemPrompt: SYSTEM_PROMPT,
-      messages: [buildUserPrompt(previousTitle, transcript)],
-    },
-    {
-      apiKey: auth.apiKey,
-      headers: auth.headers,
-      reasoning: THINKING,
-      maxTokens: 160,
-    },
-  );
-
-  return response.stopReason === "error" || response.stopReason === "aborted"
-    ? ""
-    : cleanTitle(assistantText(response));
-}
+const TITLE_CHARS = 72;
+const MODEL = "openai-codex/gpt-5.5";
+const SYSTEM_PROMPT = `Write one concise pi session title. Use the previous title and only the new transcript. Keep it for the same task; change it only for a material direction, goal, or outcome change. Plain text only, <= ${TITLE_CHARS} chars, no trailing punctuation.`;
 
 export default function (pi: ExtensionAPI) {
-  async function maybeUpdateTitle(ctx: ExtensionContext): Promise<void> {
-    const branch = ctx.sessionManager.getBranch();
-    const point = getTitlePoint(branch);
-    const totalUserMessages = countUserMessages(branch);
-    const checkpoint = latestTitleCheckpoint(totalUserMessages);
-    if (checkpoint <= point.userMessages) return;
+  async function updateTitle(ctx: ExtensionContext, force = false) {
+    const fail = (message: string) => {
+      if (ctx.hasUI) ctx.ui.notify(`Title failed: ${message}`, "error");
+    };
 
-    const transcript = recentTranscript(branch.slice(point.index + 1));
-    if (!transcript) return;
+    try {
+      const branch = ctx.sessionManager.getBranch();
 
-    const leafId = ctx.sessionManager.getLeafId();
-    const nextTitle = await generateTitle(ctx, point.title, transcript);
-    if (!nextTitle || ctx.sessionManager.getLeafId() !== leafId) return;
+      // Run after the first user message, then every fifth user message.
+      const users = branch.filter(
+        (entry) => entry.type === "message" && entry.message.role === "user",
+      ).length;
+      if (!force && users !== 1 && (users < 5 || users % 5 !== 0)) return;
 
-    if (nextTitle !== (ctx.sessionManager.getSessionName() ?? "")) {
-      pi.setSessionName(nextTitle);
+      // Use the latest session name as the previous title and transcript boundary.
+      let titleIndex = -1;
+      let previousTitle = "";
+      for (let index = branch.length - 1; index >= 0; index--) {
+        const entry = branch[index];
+        if (entry.type !== "session_info") continue;
+        titleIndex = index;
+        previousTitle = entry.name ?? "";
+        break;
+      }
+
+      // Build compact user-message transcript since that boundary.
+      const blocks: string[] = [];
+      for (const entry of branch.slice(titleIndex + 1)) {
+        if (entry.type !== "message" || entry.message.role !== "user") continue;
+        const content = entry.message.content;
+        let text = "";
+        if (typeof content === "string") text = content;
+        else {
+          for (const part of content) {
+            if (part.type === "text") text += `${part.text ?? ""}\n`;
+            if (part.type === "image") text += "[image]\n";
+          }
+        }
+
+        text = text
+          .replace(/[ \t]+/g, " ")
+          .replace(/\n{3,}/g, "\n\n")
+          .trim();
+        if (text.length > 1_500) text = `${text.slice(0, 1_500).trim()}…`;
+        if (text) blocks.push(text);
+      }
+
+      let transcript = blocks.join("\n\n").trim();
+      if (!transcript) return fail("no new user messages since the last title");
+      if (transcript.length > 24_000) {
+        transcript = `[Earlier recent transcript truncated]\n${transcript.slice(-24_000).trim()}`;
+      }
+
+      // Ask the title model.
+      const model = ctx.modelRegistry.find("openai-codex", "gpt-5.5");
+      if (!model) return fail(`model ${MODEL} not found`);
+      const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
+      if (!auth.ok) return fail(`missing API key for ${MODEL}`);
+      const prompt = `Previous title: ${previousTitle || "(none)"}\n\nNew transcript since that title:\n${transcript}\n\nUpdate the title. Return only the title.`;
+      const response = await completeSimple(
+        model,
+        {
+          systemPrompt: SYSTEM_PROMPT,
+          messages: [{ role: "user", content: prompt, timestamp: Date.now() }],
+        },
+        {
+          apiKey: auth.apiKey,
+          headers: auth.headers,
+          reasoning: "minimal",
+          maxTokens: 160,
+        },
+      );
+      if (response.stopReason === "aborted") return fail("title model aborted");
+      if (response.stopReason === "error")
+        return fail(response.errorMessage ?? "title model errored");
+
+      let title = "";
+      for (const part of response.content)
+        if (part.type === "text") title += `${part.text}\n`;
+      title = title.replace(/\s+/gu, " ").trim().slice(0, TITLE_CHARS);
+      title = title.replace(/[.!?。！？]+$/gu, "").trim();
+      if (!title) return fail("title model returned an empty title");
+      pi.setSessionName(title);
+    } catch (error) {
+      fail(error instanceof Error ? error.message : String(error));
     }
-    pi.appendEntry<AutoTitleState>(STATE_TYPE, { title: nextTitle });
   }
 
-  pi.on("session_start", (_event, ctx) => {});
-
-  pi.on("agent_end", (_event, ctx) => {
-    void maybeUpdateTitle(ctx).catch(() => {});
+  pi.registerCommand("title", {
+    description: "Generate a session title now",
+    handler: async (_args, ctx) => updateTitle(ctx, true),
   });
 
-  pi.on("session_shutdown", (_event, ctx) => {
-    if (ctx.hasUI) ctx.ui.setTitle("");
+  pi.on("agent_start", (_event, ctx) => {
+    setTimeout(() => void updateTitle(ctx), 0);
   });
 }
