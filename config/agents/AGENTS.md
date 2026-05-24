@@ -1,43 +1,54 @@
 # Agent Configuration
 
-## Hard Rules
+## Operating Rules
 
-- Default to short, high-information-density answers. Expand only when detail changes the decision.
-- No filler, repetition, generic advice, or unnecessary caveats.
+- Be brief, high-signal, and specific. Expand only when detail changes the
+  decision.
+- Avoid filler, repetition, generic advice, and unnecessary caveats.
 - Reason from first principles.
-- Value Pareto efficiency and simplicity.
-- Aggressively minimize complexity; question whether every abstraction, tool, step, or recommendation needs to exist.
-- Do not default to conventional "best practices" unless they clearly improve the outcome.
-- Ignore "clean code" dogma and modern software engineering cargo cults.
-- Design for testability using "functional core, imperative shell": keep pure business logic separate from code that does IO.
-- Always use jj. Never run any git command.
-- Never cat, echo, or print secrets. Reference them by path or variable name only.
-- Always use uv for Python. Never use pip.
-- Always pass `-m "msg"` to `jj commit`, `jj describe`, and `jj squash`. They open an editor by default - the agent cannot interact with it.
-- Never use `jj split` in automated contexts. It is always interactive.
+- Use 80/20 + YAGNI: choose the smallest sufficient solution; do not add
+  future-proofing, abstraction, config, dependency, or generality unless the
+  current task needs it.
+- Ignore cargo-cult “best practices.” Use a practice only when it improves this
+  specific outcome.
 
-## Defaults
+## Code
 
-- JS/TS: use npm.
-- GitHub: use `gh` CLI. Use `--repo owner/repo` outside git dirs. Use `--json` and `--jq` for structured output. `gh api` for anything not covered by subcommands.
+- Minimize complexity. Question every abstraction, helper, layer, tool, and
+  step.
+- Prefer functional core, imperative shell: pure logic inside; IO, mutation, and
+  orchestration outside.
+- Prefer visible, linear code for one-off stateful workflows.
+- Inline helpers when a function boundary hides execution order, mutation, cost,
+  or dependencies.
+- Extract functions only when they are reused, clarify the caller, or isolate
+  pure logic.
+- Treat hidden mutable state as the main enemy; keep state transitions local and
+  obvious.
+- Keep execution order, branching, and cost obvious in hot or
+  correctness-sensitive paths.
+- Avoid copy-paste-modify. Use loops, tables, or data-driven structure for
+  regular repetition.
+
+## Tools
+
+- Use `jj`; never invoke `git`. `jj git ...` is allowed.
+- Use `uv` for Python; never use `pip`.
+- Use `npm` for JS/TS.
+- Use `gh` for GitHub. Outside repo dirs, pass `--repo owner/repo`; prefer
+  `--json` and `--jq`; use `gh api` when subcommands are insufficient.
+- Never print secrets. Reference them only by path or variable name.
 
 ## jj
 
-The working copy IS a commit (`@`). Every change auto-amends `@`. No staging area.
+- `@` is the working-copy commit; changes auto-amend it. There is no staging
+  area.
+- Always pass `-m "msg"` to `jj commit`, `jj describe`, and `jj squash`.
+- Never use `jj split` in automation; it is interactive.
+- After fetching: `jj git fetch && jj rebase -b @ -o main`.
+- Common commands: `jj st`, `jj diff`, `jj log`, `jj commit -m "msg"`, `jj new
+  <rev>`, `jj squash -m "msg"`, `jj restore`, `jj undo`, `jj tug`.
 
-Common commands:
-- `jj st` / `jj diff` / `jj log`
-- `jj commit -m "msg"` - finalize `@`, start new empty `@` on top
-- `jj new <rev>` - checkout / start work on `<rev>`
-- `jj squash -m "msg"` - amend `@-` with current changes
-- `jj restore` - discard all changes in `@`
-- `jj bookmark create <name> -r <rev>` / `jj bookmark move <name> --to <rev>` / `jj bookmark list`
-- `jj tug` - move closest bookmark from `@-` to `@` (alias: `bookmark move --from closest_bookmark(@-) --to @-`)
-- `jj rebase -b @ -o main` - rebase onto main
-- `jj undo` - revert last operation
-
-After fetching: `jj git fetch && jj rebase -b @ -o main`
-
-Syntax: `@` = current, `@-` = parent, `trunk()` = main/master.
+Revision syntax: `@` = current, `@-` = parent, `trunk()` = main/master.
 
 Full reference: `/skill:jj`

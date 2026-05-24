@@ -3,7 +3,7 @@
     "context": "Workspace > ThreadsSidebar",
     "bindings": {
       "cmd-backspace": "agent::ArchiveSelectedThread",
-      "cmd-ctrl-enter": "multi_workspace::FocusWorkspaceSidebar",
+      "cmd-ctrl-enter": "multi_workspace::CloseWorkspaceSidebar",
     },
   },
   {
