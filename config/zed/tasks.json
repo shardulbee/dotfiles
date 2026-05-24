@@ -7,22 +7,4 @@
     "allow_concurrent_runs": false,
     "use_new_terminal": false,
   },
-  {
-    "label": "Run pi",
-    "command": "pi",
-    "hide": "on_success",
-    "reveal_target": "center",
-  },
-  {
-    "label": "Run sharview",
-    "command": "sharview | pbcopy",
-    "hide": "on_success",
-    "reveal_target": "center",
-  },
-  {
-    "label": "View Repository on GitHub",
-    "command": "gh repo view --web",
-    "hide": "always",
-    "reveal": "never",
-  },
 ]
