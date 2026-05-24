@@ -3,10 +3,6 @@
   "agent": {
     "flexible": true,
     "dock": "right",
-    "inline_assistant_model": {
-      "provider": "Cerebras",
-      "model": "zai-glm-4.7",
-    },
   },
   "agent_servers": {
     "pi-acp": {
