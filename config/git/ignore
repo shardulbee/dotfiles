@@ -30,6 +30,3 @@ handoff.md
 .plans
 *.http
 scratch/
-
-.pi/extensions/
-.zed/tasks.json
