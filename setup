@@ -40,6 +40,7 @@ link "$DOT/config/agents/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
 link "$DOT/config/agents/AGENTS.md" "$HOME/.codex/AGENTS.md"
 link "$DOT/config/agents/skills/jj" "$HOME/.agents/skills/jj"
 link "$DOT/config/agents/skills/librarian" "$HOME/.agents/skills/librarian"
+link "$DOT/config/agents/skills/using-exe-dev" "$HOME/.agents/skills/using-exe-dev"
 
 # macOS config
 if [ "$(uname)" = "Darwin" ]; then
