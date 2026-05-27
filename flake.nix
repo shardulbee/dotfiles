@@ -31,8 +31,6 @@
               jjui
               nodejs
               uv
-              lua-language-server
-              vtsls
               tree-sitter
               direnv
               nil
