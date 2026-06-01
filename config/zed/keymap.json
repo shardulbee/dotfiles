@@ -7,21 +7,19 @@
       "cmd-shift-space": "workspace::NewCenterTerminal",
       "cmd-ctrl-]": "window::ShowNextWindowTab",
       "cmd-ctrl-[": "window::ShowPreviousWindowTab",
-    },
-  },
-  {
-    "context": "Workspace > Dock > ProjectPanel",
-    "bindings": {
-      "ctrl-enter": "workspace::OpenInTerminal",
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "alt-j": ["task::Spawn", { "task_name": "Run jjui" }],
+      "cmd-shift-d": "git::BranchDiff",
+      "cmd-`": "workspace::ToggleZoom",
     },
   },
   {
     "context": "Workspace",
     "bindings": {
-      "alt-j": ["task::Spawn", { "task_name": "Run jjui" }],
-      "cmd-shift-d": "git::BranchDiff",
       ", y": "workspace::CopyRelativePath",
-      ", g b": "editor::OpenPermalinkToLine",
       ", f e": [
         "pane::DeploySearch",
         { "excluded_files": "*.har, *.json, *.spec.ts, inlinedbaml.ts" },
@@ -42,50 +40,6 @@
           ["workspace::SendKeystrokes", "cmd-/ SHARVIEW: space"],
         ],
       ],
-    },
-  },
-  {
-    "context": "Editor && vim_mode == visual && !menu",
-    "bindings": {
-      "v": "editor::SelectLargerSyntaxNode",
-      "V": "editor::SelectSmallerSyntaxNode",
-    },
-  },
-  {
-    "context": "Terminal && !Dock",
-    "bindings": {
-      "ctrl-h": "workspace::ActivatePaneLeft",
-      "ctrl-l": "workspace::ActivatePaneRight",
-      "ctrl-k": "workspace::ActivatePaneUp",
-      "ctrl-j": "workspace::ActivatePaneDown",
-    },
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "ctrl-h": "workspace::ActivatePaneLeft",
-      "ctrl-l": "workspace::ActivatePaneRight",
-      "ctrl-k": "workspace::ActivatePaneUp",
-      "ctrl-j": "workspace::ActivatePaneDown",
-    },
-  },
-  {
-    "context": "Dock",
-    "bindings": {
-      "ctrl-h": "workspace::ActivatePaneLeft",
-      "ctrl-l": "workspace::ActivatePaneRight",
-      "ctrl-k": "workspace::ActivatePaneUp",
-      "ctrl-j": "workspace::ActivatePaneDown",
-    },
-  },
-  {
-    "bindings": {
-      "cmd-`": "workspace::ToggleZoom",
-    },
-  },
-  {
-    "unbind": {
-      "shift-escape": "workspace::ToggleZoom",
     },
   },
 ]
