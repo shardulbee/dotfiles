@@ -5,6 +5,8 @@
       "cmd-,": "zed::OpenSettingsFile",
       "cmd-shift-,": "zed::OpenKeymapFile",
       "cmd-shift-space": "workspace::NewCenterTerminal",
+      "cmd-ctrl-]": "window::ShowNextWindowTab",
+      "cmd-ctrl-[": "window::ShowPreviousWindowTab",
     },
   },
   {
