@@ -45,8 +45,8 @@ link "$DOT/config/agents/skills/using-exe-dev" "$HOME/.agents/skills/using-exe-d
 # macOS config
 if [ "$(uname)" = "Darwin" ]; then
   link "$DOT/config/ghostty/config" "$HOME/.config/ghostty/config"
-  link "$DOT/config/ghostty/themes/alabaster-sublime" "$HOME/.config/ghostty/themes/Alabaster Sublime"
-  link "$DOT/config/ghostty/themes/alabaster-sublime-dark" "$HOME/.config/ghostty/themes/Alabaster Sublime Dark"
+  link "$DOT/config/ghostty/themes/alabaster-light" "$HOME/.config/ghostty/themes/Alabaster Light"
+  link "$DOT/config/ghostty/themes/alabaster-dark" "$HOME/.config/ghostty/themes/Alabaster Dark"
   link "$DOT/config/zed/keymap.json" "$HOME/.config/zed/keymap.json"
   link "$DOT/config/zed/settings.json" "$HOME/.config/zed/settings.json"
   link "$DOT/config/zed/tasks.json" "$HOME/.config/zed/tasks.json"

@@ -1,10 +1,10 @@
 # Alabaster Dark - based on tonsky/sublime-scheme-alabaster
 # https://github.com/tonsky/sublime-scheme-alabaster
 
-background = #0e1415
+background = #0f1115
 foreground = #cecece
 cursor-color = #cd974b
-cursor-text = #0e1415
+cursor-text = #0f1115
 selection-background = #293334
 selection-foreground = #cecece
 
