@@ -43,6 +43,11 @@
 
 - `@` is the working-copy commit; changes auto-amend it. There is no staging
   area.
+- If `@` is a single working-copy commit with multiple parents/bookmark heads,
+  assume the user is likely using a megamerge workflow. Do not push the
+  megamerge. Move the current changes into the intended branch with
+  `jj squash --into <rev> -m "msg"`, or split/rebase a new commit onto the
+  correct branch if the changes do not belong in an existing commit.
 - Always pass `-m "msg"` to `jj commit`, `jj describe`, and `jj squash`.
 - Never use `jj split` in automation; it is interactive.
 - After fetching: `jj git fetch && jj rebase -b @ -o main`.
