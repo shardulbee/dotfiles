@@ -20,6 +20,7 @@
               git
               neovim
               tmux
+              yazi
               fd
               ripgrep
               fzf
