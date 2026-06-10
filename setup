@@ -20,7 +20,7 @@ link() {
   ln -snf "$1" "$2"
 }
 
-mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/lua,nvim/colors,ghostty/themes,zed} "$HOME/.pi/agent/extensions" "$HOME/.agents/skills" "$HOME/.codex" "$HOME/bin" "$HOME/.npm-global/bin"
+mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/colors,ghostty/themes,zed} "$HOME/.pi/agent/extensions" "$HOME/.agents/skills" "$HOME/.codex" "$HOME/bin" "$HOME/.npm-global/bin"
 
 link "$DOT/config/fish/config.fish" "$HOME/.config/fish/config.fish"
 link "$DOT/config/git/config" "$HOME/.config/git/config"

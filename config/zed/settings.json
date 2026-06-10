@@ -4,11 +4,7 @@
     "light": "Alabaster BG",
     "dark": "Alabaster Dark",
   },
-  "outline_panel": {
-    "dock": "left",
-  },
   "project_panel": {
-    "dock": "left",
     "hide_gitignore": true,
     "hide_root": true,
   },
@@ -33,10 +29,8 @@
   "buffer_font_family": "JetBrainsMono Nerd Font Mono",
   "vim_mode": true,
   "use_system_window_tabs": true,
-  "load_direnv": "direct",
   "languages": {
     "Nix": {
-      "language_servers": ["nil", "!nixds"],
       "formatter": {
         "external": {
           "command": "nixfmt",

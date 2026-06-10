@@ -5,6 +5,9 @@ email = "shardul@baral.ca"
 [ui]
 default-command = 'log'
 
+[revset-aliases]
+'closest_bookmark(to)' = 'heads(::to & bookmarks())'
+
 [aliases]
 # Move the closest bookmark to the current commit. Useful when working on a
 # named branch, creating a bunch of commits, and then needing to update the

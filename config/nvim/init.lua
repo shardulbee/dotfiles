@@ -8,7 +8,6 @@ vim.pack.add({
   "https://github.com/nvim-treesitter/nvim-treesitter",
 })
 
-vim.o.termguicolors = true
 vim.o.wrap = false
 vim.o.scrolloff = 10
 vim.o.tabstop = 2
@@ -16,12 +15,9 @@ vim.o.shiftwidth = 2
 vim.o.expandtab = true
 vim.o.number = true
 vim.o.laststatus = 3
-vim.o.writebackup = false
 vim.o.swapfile = false
 vim.o.autowrite = true
 vim.o.clipboard = "unnamedplus"
-vim.o.smartindent = true
-vim.o.ttimeoutlen = 0
 vim.o.ignorecase = true
 vim.o.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
 vim.cmd.colorscheme("alabaster")
