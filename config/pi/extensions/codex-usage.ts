@@ -1,25 +1,27 @@
-import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
+// Show Codex rate-limit usage above the editor when a codex model is active.
+import type {
+  ExtensionAPI,
+  ExtensionContext,
+  Theme,
+} from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 
 const PROVIDER = "openai-codex";
 const ENDPOINT = "https://chatgpt.com/backend-api/wham/usage";
-const WIDGET_KEY = "codex-usage";
 const TTL_MS = 60_000;
-const PRIMARY_LABEL = "2d";
-const SECONDARY_LABEL = "1w";
 
 type CodexUsage = {
   rate_limit: {
-    primary_window: { used_percent: number };
-    secondary_window: { used_percent: number };
+    primary_window: { used_percent: number }; // 2 days
+    secondary_window: { used_percent: number }; // 1 week
   };
 };
 
 let usage: CodexUsage | undefined;
 let fetchedAtMs = 0;
 
-async function fetchUsage(ctx: ExtensionContext): Promise<CodexUsage | undefined> {
-  if (ctx.signal?.aborted) return;
+async function refresh(ctx: ExtensionContext): Promise<void> {
+  if (usage && Date.now() - fetchedAtMs < TTL_MS) return;
 
   const token = await ctx.modelRegistry.getApiKeyForProvider(PROVIDER);
   if (!token) return;
@@ -32,47 +34,32 @@ async function fetchUsage(ctx: ExtensionContext): Promise<CodexUsage | undefined
     },
     signal: ctx.signal,
   });
-
   if (!res.ok) return;
-  return (await res.json()) as CodexUsage;
-}
 
-async function refreshUsage(ctx: ExtensionContext): Promise<void> {
-  if (usage && Date.now() - fetchedAtMs < TTL_MS) return;
-
-  try {
-    const next = await fetchUsage(ctx);
-    if (!next) return;
-
-    usage = next;
-    fetchedAtMs = Date.now();
-  } catch {
-    return;
-  }
+  usage = (await res.json()) as CodexUsage;
+  fetchedAtMs = Date.now();
 }
 
 function usageLine(theme: Theme, width: number): string[] {
   if (!usage) return [];
-
-  const primary = usage.rate_limit.primary_window;
-  const secondary = usage.rate_limit.secondary_window;
+  const { primary_window, secondary_window } = usage.rate_limit;
   const text = theme.fg(
     "dim",
-    `usage: ${Math.round(primary.used_percent)}% (${PRIMARY_LABEL})/${Math.round(secondary.used_percent)}% (${SECONDARY_LABEL})`,
+    `usage: ${Math.round(primary_window.used_percent)}% (2d)/${Math.round(secondary_window.used_percent)}% (1w)`,
   );
-
+  // right-aligned
   const padding = " ".repeat(Math.max(0, width - visibleWidth(text)));
   return [truncateToWidth(padding + text, width, "")];
 }
 
-function showWidget(ctx: ExtensionContext): void {
+async function update(ctx: ExtensionContext): Promise<void> {
   if (ctx.model?.provider !== PROVIDER) {
-    ctx.ui.setWidget(WIDGET_KEY, undefined);
+    ctx.ui.setWidget("codex-usage", undefined);
     return;
   }
-
+  await refresh(ctx).catch(() => {});
   ctx.ui.setWidget(
-    WIDGET_KEY,
+    "codex-usage",
     (_tui, theme) => ({
       invalidate() {},
       render: (width: number) => usageLine(theme, width),
@@ -81,22 +68,10 @@ function showWidget(ctx: ExtensionContext): void {
   );
 }
 
-async function update(ctx: ExtensionContext): Promise<void> {
-  if (ctx.model?.provider !== PROVIDER) {
-    showWidget(ctx);
-    return;
-  }
-
-  await refreshUsage(ctx);
-  showWidget(ctx);
-}
-
-function updateLater(ctx: ExtensionContext): void {
-  void update(ctx).catch(() => undefined);
-}
-
 export default function (pi: ExtensionAPI) {
-  pi.on("session_start", (_event, ctx) => updateLater(ctx));
-  pi.on("model_select", (_event, ctx) => updateLater(ctx));
-  pi.on("agent_end", (_event, ctx) => updateLater(ctx));
+  const kick = (_event: unknown, ctx: ExtensionContext): void =>
+    void update(ctx).catch(() => {});
+  pi.on("session_start", kick);
+  pi.on("model_select", kick);
+  pi.on("agent_end", kick);
 }
