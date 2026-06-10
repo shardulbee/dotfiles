@@ -14,10 +14,15 @@ const SYSTEM_PROMPT = `Write one concise pi session title. Use the previous titl
 export default function (pi: ExtensionAPI) {
   async function updateTitle(ctx: ExtensionContext, force = false) {
     const fail = (message: string) => {
-      if (ctx.hasUI) ctx.ui.notify(`Title failed: ${message}`, "error");
+      try {
+        if (ctx.hasUI) ctx.ui.notify(`Title failed: ${message}`, "error");
+      } catch {
+        // The deferred title update may finish after pi has exited/reloaded.
+      }
     };
 
     try {
+      if (ctx.signal?.aborted) return;
       const branch = ctx.sessionManager.getBranch();
 
       const users = branch.filter(

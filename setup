@@ -4,52 +4,29 @@ set -euo pipefail
 cd "$(dirname "$0")"
 DOT="$PWD"
 
-export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
-
-command -v nix >/dev/null || { echo "error: install Nix first" >&2; exit 1; }
-
-# install or upgrade dev tools
-# Check if dotfiles flake is already in the profile; if so upgrade, else add.
-if nix profile list | grep -F "$DOT" > /dev/null; then
-    nix profile upgrade dev
-else
-    nix profile add "$DOT#dev"
-fi
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 link() {
   ln -snf "$1" "$2"
 }
 
-mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/colors,ghostty/themes,zed} "$HOME/.pi/agent/extensions" "$HOME/.agents/skills" "$HOME/.codex" "$HOME/bin" "$HOME/.npm-global/bin"
+mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/lua,nvim/colors,ghostty/themes,zed} "$HOME/.pi/agent/extensions" "$HOME/.agents/skills" "$HOME/.codex" "$HOME/bin" "$HOME/.npm-global/bin"
 
-link "$DOT/config/fish/config.fish" "$HOME/.config/fish/config.fish"
-link "$DOT/config/git/config" "$HOME/.config/git/config"
-link "$DOT/config/git/ignore" "$HOME/.config/git/ignore"
-link "$DOT/config/jj/config.toml" "$HOME/.config/jj/config.toml"
-link "$DOT/config/jjui/config.lua" "$HOME/.config/jjui/config.lua"
-link "$DOT/config/jjui/themes" "$HOME/.config/jjui/themes"
-link "$DOT/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
-link "$DOT/config/nvim/colors/alabaster.lua" "$HOME/.config/nvim/colors/alabaster.lua"
-link "$DOT/bin/sharview" "$HOME/bin/sharview"
-link "$DOT/config/pi/extensions/tps.ts" "$HOME/.pi/agent/extensions/tps.ts"
-link "$DOT/config/pi/extensions/codex-usage.ts" "$HOME/.pi/agent/extensions/codex-usage.ts"
-link "$DOT/config/pi/extensions/auto-title.ts" "$HOME/.pi/agent/extensions/auto-title.ts"
-link "$DOT/config/pi/extensions/hotkeys.ts" "$HOME/.pi/agent/extensions/hotkeys.ts"
-link "$DOT/config/agents/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
-link "$DOT/config/agents/AGENTS.md" "$HOME/.codex/AGENTS.md"
-link "$DOT/config/agents/skills/jj" "$HOME/.agents/skills/jj"
-link "$DOT/config/agents/skills/librarian" "$HOME/.agents/skills/librarian"
-link "$DOT/config/agents/skills/using-exe-dev" "$HOME/.agents/skills/using-exe-dev"
+if ! command -v mise >/dev/null; then
+  command -v curl >/dev/null || { echo "error: install mise or curl first" >&2; exit 1; }
+  curl https://mise.run | sh
+  export PATH="$HOME/.local/bin:$PATH"
+fi
 
 # macOS config
 if [ "$(uname)" = "Darwin" ]; then
-  link "$DOT/config/ghostty/config" "$HOME/.config/ghostty/config"
-  link "$DOT/config/ghostty/themes/alabaster-light" "$HOME/.config/ghostty/themes/Alabaster Light"
-  link "$DOT/config/ghostty/themes/alabaster-dark" "$HOME/.config/ghostty/themes/Alabaster Dark"
-  link "$DOT/config/zed/keymap.json" "$HOME/.config/zed/keymap.json"
-  link "$DOT/config/zed/settings.json" "$HOME/.config/zed/settings.json"
-  link "$DOT/config/zed/tasks.json" "$HOME/.config/zed/tasks.json"
+  command -v brew >/dev/null || { echo "error: install Homebrew first" >&2; exit 1; }
 fi
 
-printf 'prefix=%s/.npm-global\n' "$HOME" > "$HOME/.npmrc"
+mkdir -p "$HOME/.config/mise"
+link "$DOT/config/mise/config.toml" "$HOME/.config/mise/config.toml"
+
+mise trust "$HOME/.config/mise/config.toml" >/dev/null
+mise bootstrap --yes
+
 echo "Done."

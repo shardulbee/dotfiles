@@ -1,0 +1,13 @@
+{
+  "languages": {
+    "Nix": {
+      "language_servers": ["nil", "!nixds"],
+      "formatter": {
+        "external": {
+          "command": "nixfmt",
+          "arguments": ["--"],
+        },
+      },
+    },
+  },
+}

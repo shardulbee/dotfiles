@@ -1,59 +1,49 @@
 {
-  "disable_ai": true,
+  // appearance
   "theme": {
     "light": "Alabaster BG",
     "dark": "Alabaster Dark",
   },
-  "project_panel": {
-    "hide_gitignore": true,
-    "hide_root": true,
-  },
-  "collaboration_panel": {
-    "button": false,
-  },
-  "close_panel_on_toggle": true,
-  "git_panel": {
-    "button": false,
-  },
-  "title_bar": {
-    "show_onboarding_banner": false,
-    "show_user_picture": false,
-    "show_sign_in": false,
-  },
-  "diff_view_style": "unified",
   "buffer_font_size": 18,
   "buffer_font_weight": 300,
   "terminal": {
     "font_weight": 300,
   },
   "buffer_font_family": "JetBrainsMono Nerd Font Mono",
+
+  // hide distracting things
+  "project_panel": {
+    "button": false,
+    "dock": "left",
+    "hide_gitignore": true,
+    "hide_root": true,
+  },
+  "title_bar": {
+    "show_onboarding_banner": false,
+    "show_user_picture": false,
+    "show_sign_in": false,
+    "show_branch_name": false,
+    "show_branch_status_icon": false,
+    "show_menus": false,
+    "show_user_menu": false,
+    "show_project_items": false,
+  },
+
+  // editor functionality
   "vim_mode": true,
   "use_system_window_tabs": true,
-  "languages": {
-    "Nix": {
-      "formatter": {
-        "external": {
-          "command": "nixfmt",
-          "arguments": ["--"],
+  "disable_ai": true,
+  "close_panel_on_toggle": true,
+
+  // I don't know why zed has to keep these here
+  "ssh_connections": [
+    {
+      "host": "sharcoder.exe.xyz",
+      "projects": [
+        {
+          "paths": ["/home/exedev"],
         },
-      },
+      ],
     },
-  },
-  "lsp": {
-    "vtsls": {
-      "settings": {
-        "typescript": {
-          "updateImportsOnFileMove": {
-            "enabled": "always",
-          },
-        },
-        "javascript": {
-          "updateImportsOnFileMove": {
-            "enabled": "always",
-          },
-        },
-      },
-      "enable_lsp_tasks": true,
-    },
-  },
+  ],
 }
