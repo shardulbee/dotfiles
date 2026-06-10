@@ -1,11 +1,14 @@
+// Keep the session title current by asking a small model to retitle from the
+// user transcript — after the first user message, then every fifth.
 import { completeSimple } from "@earendil-works/pi-ai";
 import type {
   ExtensionAPI,
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 
+const PROVIDER = "openai-codex";
+const MODEL = "gpt-5.5";
 const TITLE_CHARS = 72;
-const MODEL = "openai-codex/gpt-5.5";
 const SYSTEM_PROMPT = `Write one concise pi session title. Use the previous title and only the new transcript. Keep it for the same task; change it only for a material direction, goal, or outcome change. Plain text only, <= ${TITLE_CHARS} chars, no trailing punctuation.`;
 
 export default function (pi: ExtensionAPI) {
@@ -17,37 +20,35 @@ export default function (pi: ExtensionAPI) {
     try {
       const branch = ctx.sessionManager.getBranch();
 
-      // Run after the first user message, then every fifth user message.
       const users = branch.filter(
-        (entry) => entry.type === "message" && entry.message.role === "user",
+        (e) => e.type === "message" && e.message.role === "user",
       ).length;
       if (!force && users !== 1 && (users < 5 || users % 5 !== 0)) return;
 
-      // Use the latest session name as the previous title and transcript boundary.
-      let titleIndex = -1;
-      let previousTitle = "";
-      for (let index = branch.length - 1; index >= 0; index--) {
-        const entry = branch[index];
-        if (entry.type !== "session_info") continue;
-        titleIndex = index;
-        previousTitle = entry.name ?? "";
-        break;
-      }
+      // The latest session_info holds the previous title and marks where the
+      // "new" transcript begins.
+      let infoIdx = branch.length - 1;
+      while (infoIdx >= 0 && branch[infoIdx].type !== "session_info") infoIdx--;
+      const info = branch[infoIdx];
+      const previousTitle = (info?.type === "session_info" && info.name) || "";
 
-      // Build compact user-message transcript since that boundary.
+      // Compact transcript of user messages since that boundary.
       const blocks: string[] = [];
-      for (const entry of branch.slice(titleIndex + 1)) {
+      for (const entry of branch.slice(infoIdx + 1)) {
         if (entry.type !== "message" || entry.message.role !== "user") continue;
         const content = entry.message.content;
-        let text = "";
-        if (typeof content === "string") text = content;
-        else {
-          for (const part of content) {
-            if (part.type === "text") text += `${part.text ?? ""}\n`;
-            if (part.type === "image") text += "[image]\n";
-          }
-        }
-
+        let text =
+          typeof content === "string"
+            ? content
+            : content
+                .map((p) =>
+                  p.type === "text"
+                    ? (p.text ?? "")
+                    : p.type === "image"
+                      ? "[image]"
+                      : "",
+                )
+                .join("\n");
         text = text
           .replace(/[ \t]+/g, " ")
           .replace(/\n{3,}/g, "\n\n")
@@ -58,15 +59,14 @@ export default function (pi: ExtensionAPI) {
 
       let transcript = blocks.join("\n\n").trim();
       if (!transcript) return fail("no new user messages since the last title");
-      if (transcript.length > 24_000) {
+      if (transcript.length > 24_000)
         transcript = `[Earlier recent transcript truncated]\n${transcript.slice(-24_000).trim()}`;
-      }
 
-      // Ask the title model.
-      const model = ctx.modelRegistry.find("openai-codex", "gpt-5.5");
-      if (!model) return fail(`model ${MODEL} not found`);
+      const model = ctx.modelRegistry.find(PROVIDER, MODEL);
+      if (!model) return fail(`model ${PROVIDER}/${MODEL} not found`);
       const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-      if (!auth.ok) return fail(`missing API key for ${MODEL}`);
+      if (!auth.ok) return fail(`missing API key for ${PROVIDER}/${MODEL}`);
+
       const prompt = `Previous title: ${previousTitle || "(none)"}\n\nNew transcript since that title:\n${transcript}\n\nUpdate the title. Return only the title.`;
       const response = await completeSimple(
         model,
@@ -85,11 +85,14 @@ export default function (pi: ExtensionAPI) {
       if (response.stopReason === "error")
         return fail(response.errorMessage ?? "title model errored");
 
-      let title = "";
-      for (const part of response.content)
-        if (part.type === "text") title += `${part.text}\n`;
-      title = title.replace(/\s+/gu, " ").trim().slice(0, TITLE_CHARS);
-      title = title.replace(/[.!?。！？]+$/gu, "").trim();
+      const title = response.content
+        .map((p) => (p.type === "text" ? (p.text ?? "") : ""))
+        .join(" ")
+        .replace(/\s+/gu, " ")
+        .trim()
+        .slice(0, TITLE_CHARS)
+        .replace(/[.!?。！？]+$/gu, "")
+        .trim();
       if (!title) return fail("title model returned an empty title");
       pi.setSessionName(title);
     } catch (error) {
@@ -102,6 +105,7 @@ export default function (pi: ExtensionAPI) {
     handler: async (_args, ctx) => updateTitle(ctx, true),
   });
 
+  // Deferred so titling never sits on the agent_start path
   pi.on("agent_start", (_event, ctx) => {
     setTimeout(() => void updateTitle(ctx), 0);
   });
