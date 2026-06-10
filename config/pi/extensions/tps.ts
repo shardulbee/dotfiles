@@ -1,39 +1,23 @@
-import type { AssistantMessage } from "@earendil-works/pi-ai";
+// Notify output tokens/second after each agent turn.
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-function isAssistantMessage(message: unknown): message is AssistantMessage {
-  if (!message || typeof message !== "object") return false;
-  const role = (message as { role?: unknown }).role;
-  return role === "assistant";
-}
-
 export default function (pi: ExtensionAPI) {
-  let agentStartMs: number | null = null;
+  let startMs: number | null = null;
 
   pi.on("agent_start", () => {
-    agentStartMs = Date.now();
+    startMs = Date.now();
   });
 
   pi.on("agent_end", (event, ctx) => {
-    if (!ctx.hasUI) return;
-    if (agentStartMs === null) return;
-
-    const elapsedMs = Date.now() - agentStartMs;
-    agentStartMs = null;
-    if (elapsedMs <= 0) return;
+    if (!ctx.hasUI || startMs === null) return;
+    const seconds = (Date.now() - startMs) / 1000;
+    startMs = null;
 
     let output = 0;
+    for (const m of event.messages)
+      if (m.role === "assistant") output += m.usage.output || 0;
 
-    for (const message of event.messages) {
-      if (!isAssistantMessage(message)) continue;
-      output += message.usage.output || 0;
-    }
-
-    if (output <= 0) return;
-
-    const elapsedSeconds = elapsedMs / 1000;
-    const tokensPerSecond = output / elapsedSeconds;
-    const message = `TPS ${tokensPerSecond.toFixed(1)} tok/s`;
-    ctx.ui.notify(message, "info");
+    if (output > 0 && seconds > 0)
+      ctx.ui.notify(`TPS ${(output / seconds).toFixed(1)} tok/s`, "info");
   });
 }
