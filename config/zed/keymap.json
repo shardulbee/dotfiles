@@ -22,7 +22,7 @@
       ", y": "workspace::CopyRelativePath",
       ", f e": [
         "pane::DeploySearch",
-        { "excluded_files": "*.har, *.json, *.spec.ts, inlinedbaml.ts" },
+        { "excluded_files": "*.har, *.json, *.spec.ts" },
       ],
       ", f f": [
         "pane::DeploySearch",

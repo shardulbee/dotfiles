@@ -61,6 +61,9 @@ description: Complete jj version control reference. Use when you need the full c
 Add these to `~/.jjconfig.toml` or `.jj/config.toml`:
 
 ```toml
+[revset-aliases]
+'closest_bookmark(to)' = 'heads(::to & bookmarks())'
+
 [aliases]
 # Move the closest bookmark to the current commit. Useful when working on a
 # named bookmark, creating commits, and needing to update the bookmark before

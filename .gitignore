@@ -1,6 +1,5 @@
 # macOS
 .DS_Store
-Brewfile.lock.json
 
 # deps
 **/node_modules/

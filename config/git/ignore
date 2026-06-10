@@ -2,7 +2,3 @@
 .DS_Store
 .git/
 .direnv/
-.env
-.venv/
-venv/
-node_modules/
