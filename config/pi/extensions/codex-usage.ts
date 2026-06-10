@@ -11,10 +11,11 @@ const ENDPOINT = "https://chatgpt.com/backend-api/wham/usage";
 const TTL_MS = 60_000;
 
 type CodexUsage = {
+  // Either window may be null (e.g. plans without a weekly limit).
   rate_limit: {
-    primary_window: { used_percent: number }; // 2 days
-    secondary_window: { used_percent: number }; // 1 week
-  };
+    primary_window: { used_percent: number } | null; // 2 days
+    secondary_window: { used_percent: number } | null; // 1 week
+  } | null;
 };
 
 let usage: CodexUsage | undefined;
@@ -41,12 +42,13 @@ async function refresh(ctx: ExtensionContext): Promise<void> {
 }
 
 function usageLine(theme: Theme, width: number): string[] {
-  if (!usage) return [];
-  const { primary_window, secondary_window } = usage.rate_limit;
-  const text = theme.fg(
-    "dim",
-    `usage: ${Math.round(primary_window.used_percent)}% (2d)/${Math.round(secondary_window.used_percent)}% (1w)`,
-  );
+  const rate_limit = usage?.rate_limit;
+  if (!rate_limit?.primary_window) return [];
+  const parts = [`${Math.round(rate_limit.primary_window.used_percent)}% (2d)`];
+  if (rate_limit.secondary_window) {
+    parts.push(`${Math.round(rate_limit.secondary_window.used_percent)}% (1w)`);
+  }
+  const text = theme.fg("dim", `usage: ${parts.join("/")}`);
   // right-aligned
   const padding = " ".repeat(Math.max(0, width - visibleWidth(text)));
   return [truncateToWidth(padding + text, width, "")];
