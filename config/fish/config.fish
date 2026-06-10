@@ -30,5 +30,10 @@ command -q direnv; and direnv hook fish | source
 test -f "$HOME/.config/fish/local.fish"; and source "$HOME/.config/fish/local.fish"
 
 # Aliases
-alias vim nvim
+# Claude Code: auto mode + remote control by default, compact at 75% instead
+# of 95%. Flags passed at the prompt come after --permission-mode, so they
+# win. --remote-control stays last: its optional [name] arg would otherwise
+# swallow a positional prompt.
+function claude --wraps claude
+    CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=75 command claude --permission-mode auto $argv --remote-control
 end
