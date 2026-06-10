@@ -1,33 +1,37 @@
+// Shortcuts that suspend pi's TUI, run a fullscreen program, and restore.
 import { spawn } from "node:child_process";
-import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import type {
+  ExtensionAPI,
+  ExtensionContext,
+} from "@earendil-works/pi-coding-agent";
+
+const HOTKEYS = [
+  ["alt+j", "jjui"],
+  ["alt+e", "nvim"],
+] as const;
 
 async function openTui(ctx: ExtensionContext, command: string): Promise<void> {
   await ctx.ui.custom<void>(async (tui, _theme, _keybindings, done) => {
     try {
-      tui.stop();
+      tui.stop(); // hand the terminal to the child
       await new Promise<void>((resolve) => {
-        const child = spawn(command, [], { cwd: ctx.cwd, stdio: "inherit" });
-        child.on("error", () => resolve());
-        child.on("close", () => resolve());
+        spawn(command, [], { cwd: ctx.cwd, stdio: "inherit" })
+          .on("error", () => resolve())
+          .on("close", () => resolve());
       });
     } finally {
       tui.start();
       done();
       tui.requestRender(true);
     }
-
     return { render: () => [], invalidate: () => {} };
   });
 }
 
 export default function (pi: ExtensionAPI) {
-  pi.registerShortcut("alt+j", {
-    description: "Open jjui",
-    handler: (ctx) => openTui(ctx, "jjui"),
-  });
-
-  pi.registerShortcut("alt+e", {
-    description: "Open nvim",
-    handler: (ctx) => openTui(ctx, "nvim"),
-  });
+  for (const [key, command] of HOTKEYS)
+    pi.registerShortcut(key, {
+      description: `Open ${command}`,
+      handler: (ctx) => openTui(ctx, command),
+    });
 }
