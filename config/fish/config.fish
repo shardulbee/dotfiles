@@ -1,15 +1,16 @@
-# Nix environment (Determinate Nix)
+# Nix environment: PATH, NIX_PROFILES, NIX_SSL_CERT_FILE, XDG_DATA_DIRS.
+# Its run-once guard is exported, so nested shells (tmux, etc.) skip it —
+# that's why .nix-profile/bin is still pinned explicitly below.
 if test -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish
     source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish
 end
 
-# Managing PATH
-fish_add_path -gm "$HOME/bin"
-fish_add_path -gm "$HOME/.npm-global/bin"
-fish_add_path -gm "$HOME/.nix-profile/bin"
-if test (uname) = Darwin
-    fish_add_path -g -m --append /opt/homebrew/bin
-end
+# PATH, highest priority first. -g: session-only; -m: move entries already
+# on PATH so this order wins even if something else prepended them.
+# Missing dirs are skipped, hence no existence/OS checks.
+fish_add_path -gm "$HOME/.nix-profile/bin" "$HOME/.npm-global/bin" "$HOME/bin"
+# Appended: brew is a fallback and must never shadow the above
+fish_add_path -gm --append /opt/homebrew/bin
 
 # Use zed as EDITOR within Zed and not using Zed SSH
 # Use neovim otherwise
@@ -29,6 +30,5 @@ command -q direnv; and direnv hook fish | source
 test -f "$HOME/.config/fish/local.fish"; and source "$HOME/.config/fish/local.fish"
 
 # Aliases
-function vim --wraps=nvim --description 'alias vim=nvim'
-    nvim $argv
+alias vim nvim
 end
