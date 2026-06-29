@@ -34,16 +34,4 @@
   "use_system_window_tabs": true,
   "disable_ai": true,
   "close_panel_on_toggle": true,
-
-  // I don't know why zed has to keep these here
-  "ssh_connections": [
-    {
-      "host": "sharcoder.exe.xyz",
-      "projects": [
-        {
-          "paths": ["/home/exedev"],
-        },
-      ],
-    },
-  ],
 }
