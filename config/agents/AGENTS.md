@@ -12,6 +12,15 @@
 - Ignore cargo-cult “best practices.” Use a practice only when it improves this
   specific outcome.
 
+## Writing
+
+- Put the answer first.
+- Use plain language. Keep the substance; remove jargon.
+- Be concrete: names, numbers, dates, file paths, and exact decisions.
+- Prefer short sentences and short paragraphs.
+- Use active voice.
+- Do not use bold or italics for fake emphasis.
+
 ## Code
 
 - Minimize complexity. Question every abstraction, helper, layer, tool, and

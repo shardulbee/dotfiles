@@ -1,32 +1,117 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd "$(dirname "$0")"
-DOT="$PWD"
-
+DOT="$(cd "$(dirname "$0")" && pwd -P)"
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
+CHECK=0
+FAILED=0
+
+if [ "${1:-}" = "--check" ]; then
+  CHECK=1
+  echo "repo root: $DOT"
+elif [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+  echo "usage: ./setup [--check]"
+  exit 0
+elif [ "$#" -gt 0 ]; then
+  echo "usage: ./setup [--check]" >&2
+  exit 2
+fi
+
 link() {
-  ln -snf "$1" "$2"
+  src="$1"
+  dst="$2"
+
+  if [ "$CHECK" -eq 1 ]; then
+    if [ ! -e "$src" ] && [ ! -L "$src" ]; then
+      echo "missing source: $src" >&2
+      FAILED=1
+    elif [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
+      echo "ok link: $dst"
+    elif [ -L "$dst" ]; then
+      echo "wrong link: $dst -> $(readlink "$dst"), want $src" >&2
+      FAILED=1
+    elif [ -e "$dst" ]; then
+      echo "real file blocks link: $dst" >&2
+      FAILED=1
+    else
+      echo "missing link: $dst" >&2
+      FAILED=1
+    fi
+    return
+  fi
+
+  if [ ! -e "$src" ] && [ ! -L "$src" ]; then
+    echo "error: missing source: $src" >&2
+    exit 1
+  fi
+
+  mkdir -p "$(dirname "$dst")"
+
+  if [ -e "$dst" ] && [ ! -L "$dst" ]; then
+    echo "error: refusing to overwrite real file: $dst" >&2
+    exit 1
+  fi
+
+  ln -snf "$src" "$dst"
 }
 
-mkdir -p "$HOME/.config/"{fish,git,jj,jjui,nvim/lua,nvim/colors,ghostty/themes,zed} "$HOME/.pi/agent/extensions" "$HOME/.agents/skills" "$HOME/.codex" "$HOME/bin" "$HOME/.npm-global/bin"
+if [ "$CHECK" -eq 1 ]; then
+  command -v mise >/dev/null && echo "ok command: mise" || { echo "missing command: mise" >&2; FAILED=1; }
+  if [ "$(uname)" = "Darwin" ]; then
+    command -v brew >/dev/null && echo "ok command: brew" || { echo "missing command: brew" >&2; FAILED=1; }
+  fi
+elif ! command -v mise >/dev/null; then
+  if ! command -v curl >/dev/null; then
+    echo "error: install mise or curl first" >&2
+    exit 1
+  fi
 
-if ! command -v mise >/dev/null; then
-  command -v curl >/dev/null || { echo "error: install mise or curl first" >&2; exit 1; }
   curl https://mise.run | sh
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
-# macOS config
-if [ "$(uname)" = "Darwin" ]; then
-  command -v brew >/dev/null || { echo "error: install Homebrew first" >&2; exit 1; }
+link "$DOT/config/mise/config.toml" "$HOME/.config/mise/config.toml"
+link "$DOT/config/fish/config.fish" "$HOME/.config/fish/config.fish"
+link "$DOT/config/git/config" "$HOME/.config/git/config"
+link "$DOT/config/git/ignore" "$HOME/.config/git/ignore"
+link "$DOT/config/jj/config.toml" "$HOME/.config/jj/config.toml"
+link "$DOT/config/jjui/config.lua" "$HOME/.config/jjui/config.lua"
+link "$DOT/config/jjui/themes" "$HOME/.config/jjui/themes"
+link "$DOT/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+link "$DOT/config/nvim/colors/alabaster.lua" "$HOME/.config/nvim/colors/alabaster.lua"
+link "$DOT/bin/sharview" "$HOME/bin/sharview"
+link "$DOT/config/pi/extensions/tps.ts" "$HOME/.pi/agent/extensions/tps.ts"
+link "$DOT/config/pi/extensions/codex-usage.ts" "$HOME/.pi/agent/extensions/codex-usage.ts"
+link "$DOT/config/pi/extensions/auto-title.ts" "$HOME/.pi/agent/extensions/auto-title.ts"
+link "$DOT/config/pi/extensions/hotkeys.ts" "$HOME/.pi/agent/extensions/hotkeys.ts"
+link "$DOT/config/agents/AGENTS.md" "$HOME/.pi/agent/AGENTS.md"
+link "$DOT/config/agents/AGENTS.md" "$HOME/.codex/AGENTS.md"
+link "$DOT/config/agents/skills/jj" "$HOME/.agents/skills/jj"
+link "$DOT/config/agents/skills/librarian" "$HOME/.agents/skills/librarian"
+link "$DOT/config/agents/skills/using-exe-dev" "$HOME/.agents/skills/using-exe-dev"
+link "$DOT/config/ghostty/config" "$HOME/.config/ghostty/config"
+link "$DOT/config/ghostty/themes/alabaster-light" "$HOME/.config/ghostty/themes/Alabaster Light"
+link "$DOT/config/ghostty/themes/alabaster-dark" "$HOME/.config/ghostty/themes/Alabaster Dark"
+link "$DOT/config/zed/keymap.json" "$HOME/.config/zed/keymap.json"
+link "$DOT/config/zed/settings.json" "$HOME/.config/zed/settings.json"
+link "$DOT/config/zed/tasks.json" "$HOME/.config/zed/tasks.json"
+
+if [ "$CHECK" -eq 1 ]; then
+  [ "$FAILED" -eq 0 ] || exit 1
+  echo "check ok"
+  exit 0
 fi
 
-mkdir -p "$HOME/.config/mise"
-link "$DOT/config/mise/config.toml" "$HOME/.config/mise/config.toml"
+if [ "$(uname)" = "Darwin" ]; then
+  if ! command -v brew >/dev/null; then
+    echo "error: install Homebrew first" >&2
+    exit 1
+  fi
+
+  brew bundle install --file "$DOT/Brewfile" --no-upgrade --force-cleanup
+fi
 
 mise trust "$HOME/.config/mise/config.toml" >/dev/null
-mise bootstrap --yes
-
+mise install --yes
 echo "Done."

@@ -24,4 +24,3 @@ command -q direnv; and direnv hook fish | source
 
 # Machine-specific settings
 test -f "$HOME/.config/fish/local.fish"; and source "$HOME/.config/fish/local.fish"
-

@@ -1,23 +1,3 @@
-[settings]
-dotfiles.root = "~/Documents/dotfiles"
-experimental = true
-
-[bootstrap.hooks.pre-user]
-run = '''
-if command -v brew >/dev/null; then
-  brew bundle install --file "$HOME/Documents/dotfiles/Brewfile" --no-upgrade --force-cleanup
-fi
-
-codex_app_cli="/Applications/Codex.app/Contents/Resources/codex"
-if [ -x "$codex_app_cli" ]; then
-  mkdir -p "$HOME/bin"
-  ln -snf "$codex_app_cli" "$HOME/bin/codex"
-fi
-'''
-
-[bootstrap.user]
-login_shell = "/opt/homebrew/bin/fish"
-
 [tools]
 atuin = "latest"
 direnv = "latest"
@@ -29,7 +9,7 @@ jj = "latest"
 jjui = "latest"
 jq = "latest"
 neovim = "latest"
-node = "24"
+node = "26"
 pi = "latest"
 ripgrep = "latest"
 tmux = "latest"
@@ -37,30 +17,3 @@ tree-sitter = "latest"
 uv = "latest"
 yazi = "latest"
 zoxide = "latest"
-
-[dotfiles]
-"~/.config/fish/config.fish" = "~/Documents/dotfiles/config/fish/config.fish"
-"~/.config/git/config" = "~/Documents/dotfiles/config/git/config"
-"~/.config/git/ignore" = "~/Documents/dotfiles/config/git/ignore"
-"~/.config/jj/config.toml" = "~/Documents/dotfiles/config/jj/config.toml"
-"~/.config/jjui/config.lua" = "~/Documents/dotfiles/config/jjui/config.lua"
-"~/.config/jjui/themes" = "~/Documents/dotfiles/config/jjui/themes"
-"~/.config/nvim/init.lua" = "~/Documents/dotfiles/config/nvim/init.lua"
-"~/.config/nvim/colors/alabaster.lua" = "~/Documents/dotfiles/config/nvim/colors/alabaster.lua"
-"~/bin/sharview" = "~/Documents/dotfiles/bin/sharview"
-"~/.pi/agent/extensions/tps.ts" = "~/Documents/dotfiles/config/pi/extensions/tps.ts"
-"~/.pi/agent/extensions/codex-usage.ts" = "~/Documents/dotfiles/config/pi/extensions/codex-usage.ts"
-"~/.pi/agent/extensions/auto-title.ts" = "~/Documents/dotfiles/config/pi/extensions/auto-title.ts"
-"~/.pi/agent/extensions/hotkeys.ts" = "~/Documents/dotfiles/config/pi/extensions/hotkeys.ts"
-"~/.pi/agent/AGENTS.md" = "~/Documents/dotfiles/config/agents/AGENTS.md"
-"~/.codex/AGENTS.md" = "~/Documents/dotfiles/config/agents/AGENTS.md"
-"~/.agents/skills/jj" = "~/Documents/dotfiles/config/agents/skills/jj"
-"~/.agents/skills/librarian" = "~/Documents/dotfiles/config/agents/skills/librarian"
-"~/.agents/skills/using-exe-dev" = "~/Documents/dotfiles/config/agents/skills/using-exe-dev"
-"~/.config/ghostty/config" = "~/Documents/dotfiles/config/ghostty/config"
-"~/.config/ghostty/themes/Alabaster Light" = "~/Documents/dotfiles/config/ghostty/themes/alabaster-light"
-"~/.config/ghostty/themes/Alabaster Dark" = "~/Documents/dotfiles/config/ghostty/themes/alabaster-dark"
-"~/.config/zed/keymap.json" = "~/Documents/dotfiles/config/zed/keymap.json"
-"~/.config/zed/settings.json" = "~/Documents/dotfiles/config/zed/settings.json"
-"~/.config/zed/tasks.json" = "~/Documents/dotfiles/config/zed/tasks.json"
-"~/.config/mise/config.toml" = "~/Documents/dotfiles/config/mise/config.toml"
