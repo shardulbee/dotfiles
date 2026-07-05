@@ -5,9 +5,9 @@
 **/node_modules/
 
 # Local TypeScript project for Zed/pi extension LSP resolution
-config/pi/package.json
-config/pi/package-lock.json
-config/pi/tsconfig.json
+pi/package.json
+pi/package-lock.json
+pi/tsconfig.json
 
 # Machine-specific configs
 .config/fish/local.fish

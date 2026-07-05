@@ -22,7 +22,7 @@ const rg = spawnSync(
     "-g",
     "!.git", // ignore git
     "-g",
-    "!**/bin/sharview", // ignore this file
+    "!**/sharview", // ignore this file
     "sharview:", // this is the string we're searching for
     ".", // always default to cwd
   ],
