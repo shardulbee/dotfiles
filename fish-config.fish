@@ -22,5 +22,9 @@ command -q atuin; and atuin init fish --disable-up-arrow | source
 command -q zoxide; and zoxide init fish | source
 command -q direnv; and direnv hook fish | source
 
+# Keep Fish's default prompt, but disable its VCS segment and Git checks.
+function fish_vcs_prompt
+end
+
 # Machine-specific settings
 test -f "$HOME/.config/fish/local.fish"; and source "$HOME/.config/fish/local.fish"
