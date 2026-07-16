@@ -1,6 +1,7 @@
 brew "fish"
 brew "rclone"
 brew "trash"
+brew "usage"
 
 cask "1password"
 cask "1password-cli"
