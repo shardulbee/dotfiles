@@ -1,7 +1,7 @@
 # PATH, highest priority first. -g: session-only; -m: move entries already
 # on PATH so this order wins even if something else prepended them.
 # Missing dirs are skipped, hence no existence/OS checks.
-fish_add_path -gm "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin
+fish_add_path -gm "$HOME/.local/share/mise/shims" "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin
 
 # mise tools, env, and shims.
 if command -q mise
