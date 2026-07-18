@@ -38,15 +38,14 @@ link jjui-themes-dark.toml "$HOME/.config/jjui/themes/dark.toml"
 link jjui-themes-light.toml "$HOME/.config/jjui/themes/light.toml"
 link nvim-init.lua "$HOME/.config/nvim/init.lua"
 link nvim-colors-alabaster.lua "$HOME/.config/nvim/colors/alabaster.lua"
-link sharview "$HOME/bin/sharview"
-link ghostty-config "$HOME/.config/ghostty/config"
-link ghostty-themes-alabaster-light "$HOME/.config/ghostty/themes/Alabaster Light"
-link ghostty-themes-alabaster-dark "$HOME/.config/ghostty/themes/Alabaster Dark"
-link zed-keymap.json "$HOME/.config/zed/keymap.json"
-link zed-settings.json "$HOME/.config/zed/settings.json"
-link zed-tasks.json "$HOME/.config/zed/tasks.json"
 
 if [ "$(uname)" = "Darwin" ]; then
+  link ghostty-config "$HOME/.config/ghostty/config"
+  link ghostty-themes-alabaster-light "$HOME/.config/ghostty/themes/Alabaster Light"
+  link ghostty-themes-alabaster-dark "$HOME/.config/ghostty/themes/Alabaster Dark"
+  link zed-keymap.json "$HOME/.config/zed/keymap.json"
+  link zed-settings.json "$HOME/.config/zed/settings.json"
+  link zed-tasks.json "$HOME/.config/zed/tasks.json"
   brew bundle install --file "$DOT/Brewfile" --no-upgrade --force-cleanup
 fi
 
