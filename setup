@@ -34,8 +34,6 @@ link git-config "$HOME/.config/git/config"
 link git-ignore "$HOME/.config/git/ignore"
 link jj-config.toml "$HOME/.config/jj/config.toml"
 link jjui-config.lua "$HOME/.config/jjui/config.lua"
-link jjui-themes-dark.toml "$HOME/.config/jjui/themes/dark.toml"
-link jjui-themes-light.toml "$HOME/.config/jjui/themes/light.toml"
 link nvim-init.lua "$HOME/.config/nvim/init.lua"
 link nvim-colors-alabaster.lua "$HOME/.config/nvim/colors/alabaster.lua"
 
