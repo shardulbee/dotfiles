@@ -3,8 +3,9 @@
 # Missing dirs are skipped, hence no existence/OS checks.
 fish_add_path -gm "$HOME/.local/share/mise/shims" "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin
 
-# mise tools, env, and shims. Trust the global config even when a command
-# temporarily changes HOME (for example, the 1Password wrapper).
+# mise requires trust because the global config allows Claude's install script.
+# The 1Password wrapper replaces HOME, so persist trust for both the config
+# symlink and its dotfiles target through the environment.
 set -gx MISE_TRUSTED_CONFIG_PATHS "$HOME/.config/mise:$HOME/Documents/dotfiles"
 if command -q mise
     mise activate fish | source
