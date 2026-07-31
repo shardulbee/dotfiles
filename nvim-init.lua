@@ -37,6 +37,10 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Markdown is the one prose-oriented file type. Wrap at word boundaries and
+-- preserve indentation on continuation lines. The buffer-local mappings make
+-- j/k follow displayed lines, rather than jumping across an entire soft-wrapped
+-- paragraph. Other file types keep the global nowrap setting and normal j/k.
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "markdown",
   callback = function(args)
@@ -48,6 +52,14 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Goyo installs a TermClose handler which queues a pad resize with feedkeys().
+-- That races with our automatic Goyo exit when fzf-lua selects a non-Markdown
+-- buffer: Goyo deletes t:goyo_dim, then the queued resize tries to use it and
+-- fills the screen with E121 errors. fzf-lua uses a floating terminal, so its
+-- closure does not require Goyo's pad workaround. Keep Goyo's VimResized hook,
+-- but remove only this unsafe hook each time Goyo creates its autocmd group.
+-- Do not remove this without reproducing `README.md -> ,b -> code file` in
+-- tmux.
 vim.api.nvim_create_autocmd("User", {
   pattern = "GoyoEnter",
   callback = function()
@@ -55,16 +67,27 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
+-- Goyo is a temporary tab containing the document and four unlisted padding
+-- buffers. Automatically mirror writing mode to the current file type. Both
+-- events are needed: BufEnter handles normal buffer switches, while BufWinEnter
+-- gives filetype detection a second chance when a buffer is first displayed.
 local changing_goyo = false
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
   callback = function(args)
+    -- Creating and closing Goyo fires these same events. Without this guard the
+    -- callback re-enters itself. Without the nofile check, a Goyo pad looks
+    -- like a non-Markdown buffer and immediately shuts writing mode back down.
     if changing_goyo or vim.bo[args.buf].buftype == "nofile" then return end
 
     local markdown = vim.bo[args.buf].filetype == "markdown"
+    -- Goyo's dimensions are tab-local and exist only while its tab is active.
     local goyo = vim.fn.exists("t:goyo_dim") == 1
 
     if markdown and not goyo then
       changing_goyo = true
+      -- Enter after the buffer event finishes. Entering inline interferes with
+      -- Goyo's alternate-window bookkeeping and can leave focus on a pad. The
+      -- checks matter because the user may switch buffers before this runs.
       vim.schedule(function()
         if vim.api.nvim_buf_is_valid(args.buf)
             and vim.api.nvim_get_current_buf() == args.buf
@@ -75,6 +98,9 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
         changing_goyo = false
       end)
     elseif not markdown and goyo then
+      -- Goyo! closes its temporary tab. A buffer selected inside that tab can
+      -- otherwise be unloaded with it, so hide it briefly, close Goyo, then put
+      -- that same buffer in the restored window before restoring bufhidden.
       local bufhidden = vim.bo[args.buf].bufhidden
       vim.bo[args.buf].bufhidden = "hide"
       changing_goyo = true
