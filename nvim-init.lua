@@ -3,6 +3,7 @@
 vim.g.mapleader = ","
 
 vim.pack.add({
+  "https://github.com/junegunn/goyo.vim",
   "https://github.com/tpope/vim-surround",
   "https://github.com/ibhagwan/fzf-lua",
   "https://github.com/nvim-treesitter/nvim-treesitter",
@@ -38,6 +39,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 local fzflua = require("fzf-lua")
 local map = vim.keymap.set
+map("n", "<leader>g", "<cmd>Goyo 80<cr>", { desc = "toggle Goyo" })
 map("n", "<leader>t", fzflua.files)
 map("n", "<leader>f", fzflua.live_grep)
 map("n", "<leader>h", fzflua.helptags)
