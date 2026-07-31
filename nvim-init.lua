@@ -61,8 +61,8 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
--- Mirror Goyo to the file type. BufWinEnter catches buffers whose filetype was
--- not ready at BufEnter.
+-- Turn Goyo on for Markdown and off for everything else. Check twice because
+-- some new buffers do not know their file type on the first event.
 local changing_goyo = false
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
   callback = function(args)
