@@ -45,13 +45,42 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.breakindent = true
     vim.keymap.set("n", "j", "gj", { buffer = args.buf })
     vim.keymap.set("n", "k", "gk", { buffer = args.buf })
-    vim.cmd("Goyo 80")
+  end,
+})
+
+local changing_goyo = false
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+  callback = function(args)
+    if changing_goyo or vim.bo[args.buf].buftype == "nofile" then return end
+
+    local markdown = vim.bo[args.buf].filetype == "markdown"
+    local goyo = vim.fn.exists("t:goyo_dim") == 1
+
+    if markdown and not goyo then
+      changing_goyo = true
+      vim.schedule(function()
+        if vim.api.nvim_buf_is_valid(args.buf)
+            and vim.api.nvim_get_current_buf() == args.buf
+            and vim.bo[args.buf].filetype == "markdown"
+            and vim.fn.exists("t:goyo_dim") == 0 then
+          vim.cmd("Goyo 80")
+        end
+        changing_goyo = false
+      end)
+    elseif not markdown and goyo then
+      local bufhidden = vim.bo[args.buf].bufhidden
+      vim.bo[args.buf].bufhidden = "hide"
+      changing_goyo = true
+      vim.cmd("Goyo!")
+      vim.api.nvim_set_current_buf(args.buf)
+      changing_goyo = false
+      vim.bo[args.buf].bufhidden = bufhidden
+    end
   end,
 })
 
 local fzflua = require("fzf-lua")
 local map = vim.keymap.set
-map("n", "<leader>g", "<cmd>Goyo<cr>", { desc = "toggle Goyo" })
 map("n", "<leader>t", fzflua.files)
 map("n", "<leader>f", fzflua.live_grep)
 map("n", "<leader>h", fzflua.helptags)
