@@ -48,6 +48,13 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+vim.api.nvim_create_autocmd("User", {
+  pattern = "GoyoEnter",
+  callback = function()
+    vim.api.nvim_clear_autocmds({ group = "goyo", event = "TermClose" })
+  end,
+})
+
 local changing_goyo = false
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
   callback = function(args)
