@@ -45,12 +45,13 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.breakindent = true
     vim.keymap.set("n", "j", "gj", { buffer = args.buf })
     vim.keymap.set("n", "k", "gk", { buffer = args.buf })
+    vim.cmd("Goyo 80")
   end,
 })
 
 local fzflua = require("fzf-lua")
 local map = vim.keymap.set
-map("n", "<leader>g", "<cmd>Goyo 80<cr>", { desc = "toggle Goyo" })
+map("n", "<leader>g", "<cmd>Goyo<cr>", { desc = "toggle Goyo" })
 map("n", "<leader>t", fzflua.files)
 map("n", "<leader>f", fzflua.live_grep)
 map("n", "<leader>h", fzflua.helptags)
