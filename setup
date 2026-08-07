@@ -44,6 +44,7 @@ if [ "$(uname)" = "Darwin" ]; then
   link zed-keymap.json "$HOME/.config/zed/keymap.json"
   link zed-settings.json "$HOME/.config/zed/settings.json"
   link zed-tasks.json "$HOME/.config/zed/tasks.json"
+  link zed-theme-soft.json "$HOME/.config/zed/themes/soft.json"
   brew bundle install --file "$DOT/Brewfile" --no-upgrade --force-cleanup
 fi
 

@@ -1,15 +1,15 @@
 # Alabaster Light - based on tonsky/sublime-scheme-alabaster
 # https://github.com/tonsky/sublime-scheme-alabaster
 
-background = #ffffff
-foreground = #000000
+background = #f7f7f4
+foreground = #26251e
 cursor-color = #007acc
-cursor-text = #ffffff
+cursor-text = #f7f7f4
 selection-background = #bfdbfe
-selection-foreground = #000000
+selection-foreground = #26251e
 
 # black
-palette = 0=#000000
+palette = 0=#26251e
 palette = 8=#777777
 
 # red
