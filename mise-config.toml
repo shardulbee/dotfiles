@@ -15,7 +15,7 @@ neovim = "0.12.4"
 node = "26.5.0"
 "npm:@anthropic-ai/claude-code" = { version = "2.1.220", npm_args = "--ignore-scripts=false --allow-scripts=@anthropic-ai/claude-code" }
 "npm:@earendil-works/pi-coding-agent" = "0.82.1"
-"npm:mcporter" = "0.12.3"
+"npm:executor" = "1.5.40"
 "npm:playwriter" = "0.4.0"
 ripgrep = "15.2.0"
 rclone = "1.74.4"
