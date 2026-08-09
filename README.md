@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal machine setup.
+Personal macOS setup.
 
 ```sh
 ./setup
