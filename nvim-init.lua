@@ -64,10 +64,35 @@ vim.api.nvim_create_autocmd("User", {
 -- Turn Goyo on for Markdown and off for everything else. Check twice because
 -- some new buffers do not know their file type on the first event.
 local changing_goyo = false
+local quitting_goyo
+
+-- :q closes Goyo's temporary tab, not the original window. Forward it after
+-- Goyo has restored that window; otherwise the Markdown hook just reopens Goyo.
+vim.api.nvim_create_autocmd("QuitPre", {
+  callback = function()
+    if vim.fn.exists("t:goyo_dim") == 1 then
+      quitting_goyo = vim.fn.histget("cmd", -1):match("!%s*$") ~= nil
+    end
+  end,
+})
+vim.api.nvim_create_autocmd("User", {
+  pattern = "GoyoLeave",
+  callback = function()
+    if quitting_goyo == nil then return end
+    local bang = quitting_goyo
+    vim.schedule(function()
+      local ok, err = pcall(vim.cmd, { cmd = "quit", bang = bang })
+      quitting_goyo = nil
+      if not ok then vim.notify(err, vim.log.levels.ERROR) end
+    end)
+  end,
+})
+
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
   callback = function(args)
     -- Goyo fires these events itself; its nofile pads must not turn it off.
-    if changing_goyo or vim.bo[args.buf].buftype == "nofile" then return end
+    if changing_goyo or quitting_goyo ~= nil
+        or vim.bo[args.buf].buftype == "nofile" then return end
 
     local markdown = vim.bo[args.buf].filetype == "markdown"
     local goyo = vim.fn.exists("t:goyo_dim") == 1
@@ -79,6 +104,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
       vim.schedule(function()
         if vim.api.nvim_buf_is_valid(args.buf)
             and vim.api.nvim_get_current_buf() == args.buf
+            and quitting_goyo == nil
             and vim.bo[args.buf].filetype == "markdown"
             and vim.fn.exists("t:goyo_dim") == 0 then
           vim.cmd("Goyo 80")
