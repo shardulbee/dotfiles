@@ -36,6 +36,7 @@ link jj-config.toml "$HOME/.config/jj/config.toml"
 link jjui-config.lua "$HOME/.config/jjui/config.lua"
 link nvim-init.lua "$HOME/.config/nvim/init.lua"
 link nvim-colors-alabaster.lua "$HOME/.config/nvim/colors/alabaster.lua"
+link plannotator-config.json "$HOME/.plannotator/config.json"
 
 if [ "$(uname)" = "Darwin" ]; then
   link ghostty-config "$HOME/.config/ghostty/config"
