@@ -3,7 +3,6 @@
 vim.g.mapleader = ","
 
 vim.pack.add({
-  "https://github.com/junegunn/goyo.vim",
   "https://github.com/tpope/vim-surround",
   "https://github.com/ibhagwan/fzf-lua",
   "https://github.com/nvim-treesitter/nvim-treesitter",
@@ -47,81 +46,6 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.breakindent = true
     vim.keymap.set("n", "j", "gj", { buffer = args.buf })
     vim.keymap.set("n", "k", "gk", { buffer = args.buf })
-  end,
-})
-
--- Goyo queues a resize when fzf-lua's terminal closes. Auto-exit can delete
--- t:goyo_dim before it runs, causing E121. fzf-lua floats, so remove only this
--- TermClose hook; keep VimResized. Before removing, reproduce in tmux with:
--- README.md -> ,b -> code file.
-vim.api.nvim_create_autocmd("User", {
-  pattern = "GoyoEnter",
-  callback = function()
-    vim.api.nvim_clear_autocmds({ group = "goyo", event = "TermClose" })
-  end,
-})
-
--- Turn Goyo on for Markdown and off for everything else. Check twice because
--- some new buffers do not know their file type on the first event.
-local changing_goyo = false
-local quitting_goyo
-
--- :q closes Goyo's temporary tab, not the original window. Forward it after
--- Goyo has restored that window; otherwise the Markdown hook just reopens Goyo.
-vim.api.nvim_create_autocmd("QuitPre", {
-  callback = function()
-    if vim.fn.exists("t:goyo_dim") == 1 then
-      quitting_goyo = vim.fn.histget("cmd", -1):match("!%s*$") ~= nil
-    end
-  end,
-})
-vim.api.nvim_create_autocmd("User", {
-  pattern = "GoyoLeave",
-  callback = function()
-    if quitting_goyo == nil then return end
-    local bang = quitting_goyo
-    vim.schedule(function()
-      local ok, err = pcall(vim.cmd, { cmd = "quit", bang = bang })
-      quitting_goyo = nil
-      if not ok then vim.notify(err, vim.log.levels.ERROR) end
-    end)
-  end,
-})
-
-vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
-  callback = function(args)
-    -- Goyo fires these events itself; its nofile pads must not turn it off.
-    if changing_goyo or quitting_goyo ~= nil
-        or vim.bo[args.buf].buftype == "nofile" then return end
-
-    local markdown = vim.bo[args.buf].filetype == "markdown"
-    local goyo = vim.fn.exists("t:goyo_dim") == 1
-
-    if markdown and not goyo then
-      changing_goyo = true
-      -- Entering inline can leave focus on a Goyo pad. Recheck after scheduling
-      -- because the user may have switched buffers.
-      vim.schedule(function()
-        if vim.api.nvim_buf_is_valid(args.buf)
-            and vim.api.nvim_get_current_buf() == args.buf
-            and quitting_goyo == nil
-            and vim.bo[args.buf].filetype == "markdown"
-            and vim.fn.exists("t:goyo_dim") == 0 then
-          vim.cmd("Goyo 80")
-        end
-        changing_goyo = false
-      end)
-    elseif not markdown and goyo then
-      -- Goyo! closes its tab. Keep the selected buffer alive and restore it in
-      -- the original tab.
-      local bufhidden = vim.bo[args.buf].bufhidden
-      vim.bo[args.buf].bufhidden = "hide"
-      changing_goyo = true
-      vim.cmd("Goyo!")
-      vim.api.nvim_set_current_buf(args.buf)
-      changing_goyo = false
-      vim.bo[args.buf].bufhidden = bufhidden
-    end
   end,
 })
 
