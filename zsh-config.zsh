@@ -123,6 +123,30 @@ else
   export EDITOR=nvim
 fi
 alias vim=nvim
+edit() {
+  ${=EDITOR} "$@"
+}
+pir() {
+  SHARPI_ATTACH_PI="$HOME/.local/share/mise/installs/npm-earendil-works-pi-coding-agent/0.82.1/bin/pi" \
+    "$HOME/Documents/sharpi/scripts/attach" "$@"
+}
+try() {
+  (( $# )) || { print -u2 'Usage: try <package> [package ...]'; return 1; }
+  local -a packages
+  local package
+  for package; do
+    packages+=("nixpkgs#$package")
+  done
+  nix run "$packages[@]"
+}
+y() {
+  local tmp cwd
+  tmp=$(mktemp -t 'yazi-cwd.XXXXXX') || return
+  command yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd < "$tmp"
+  [[ -n $cwd && $cwd != $PWD && -d $cwd ]] && builtin cd -- "$cwd"
+  rm -f -- "$tmp"
+}
 
 # Machine-specific settings.
 [[ -r ${ZDOTDIR:-$HOME}/.zshrc.local ]] && source "${ZDOTDIR:-$HOME}/.zshrc.local"
