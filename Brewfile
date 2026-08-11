@@ -2,6 +2,7 @@ brew "fish"
 brew "rclone"
 brew "trash"
 brew "usage"
+brew "zsh-autosuggestions"
 
 cask "1password"
 cask "1password-cli"

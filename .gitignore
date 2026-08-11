@@ -11,6 +11,7 @@ pi/tsconfig.json
 
 # Machine-specific configs
 .config/fish/local.fish
+.zshrc.local
 
 # Nix build output
 result

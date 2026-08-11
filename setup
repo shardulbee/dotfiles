@@ -30,6 +30,7 @@ link() {
 
 link mise-config.toml "$HOME/.config/mise/config.toml"
 link fish-config.fish "$HOME/.config/fish/config.fish"
+link zsh-config.zsh "$HOME/.zshrc"
 link git-config "$HOME/.config/git/config"
 link git-ignore "$HOME/.config/git/ignore"
 link jj-config.toml "$HOME/.config/jj/config.toml"
