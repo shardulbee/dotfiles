@@ -77,6 +77,7 @@ if (( $+commands[atuin] )); then
       _atuin_history_query=$BUFFER
       _atuin_history_lines=("${(@0)$(atuin search --cmd-only --print0 --author '$all-user' --limit 100 --search-mode prefix -- "$BUFFER" 2>/dev/null)}")
       _atuin_history_lines=("${(@)_atuin_history_lines:#}")
+      _atuin_history_lines=("${(@Oa)_atuin_history_lines}")
       (( $#_atuin_history_lines )) || return
       _atuin_history_index=1
     elif (( _atuin_history_index < $#_atuin_history_lines )); then
