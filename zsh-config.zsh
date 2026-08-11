@@ -70,6 +70,50 @@ if (( $+commands[atuin] )); then
   source "$atuin_init"
   ZSH_AUTOSUGGEST_STRATEGY=(atuin)
   unset atuin_init
+
+  # Up/Down cycle through Atuin results inline; Ctrl-R keeps the full UI.
+  _atuin_history_up() {
+    if (( ! _atuin_history_index )) || [[ $BUFFER != $_atuin_history_selected ]]; then
+      _atuin_history_query=$BUFFER
+      _atuin_history_lines=("${(@0)$(atuin search --cmd-only --print0 --author '$all-user' --limit 100 --search-mode prefix -- "$BUFFER" 2>/dev/null)}")
+      _atuin_history_lines=("${(@)_atuin_history_lines:#}")
+      (( $#_atuin_history_lines )) || return
+      _atuin_history_index=1
+    elif (( _atuin_history_index < $#_atuin_history_lines )); then
+      (( _atuin_history_index++ ))
+    fi
+    BUFFER=${_atuin_history_lines[_atuin_history_index]}
+    _atuin_history_selected=$BUFFER
+    CURSOR=$#BUFFER
+  }
+  _atuin_history_down() {
+    [[ $BUFFER == $_atuin_history_selected ]] || return
+    if (( _atuin_history_index > 1 )); then
+      (( _atuin_history_index-- ))
+      BUFFER=${_atuin_history_lines[_atuin_history_index]}
+    else
+      _atuin_history_index=0
+      BUFFER=$_atuin_history_query
+    fi
+    _atuin_history_selected=$BUFFER
+    CURSOR=$#BUFFER
+  }
+  zle -N _atuin_history_up
+  zle -N _atuin_history_down
+  bindkey '^[[A' _atuin_history_up
+  bindkey '^[OA' _atuin_history_up
+  bindkey '^[[B' _atuin_history_down
+  bindkey '^[OB' _atuin_history_down
+fi
+
+if (( $+commands[zoxide] )); then
+  zoxide_init=${XDG_CACHE_HOME:-$HOME/.cache}/zoxide/init.zsh
+  if [[ ! -r $zoxide_init || $commands[zoxide] -nt $zoxide_init ]]; then
+    mkdir -p "${zoxide_init:h}"
+    zoxide init zsh >| "$zoxide_init"
+  fi
+  source "$zoxide_init"
+  unset zoxide_init
 fi
 
 if [[ -n ${ZED_TERM:-} && -z ${SSH_CONNECTION:-} ]]; then
