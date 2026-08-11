@@ -122,6 +122,7 @@ if [[ -n ${ZED_TERM:-} && -z ${SSH_CONNECTION:-} ]]; then
 else
   export EDITOR=nvim
 fi
+alias vim=nvim
 
 # Machine-specific settings.
 [[ -r ${ZDOTDIR:-$HOME}/.zshrc.local ]] && source "${ZDOTDIR:-$HOME}/.zshrc.local"
