@@ -27,6 +27,19 @@
         ];
       };
 
+      nixosConfigurations.sharchy-vm = nixpkgs.lib.nixosSystem {
+        system = "aarch64-linux";
+        modules = [
+          ./nixos/hosts/sharchy-vm/configuration.nix
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.shardul = import ./nixos/home/shardul-vm.nix;
+          }
+        ];
+      };
+
       homeConfigurations."shardul@sharchy" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [ ./nixos/home/shardul.nix ];
