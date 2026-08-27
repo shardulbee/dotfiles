@@ -2,6 +2,108 @@
 
 let
   home = config.home.homeDirectory;
+
+  sharchyKey = pkgs.writeShellScript "sharchy-key" ''
+    set -euo pipefail
+
+    app_id="$(${pkgs.niri}/bin/niri msg --json focused-window 2>/dev/null | ${pkgs.jq}/bin/jq -r '.app_id // ""' || true)"
+    app_id="''${app_id,,}"
+    is_terminal=false
+    is_browser=false
+    case "$app_id" in
+      *ghostty*) is_terminal=true ;;
+      *chrom*|*firefox*) is_browser=true ;;
+    esac
+
+    send_key() {
+      local mods="$1" key="$2" mod
+      local -a args=()
+      for mod in $mods; do args+=(-M "$mod"); done
+      args+=(-k "$key")
+      for mod in $mods; do args+=(-m "$mod"); done
+      ${pkgs.wtype}/bin/wtype "''${args[@]}"
+    }
+
+    case "''${1:-}" in
+      copy)
+        if $is_terminal; then send_key ctrl Insert; else send_key ctrl c; fi
+        ;;
+      paste)
+        if $is_terminal; then send_key shift Insert; else send_key ctrl v; fi
+        ;;
+      select-all)
+        if $is_terminal; then send_key "ctrl shift" a; else send_key ctrl a; fi
+        ;;
+      cut)
+        $is_terminal || send_key ctrl x
+        ;;
+      undo)
+        $is_terminal || send_key ctrl z
+        ;;
+      redo)
+        $is_terminal || send_key "ctrl shift" z
+        ;;
+      prev-word) send_key ctrl Left ;;
+      next-word) send_key ctrl Right ;;
+      select-prev-word) send_key "ctrl shift" Left ;;
+      select-next-word) send_key "ctrl shift" Right ;;
+      delete-prev-word)
+        if $is_terminal; then send_key ctrl w; else send_key ctrl BackSpace; fi
+        ;;
+      delete-to-line-start)
+        if $is_terminal; then
+          send_key ctrl u
+        else
+          send_key shift Home
+          sleep 0.05
+          send_key "" BackSpace
+        fi
+        ;;
+      browser)
+        if $is_browser; then
+          send_key "$2" "$3"
+        else
+          send_key "$4" "$5"
+        fi
+        ;;
+      close)
+        if $is_browser; then
+          send_key ctrl w
+        elif $is_terminal; then
+          send_key alt w
+        else
+          ${pkgs.niri}/bin/niri msg action close-window
+        fi
+        ;;
+      *)
+        echo "usage: sharchy-key <action>" >&2
+        exit 2
+        ;;
+    esac
+  '';
+
+  sharchyTheme = pkgs.writeShellScript "sharchy-theme" ''
+    set -euo pipefail
+    state="$HOME/.local/state/sharchy-theme"
+    mkdir -p "$(dirname "$state")"
+    mode="''${1:-toggle}"
+    if [ "$mode" = toggle ]; then
+      current="$(cat "$state" 2>/dev/null || echo light)"
+      if [ "$current" = light ]; then mode=dark; else mode=light; fi
+    fi
+    case "$mode" in
+      light)
+        echo light > "$state"
+        ${pkgs.glib}/bin/gsettings set org.gnome.desktop.interface color-scheme prefer-light
+        ;;
+      dark)
+        echo dark > "$state"
+        ${pkgs.glib}/bin/gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+        ;;
+      *) exit 2 ;;
+    esac
+    ${pkgs.libnotify}/bin/notify-send "Alabaster $mode"
+  '';
 in
 {
   home.username = "shardul";
@@ -10,16 +112,6 @@ in
 
   programs.home-manager.enable = true;
   programs.zsh.enable = true;
-
-  home.sessionVariables = {
-    GDK_SCALE = "2";
-    QT_SCALE_FACTOR = "2";
-    XCURSOR_SIZE = "48";
-  };
-  xresources.properties = {
-    "Xft.dpi" = 192;
-    "Xcursor.size" = 48;
-  };
 
   home.packages = with pkgs; [
     fd
@@ -30,6 +122,8 @@ in
   ];
 
   home.file.".zshrc".source = ../../zsh-config.zsh;
+  home.file.".local/bin/sharchy-key".source = sharchyKey;
+  home.file.".local/bin/sharchy-theme".source = sharchyTheme;
   xdg.configFile."mise/config.toml".source = ../../mise-config.toml;
   xdg.configFile."git/config".source = ../../git-config;
   xdg.configFile."git/ignore".source = ../../git-ignore;
@@ -46,60 +140,227 @@ in
   xdg.configFile."ghostty/themes/Alabaster Dark".source = ../../ghostty-themes-alabaster-dark;
 
   xdg.configFile."chromium-flags.conf".text = ''
-    --force-device-scale-factor=2
-    --password-store=gnome-libsecret
+    --ozone-platform=wayland
+    --ozone-platform-hint=wayland
+    --password-store=basic
     --enable-features=TouchpadOverscrollHistoryNavigation
     --load-extension=${home}/.config/chromium/extensions/alt-click-new-tab
   '';
   xdg.configFile."chromium/extensions/alt-click-new-tab".source = ../../omarchy/chromium/extensions/alt-click-new-tab;
 
-  xdg.configFile."i3/config".text = ''
-    set $mod Mod4
-    font pango:JetBrainsMono Nerd Font 22
+  # Niri starts XDG autostart entries. The patched clipway service replaces
+  # open-vm-tools' stock X11-oriented desktop daemon.
+  xdg.configFile."autostart/vmware-user.desktop".text = ''
+    [Desktop Entry]
+    Hidden=true
+  '';
 
-    exec --no-startup-id xsetroot -solid "#ebe6da"
-    exec --no-startup-id dunst
-    exec --no-startup-id lxqt-policykit-agent
-
-    gaps inner 10
-    gaps outer 20
-    default_border pixel 4
-    default_floating_border pixel 4
-    client.focused #007acc #007acc #f8f8f8 #007acc #007acc
-    client.unfocused #d8d0c4 #d8d0c4 #272727 #d8d0c4 #d8d0c4
-
-    bindsym $mod+Return exec ghostty
-    bindsym $mod+space exec rofi -show drun -dpi 192
-    bindsym $mod+b exec chromium
-    bindsym Mod1+q kill
-    bindsym Mod1+Tab workspace back_and_forth
-
-    bindsym $mod+h focus left
-    bindsym $mod+j focus down
-    bindsym $mod+k focus up
-    bindsym $mod+l focus right
-    bindsym $mod+Shift+h move left
-    bindsym $mod+Shift+j move down
-    bindsym $mod+Shift+k move up
-    bindsym $mod+Shift+l move right
-
-    bindsym $mod+1 workspace number 1
-    bindsym $mod+2 workspace number 2
-    bindsym $mod+3 workspace number 3
-    bindsym $mod+4 workspace number 4
-    bindsym $mod+Shift+1 move container to workspace number 1
-    bindsym $mod+Shift+2 move container to workspace number 2
-    bindsym $mod+Shift+3 move container to workspace number 3
-    bindsym $mod+Shift+4 move container to workspace number 4
-
-    bar {
-      status_command i3status
-      colors {
-        background #ebe6da
-        statusline #272727
-        focused_workspace #007acc #007acc #f8f8f8
-        inactive_workspace #d8d0c4 #d8d0c4 #272727
+  xdg.configFile."niri/config.kdl".text = ''
+    input {
+      keyboard {
+        xkb { options "ctrl:nocaps"; }
+        repeat-delay 260
+        repeat-rate 60
       }
+      touchpad {
+        tap
+        natural-scroll
+      }
+      mouse { }
+      focus-follows-mouse max-scroll-amount="0%"
     }
+
+    output "Virtual-1" {
+      scale 2
+    }
+
+    layout {
+      gaps 10
+      center-focused-column "never"
+      preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+      }
+      default-column-width { proportion 0.5; }
+      focus-ring {
+        width 2
+        active-color "#007acc"
+        inactive-color "#d8d0c4"
+      }
+      border { off; }
+      shadow { off; }
+    }
+
+    prefer-no-csd
+    spawn-at-startup "swaybg" "-c" "#ebe6da"
+    spawn-at-startup "waybar"
+    spawn-at-startup "mako"
+    spawn-at-startup "lxqt-policykit-agent"
+
+    environment {
+      NIXOS_OZONE_WL "1"
+      MOZ_ENABLE_WAYLAND "1"
+    }
+
+    cursor {
+      xcursor-theme "Adwaita"
+      xcursor-size 24
+      hide-when-typing
+    }
+
+    xwayland-satellite {
+      path "xwayland-satellite"
+    }
+
+    hotkey-overlay {
+      skip-at-startup
+    }
+
+    binds {
+      Super+Return repeat=false { spawn "ghostty"; }
+      Super+Space repeat=false { spawn "fuzzel"; }
+      Super+Shift+B repeat=false { spawn "chromium"; }
+      Super+Shift+Slash repeat=false { show-hotkey-overlay; }
+      Super+O repeat=false { toggle-overview; }
+      Alt+Q repeat=false { close-window; }
+      Alt+Tab repeat=false { focus-workspace-previous; }
+
+      Alt+C repeat=false { spawn "${sharchyKey}" "copy"; }
+      Alt+V repeat=false { spawn "${sharchyKey}" "paste"; }
+      Alt+A repeat=false { spawn "${sharchyKey}" "select-all"; }
+      Super+A repeat=false { spawn "${sharchyKey}" "select-all"; }
+      Super+X repeat=false { spawn "${sharchyKey}" "cut"; }
+      Super+Z repeat=false { spawn "${sharchyKey}" "undo"; }
+      Super+Shift+Z repeat=false { spawn "${sharchyKey}" "redo"; }
+      Super+Left { spawn "${sharchyKey}" "prev-word"; }
+      Super+Right { spawn "${sharchyKey}" "next-word"; }
+      Super+Shift+Left { spawn "${sharchyKey}" "select-prev-word"; }
+      Super+Shift+Right { spawn "${sharchyKey}" "select-next-word"; }
+      Super+BackSpace { spawn "${sharchyKey}" "delete-prev-word"; }
+      Alt+BackSpace { spawn "${sharchyKey}" "delete-to-line-start"; }
+
+      Alt+L repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "l" "alt" "l"; }
+      Alt+Comma repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "comma" "alt" "comma"; }
+      Alt+F repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "f" "alt" "f"; }
+      Alt+T repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "t" "alt" "t"; }
+      Alt+W repeat=false { spawn "${sharchyKey}" "close"; }
+      Alt+Ctrl+T repeat=false { spawn "${sharchyTheme}" "toggle"; }
+      Alt+Shift+BracketLeft repeat=false { spawn "${sharchyKey}" "browser" "ctrl shift" "Tab" "alt shift" "bracketleft"; }
+      Alt+Shift+BracketRight repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "Tab" "alt shift" "bracketright"; }
+      Alt+BracketLeft repeat=false { spawn "${sharchyKey}" "browser" "alt" "Left" "alt" "bracketleft"; }
+      Alt+BracketRight repeat=false { spawn "${sharchyKey}" "browser" "alt" "Right" "alt" "bracketright"; }
+      Alt+R repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "r" "alt" "r"; }
+      Alt+Shift+R repeat=false { spawn "${sharchyKey}" "browser" "ctrl shift" "r" "alt shift" "r"; }
+      Alt+Shift+T repeat=false { spawn "${sharchyKey}" "browser" "ctrl shift" "t" "alt shift" "t"; }
+      Alt+1 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "1" "alt" "1"; }
+      Alt+2 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "2" "alt" "2"; }
+      Alt+3 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "3" "alt" "3"; }
+      Alt+4 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "4" "alt" "4"; }
+      Alt+5 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "5" "alt" "5"; }
+      Alt+6 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "6" "alt" "6"; }
+      Alt+7 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "7" "alt" "7"; }
+      Alt+8 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "8" "alt" "8"; }
+      Alt+9 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "9" "alt" "9"; }
+      Alt+N repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "n" "alt" "n"; }
+      Alt+Shift+N repeat=false { spawn "${sharchyKey}" "browser" "ctrl shift" "n" "alt shift" "n"; }
+      Alt+D repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "d" "alt" "d"; }
+      Alt+P repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "p" "alt" "p"; }
+      Alt+S repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "s" "alt" "s"; }
+      Alt+O repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "o" "alt" "o"; }
+      Alt+J repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "j" "alt" "j"; }
+      Alt+Y repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "h" "alt" "y"; }
+      Alt+Equal repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "equal" "alt" "equal"; }
+      Alt+Minus repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "minus" "alt" "minus"; }
+      Alt+0 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "0" "alt" "0"; }
+
+      Super+H { focus-column-left; }
+      Super+J { focus-window-down; }
+      Super+K { focus-window-up; }
+      Super+L { focus-column-right; }
+      Super+Shift+H { move-column-left; }
+      Super+Shift+J { move-window-down; }
+      Super+Shift+K { move-window-up; }
+      Super+Shift+L { move-column-right; }
+
+      Super+1 { focus-workspace 1; }
+      Super+2 { focus-workspace 2; }
+      Super+3 { focus-workspace 3; }
+      Super+4 { focus-workspace 4; }
+      Super+5 { focus-workspace 5; }
+      Super+6 { focus-workspace 6; }
+      Super+7 { focus-workspace 7; }
+      Super+8 { focus-workspace 8; }
+      Super+9 { focus-workspace 9; }
+      Super+Shift+1 { move-column-to-workspace 1; }
+      Super+Shift+2 { move-column-to-workspace 2; }
+      Super+Shift+3 { move-column-to-workspace 3; }
+      Super+Shift+4 { move-column-to-workspace 4; }
+      Super+Shift+5 { move-column-to-workspace 5; }
+      Super+Shift+6 { move-column-to-workspace 6; }
+      Super+Shift+7 { move-column-to-workspace 7; }
+      Super+Shift+8 { move-column-to-workspace 8; }
+      Super+Shift+9 { move-column-to-workspace 9; }
+
+      Super+R { switch-preset-column-width; }
+      Super+F { maximize-column; }
+      Super+Shift+F { fullscreen-window; }
+      Print repeat=false { screenshot; }
+      Ctrl+Print repeat=false { screenshot-screen; }
+      Alt+Print repeat=false { screenshot-window; }
+    }
+  '';
+
+  xdg.configFile."waybar/config".text = builtins.toJSON {
+    layer = "top";
+    position = "bottom";
+    height = 28;
+    modules-left = [ "niri/workspaces" ];
+    modules-right = [ "network" "cpu" "memory" "disk" "clock" ];
+    "niri/workspaces" = { format = "{index}"; };
+    network = {
+      format-ethernet = "{ipaddr}";
+      format-wifi = "{essid} {signalStrength}%";
+      format-disconnected = "offline";
+    };
+    cpu = { format = "cpu {usage}%"; };
+    memory = { format = "mem {percentage}%"; };
+    disk = { format = "disk {percentage_used}%"; };
+    clock = { format = "{:%Y-%m-%d %H:%M}"; };
+  };
+
+  xdg.configFile."waybar/style.css".text = ''
+    * {
+      border: none;
+      border-radius: 0;
+      font-family: "JetBrainsMono Nerd Font";
+      font-size: 13px;
+      min-height: 0;
+    }
+    window#waybar {
+      background: #ebe6da;
+      color: #272727;
+    }
+    #workspaces button {
+      padding: 0 10px;
+      color: #272727;
+    }
+    #workspaces button.focused,
+    #workspaces button.active {
+      background: #007acc;
+      color: #f8f8f8;
+    }
+    #network, #cpu, #memory, #disk, #clock {
+      padding: 0 9px;
+    }
+  '';
+
+  xdg.configFile."mako/config".text = ''
+    font=JetBrainsMono Nerd Font 11
+    background-color=#f8f8f8
+    text-color=#272727
+    border-color=#007acc
+    border-size=2
+    border-radius=0
   '';
 }

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
   hardware.graphics.enable = true;
@@ -30,28 +30,20 @@
     source = "${pkgs.open-vm-tools}/bin/vmware-user-suid-wrapper";
   };
 
-  services.xserver = {
+  programs.niri.enable = true;
+  services.clipway = {
     enable = true;
-    displayManager = {
-      lightdm.enable = true;
-      sessionCommands = ''
-        export GDK_SCALE=2
-        export QT_SCALE_FACTOR=2
-        export XCURSOR_SIZE=48
-        ${pkgs.open-vm-tools}/bin/vmware-user-suid-wrapper
-      '';
-    };
-    windowManager.i3.enable = true;
-    xkb.options = "ctrl:nocaps";
+    target = "niri.service";
   };
-  services.displayManager = {
-    autoLogin = {
-      enable = true;
+  services.greetd = {
+    enable = true;
+    settings.default_session = {
+      command = "${config.programs.niri.package}/bin/niri-session";
       user = "shardul";
     };
-    defaultSession = "none+i3";
   };
-  services.libinput.touchpad.naturalScrolling = true;
+
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   programs.dconf.enable = true;
   security.polkit.enable = true;
@@ -65,15 +57,19 @@
   };
 
   environment.systemPackages = with pkgs; [
-    chromium
-    dunst
-    feh
+    adwaita-icon-theme
+    (chromium.override {
+      commandLineArgs = "--ozone-platform=wayland --ozone-platform-hint=wayland --password-store=basic --enable-features=TouchpadOverscrollHistoryNavigation --load-extension=/home/shardul/.config/chromium/extensions/alt-click-new-tab";
+    })
+    fuzzel
     ghostty
-    i3status
+    jq
     lxqt.lxqt-policykit
-    rofi
-    xclip
-    xdotool
-    xterm
+    mako
+    swaybg
+    waybar
+    wl-clipboard
+    wtype
+    xwayland-satellite
   ];
 }

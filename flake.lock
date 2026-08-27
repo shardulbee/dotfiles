@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "clipway": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787847160,
+        "narHash": "sha256-YMHAotl7TIfzi3otbzivpm0Hq89gOYFZSsFrn0k9xjc=",
+        "owner": "krisztianfekete",
+        "repo": "clipway",
+        "rev": "7e707d6c22b37581b6ff7fe6007035b75522fc0e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "krisztianfekete",
+        "repo": "clipway",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -38,6 +58,7 @@
     },
     "root": {
       "inputs": {
+        "clipway": "clipway",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs"
       }
