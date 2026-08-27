@@ -1,11 +1,55 @@
-# Placeholder hardware config so `nix flake check` can evaluate.
-# Replace this file with the output from `nixos-generate-config` on sharchy
-# before installing or switching this host.
-{ lib, ... }:
+# Generated for the Dell XPS 13 DX13260.
+{ config, lib, modulesPath, ... }:
 
 {
-  fileSystems."/" = {
-    device = lib.mkDefault "/dev/disk/by-label/nixos";
-    fsType = lib.mkDefault "ext4";
+  imports = [
+    (modulesPath + "/installer/scan/not-detected.nix")
+  ];
+
+  boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usb_storage" "sd_mod" ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-intel" ];
+  boot.extraModulePackages = [ ];
+
+  boot.initrd.luks.devices.cryptroot = {
+    device = "/dev/disk/by-uuid/95ed11ca-d3f6-4f43-8969-50355533d068";
+    allowDiscards = true;
+    bypassWorkqueues = true;
   };
+
+  fileSystems."/" = {
+    device = "/dev/disk/by-label/nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@" "compress=zstd:3" "noatime" ];
+  };
+
+  fileSystems."/home" = {
+    device = "/dev/disk/by-label/nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@home" "compress=zstd:3" "noatime" ];
+  };
+
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-label/nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@nix" "compress=zstd:3" "noatime" ];
+  };
+
+  fileSystems."/var/log" = {
+    device = "/dev/disk/by-label/nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@log" "compress=zstd:3" "noatime" ];
+  };
+
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-label/EFI";
+    fsType = "vfat";
+    options = [ "fmask=0077" "dmask=0077" ];
+  };
+
+  swapDevices = [ ];
+
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.cpu.intel.npu.enable = true;
+  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

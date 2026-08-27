@@ -1,32 +1,31 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
-  programs.hyprland.enable = true;
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver
+      vpl-gpu-rt
+    ];
+  };
 
+  programs.niri.enable = true;
   services.greetd = {
     enable = true;
-    settings = {
-      initial_session = {
-        user = "shardul";
-        command = "Hyprland";
-      };
-      default_session = {
-        user = "shardul";
-        command = "Hyprland";
-      };
+    settings.default_session = {
+      command = "${config.programs.niri.package}/bin/niri-session";
+      user = "shardul";
     };
   };
 
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
   programs.dconf.enable = true;
   security.polkit.enable = true;
-
-  xdg.portal = {
-    enable = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-gtk
-      xdg-desktop-portal-hyprland
-    ];
-  };
+  security.pam.services.swaylock = { };
+  services.dbus.enable = true;
+  services.gnome.gnome-keyring.enable = true;
+  services.upower.enable = true;
 
   security.rtkit.enable = true;
   services.pipewire = {
@@ -36,20 +35,23 @@
     pulse.enable = true;
   };
 
-  environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";
-    XDG_CURRENT_DESKTOP = "Hyprland";
-    XDG_SESSION_TYPE = "wayland";
-  };
-
   environment.systemPackages = with pkgs; [
-    chromium
+    adwaita-icon-theme
+    brightnessctl
+    (chromium.override {
+      commandLineArgs = "--ozone-platform=wayland --ozone-platform-hint=wayland --password-store=basic --enable-features=TouchpadOverscrollHistoryNavigation --load-extension=/home/shardul/.config/chromium/extensions/alt-click-new-tab";
+    })
+    fuzzel
     ghostty
-    glib
     jq
-    awww
+    lxqt.lxqt-policykit
+    mako
+    swaybg
+    swayidle
+    swaylock
+    waybar
     wl-clipboard
     wtype
-    xdg-utils
+    xwayland-satellite
   ];
 }

@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, ... }:
 
 let
   home = config.home.homeDirectory;
@@ -6,65 +6,73 @@ let
   sharchyKey = pkgs.writeShellScript "sharchy-key" ''
     set -euo pipefail
 
-    class="$(hyprctl activewindow -j 2>/dev/null | ${pkgs.jq}/bin/jq -r '.class // ""' || true)"
+    app_id="$(${pkgs.niri}/bin/niri msg --json focused-window 2>/dev/null | ${pkgs.jq}/bin/jq -r '.app_id // ""' || true)"
+    app_id="''${app_id,,}"
     is_terminal=false
     is_browser=false
-    case "$class" in
-      *[Gg]hostty*) is_terminal=true ;;
-    esac
-    case "$class" in
-      *[Cc]hrom*|*chromium*|*firefox*|*Firefox*) is_browser=true ;;
+    case "$app_id" in
+      *ghostty*) is_terminal=true ;;
+      *chrom*|*firefox*) is_browser=true ;;
     esac
 
-    key() { ${pkgs.wtype}/bin/wtype "$@"; }
+    send_key() {
+      local mods="$1" key="$2" mod
+      local -a args=()
+      for mod in $mods; do args+=(-M "$mod"); done
+      args+=(-k "$key")
+      for mod in $mods; do args+=(-m "$mod"); done
+      ${pkgs.wtype}/bin/wtype "''${args[@]}"
+    }
 
     case "''${1:-}" in
       copy)
-        if $is_terminal; then key -M ctrl -k Insert -m ctrl; else key -M ctrl -k c -m ctrl; fi
+        if $is_terminal; then send_key ctrl Insert; else send_key ctrl c; fi
         ;;
       paste)
-        if $is_terminal; then key -M shift -k Insert -m shift; else key -M ctrl -k v -m ctrl; fi
+        if $is_terminal; then send_key shift Insert; else send_key ctrl v; fi
         ;;
       select-all)
-        if $is_terminal; then key -M ctrl -M shift -k a -m shift -m ctrl; else key -M ctrl -k a -m ctrl; fi
+        if $is_terminal; then send_key "ctrl shift" a; else send_key ctrl a; fi
         ;;
       cut)
-        if ! $is_terminal; then key -M ctrl -k x -m ctrl; fi
+        $is_terminal || send_key ctrl x
         ;;
       undo)
-        if ! $is_terminal; then key -M ctrl -k z -m ctrl; fi
+        $is_terminal || send_key ctrl z
         ;;
       redo)
-        if ! $is_terminal; then key -M ctrl -M shift -k z -m shift -m ctrl; fi
+        $is_terminal || send_key "ctrl shift" z
         ;;
-      prev-word) key -M ctrl -k Left -m ctrl ;;
-      next-word) key -M ctrl -k Right -m ctrl ;;
-      select-prev-word) key -M ctrl -M shift -k Left -m shift -m ctrl ;;
-      select-next-word) key -M ctrl -M shift -k Right -m shift -m ctrl ;;
+      prev-word) send_key ctrl Left ;;
+      next-word) send_key ctrl Right ;;
+      select-prev-word) send_key "ctrl shift" Left ;;
+      select-next-word) send_key "ctrl shift" Right ;;
       delete-prev-word)
-        if $is_terminal; then key -M ctrl -k w -m ctrl; else key -M ctrl -k BackSpace -m ctrl; fi
+        if $is_terminal; then send_key ctrl w; else send_key ctrl BackSpace; fi
         ;;
       delete-to-line-start)
         if $is_terminal; then
-          key -M ctrl -k u -m ctrl
+          send_key ctrl u
         else
-          key -M shift -k Home -m shift
-          key -k BackSpace
+          send_key shift Home
+          sleep 0.05
+          send_key "" BackSpace
         fi
         ;;
       browser)
-        shift
-        if $is_browser; then key "$@"; fi
+        if $is_browser; then
+          send_key "$2" "$3"
+        else
+          send_key "$4" "$5"
+        fi
         ;;
       close)
         if $is_browser; then
-          key -M ctrl -k w -m ctrl
+          send_key ctrl w
         elif $is_terminal; then
-          # Standard Hyprland supports `pass`; it forwards the chord to the app
-          # instead of re-triggering this compositor binding.
-          hyprctl dispatch pass ALT,W >/dev/null || key -M alt w -m alt
+          send_key alt w
         else
-          hyprctl dispatch killactive
+          ${pkgs.niri}/bin/niri msg action close-window
         fi
         ;;
       *)
@@ -74,67 +82,54 @@ let
     esac
   '';
 
-  sharchyGenerateBackgrounds = pkgs.writeShellScript "sharchy-generate-backgrounds" ''
-    set -euo pipefail
-    base="''${1:-$HOME/.local/share/sharchy/backgrounds}"
-    mkdir -p "$base"
-
-    ${pkgs.imagemagick}/bin/magick -size 3840x2160 xc:'#14120b' \
-      \( -size 3840x2160 plasma:fractal -colorspace gray -blur 0x18 -auto-level -evaluate multiply 0.10 \) \
-      -compose screen -composite \
-      \( -size 3840x2160 xc:none -fill '#cd974b22' -draw 'rectangle 0,0 3840,2160' -blur 0x80 \) \
-      -compose over -composite \
-      \( -size 3840x2160 gradient:'#24221800-#09080588' \) \
-      -compose over -composite \
-      -quality 95 "$base/alabaster-dark.png"
-
-    ${pkgs.imagemagick}/bin/magick -size 3840x2160 xc:'#ebe6da' \
-      \( -size 3840x2160 plasma:fractal -colorspace gray -blur 0x20 -auto-level -evaluate multiply 0.06 \) \
-      -compose multiply -composite \
-      \( -size 3840x2160 radial-gradient:'#f7f1e6aa-#d8cdbb66' \) \
-      -gravity center -compose over -composite \
-      \( -size 3840x2160 gradient:'#fff7e855-#d1c2aa44' \) \
-      -compose over -composite \
-      -quality 95 "$base/alabaster-light.png"
-  '';
-
   sharchyTheme = pkgs.writeShellScript "sharchy-theme" ''
     set -euo pipefail
-    state_dir="$HOME/.local/state"
-    bg_dir="$HOME/.local/share/sharchy/backgrounds"
-    mkdir -p "$state_dir"
-
-    if [ ! -f "$bg_dir/alabaster-dark.png" ] || [ ! -f "$bg_dir/alabaster-light.png" ]; then
-      ${sharchyGenerateBackgrounds} "$bg_dir"
-    fi
-
+    state="$HOME/.local/state/sharchy-theme"
+    mkdir -p "$(dirname "$state")"
     mode="''${1:-toggle}"
-    if [ "$mode" = auto ]; then
-      hour=$(date +%H)
-      if (( 10#$hour >= 7 && 10#$hour < 19 )); then mode=light; else mode=dark; fi
-    elif [ "$mode" = toggle ]; then
-      current=$(cat "$state_dir/sharchy-theme" 2>/dev/null || echo dark)
+    if [ "$mode" = toggle ]; then
+      current="$(cat "$state" 2>/dev/null || echo light)"
       if [ "$current" = light ]; then mode=dark; else mode=light; fi
     fi
-
     case "$mode" in
       light)
-        echo light > "$state_dir/sharchy-theme"
-        ${pkgs.glib}/bin/gsettings set org.gnome.desktop.interface color-scheme prefer-light || true
-        hyprctl keyword general:col.active_border 'rgba(007accee)' >/dev/null || true
-        ${pkgs.awww}/bin/awww img "$bg_dir/alabaster-light.png" --transition-type none || true
+        echo light > "$state"
+        ${pkgs.glib}/bin/gsettings set org.gnome.desktop.interface color-scheme prefer-light
         ;;
       dark)
-        echo dark > "$state_dir/sharchy-theme"
-        ${pkgs.glib}/bin/gsettings set org.gnome.desktop.interface color-scheme prefer-dark || true
-        hyprctl keyword general:col.active_border 'rgba(cd974bee)' >/dev/null || true
-        ${pkgs.awww}/bin/awww img "$bg_dir/alabaster-dark.png" --transition-type none || true
+        echo dark > "$state"
+        ${pkgs.glib}/bin/gsettings set org.gnome.desktop.interface color-scheme prefer-dark
         ;;
-      *)
-        echo "usage: sharchy-theme light|dark|toggle|auto" >&2
-        exit 2
-        ;;
+      *) exit 2 ;;
     esac
+    ${pkgs.libnotify}/bin/notify-send "Alabaster $mode"
+  '';
+
+  sharchyKeybindings = pkgs.writeShellScript "sharchy-keybindings" ''
+    ${pkgs.coreutils}/bin/cat <<'EOF' | ${pkgs.fuzzel}/bin/fuzzel --dmenu --prompt='Keybindings > ' --width=66 --lines=22
+Super + Space                 App launcher
+Super + Return                Terminal
+Super + Shift + B             Browser
+Super + Alt + K               This shortcut reference
+Super + Shift + /             Niri hotkey overlay
+Super + Escape                Lock screen
+Super + H/J/K/L               Focus left/down/up/right
+Super + Shift + H/J/K/L       Move window left/down/up/right
+Super + 1…9                   Focus workspace
+Super + Shift + 1…9           Move window to workspace
+Super + R                     Cycle column width
+Super + F                     Maximize column
+Super + Shift + F             Fullscreen window
+Alt + Tab                     Previous workspace
+Alt + Q                       Close window
+Alt + C/V/A                   Copy/paste/select all
+Super + X/Z/Shift+Z           Cut/undo/redo
+Super + Left/Right            Move by word
+Alt + L/T/W/R/F               Browser address/tab/close/reload/find
+Alt + Ctrl + T                Toggle light/dark theme
+Print / Ctrl+Print/Alt+Print  Screenshot region/screen/window
+Brightness and volume keys    Adjust display/audio
+EOF
   '';
 in
 {
@@ -145,8 +140,6 @@ in
   programs.home-manager.enable = true;
   programs.zsh.enable = true;
 
-  # Personal CLI tools. The minimal desktop apps live in
-  # nixos/modules/sharchy-desktop.nix.
   home.packages = with pkgs; [
     fd
     gh
@@ -158,8 +151,7 @@ in
   home.file.".zshrc".source = ../../zsh-config.zsh;
   home.file.".local/bin/sharchy-key".source = sharchyKey;
   home.file.".local/bin/sharchy-theme".source = sharchyTheme;
-  home.file.".local/bin/sharchy-generate-backgrounds".source = sharchyGenerateBackgrounds;
-
+  home.file.".local/bin/sharchy-keybindings".source = sharchyKeybindings;
   xdg.configFile."mise/config.toml".source = ../../mise-config.toml;
   xdg.configFile."git/config".source = ../../git-config;
   xdg.configFile."git/ignore".source = ../../git-ignore;
@@ -168,118 +160,245 @@ in
   xdg.configFile."nvim/init.lua".source = ../../nvim-init.lua;
   xdg.configFile."nvim/colors/alabaster.lua".source = ../../nvim-colors-alabaster.lua;
 
-  xdg.configFile."ghostty/config".source = ../../omarchy/ghostty/config;
+  xdg.configFile."ghostty/config".text = builtins.replaceStrings
+    [ "command = /usr/bin/zsh\n" ]
+    [ "" ]
+    (builtins.readFile ../../omarchy/ghostty/config);
   xdg.configFile."ghostty/themes/Alabaster Light".source = ../../ghostty-themes-alabaster-light;
   xdg.configFile."ghostty/themes/Alabaster Dark".source = ../../ghostty-themes-alabaster-dark;
 
   xdg.configFile."chromium-flags.conf".text = ''
     --ozone-platform=wayland
     --ozone-platform-hint=wayland
-    --password-store=gnome-libsecret
+    --password-store=basic
     --enable-features=TouchpadOverscrollHistoryNavigation
     --load-extension=${home}/.config/chromium/extensions/alt-click-new-tab
   '';
   xdg.configFile."chromium/extensions/alt-click-new-tab".source = ../../omarchy/chromium/extensions/alt-click-new-tab;
-  xdg.configFile."xdg-terminals.list".source = ../../omarchy/xdg/xdg-terminals.list;
 
-  xdg.configFile."hypr/hyprland.conf".text = ''
-    monitor=,preferred,auto,1
-
-    exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-    exec-once = awww-daemon
-    exec-once = sharchy-theme auto
-
+  xdg.configFile."niri/config.kdl".text = ''
     input {
-      kb_options = ctrl:nocaps
-      natural_scroll = true
-      repeat_rate = 60
-      repeat_delay = 260
+      keyboard {
+        xkb { options "ctrl:nocaps"; }
+        repeat-delay 260
+        repeat-rate 60
+      }
       touchpad {
-        natural_scroll = true
+        tap
+        natural-scroll
       }
+      mouse { }
+      focus-follows-mouse max-scroll-amount="0%"
     }
 
-    general {
-      gaps_in = 5
-      gaps_out = 10
-      border_size = 2
-      col.active_border = rgba(cd974bee)
-      col.inactive_border = rgba(77777766)
+    output "eDP-1" {
+      scale 2
     }
 
-    decoration {
-      rounding = 0
-      shadow {
-        enabled = false
+    layout {
+      gaps 10
+      center-focused-column "never"
+      preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
       }
-      blur {
-        enabled = false
+      default-column-width { proportion 0.5; }
+      focus-ring {
+        width 2
+        active-color "#007acc"
+        inactive-color "#d8d0c4"
       }
+      border { off; }
+      shadow { off; }
     }
 
-    animations { enabled = false }
-    misc { vrr = 0 }
+    prefer-no-csd
+    spawn-at-startup "swaybg" "-c" "#ebe6da"
+    spawn-at-startup "waybar"
+    spawn-at-startup "mako"
+    spawn-at-startup "lxqt-policykit-agent"
+    spawn-at-startup "swayidle" "-w" "timeout" "300" "swaylock -f -c 272727" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "swaylock -f -c 272727"
 
-    bind = SUPER, RETURN, exec, ghostty
-    bind = SUPER, SPACE, exec, chromium
-    bind = ALT, Q, killactive
-    bind = ALT, W, exec, sharchy-key close
-    bind = ALT CTRL, T, exec, sharchy-theme toggle
-    bind = ALT, TAB, workspace, previous
+    environment {
+      NIXOS_OZONE_WL "1"
+      MOZ_ENABLE_WAYLAND "1"
+    }
 
-    bind = ALT, C, exec, sharchy-key copy
-    bind = ALT, V, exec, sharchy-key paste
-    bind = ALT, A, exec, sharchy-key select-all
-    bind = SUPER, X, exec, sharchy-key cut
-    bind = SUPER, Z, exec, sharchy-key undo
-    bind = SUPER SHIFT, Z, exec, sharchy-key redo
+    cursor {
+      xcursor-theme "Adwaita"
+      xcursor-size 24
+      hide-when-typing
+    }
 
-    bind = SUPER, LEFT, exec, sharchy-key prev-word
-    bind = SUPER, RIGHT, exec, sharchy-key next-word
-    bind = SUPER SHIFT, LEFT, exec, sharchy-key select-prev-word
-    bind = SUPER SHIFT, RIGHT, exec, sharchy-key select-next-word
-    bind = SUPER, BACKSPACE, exec, sharchy-key delete-prev-word
-    bind = ALT, BACKSPACE, exec, sharchy-key delete-to-line-start
+    xwayland-satellite {
+      path "xwayland-satellite"
+    }
 
-    bind = SUPER, H, movefocus, l
-    bind = SUPER, J, movefocus, d
-    bind = SUPER, K, movefocus, u
-    bind = SUPER, L, movefocus, r
-    bind = SUPER SHIFT, H, swapwindow, l
-    bind = SUPER SHIFT, J, swapwindow, d
-    bind = SUPER SHIFT, K, swapwindow, u
-    bind = SUPER SHIFT, L, swapwindow, r
+    hotkey-overlay {
+      skip-at-startup
+    }
 
-    bind = ALT, L, exec, sharchy-key browser -M ctrl -k l -m ctrl
-    bind = ALT, F, exec, sharchy-key browser -M ctrl -k f -m ctrl
-    bind = ALT, T, exec, sharchy-key browser -M ctrl -k t -m ctrl
-    bind = ALT SHIFT, T, exec, sharchy-key browser -M ctrl -M shift -k t -m shift -m ctrl
-    bind = ALT, R, exec, sharchy-key browser -M ctrl -k r -m ctrl
-    bind = ALT SHIFT, R, exec, sharchy-key browser -M ctrl -M shift -k r -m shift -m ctrl
-    bind = ALT, BRACKETLEFT, exec, sharchy-key browser -M alt -k Left -m alt
-    bind = ALT, BRACKETRIGHT, exec, sharchy-key browser -M alt -k Right -m alt
-    bind = ALT SHIFT, BRACKETLEFT, exec, sharchy-key browser -M ctrl -M shift -k Tab -m shift -m ctrl
-    bind = ALT SHIFT, BRACKETRIGHT, exec, sharchy-key browser -M ctrl -k Tab -m ctrl
-    bind = ALT, EQUAL, exec, sharchy-key browser -M ctrl -k equal -m ctrl
-    bind = ALT, MINUS, exec, sharchy-key browser -M ctrl -k minus -m ctrl
-    bind = ALT, 0, exec, sharchy-key browser -M ctrl -k 0 -m ctrl
+    binds {
+      Super+Return repeat=false { spawn "ghostty"; }
+      Super+Space repeat=false { spawn "fuzzel"; }
+      Super+Shift+B repeat=false { spawn "chromium"; }
+      Super+Shift+Slash repeat=false { show-hotkey-overlay; }
+      Super+Alt+K repeat=false { spawn "${sharchyKeybindings}"; }
+      Super+O repeat=false { toggle-overview; }
+      Super+Escape repeat=false { spawn "swaylock" "-f" "-c" "272727"; }
+      Alt+Q repeat=false { close-window; }
+      Alt+Tab repeat=false { focus-workspace-previous; }
+
+      Alt+C repeat=false { spawn "${sharchyKey}" "copy"; }
+      Alt+V repeat=false { spawn "${sharchyKey}" "paste"; }
+      Alt+A repeat=false { spawn "${sharchyKey}" "select-all"; }
+      Super+A repeat=false { spawn "${sharchyKey}" "select-all"; }
+      Super+X repeat=false { spawn "${sharchyKey}" "cut"; }
+      Super+Z repeat=false { spawn "${sharchyKey}" "undo"; }
+      Super+Shift+Z repeat=false { spawn "${sharchyKey}" "redo"; }
+      Super+Left { spawn "${sharchyKey}" "prev-word"; }
+      Super+Right { spawn "${sharchyKey}" "next-word"; }
+      Super+Shift+Left { spawn "${sharchyKey}" "select-prev-word"; }
+      Super+Shift+Right { spawn "${sharchyKey}" "select-next-word"; }
+      Super+BackSpace { spawn "${sharchyKey}" "delete-prev-word"; }
+      Alt+BackSpace { spawn "${sharchyKey}" "delete-to-line-start"; }
+
+      Alt+L repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "l" "alt" "l"; }
+      Alt+Comma repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "comma" "alt" "comma"; }
+      Alt+F repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "f" "alt" "f"; }
+      Alt+T repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "t" "alt" "t"; }
+      Alt+W repeat=false { spawn "${sharchyKey}" "close"; }
+      Alt+Ctrl+T repeat=false { spawn "${sharchyTheme}" "toggle"; }
+      Alt+Shift+BracketLeft repeat=false { spawn "${sharchyKey}" "browser" "ctrl shift" "Tab" "alt shift" "bracketleft"; }
+      Alt+Shift+BracketRight repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "Tab" "alt shift" "bracketright"; }
+      Alt+BracketLeft repeat=false { spawn "${sharchyKey}" "browser" "alt" "Left" "alt" "bracketleft"; }
+      Alt+BracketRight repeat=false { spawn "${sharchyKey}" "browser" "alt" "Right" "alt" "bracketright"; }
+      Alt+R repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "r" "alt" "r"; }
+      Alt+Shift+R repeat=false { spawn "${sharchyKey}" "browser" "ctrl shift" "r" "alt shift" "r"; }
+      Alt+Shift+T repeat=false { spawn "${sharchyKey}" "browser" "ctrl shift" "t" "alt shift" "t"; }
+      Alt+1 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "1" "alt" "1"; }
+      Alt+2 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "2" "alt" "2"; }
+      Alt+3 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "3" "alt" "3"; }
+      Alt+4 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "4" "alt" "4"; }
+      Alt+5 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "5" "alt" "5"; }
+      Alt+6 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "6" "alt" "6"; }
+      Alt+7 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "7" "alt" "7"; }
+      Alt+8 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "8" "alt" "8"; }
+      Alt+9 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "9" "alt" "9"; }
+      Alt+N repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "n" "alt" "n"; }
+      Alt+Shift+N repeat=false { spawn "${sharchyKey}" "browser" "ctrl shift" "n" "alt shift" "n"; }
+      Alt+D repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "d" "alt" "d"; }
+      Alt+P repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "p" "alt" "p"; }
+      Alt+S repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "s" "alt" "s"; }
+      Alt+O repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "o" "alt" "o"; }
+      Alt+J repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "j" "alt" "j"; }
+      Alt+Y repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "h" "alt" "y"; }
+      Alt+Equal repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "equal" "alt" "equal"; }
+      Alt+Minus repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "minus" "alt" "minus"; }
+      Alt+0 repeat=false { spawn "${sharchyKey}" "browser" "ctrl" "0" "alt" "0"; }
+
+      Super+H { focus-column-left; }
+      Super+J { focus-window-down; }
+      Super+K { focus-window-up; }
+      Super+L { focus-column-right; }
+      Super+Shift+H { move-column-left; }
+      Super+Shift+J { move-window-down; }
+      Super+Shift+K { move-window-up; }
+      Super+Shift+L { move-column-right; }
+
+      Super+1 { focus-workspace 1; }
+      Super+2 { focus-workspace 2; }
+      Super+3 { focus-workspace 3; }
+      Super+4 { focus-workspace 4; }
+      Super+5 { focus-workspace 5; }
+      Super+6 { focus-workspace 6; }
+      Super+7 { focus-workspace 7; }
+      Super+8 { focus-workspace 8; }
+      Super+9 { focus-workspace 9; }
+      Super+Shift+1 { move-column-to-workspace 1; }
+      Super+Shift+2 { move-column-to-workspace 2; }
+      Super+Shift+3 { move-column-to-workspace 3; }
+      Super+Shift+4 { move-column-to-workspace 4; }
+      Super+Shift+5 { move-column-to-workspace 5; }
+      Super+Shift+6 { move-column-to-workspace 6; }
+      Super+Shift+7 { move-column-to-workspace 7; }
+      Super+Shift+8 { move-column-to-workspace 8; }
+      Super+Shift+9 { move-column-to-workspace 9; }
+
+      Super+R { switch-preset-column-width; }
+      Super+F { maximize-column; }
+      Super+Shift+F { fullscreen-window; }
+
+      XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+      XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+      XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+      XF86AudioMicMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+      XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "set" "+5%"; }
+      XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "5%-"; }
+
+      Print repeat=false { screenshot; }
+      Ctrl+Print repeat=false { screenshot-screen; }
+      Alt+Print repeat=false { screenshot-window; }
+    }
   '';
 
-  systemd.user.services.sharchy-auto-theme = {
-    Unit.Description = "Switch Sharchy theme based on local time";
-    Service = {
-      Type = "oneshot";
-      ExecStart = "${sharchyTheme} auto";
+  xdg.configFile."waybar/config".text = builtins.toJSON {
+    layer = "top";
+    position = "bottom";
+    height = 28;
+    modules-left = [ "niri/workspaces" ];
+    modules-right = [ "network" "battery" "cpu" "memory" "disk" "clock" ];
+    "niri/workspaces" = { format = "{index}"; };
+    network = {
+      format-ethernet = "{ipaddr}";
+      format-wifi = "{essid} {signalStrength}%";
+      format-disconnected = "offline";
     };
+    battery = {
+      format = "bat {capacity}%";
+      format-charging = "bat {capacity}%+";
+      warning = 20;
+      critical = 10;
+    };
+    cpu = { format = "cpu {usage}%"; };
+    memory = { format = "mem {percentage}%"; };
+    disk = { format = "disk {percentage_used}%"; };
+    clock = { format = "{:%Y-%m-%d %H:%M}"; };
   };
 
-  systemd.user.timers.sharchy-auto-theme = {
-    Unit.Description = "Run Sharchy auto theme switcher";
-    Timer = {
-      OnBootSec = "2min";
-      OnCalendar = [ "*-*-* 07:00:00" "*-*-* 19:00:00" ];
-      Persistent = true;
-    };
-    Install.WantedBy = [ "timers.target" ];
-  };
+  xdg.configFile."waybar/style.css".text = ''
+    * {
+      border: none;
+      border-radius: 0;
+      font-family: "JetBrainsMono Nerd Font";
+      font-size: 13px;
+      min-height: 0;
+    }
+    window#waybar {
+      background: #ebe6da;
+      color: #272727;
+    }
+    #workspaces button {
+      padding: 0 10px;
+      color: #272727;
+    }
+    #workspaces button.focused,
+    #workspaces button.active {
+      background: #007acc;
+      color: #f8f8f8;
+    }
+    #network, #battery, #cpu, #memory, #disk, #clock {
+      padding: 0 9px;
+    }
+  '';
+
+  xdg.configFile."mako/config".text = ''
+    font=JetBrainsMono Nerd Font 11
+    background-color=#f8f8f8
+    text-color=#272727
+    border-color=#007acc
+    border-size=2
+    border-radius=0
+  '';
 }
