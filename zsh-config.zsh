@@ -12,6 +12,13 @@ unsetopt APPEND_HISTORY EXTENDED_HISTORY INC_APPEND_HISTORY SHARE_HISTORY
 
 # Fish-like interactive defaults.
 bindkey -e
+# Ghostty/Hyprland encodes Ctrl+Left/Right as CSI 1;5D/C. Bind those
+# directly so Super+Left/Right can send normal Linux word-movement chords
+# everywhere instead of special-casing terminals in the window manager.
+bindkey '^[[1;5D' backward-word
+bindkey '^[[1;5C' forward-word
+bindkey '^[[5D' backward-word
+bindkey '^[[5C' forward-word
 setopt AUTO_CD INTERACTIVE_COMMENTS
 
 # Match Fish's default prompt: user@host ~/a/basename>.
@@ -126,3 +133,5 @@ alias vim=nvim
 
 # Machine-specific settings.
 [[ -r ${ZDOTDIR:-$HOME}/.zshrc.local ]] && source "${ZDOTDIR:-$HOME}/.zshrc.local"
+
+if [ -e /home/shardul/.nix-profile/etc/profile.d/nix.sh ]; then . /home/shardul/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer

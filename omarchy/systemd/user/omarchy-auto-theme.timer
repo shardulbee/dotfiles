@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Omarchy auto theme switcher
+
+[Timer]
+OnBootSec=2min
+OnCalendar=*-*-* 07:00:00
+OnCalendar=*-*-* 19:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

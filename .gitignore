@@ -15,4 +15,5 @@ pi/tsconfig.json
 
 # Nix build output
 result
+*.qcow2
 scratch/

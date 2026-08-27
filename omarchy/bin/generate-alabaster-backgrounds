@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+base="${1:-$HOME/.config/omarchy/themes}"
+command -v magick >/dev/null
+
+mkdir -p "$base/alabaster/backgrounds" "$base/alabaster-light/backgrounds"
+
+magick -size 3840x2160 xc:'#14120b' \
+  \( -size 3840x2160 plasma:fractal -colorspace gray -blur 0x18 -auto-level -evaluate multiply 0.10 \) \
+  -compose screen -composite \
+  \( -size 3840x2160 xc:none -fill '#cd974b22' -draw 'rectangle 0,0 3840,2160' -blur 0x80 \) \
+  -compose over -composite \
+  \( -size 3840x2160 gradient:'#24221800-#09080588' \) \
+  -compose over -composite \
+  -quality 95 "$base/alabaster/backgrounds/alabaster-texture.png"
+
+magick -size 3840x2160 xc:'#ebe6da' \
+  \( -size 3840x2160 plasma:fractal -colorspace gray -blur 0x20 -auto-level -evaluate multiply 0.06 \) \
+  -compose multiply -composite \
+  \( -size 3840x2160 radial-gradient:'#f7f1e6aa-#d8cdbb66' \) \
+  -gravity center -compose over -composite \
+  \( -size 3840x2160 gradient:'#fff7e855-#d1c2aa44' \) \
+  -compose over -composite \
+  -quality 95 "$base/alabaster-light/backgrounds/alabaster-light-texture.png"

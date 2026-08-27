@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+hour=$(date +%H)
+if (( 10#$hour >= 7 && 10#$hour < 19 )); then
+  wanted=alabaster-light
+else
+  wanted=alabaster
+fi
+current=$(omarchy theme current 2>/dev/null | tr '[:upper:] ' '[:lower:]-' || true)
+if [[ $current != "$wanted" ]]; then
+  omarchy theme set "$wanted"
+fi

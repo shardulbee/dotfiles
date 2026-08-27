@@ -28,6 +28,40 @@ link() {
   ln -snf "$src" "$dst"
 }
 
+copy_file() {
+  src="$1"
+  dst="$2"
+  mode="${3:-644}"
+  case "$src" in
+    /*) ;;
+    *) src="$DOT/$src" ;;
+  esac
+
+  if [ ! -e "$src" ]; then
+    echo "error: missing source: $src" >&2
+    exit 1
+  fi
+  mkdir -p "$(dirname "$dst")"
+  install -m "$mode" "$src" "$dst"
+}
+
+copy_dir() {
+  src="$1"
+  dst="$2"
+  case "$src" in
+    /*) ;;
+    *) src="$DOT/$src" ;;
+  esac
+
+  if [ ! -d "$src" ]; then
+    echo "error: missing source dir: $src" >&2
+    exit 1
+  fi
+  rm -rf "$dst"
+  mkdir -p "$(dirname "$dst")"
+  cp -a "$src" "$dst"
+}
+
 link mise-config.toml "$HOME/.config/mise/config.toml"
 link fish-config.fish "$HOME/.config/fish/config.fish"
 link zsh-config.zsh "$HOME/.zshrc"
@@ -48,6 +82,37 @@ if [ "$(uname)" = "Darwin" ]; then
   link zed-tasks.json "$HOME/.config/zed/tasks.json"
   link zed-theme-soft.json "$HOME/.config/zed/themes/soft.json"
   brew bundle install --file "$DOT/Brewfile" --no-upgrade --force-cleanup
+fi
+
+if [ "$(uname)" = "Linux" ]; then
+  copy_file omarchy/hypr/bindings.lua "$HOME/.config/hypr/bindings.lua"
+  copy_file omarchy/hypr/input.lua "$HOME/.config/hypr/input.lua"
+  copy_file omarchy/hypr/looknfeel.lua "$HOME/.config/hypr/looknfeel.lua"
+  copy_file omarchy/ghostty/config "$HOME/.config/ghostty/config"
+  link ghostty-themes-alabaster-light "$HOME/.config/ghostty/themes/Alabaster Light"
+  link ghostty-themes-alabaster-dark "$HOME/.config/ghostty/themes/Alabaster Dark"
+  copy_file omarchy/chromium/chromium-flags.conf "$HOME/.config/chromium-flags.conf"
+  copy_dir omarchy/chromium/extensions/alt-click-new-tab "$HOME/.config/chromium/extensions/alt-click-new-tab"
+  copy_file omarchy/xdg/xdg-terminals.list "$HOME/.config/xdg-terminals.list"
+  copy_file omarchy/bin/omarchy-auto-theme "$HOME/.local/bin/omarchy-auto-theme" 755
+  copy_file omarchy/bin/omarchy-toggle-alabaster "$HOME/.local/bin/omarchy-toggle-alabaster" 755
+  copy_file omarchy/bin/generate-alabaster-backgrounds "$HOME/.local/bin/generate-alabaster-backgrounds" 755
+  copy_file omarchy/systemd/user/omarchy-auto-theme.service "$HOME/.config/systemd/user/omarchy-auto-theme.service"
+  copy_file omarchy/systemd/user/omarchy-auto-theme.timer "$HOME/.config/systemd/user/omarchy-auto-theme.timer"
+  copy_dir omarchy/themes/alabaster "$HOME/.config/omarchy/themes/alabaster"
+  copy_dir omarchy/themes/alabaster-light "$HOME/.config/omarchy/themes/alabaster-light"
+  if command -v magick >/dev/null; then
+    "$HOME/.local/bin/generate-alabaster-backgrounds" "$HOME/.config/omarchy/themes"
+  fi
+
+  if command -v systemctl >/dev/null && systemctl --user is-active default.target >/dev/null 2>&1; then
+    systemctl --user daemon-reload
+    systemctl --user enable --now omarchy-auto-theme.timer >/dev/null
+  fi
+
+  if command -v omarchy >/dev/null; then
+    omarchy theme refresh >/dev/null || true
+  fi
 fi
 
 if ! command -v mise >/dev/null; then
