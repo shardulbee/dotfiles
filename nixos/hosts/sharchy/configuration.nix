@@ -21,6 +21,7 @@
   };
 
   programs.zsh.enable = true;
+  services.openssh.enable = true;
   services.tailscale.enable = true;
   networking.networkmanager.enable = true;
 
