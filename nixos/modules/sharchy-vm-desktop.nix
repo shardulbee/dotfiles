@@ -34,7 +34,12 @@
     enable = true;
     displayManager = {
       lightdm.enable = true;
-      sessionCommands = "${pkgs.open-vm-tools}/bin/vmware-user-suid-wrapper";
+      sessionCommands = ''
+        export GDK_SCALE=2
+        export QT_SCALE_FACTOR=2
+        export XCURSOR_SIZE=48
+        ${pkgs.open-vm-tools}/bin/vmware-user-suid-wrapper
+      '';
     };
     windowManager.i3.enable = true;
     xkb.options = "ctrl:nocaps";

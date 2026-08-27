@@ -11,6 +11,16 @@ in
   programs.home-manager.enable = true;
   programs.zsh.enable = true;
 
+  home.sessionVariables = {
+    GDK_SCALE = "2";
+    QT_SCALE_FACTOR = "2";
+    XCURSOR_SIZE = "48";
+  };
+  xresources.properties = {
+    "Xft.dpi" = 192;
+    "Xcursor.size" = 48;
+  };
+
   home.packages = with pkgs; [
     fd
     gh
@@ -36,6 +46,7 @@ in
   xdg.configFile."ghostty/themes/Alabaster Dark".source = ../../ghostty-themes-alabaster-dark;
 
   xdg.configFile."chromium-flags.conf".text = ''
+    --force-device-scale-factor=2
     --password-store=gnome-libsecret
     --enable-features=TouchpadOverscrollHistoryNavigation
     --load-extension=${home}/.config/chromium/extensions/alt-click-new-tab
@@ -44,21 +55,21 @@ in
 
   xdg.configFile."i3/config".text = ''
     set $mod Mod4
-    font pango:JetBrainsMono Nerd Font 11
+    font pango:JetBrainsMono Nerd Font 22
 
     exec --no-startup-id xsetroot -solid "#ebe6da"
     exec --no-startup-id dunst
     exec --no-startup-id lxqt-policykit-agent
 
-    gaps inner 5
-    gaps outer 10
-    default_border pixel 2
-    default_floating_border pixel 2
+    gaps inner 10
+    gaps outer 20
+    default_border pixel 4
+    default_floating_border pixel 4
     client.focused #007acc #007acc #f8f8f8 #007acc #007acc
     client.unfocused #d8d0c4 #d8d0c4 #272727 #d8d0c4 #d8d0c4
 
     bindsym $mod+Return exec ghostty
-    bindsym $mod+space exec rofi -show drun
+    bindsym $mod+space exec rofi -show drun -dpi 192
     bindsym $mod+b exec chromium
     bindsym Mod1+q kill
     bindsym Mod1+Tab workspace back_and_forth
