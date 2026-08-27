@@ -134,4 +134,3 @@ alias vim=nvim
 # Machine-specific settings.
 [[ -r ${ZDOTDIR:-$HOME}/.zshrc.local ]] && source "${ZDOTDIR:-$HOME}/.zshrc.local"
 
-if [ -e /home/shardul/.nix-profile/etc/profile.d/nix.sh ]; then . /home/shardul/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
