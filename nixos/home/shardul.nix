@@ -59,6 +59,7 @@ in
   home.file.".local/bin/sharchy-keybindings".source = ../scripts/sharchy-keybindings;
   home.file.".local/bin/sharchy-quake".source = ../scripts/sharchy-quake;
   home.file.".local/bin/sharchy-rebuild".source = ../scripts/sharchy-rebuild;
+  home.file.".local/bin/sharchy-workspace".source = ../scripts/sharchy-workspace;
 
   systemd.user.services.sharchy-bar = {
     Unit = {
