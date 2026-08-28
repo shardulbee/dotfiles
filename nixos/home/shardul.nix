@@ -52,12 +52,12 @@ in
   home.sessionPath = [ "$HOME/.npm-global/bin" "$HOME/.local/bin" ];
 
   home.file.".zshrc".source = link "zsh-config.zsh";
-  home.file.".local/bin/sharchy-helium".source = link "nixos/scripts/sharchy-helium";
-  home.file.".local/bin/sharchy-helium-defaults".source = link "nixos/scripts/sharchy-helium-defaults";
-  home.file.".local/bin/sharchy-screenshot".source = link "nixos/scripts/sharchy-screenshot";
-  home.file.".local/bin/sharchy-theme".source = link "nixos/scripts/sharchy-theme";
-  home.file.".local/bin/sharchy-keybindings".source = link "nixos/scripts/sharchy-keybindings";
-  home.file.".local/bin/sharchy-quake".source = link "nixos/scripts/sharchy-quake";
+  home.file.".local/bin/sharchy-helium".source = ../scripts/sharchy-helium;
+  home.file.".local/bin/sharchy-helium-defaults".source = ../scripts/sharchy-helium-defaults;
+  home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot;
+  home.file.".local/bin/sharchy-theme".source = ../scripts/sharchy-theme;
+  home.file.".local/bin/sharchy-keybindings".source = ../scripts/sharchy-keybindings;
+  home.file.".local/bin/sharchy-quake".source = ../scripts/sharchy-quake;
 
   systemd.user.services.sharchy-bar = {
     Unit = {
@@ -125,10 +125,10 @@ in
   xdg.configFile."zed/keymap.json".source = link "zed-keymap.json";
   xdg.configFile."zed/tasks.json".source = link "zed-tasks.json";
   xdg.configFile."zed/themes/soft.json".source = link "zed-theme-soft.json";
-  xdg.configFile."ghostty/config".source = link "nixos/config/ghostty/config";
-  xdg.configFile."ghostty/themes/Alabaster Light".source = link "ghostty-themes-alabaster-light";
-  xdg.configFile."ghostty/themes/Alabaster Dark".source = link "ghostty-themes-alabaster-dark";
-  xdg.configFile."helium-browser-flags.conf".source = link "nixos/config/helium-browser-flags.conf";
+  xdg.configFile."ghostty/config".source = ../config/ghostty/config;
+  xdg.configFile."ghostty/themes/Alabaster Light".source = ../../ghostty-themes-alabaster-light;
+  xdg.configFile."ghostty/themes/Alabaster Dark".source = ../../ghostty-themes-alabaster-dark;
+  xdg.configFile."helium-browser-flags.conf".source = ../config/helium-browser-flags.conf;
   xdg.desktopEntries.helium = {
     name = "Helium";
     genericName = "Web Browser";
@@ -138,9 +138,9 @@ in
     categories = [ "Network" "WebBrowser" ];
     mimeType = [ "text/html" "x-scheme-handler/http" "x-scheme-handler/https" ];
   };
-  xdg.configFile."chromium/extensions/alt-click-new-tab".source = link "nixos/config/browser/extensions/alt-click-new-tab";
-  xdg.configFile."hypr/hyprland.conf".source = link "nixos/config/hypr/sharchy.conf";
-  xdg.configFile."hypr/hyprlock.conf".source = link "nixos/config/hyprlock/config";
-  xdg.configFile."mako/config".source = link "nixos/config/mako/config";
-  xdg.configFile."quickshell/sharchy/shell.qml".source = link "nixos/config/quickshell/sharchy/shell.qml";
+  xdg.configFile."chromium/extensions/alt-click-new-tab".source = ../config/browser/extensions/alt-click-new-tab;
+  xdg.configFile."hypr/hyprland.conf".source = ../config/hypr/sharchy.conf;
+  xdg.configFile."hypr/hyprlock.conf".source = ../config/hyprlock/config;
+  xdg.configFile."mako/config".source = ../config/mako/config;
+  xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/quickshell/sharchy/shell.qml;
 }
