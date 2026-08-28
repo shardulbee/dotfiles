@@ -1,28 +1,19 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 
-exec ghostty --title="NixOS rebuild" --class=com.sharchy.rebuild -e bash -lc '
-  set -o pipefail
-  cd "$HOME/Documents/dotfiles" || exit 1
+log="$HOME/.local/state/sharchy-rebuild.log"
+mkdir -p "$(dirname "$log")"
 
-  echo "NixOS rebuild: sharchy"
-  echo "$(pwd)"
-  echo
-  echo "A polkit password prompt should appear."
-  echo
+notify-send -t 3000 "NixOS rebuild" "Waiting for authentication" 2>/dev/null || true
 
-  /run/wrappers/bin/pkexec --disable-internal-agent /run/current-system/sw/bin/nixos-rebuild switch --flake /home/shardul/Documents/dotfiles#sharchy
+if /run/wrappers/bin/pkexec --disable-internal-agent \
+  /run/current-system/sw/bin/nixos-rebuild switch \
+  --flake /home/shardul/Documents/dotfiles#sharchy >"$log" 2>&1; then
+  notify-send -t 5000 "NixOS rebuild" "Switch complete" 2>/dev/null || true
+else
   status=$?
-
-  echo
-  if [ "$status" -eq 0 ]; then
-    notify-send -t 5000 "NixOS rebuild" "Switch complete" 2>/dev/null || true
-    echo "Done."
-  else
-    notify-send -t 8000 "NixOS rebuild" "Switch failed" 2>/dev/null || true
-    echo "Failed with status $status."
+  if [ "$status" -ne 126 ]; then
+    notify-send -t 8000 "NixOS rebuild" "Switch failed — see $log" 2>/dev/null || true
   fi
-  echo
-  read -r -p "Press Enter to close..."
   exit "$status"
-'
+fi
