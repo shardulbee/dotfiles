@@ -116,6 +116,5 @@
     swayidle
     swaylock
     wl-clipboard
-    wlogout
   ];
 }

@@ -45,6 +45,7 @@ in
   home.sessionPath = [ "$HOME/.npm-global/bin" "$HOME/.local/bin" ];
 
   home.file.".zshrc".source = link "zsh-config.zsh";
+  home.file.".local/bin/sharchy-helium".source = link "nixos/scripts/sharchy-helium";
   home.file.".local/bin/sharchy-helium-defaults".source = link "nixos/scripts/sharchy-helium-defaults";
   home.file.".local/bin/sharchy-screenshot".source = link "nixos/scripts/sharchy-screenshot";
   home.file.".local/bin/sharchy-theme".source = link "nixos/scripts/sharchy-theme";
@@ -116,6 +117,15 @@ in
   xdg.configFile."ghostty/themes/Alabaster Light".source = link "ghostty-themes-alabaster-light";
   xdg.configFile."ghostty/themes/Alabaster Dark".source = link "ghostty-themes-alabaster-dark";
   xdg.configFile."helium-browser-flags.conf".source = link "nixos/config/helium-browser-flags.conf";
+  xdg.desktopEntries.helium = {
+    name = "Helium";
+    genericName = "Web Browser";
+    exec = "/home/shardul/.local/bin/sharchy-helium %U";
+    icon = "helium";
+    terminal = false;
+    categories = [ "Network" "WebBrowser" ];
+    mimeType = [ "text/html" "x-scheme-handler/http" "x-scheme-handler/https" ];
+  };
   xdg.configFile."chromium/extensions/alt-click-new-tab".source = link "omarchy/chromium/extensions/alt-click-new-tab";
   xdg.configFile."hypr/hyprland.conf".source = link "nixos/config/hypr/sharchy.conf";
   xdg.configFile."mako/config".source = link "nixos/config/mako/config";
