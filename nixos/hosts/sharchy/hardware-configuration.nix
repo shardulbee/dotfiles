@@ -6,6 +6,7 @@
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
+  boot.initrd.systemd.enable = true;
   boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
@@ -15,6 +16,7 @@
     device = "/dev/disk/by-uuid/95ed11ca-d3f6-4f43-8969-50355533d068";
     allowDiscards = true;
     bypassWorkqueues = true;
+    crypttabExtraOpts = [ "tpm2-device=auto" ];
   };
 
   fileSystems."/" = {

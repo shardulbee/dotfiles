@@ -13,6 +13,7 @@
   nixpkgs.config.allowUnfree = true;
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.consoleLogLevel = 0;
   # Xe reports failed PSR2 selective-fetch calculations on this panel; disable
   # that optimization while keeping the rest of panel self-refresh enabled.
   boot.kernelParams = [ "xe.enable_psr2_sel_fetch=0" ];
