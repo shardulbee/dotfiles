@@ -13,10 +13,7 @@ The setup script links shared command-line configuration, installs the tools in
 
 ## NixOS
 
-The flake provides two independent systems:
-
-- `sharchy`: Dell workstation with Hyprland and Helium
-- `sharchy-vm`: ARM64 VMware guest with Niri and Chromium
+The flake configures the `sharchy` Dell workstation with Hyprland and Helium.
 
 ```sh
 nix flake check
