@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Greetd
 import "."
 
@@ -9,13 +10,26 @@ ShellRoot {
     visible: true
     implicitWidth: 1280
     implicitHeight: 800
-    color: "#14120b"
+    color: darkMode ? "#14120b" : "#f7f7f4"
 
     property date now: new Date()
+    property string savedTheme: themeFile.text().trim()
+    property bool scheduledDark: now.getHours() < 7 || now.getHours() >= 19
+    property bool darkMode: savedTheme === "dark" || (savedTheme !== "light" && scheduledDark)
     property string errorText: ""
     property string prompt: "Password"
     property bool responseRequired: false
     property bool responseVisible: false
+
+    FileView {
+      id: themeFile
+      path: "/run/sharchy/theme"
+      preload: true
+      blockLoading: true
+      watchChanges: true
+      printErrors: false
+      onFileChanged: reload()
+    }
 
     function beginAuthentication() {
       errorText = ""
@@ -48,7 +62,7 @@ ShellRoot {
       Text {
         anchors.horizontalCenter: parent.horizontalCenter
         text: Qt.formatDateTime(greeterWindow.now, "HH:mm")
-        color: "#cecece"
+        color: greeterWindow.darkMode ? "#cecece" : "#26251e"
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 66
         font.weight: Font.Light
@@ -57,7 +71,7 @@ ShellRoot {
       Text {
         anchors.horizontalCenter: parent.horizontalCenter
         text: Qt.formatDateTime(greeterWindow.now, "dddd, MMMM d")
-        color: "#999999"
+        color: greeterWindow.darkMode ? "#999999" : "#57564f"
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 13
       }
@@ -68,6 +82,7 @@ ShellRoot {
       anchors.centerIn: parent
       title: "Welcome back"
       subtitle: "shardul · Hyprland"
+      dark: greeterWindow.darkMode
       prompt: greeterWindow.prompt
       errorText: greeterWindow.errorText
       busy: Greetd.state === GreetdState.Launching

@@ -9,6 +9,11 @@ let
     cp ${../config/quickshell/lock/shell.qml} $out/shell.qml
     cp ${../config/quickshell/auth/AlabasterAuth.qml} $out/AlabasterAuth.qml
   '';
+  wallpaper = pkgs.writeShellScript "sharchy-wallpaper" ''
+    mode="$(${pkgs.coreutils}/bin/cat /home/shardul/.local/state/sharchy-theme 2>/dev/null || true)"
+    if [ "$mode" = dark ]; then color="#14120b"; else color="#e5e4df"; fi
+    exec ${pkgs.swaybg}/bin/swaybg -c "$color"
+  '';
   zed = pkgs.writeShellScriptBin "zed" ''
     exec ${pkgs.zed-editor}/bin/zeditor "$@"
   '';
@@ -83,11 +88,29 @@ in
       X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/sharchy/shell.qml".source}" ];
     };
     Service = {
-      ExecStartPre = "-${pkgs.systemd}/bin/systemctl --user stop hyprpolkitagent.service";
+      ExecStartPre = [
+        "-${pkgs.systemd}/bin/systemctl --user stop hyprpolkitagent.service"
+        "${pkgs.coreutils}/bin/mkdir -p /home/shardul/.local/state"
+        "${pkgs.coreutils}/bin/touch /home/shardul/.local/state/sharchy-rebuild-status"
+      ];
       ExecStart = "${pkgs.quickshell}/bin/quickshell -p /home/shardul/.config/quickshell/sharchy";
       Restart = "on-failure";
       RestartSec = 1;
       Environment = "QS_NO_RELOAD_POPUP=1";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  systemd.user.services.sharchy-wallpaper = {
+    Unit = {
+      Description = "Alabaster desktop wallpaper";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = wallpaper;
+      Restart = "on-failure";
+      RestartSec = 1;
     };
     Install.WantedBy = [ "graphical-session.target" ];
   };
@@ -171,8 +194,7 @@ in
     mimeType = [ "text/html" "x-scheme-handler/http" "x-scheme-handler/https" ];
   };
   xdg.configFile."chromium/extensions/alt-click-new-tab".source = ../config/browser/extensions/alt-click-new-tab;
-  xdg.configFile."hypr/hyprland.conf".source = ../config/hypr/sharchy.conf;
-  xdg.configFile."hypr/hyprlock.conf".source = ../config/hyprlock/config;
+  xdg.configFile."hypr/hyprland.lua".source = ../config/hypr/sharchy.lua;
   xdg.configFile."mako/config".source = ../config/mako/config;
   xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/quickshell/sharchy/shell.qml;
 }

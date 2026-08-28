@@ -1,19 +1,70 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-log="$HOME/.local/state/sharchy-rebuild.log"
-mkdir -p "$(dirname "$log")"
+state_dir="$HOME/.local/state"
+log="$state_dir/sharchy-rebuild.log"
+status_file="$state_dir/sharchy-rebuild-status"
+mkdir -p "$state_dir"
 
-notify-send -t 3000 "NixOS rebuild" "Waiting for authentication" 2>/dev/null || true
-
-if /run/wrappers/bin/pkexec --disable-internal-agent \
-  /run/current-system/sw/bin/nixos-rebuild switch \
-  --flake /home/shardul/Documents/dotfiles#sharchy >"$log" 2>&1; then
-  notify-send -t 5000 "NixOS rebuild" "Switch complete" 2>/dev/null || true
-else
-  status=$?
-  if [ "$status" -ne 126 ]; then
-    notify-send -t 8000 "NixOS rebuild" "Switch failed — see $log" 2>/dev/null || true
-  fi
-  exit "$status"
+exec 9>"$state_dir/sharchy-rebuild.lock"
+if ! /run/current-system/sw/bin/flock -n 9; then
+  notify-send -t 3000 "NixOS rebuild" "A rebuild is already running" 2>/dev/null || true
+  exit 0
 fi
+
+printf 'running\n' > "$status_file"
+
+spinner_pid=""
+cleanup() {
+  printf 'idle\n' > "$status_file"
+  if [ -n "$spinner_pid" ]; then
+    kill "$spinner_pid" 2>/dev/null || true
+    wait "$spinner_pid" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
+
+notification_id="$(notify-send -p -t 0 "NixOS rebuild" "| Waiting for authentication…" 2>/dev/null || true)"
+replace_args=()
+if [ -n "$notification_id" ]; then replace_args=(-r "$notification_id"); fi
+
+/run/wrappers/bin/pkexec --disable-internal-agent \
+  /run/current-system/sw/bin/nixos-rebuild switch \
+  --flake /home/shardul/Documents/dotfiles#sharchy >"$log" 2>&1 &
+rebuild_pid=$!
+
+if [ -n "$notification_id" ]; then
+  (
+    frames=('|' '/' '—' '\\')
+    frame=0
+    while kill -0 "$rebuild_pid" 2>/dev/null; do
+      timeout 1s notify-send -r "$notification_id" -t 0 \
+        "NixOS rebuild" "${frames[$frame]} Building and switching…" 2>/dev/null || true
+      frame=$(((frame + 1) % ${#frames[@]}))
+      sleep 0.2
+    done
+  ) &
+  spinner_pid=$!
+fi
+
+wait "$rebuild_pid"
+status=$?
+
+if [ -n "$spinner_pid" ]; then
+  kill "$spinner_pid" 2>/dev/null || true
+  wait "$spinner_pid" 2>/dev/null || true
+  spinner_pid=""
+fi
+
+if [ "$status" -eq 0 ]; then
+  notify-send "${replace_args[@]}" -t 5000 \
+    "NixOS rebuild" "Switch complete" 2>/dev/null || true
+elif [ "$status" -eq 126 ]; then
+  notify-send "${replace_args[@]}" -t 2000 \
+    "NixOS rebuild" "Cancelled" 2>/dev/null || true
+else
+  notify-send "${replace_args[@]}" -t 8000 \
+    "NixOS rebuild" "Switch failed — see $log" 2>/dev/null || true
+fi
+
+exit "$status"

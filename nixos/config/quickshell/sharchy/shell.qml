@@ -10,6 +10,40 @@ import Quickshell.Services.UPower
 import Quickshell.Wayland
 
 ShellRoot {
+  id: shellRoot
+
+  property bool darkMode: themeFile.text().trim() !== "light"
+  property string rebuildStatus: rebuildFile.text().trim()
+  readonly property color authBackground: darkMode ? "#1b1913" : "#efeee9"
+  readonly property color authField: darkMode ? "#14120b" : "#f7f7f4"
+  readonly property color authBorder: darkMode ? "#2b2923" : "#cecdc7"
+  readonly property color authText: darkMode ? "#cecece" : "#26251e"
+  readonly property color authMuted: darkMode ? "#999999" : "#57564f"
+  readonly property color authPlaceholder: darkMode ? "#6f716c" : "#77756e"
+  readonly property color authSelection: darkMode ? "#3a382f" : "#f4edd7"
+  readonly property color authError: darkMode ? "#d66a64" : "#aa3731"
+  readonly property color authAccentHover: darkMode ? "#d5b773" : "#cb9000"
+
+  FileView {
+    id: themeFile
+    path: "/home/shardul/.local/state/sharchy-theme"
+    preload: true
+    blockLoading: true
+    watchChanges: true
+    printErrors: false
+    onFileChanged: reload()
+  }
+
+  FileView {
+    id: rebuildFile
+    path: "/home/shardul/.local/state/sharchy-rebuild-status"
+    preload: true
+    blockLoading: true
+    watchChanges: true
+    printErrors: false
+    onFileChanged: reload()
+  }
+
   PolkitAgent {
     id: polkitAgent
   }
@@ -21,7 +55,7 @@ ShellRoot {
     anchors.bottom: true
     anchors.left: true
     anchors.right: true
-    color: "#cc14120b"
+    color: shellRoot.darkMode ? "#cc14120b" : "#ccf7f7f4"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
@@ -43,9 +77,9 @@ ShellRoot {
       width: 420
       height: 300
       radius: 12
-      color: "#1b1913"
+      color: shellRoot.authBackground
       border.width: 1
-      border.color: "#2b2923"
+      border.color: shellRoot.authBorder
 
       Column {
         anchors.fill: parent
@@ -64,7 +98,7 @@ ShellRoot {
           width: parent.width
           horizontalAlignment: Text.AlignHCenter
           text: "Authentication required"
-          color: "#cecece"
+          color: shellRoot.authText
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 17
           font.bold: true
@@ -74,7 +108,7 @@ ShellRoot {
           width: parent.width
           horizontalAlignment: Text.AlignHCenter
           text: polkitAgent.flow?.message || "Enter your password to continue"
-          color: "#999999"
+          color: shellRoot.authMuted
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 11
           wrapMode: Text.Wrap
@@ -86,9 +120,9 @@ ShellRoot {
           width: parent.width
           height: 48
           radius: 8
-          color: "#14120b"
+          color: shellRoot.authField
           border.width: passwordInput.activeFocus ? 2 : 1
-          border.color: polkitAgent.flow?.failed ? "#d66a64" : (passwordInput.activeFocus ? "#cd974b" : "#2b2923")
+          border.color: polkitAgent.flow?.failed ? shellRoot.authError : (passwordInput.activeFocus ? "#cd974b" : shellRoot.authBorder)
 
           TextInput {
             id: passwordInput
@@ -96,9 +130,9 @@ ShellRoot {
             anchors.leftMargin: 16
             anchors.rightMargin: 16
             verticalAlignment: TextInput.AlignVCenter
-            color: "#cecece"
-            selectionColor: "#3a382f"
-            selectedTextColor: "#cecece"
+            color: shellRoot.authText
+            selectionColor: shellRoot.authSelection
+            selectedTextColor: shellRoot.authText
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 14
             echoMode: polkitAgent.flow?.responseVisible ? TextInput.Normal : TextInput.Password
@@ -117,7 +151,7 @@ ShellRoot {
             anchors.verticalCenter: parent.verticalCenter
             visible: passwordInput.text.length === 0 && !passwordInput.activeFocus
             text: polkitAgent.flow?.inputPrompt || "Password"
-            color: "#6f716c"
+            color: shellRoot.authPlaceholder
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 13
           }
@@ -128,7 +162,7 @@ ShellRoot {
           height: 16
           horizontalAlignment: Text.AlignHCenter
           text: polkitAgent.flow?.failed ? "Authentication failed" : (polkitAgent.flow?.supplementaryMessage || "")
-          color: polkitAgent.flow?.failed || polkitAgent.flow?.supplementaryIsError ? "#d66a64" : "#999999"
+          color: polkitAgent.flow?.failed || polkitAgent.flow?.supplementaryIsError ? shellRoot.authError : shellRoot.authMuted
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 10
           elide: Text.ElideRight
@@ -142,14 +176,14 @@ ShellRoot {
             width: 110
             height: 38
             radius: 9
-            color: cancelMouse.containsMouse ? "#2b2923" : "transparent"
+            color: cancelMouse.containsMouse ? shellRoot.authBorder : "transparent"
             border.width: 1
-            border.color: "#2b2923"
+            border.color: shellRoot.authBorder
 
             Text {
               anchors.centerIn: parent
               text: "Cancel"
-              color: "#cecece"
+              color: shellRoot.authText
               font.family: "JetBrainsMono Nerd Font"
               font.pixelSize: 12
             }
@@ -166,12 +200,12 @@ ShellRoot {
             width: 110
             height: 38
             radius: 9
-            color: submitMouse.containsMouse ? "#d5b773" : "#cd974b"
+            color: submitMouse.containsMouse ? shellRoot.authAccentHover : "#cd974b"
 
             Text {
               anchors.centerIn: parent
               text: "Continue"
-              color: "#14120b"
+              color: "#26251e"
               font.family: "JetBrainsMono Nerd Font"
               font.pixelSize: 12
               font.bold: true
@@ -209,14 +243,20 @@ ShellRoot {
       property bool panelOpen: false
       property string panelPage: ""
       property string pendingPowerAction: ""
+      property int rebuildFrame: 0
+      property var rebuildFrames: ["|", "/", "—", "\\"]
       property var sink: Pipewire.defaultAudioSink
       property var battery: UPower.displayDevice
 
-      readonly property color foreground: "#f4f0e8"
-      readonly property color muted: "#aaa9a5"
+      readonly property color foreground: shellRoot.darkMode ? "#f4f0e8" : "#26251e"
+      readonly property color muted: shellRoot.darkMode ? "#aaa9a5" : "#57564f"
       readonly property color accent: "#cd974b"
-      readonly property color panelBackground: "#211f18"
-      readonly property color panelBorder: "#3b3830"
+      readonly property color barBackground: shellRoot.darkMode ? "#211f18" : "#efeee9"
+      readonly property color panelBackground: shellRoot.darkMode ? "#211f18" : "#efeee9"
+      readonly property color panelBorder: shellRoot.darkMode ? "#3b3830" : "#cecdc7"
+      readonly property color hoverBackground: shellRoot.darkMode ? "#353229" : "#d9d8d2"
+      readonly property color inactive: shellRoot.darkMode ? "#777777" : "#98968e"
+      readonly property color error: shellRoot.darkMode ? "#d66a64" : "#aa3731"
 
       function togglePanel(page) {
         if (panelOpen && panelPage === page) {
@@ -273,8 +313,17 @@ ShellRoot {
       anchors.top: true
       anchors.left: true
       anchors.right: true
-      implicitHeight: 26
-      color: "#181818"
+      implicitHeight: 30
+      color: "transparent"
+
+      Rectangle {
+        anchors.fill: parent
+        anchors.margins: 3
+        radius: 8
+        color: bar.barBackground
+        border.width: 1
+        border.color: bar.panelBorder
+      }
 
       component PanelRow: Rectangle {
         id: panelRow
@@ -288,7 +337,7 @@ ShellRoot {
         width: parent ? parent.width : 0
         height: detail.length > 0 ? 44 : 36
         radius: 6
-        color: rowMouse.containsMouse ? "#353229" : "transparent"
+        color: rowMouse.containsMouse ? bar.hoverBackground : "transparent"
 
         Text {
           id: rowIcon
@@ -298,7 +347,7 @@ ShellRoot {
           width: 22
           horizontalAlignment: Text.AlignHCenter
           text: panelRow.icon
-          color: panelRow.destructive ? "#d66a64" : bar.foreground
+          color: panelRow.destructive ? bar.error : bar.foreground
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 15
         }
@@ -314,7 +363,7 @@ ShellRoot {
           Text {
             width: parent.width
             text: panelRow.label
-            color: panelRow.destructive ? "#d66a64" : bar.foreground
+            color: panelRow.destructive ? bar.error : bar.foreground
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
             elide: Text.ElideRight
@@ -336,7 +385,7 @@ ShellRoot {
           anchors.rightMargin: 9
           anchors.verticalCenter: parent.verticalCenter
           text: panelRow.trailing
-          color: panelRow.destructive ? "#d66a64" : bar.muted
+          color: panelRow.destructive ? bar.error : bar.muted
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 11
         }
@@ -387,6 +436,13 @@ ShellRoot {
         onTriggered: bar.now = new Date()
       }
 
+      Timer {
+        interval: 200
+        running: shellRoot.rebuildStatus === "running"
+        repeat: true
+        onTriggered: bar.rebuildFrame = (bar.rebuildFrame + 1) % bar.rebuildFrames.length
+      }
+
       RowLayout {
         anchors.left: parent.left
         anchors.leftMargin: 8
@@ -399,7 +455,7 @@ ShellRoot {
             required property var modelData
             visible: modelData.id > 0
             text: modelData.name
-            color: modelData.focused ? bar.foreground : "#777777"
+            color: modelData.focused ? bar.foreground : bar.inactive
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
             font.bold: modelData.focused
@@ -415,7 +471,7 @@ ShellRoot {
 
       Text {
         anchors.centerIn: parent
-        text: Qt.formatDateTime(bar.now, "HH:mm")
+        text: Qt.formatDateTime(bar.now, "ddd, MMM d") + " · " + Qt.formatDateTime(bar.now, "HH:mm")
         color: bar.foreground
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 12
@@ -430,12 +486,25 @@ ShellRoot {
         spacing: 3
 
         Item {
+          visible: shellRoot.rebuildStatus === "running"
+          Layout.preferredWidth: visible ? 108 : 0
+          Layout.fillHeight: true
+          Text {
+            anchors.centerIn: parent
+            text: bar.rebuildFrames[bar.rebuildFrame] + " rebuilding"
+            color: bar.accent
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 11
+          }
+        }
+
+        Item {
           Layout.preferredWidth: 25
           Layout.fillHeight: true
           Text {
             anchors.centerIn: parent
             text: "󰖩"
-            color: bar.wifiName.length > 0 ? bar.foreground : "#666666"
+            color: bar.wifiName.length > 0 ? bar.foreground : bar.inactive
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 13
           }
@@ -449,7 +518,7 @@ ShellRoot {
           Text {
             anchors.centerIn: parent
             text: bar.bluetoothConnected() ? "󰂱" : "󰂯"
-            color: Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled ? bar.foreground : "#666666"
+            color: Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled ? bar.foreground : bar.inactive
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 13
           }
@@ -482,7 +551,7 @@ ShellRoot {
           Text {
             anchors.centerIn: parent
             text: bar.battery && bar.battery.ready ? bar.batteryIcon() + " " + Math.round(bar.battery.percentage * 100) + "%" : "󰂑"
-            color: bar.battery && bar.battery.ready && bar.battery.percentage < 0.2 ? "#d66a64" : bar.foreground
+            color: bar.battery && bar.battery.ready && bar.battery.percentage < 0.2 ? bar.error : bar.foreground
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
           }
@@ -634,7 +703,7 @@ ShellRoot {
                   width: parent.width - 70
                   height: 6
                   radius: 3
-                  color: "#3b3830"
+                  color: bar.panelBorder
                   anchors.verticalCenter: parent.verticalCenter
                   Rectangle {
                     height: parent.height
@@ -690,7 +759,7 @@ ShellRoot {
                   anchors.left: parent.left
                   anchors.verticalCenter: parent.verticalCenter
                   text: bar.batteryIcon()
-                  color: bar.battery && bar.battery.ready && bar.battery.percentage < 0.2 ? "#d66a64" : bar.foreground
+                  color: bar.battery && bar.battery.ready && bar.battery.percentage < 0.2 ? bar.error : bar.foreground
                   font.family: "JetBrainsMono Nerd Font"
                   font.pixelSize: 24
                 }

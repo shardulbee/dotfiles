@@ -42,6 +42,10 @@ in
   };
 
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
+  systemd.tmpfiles.rules = [
+    "d /run/sharchy 0755 shardul users -"
+    "f /run/sharchy/theme 0644 shardul users -"
+  ];
 
   programs.dconf.enable = true;
   programs.nix-ld.enable = true;
@@ -57,7 +61,6 @@ in
     enable = true;
     enablePkexecWrapper = true;
   };
-  security.pam.services.hyprlock = { };
   security.pam.services.sharchy-lock = { };
   security.pam.services.greetd.enableGnomeKeyring = true;
   systemd.services."getty@tty2".wantedBy = [ "getty.target" ];
@@ -83,7 +86,6 @@ in
     fuzzel
     ghostty
     grim
-    hyprlock
     glib
     jq
     libnotify

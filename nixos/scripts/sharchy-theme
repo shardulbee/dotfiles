@@ -14,10 +14,9 @@ fi
 case "$mode" in
   light|dark)
     echo "$mode" > "$state"
+    if [ -w /run/sharchy/theme ]; then printf '%s\n' "$mode" > /run/sharchy/theme; fi
     dconf write /org/gnome/desktop/interface/color-scheme "'prefer-$mode'" || true
-    if [ "$mode" = light ]; then background="#ebe6da"; else background="#181818"; fi
-    pkill -x swaybg 2>/dev/null || true
-    swaybg -c "$background" >/dev/null 2>&1 &
+    systemctl --user restart sharchy-wallpaper.service
     ;;
   *) exit 2 ;;
 esac
