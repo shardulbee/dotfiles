@@ -72,30 +72,17 @@ in
 
   systemd.user.services.sharchy-bar = {
     Unit = {
-      Description = "Minimal Sharchy desktop bar";
+      Description = "Sharchy desktop shell";
       PartOf = [ "graphical-session.target" ];
       After = [ "graphical-session.target" ];
+      X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/sharchy/shell.qml".source}" ];
     };
     Service = {
+      ExecStartPre = "-${pkgs.systemd}/bin/systemctl --user stop hyprpolkitagent.service";
       ExecStart = "${pkgs.quickshell}/bin/quickshell -p /home/shardul/.config/quickshell/sharchy";
       Restart = "on-failure";
       RestartSec = 1;
       Environment = "QS_NO_RELOAD_POPUP=1";
-    };
-    Install.WantedBy = [ "graphical-session.target" ];
-  };
-
-  systemd.user.services.hyprpolkitagent = {
-    Unit = {
-      Description = "Hyprland authentication agent";
-      PartOf = [ "graphical-session.target" ];
-      After = [ "graphical-session.target" ];
-      ConditionEnvironment = [ "WAYLAND_DISPLAY" ];
-    };
-    Service = {
-      ExecStart = "${pkgs.hyprpolkitagent}/libexec/hyprpolkitagent";
-      Restart = "on-failure";
-      RestartSec = 1;
     };
     Install.WantedBy = [ "graphical-session.target" ];
   };

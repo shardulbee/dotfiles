@@ -5,9 +5,198 @@ import Quickshell.Bluetooth
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.Pipewire
+import Quickshell.Services.Polkit
 import Quickshell.Services.UPower
+import Quickshell.Wayland
 
 ShellRoot {
+  PolkitAgent {
+    id: polkitAgent
+  }
+
+  PanelWindow {
+    id: authWindow
+    visible: polkitAgent.isActive
+    anchors.top: true
+    anchors.bottom: true
+    anchors.left: true
+    anchors.right: true
+    color: "#99031b43"
+    exclusionMode: ExclusionMode.Ignore
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+
+    function submitPassword() {
+      if (!polkitAgent.flow || !polkitAgent.flow.isResponseRequired) return
+      polkitAgent.flow.submit(passwordInput.text)
+      passwordInput.text = ""
+      passwordInput.forceActiveFocus()
+    }
+
+    onVisibleChanged: {
+      passwordInput.text = ""
+      if (visible) passwordInput.forceActiveFocus()
+    }
+
+    Rectangle {
+      anchors.centerIn: parent
+      width: 420
+      height: 300
+      radius: 14
+      color: "#063b8e"
+      border.width: 2
+      border.color: "#88aee8"
+
+      Column {
+        anchors.fill: parent
+        anchors.margins: 30
+        spacing: 14
+
+        Text {
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: "󰌾"
+          color: "#f4f7ff"
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 30
+        }
+
+        Text {
+          width: parent.width
+          horizontalAlignment: Text.AlignHCenter
+          text: "Authentication required"
+          color: "#f4f7ff"
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 17
+          font.bold: true
+        }
+
+        Text {
+          width: parent.width
+          horizontalAlignment: Text.AlignHCenter
+          text: polkitAgent.flow?.message || "Enter your password to continue"
+          color: "#d8e8ff"
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 11
+          wrapMode: Text.Wrap
+          maximumLineCount: 2
+          elide: Text.ElideRight
+        }
+
+        Rectangle {
+          width: parent.width
+          height: 48
+          radius: 10
+          color: "#0a438f"
+          border.width: passwordInput.activeFocus ? 2 : 1
+          border.color: polkitAgent.flow?.failed ? "#ffb4ab" : "#88aee8"
+
+          TextInput {
+            id: passwordInput
+            anchors.fill: parent
+            anchors.leftMargin: 16
+            anchors.rightMargin: 16
+            verticalAlignment: TextInput.AlignVCenter
+            color: "#f4f7ff"
+            selectionColor: "#9fc5ff"
+            selectedTextColor: "#062d70"
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 14
+            echoMode: polkitAgent.flow?.responseVisible ? TextInput.Normal : TextInput.Password
+            enabled: !!polkitAgent.flow?.isResponseRequired
+            focus: authWindow.visible
+            onAccepted: authWindow.submitPassword()
+
+            Keys.onEscapePressed: {
+              if (polkitAgent.flow) polkitAgent.flow.cancelAuthenticationRequest()
+            }
+          }
+
+          Text {
+            anchors.left: parent.left
+            anchors.leftMargin: 16
+            anchors.verticalCenter: parent.verticalCenter
+            visible: passwordInput.text.length === 0 && !passwordInput.activeFocus
+            text: polkitAgent.flow?.inputPrompt || "Password"
+            color: "#88aee8"
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 13
+          }
+        }
+
+        Text {
+          width: parent.width
+          height: 16
+          horizontalAlignment: Text.AlignHCenter
+          text: polkitAgent.flow?.failed ? "Authentication failed" : (polkitAgent.flow?.supplementaryMessage || "")
+          color: polkitAgent.flow?.failed || polkitAgent.flow?.supplementaryIsError ? "#ffb4ab" : "#d8e8ff"
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 10
+          elide: Text.ElideRight
+        }
+
+        Row {
+          anchors.horizontalCenter: parent.horizontalCenter
+          spacing: 10
+
+          Rectangle {
+            width: 110
+            height: 38
+            radius: 9
+            color: cancelMouse.containsMouse ? "#0a438f" : "transparent"
+            border.width: 1
+            border.color: "#88aee8"
+
+            Text {
+              anchors.centerIn: parent
+              text: "Cancel"
+              color: "#f4f7ff"
+              font.family: "JetBrainsMono Nerd Font"
+              font.pixelSize: 12
+            }
+            MouseArea {
+              id: cancelMouse
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: if (polkitAgent.flow) polkitAgent.flow.cancelAuthenticationRequest()
+            }
+          }
+
+          Rectangle {
+            width: 110
+            height: 38
+            radius: 9
+            color: submitMouse.containsMouse ? "#9fc5ff" : "#d8e8ff"
+
+            Text {
+              anchors.centerIn: parent
+              text: "Continue"
+              color: "#062d70"
+              font.family: "JetBrainsMono Nerd Font"
+              font.pixelSize: 12
+              font.bold: true
+            }
+            MouseArea {
+              id: submitMouse
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: authWindow.submitPassword()
+            }
+          }
+        }
+      }
+    }
+
+    Connections {
+      target: polkitAgent.flow
+      function onIsResponseRequiredChanged() {
+        passwordInput.text = ""
+        if (polkitAgent.flow?.isResponseRequired) passwordInput.forceActiveFocus()
+      }
+    }
+  }
+
   Variants {
     model: Quickshell.screens
 
