@@ -548,7 +548,7 @@ ShellRoot {
                 label: "Lock"
                 onActivated: {
                   bar.panelOpen = false
-                  Quickshell.execDetached(["swaylock", "-f", "-c", "272727"])
+                  Quickshell.execDetached(["hyprlock"])
                 }
               }
               PanelRow {

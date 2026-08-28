@@ -129,6 +129,7 @@ in
   };
   xdg.configFile."chromium/extensions/alt-click-new-tab".source = link "omarchy/chromium/extensions/alt-click-new-tab";
   xdg.configFile."hypr/hyprland.conf".source = link "nixos/config/hypr/sharchy.conf";
+  xdg.configFile."hypr/hyprlock.conf".source = link "nixos/config/hyprlock/config";
   xdg.configFile."mako/config".source = link "nixos/config/mako/config";
   xdg.configFile."quickshell/sharchy/shell.qml".source = link "nixos/config/quickshell/sharchy/shell.qml";
 }

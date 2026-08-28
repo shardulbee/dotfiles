@@ -1,0 +1,45 @@
+general {
+  hide_cursor = true
+}
+
+animations {
+  enabled = false
+}
+
+background {
+  monitor =
+  color = rgb(063b8e)
+}
+
+label {
+  monitor =
+  text = 󰌾
+  color = rgb(f4f7ff)
+  font_family = JetBrainsMono Nerd Font
+  font_size = 34
+  position = 0, 54
+  halign = center
+  valign = center
+}
+
+input-field {
+  monitor =
+  size = 300, 52
+  outline_thickness = 2
+  outer_color = rgb(88aee8)
+  inner_color = rgb(0a438f)
+  check_color = rgb(9fc5ff)
+  fail_color = rgb(ffb4ab)
+  font_color = rgb(f4f7ff)
+  font_family = JetBrainsMono Nerd Font
+  fade_on_empty = false
+  placeholder_text =
+  fail_text = $PAMFAIL
+  dots_size = 0.22
+  dots_spacing = 0.24
+  dots_center = true
+  rounding = 12
+  position = 0, -14
+  halign = center
+  valign = center
+}

@@ -80,7 +80,7 @@
   programs.dconf.enable = true;
   programs.nix-ld.enable = true;
   security.polkit.enable = true;
-  security.pam.services.swaylock = { };
+  security.pam.services.hyprlock = { };
   security.pam.services.greetd.enableGnomeKeyring = true;
   services.dbus.enable = true;
   services.gnome.gnome-keyring.enable = true;
@@ -103,6 +103,7 @@
     fuzzel
     ghostty
     grim
+    hyprlock
     glib
     jq
     libnotify
@@ -114,7 +115,6 @@
     slurp
     swaybg
     swayidle
-    swaylock
     wl-clipboard
   ];
 }
