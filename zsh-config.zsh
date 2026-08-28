@@ -2,7 +2,8 @@
 
 # PATH, highest priority first.
 typeset -U path PATH
-path=("$HOME/.local/share/mise/shims" "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin $path)
+path=("$HOME/.npm-global/bin" "$HOME/.local/share/mise/shims" "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin $path)
+export NPM_CONFIG_PREFIX="$HOME/.npm-global"
 
 # Do not keep a second, plaintext shell history. Atuin is the only history.
 HISTFILE=/dev/null
@@ -50,7 +51,9 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
 # Fish-like autosuggestions, with Atuin as the sole suggestion provider.
-for plugin in /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+for plugin in "$HOME/.nix-profile/share/zsh-autosuggestions/zsh-autosuggestions.zsh" \
+              "/etc/profiles/per-user/$USER/share/zsh-autosuggestions/zsh-autosuggestions.zsh" \
+              /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
               /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
               /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh; do
   if [[ -r $plugin ]]; then
@@ -112,6 +115,10 @@ if (( $+commands[atuin] )); then
   bindkey '^[OA' _atuin_history_up
   bindkey '^[[B' _atuin_history_down
   bindkey '^[OB' _atuin_history_down
+fi
+
+if (( $+commands[direnv] )); then
+  eval "$(direnv hook zsh)"
 fi
 
 if (( $+commands[zoxide] )); then

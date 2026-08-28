@@ -11,9 +11,13 @@
       url = "github:krisztianfekete/clipway";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    helium = {
+      url = "github:oxcl/nix-flake-helium-browser";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { nixpkgs, home-manager, clipway, ... }:
+  outputs = { nixpkgs, home-manager, clipway, helium, ... }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -23,9 +27,11 @@
         modules = [
           ./nixos/hosts/sharchy/configuration.nix
           home-manager.nixosModules.home-manager
+          helium.nixosModules.default
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "hm-backup";
             home-manager.users.shardul = import ./nixos/home/shardul.nix;
           }
         ];

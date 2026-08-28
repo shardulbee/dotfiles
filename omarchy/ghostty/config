@@ -1,5 +1,4 @@
 theme = dark:Alabaster Dark,light:Alabaster Light
-command = /usr/bin/zsh
 
 # Font
 font-family = "JetBrainsMono Nerd Font"

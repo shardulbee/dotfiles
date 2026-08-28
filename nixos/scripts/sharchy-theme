@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+state="$HOME/.local/state/sharchy-theme"
+mkdir -p "$(dirname "$state")"
+mode="${1:-toggle}"
+if [ "$mode" = toggle ]; then
+  current="$(cat "$state" 2>/dev/null || echo light)"
+  if [ "$current" = light ]; then mode=dark; else mode=light; fi
+fi
+case "$mode" in
+  light)
+    echo light > "$state"
+    gsettings set org.gnome.desktop.interface color-scheme prefer-light
+    ;;
+  dark)
+    echo dark > "$state"
+    gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+    ;;
+  *) exit 2 ;;
+esac
+notify-send "Alabaster $mode"

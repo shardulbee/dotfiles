@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+app_id="$(niri msg --json focused-window 2>/dev/null | jq -r '.app_id // ""' || true)"
+app_id="${app_id,,}"
+is_terminal=false
+is_browser=false
+case "$app_id" in
+  *ghostty*) is_terminal=true ;;
+  *chrom*|*helium*|*firefox*) is_browser=true ;;
+esac
+
+send_key() {
+  local mods="$1" key="$2" mod
+  local -a args=()
+  for mod in $mods; do args+=(-M "$mod"); done
+  args+=(-k "$key")
+  for mod in $mods; do args+=(-m "$mod"); done
+  wtype "${args[@]}"
+}
+
+case "${1:-}" in
+  copy)
+    if $is_terminal; then send_key ctrl Insert; else send_key ctrl c; fi
+    ;;
+  paste)
+    if $is_terminal; then send_key shift Insert; else send_key ctrl v; fi
+    ;;
+  select-all)
+    if $is_terminal; then send_key "ctrl shift" a; else send_key ctrl a; fi
+    ;;
+  cut)
+    $is_terminal || send_key ctrl x
+    ;;
+  undo)
+    $is_terminal || send_key ctrl z
+    ;;
+  redo)
+    $is_terminal || send_key "ctrl shift" z
+    ;;
+  prev-word) send_key ctrl Left ;;
+  next-word) send_key ctrl Right ;;
+  select-prev-word) send_key "ctrl shift" Left ;;
+  select-next-word) send_key "ctrl shift" Right ;;
+  delete-prev-word)
+    if $is_terminal; then send_key ctrl w; else send_key ctrl BackSpace; fi
+    ;;
+  delete-to-line-start)
+    if $is_terminal; then
+      send_key ctrl u
+    else
+      send_key shift Home
+      sleep 0.05
+      send_key "" BackSpace
+    fi
+    ;;
+  browser)
+    if $is_browser; then
+      send_key "$2" "$3"
+    else
+      send_key "$4" "$5"
+    fi
+    ;;
+  close)
+    if $is_browser; then
+      send_key ctrl w
+    elif $is_terminal; then
+      send_key alt w
+    else
+      niri msg action close-window
+    fi
+    ;;
+  *)
+    echo "usage: sharchy-key <action>" >&2
+    exit 2
+    ;;
+esac

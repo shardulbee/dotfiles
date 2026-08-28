@@ -10,8 +10,12 @@
   time.timeZone = "America/Montreal";
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nixpkgs.config.allowUnfree = true;
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  # Xe reports failed PSR2 selective-fetch calculations on this panel; disable
+  # that optimization while keeping the rest of panel self-refresh enabled.
+  boot.kernelParams = [ "xe.enable_psr2_sel_fetch=0" ];
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
@@ -31,6 +35,18 @@
   };
 
   programs.zsh.enable = true;
+  programs._1password.enable = true;
+  programs._1password-gui = {
+    enable = true;
+    polkitPolicyOwners = [ "shardul" ];
+  };
+  programs.helium = {
+    enable = true;
+    policies.PasswordManagerEnabled = false;
+  };
+  environment.etc."1password/custom_allowed_browsers".text = "helium\n";
+  environment.localBinInPath = true;
+
   services.openssh = {
     enable = true;
     settings.PasswordAuthentication = false;
@@ -41,7 +57,6 @@
   services.fstrim.enable = true;
   services.fwupd.enable = true;
   services.power-profiles-daemon.enable = true;
-  services.thermald.enable = true;
   zramSwap.enable = true;
 
   fonts.packages = with pkgs; [
@@ -54,7 +69,6 @@
     cryptsetup
     curl
     git
-    mise
     pciutils
     ripgrep
     usbutils

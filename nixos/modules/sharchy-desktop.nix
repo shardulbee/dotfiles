@@ -38,12 +38,11 @@
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme
     brightnessctl
-    (chromium.override {
-      commandLineArgs = "--ozone-platform=wayland --ozone-platform-hint=wayland --password-store=basic --enable-features=TouchpadOverscrollHistoryNavigation --load-extension=/home/shardul/.config/chromium/extensions/alt-click-new-tab";
-    })
     fuzzel
     ghostty
+    glib
     jq
+    libnotify
     lxqt.lxqt-policykit
     mako
     swaybg

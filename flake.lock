@@ -20,6 +20,26 @@
         "type": "github"
       }
     },
+    "helium": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787647203,
+        "narHash": "sha256-iX/kNLJvk4UGaZzh7jl6qXHc6FcEEx5lIftYXSZGf/Q=",
+        "owner": "oxcl",
+        "repo": "nix-flake-helium-browser",
+        "rev": "075ddbf8d88df883becff7915feb3ed25e1f5d04",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxcl",
+        "repo": "nix-flake-helium-browser",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -59,6 +79,7 @@
     "root": {
       "inputs": {
         "clipway": "clipway",
+        "helium": "helium",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs"
       }
