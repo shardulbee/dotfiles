@@ -52,6 +52,7 @@
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme
     brightnessctl
+    chromium
     fuzzel
     ghostty
     glib
