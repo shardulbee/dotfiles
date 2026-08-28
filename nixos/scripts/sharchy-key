@@ -20,7 +20,9 @@ esac
 send_key() {
   local mods="$1" key="$2" mod
   if [ "$compositor" = hyprland ]; then
-    hyprctl dispatch sendshortcut "$mods, $key, activewindow" >/dev/null
+    hyprctl dispatch sendkeystate "$mods, $key, down, activewindow" >/dev/null
+    sleep 0.05
+    hyprctl dispatch sendkeystate "$mods, $key, up, activewindow" >/dev/null
     return
   fi
   local -a args=()
