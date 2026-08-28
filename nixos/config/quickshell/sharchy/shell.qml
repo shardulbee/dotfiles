@@ -55,7 +55,7 @@ ShellRoot {
         Text {
           anchors.horizontalCenter: parent.horizontalCenter
           text: "󰌾"
-          color: "#739fc8"
+          color: "#cd974b"
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 30
         }
@@ -88,7 +88,7 @@ ShellRoot {
           radius: 8
           color: "#14120b"
           border.width: passwordInput.activeFocus ? 2 : 1
-          border.color: polkitAgent.flow?.failed ? "#d66a64" : (passwordInput.activeFocus ? "#739fc8" : "#2b2923")
+          border.color: polkitAgent.flow?.failed ? "#d66a64" : (passwordInput.activeFocus ? "#cd974b" : "#2b2923")
 
           TextInput {
             id: passwordInput
@@ -166,7 +166,7 @@ ShellRoot {
             width: 110
             height: 38
             radius: 9
-            color: submitMouse.containsMouse ? "#8bb2d5" : "#739fc8"
+            color: submitMouse.containsMouse ? "#d5b773" : "#cd974b"
 
             Text {
               anchors.centerIn: parent
