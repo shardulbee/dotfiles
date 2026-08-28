@@ -1,34 +1,28 @@
 # dotfiles
 
-Personal machine setup.
+Personal macOS and NixOS configuration.
+
+## macOS
 
 ```sh
 ./setup
 ```
 
-## Linux / Omarchy
-
-`./setup` installs the captured Omarchy setup on Linux:
-
-- Hyprland input, keybindings, and look/feel overrides
-- Linux Ghostty config and Alabaster themes
-- Chromium Alt-click extension and flags
-- Alabaster Omarchy light/dark themes
-- user systemd timer for 7am/7pm light/dark switching
-
-The large textured wallpapers are not checked in. They are regenerated from
-`omarchy/bin/generate-alabaster-backgrounds` when ImageMagick's `magick` is
-available.
+The setup script links shared command-line configuration, installs the tools in
+`mise-config.toml`, and applies the macOS application configuration.
 
 ## NixOS
 
-Starter flake:
+The flake provides two independent systems:
+
+- `sharchy`: Dell workstation with Hyprland and Helium
+- `sharchy-vm`: ARM64 VMware guest with Niri and Chromium
 
 ```sh
 nix flake check
 sudo nixos-rebuild switch --flake .#sharchy
 ```
 
-Before installing NixOS, replace
-`nixos/hosts/sharchy/hardware-configuration.nix` with the output of
-`nixos-generate-config` on the target machine.
+Host-specific hardware configuration lives under `nixos/hosts/`. Shared desktop
+configuration, browser assets, and Ghostty configuration live under
+`nixos/config/`.

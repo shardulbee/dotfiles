@@ -114,7 +114,7 @@ in
   xdg.configFile."jjui/config.lua".source = link "jjui-config.lua";
   xdg.configFile."nvim/init.lua".source = link "nvim-init.lua";
   xdg.configFile."nvim/colors/alabaster.lua".source = link "nvim-colors-alabaster.lua";
-  xdg.configFile."ghostty/config".source = link "omarchy/ghostty/config";
+  xdg.configFile."ghostty/config".source = link "nixos/config/ghostty/config";
   xdg.configFile."ghostty/themes/Alabaster Light".source = link "ghostty-themes-alabaster-light";
   xdg.configFile."ghostty/themes/Alabaster Dark".source = link "ghostty-themes-alabaster-dark";
   xdg.configFile."helium-browser-flags.conf".source = link "nixos/config/helium-browser-flags.conf";
@@ -127,7 +127,7 @@ in
     categories = [ "Network" "WebBrowser" ];
     mimeType = [ "text/html" "x-scheme-handler/http" "x-scheme-handler/https" ];
   };
-  xdg.configFile."chromium/extensions/alt-click-new-tab".source = link "omarchy/chromium/extensions/alt-click-new-tab";
+  xdg.configFile."chromium/extensions/alt-click-new-tab".source = link "nixos/config/browser/extensions/alt-click-new-tab";
   xdg.configFile."hypr/hyprland.conf".source = link "nixos/config/hypr/sharchy.conf";
   xdg.configFile."hypr/hyprlock.conf".source = link "nixos/config/hyprlock/config";
   xdg.configFile."mako/config".source = link "nixos/config/mako/config";

@@ -135,7 +135,7 @@ in
   xdg.configFile."ghostty/config".text = builtins.replaceStrings
     [ "command = /usr/bin/zsh\n" ]
     [ "" ]
-    (builtins.readFile ../../omarchy/ghostty/config);
+    (builtins.readFile ../config/ghostty/config);
   xdg.configFile."ghostty/themes/Alabaster Light".source = ../../ghostty-themes-alabaster-light;
   xdg.configFile."ghostty/themes/Alabaster Dark".source = ../../ghostty-themes-alabaster-dark;
 
@@ -146,7 +146,7 @@ in
     --enable-features=TouchpadOverscrollHistoryNavigation
     --load-extension=${home}/.config/chromium/extensions/alt-click-new-tab
   '';
-  xdg.configFile."chromium/extensions/alt-click-new-tab".source = ../../omarchy/chromium/extensions/alt-click-new-tab;
+  xdg.configFile."chromium/extensions/alt-click-new-tab".source = ../config/browser/extensions/alt-click-new-tab;
 
   # Niri starts XDG autostart entries. The patched clipway service replaces
   # open-vm-tools' stock X11-oriented desktop daemon.

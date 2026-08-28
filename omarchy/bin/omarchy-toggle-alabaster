@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-current=$(omarchy theme current 2>/dev/null | tr '[:upper:] ' '[:lower:]-' || true)
-if [[ $current == "alabaster-light" ]]; then
-  omarchy theme set alabaster
-else
-  omarchy theme set alabaster-light
-fi
