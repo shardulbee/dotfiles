@@ -117,7 +117,5 @@
     swaylock
     wl-clipboard
     wlogout
-    wtype
-    xwayland-satellite
   ];
 }
