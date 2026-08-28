@@ -9,7 +9,6 @@
     ];
   };
 
-  programs.niri.enable = true;
   programs.hyprland = {
     enable = true;
     withUWSM = true;
@@ -27,12 +26,35 @@
       session.default = "Hyprland (uwsm-managed)";
       user.default = "shardul";
       appearance = {
-        scheme = "Noctalia";
+        scheme = "Synced";
         password_style = "default";
         hide_logo = true;
         theme_mode = "dark";
-        corner_radius_scale = 1.0;
+        corner_radius_scale = 0.5;
         font_family = "JetBrainsMono Nerd Font";
+        palette = {
+          primary = "#d8e8ff";
+          on_primary = "#062d70";
+          secondary = "#9fc5ff";
+          on_secondary = "#062d70";
+          tertiary = "#b8d6ff";
+          on_tertiary = "#062d70";
+          error = "#ffb4ab";
+          on_error = "#690005";
+          surface = "#063b8e";
+          on_surface = "#f4f7ff";
+          surface_variant = "#0a438f";
+          on_surface_variant = "#d8e8ff";
+          outline = "#88aee8";
+          shadow = "#031b43";
+          hover = "#d8e8ff";
+          on_hover = "#062d70";
+        };
+        wallpaper = {
+          path = "color:#063b8e";
+          fill_mode = "stretch";
+          fill_color = "#063b8e";
+        };
       };
       output = {
         name = "eDP-1";
@@ -57,17 +79,13 @@
 
   programs.dconf.enable = true;
   programs.nix-ld.enable = true;
-  programs.noctalia = {
-    enable = true;
-    systemd.enable = true;
-    recommendedServices.enable = true;
-  };
   security.polkit.enable = true;
   security.pam.services.swaylock = { };
   security.pam.services.greetd.enableGnomeKeyring = true;
   services.dbus.enable = true;
   services.gnome.gnome-keyring.enable = true;
   services.upower.enable = true;
+  services.blueman.enable = true;
 
   security.rtkit.enable = true;
   services.pipewire = {
@@ -80,17 +98,25 @@
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme
     brightnessctl
+    blueman
     chromium
     fuzzel
     ghostty
+    grim
     glib
     jq
     libnotify
     lxqt.lxqt-policykit
+    mako
+    networkmanagerapplet
+    pavucontrol
+    quickshell
+    slurp
     swaybg
     swayidle
     swaylock
     wl-clipboard
+    wlogout
     wtype
     xwayland-satellite
   ];

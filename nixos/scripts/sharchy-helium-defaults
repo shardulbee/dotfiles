@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+shopt -s nullglob
+for preferences in "$HOME"/.config/net.imput.helium/*/Preferences; do
+  tmp="$(mktemp)"
+  if jq '
+    .helium.services.enabled = true |
+    .helium.services.user_consented = true |
+    .helium.services.ext_proxy = true
+  ' "$preferences" >"$tmp"; then
+    chmod --reference="$preferences" "$tmp"
+    mv "$tmp" "$preferences"
+  else
+    rm -f "$tmp"
+  fi
+done

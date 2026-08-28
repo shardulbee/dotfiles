@@ -45,9 +45,50 @@ in
   home.sessionPath = [ "$HOME/.npm-global/bin" "$HOME/.local/bin" ];
 
   home.file.".zshrc".source = link "zsh-config.zsh";
-  home.file.".local/bin/sharchy-key".source = link "nixos/scripts/sharchy-key";
+  home.file.".local/bin/sharchy-helium-defaults".source = link "nixos/scripts/sharchy-helium-defaults";
+  home.file.".local/bin/sharchy-screenshot".source = link "nixos/scripts/sharchy-screenshot";
   home.file.".local/bin/sharchy-theme".source = link "nixos/scripts/sharchy-theme";
   home.file.".local/bin/sharchy-keybindings".source = link "nixos/scripts/sharchy-keybindings";
+
+  systemd.user.services.sharchy-bar = {
+    Unit = {
+      Description = "Minimal Sharchy desktop bar";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.quickshell}/bin/quickshell -p /home/shardul/.config/quickshell/sharchy";
+      Restart = "on-failure";
+      RestartSec = 1;
+      Environment = "QS_NO_RELOAD_POPUP=1";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  systemd.user.services.mako = {
+    Unit = {
+      Description = "Mako notification daemon";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.mako}/bin/mako";
+      Restart = "on-failure";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  systemd.user.services.sharchy-helium-defaults = {
+    Unit = {
+      Description = "Enable Helium extension downloads";
+      Before = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "/home/shardul/.local/bin/sharchy-helium-defaults";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
 
   systemd.user.services.sharchy-theme-scheduled = {
     Unit.Description = "Apply the scheduled Sharchy theme";
@@ -76,7 +117,7 @@ in
   xdg.configFile."ghostty/themes/Alabaster Dark".source = link "ghostty-themes-alabaster-dark";
   xdg.configFile."helium-browser-flags.conf".source = link "nixos/config/helium-browser-flags.conf";
   xdg.configFile."chromium/extensions/alt-click-new-tab".source = link "omarchy/chromium/extensions/alt-click-new-tab";
-  xdg.configFile."niri/config.kdl".source = link "nixos/config/niri/sharchy.kdl";
-  xdg.configFile."noctalia/config.toml".source = link "nixos/config/noctalia/config.toml";
   xdg.configFile."hypr/hyprland.conf".source = link "nixos/config/hypr/sharchy.conf";
+  xdg.configFile."mako/config".source = link "nixos/config/mako/config";
+  xdg.configFile."quickshell/sharchy/shell.qml".source = link "nixos/config/quickshell/sharchy/shell.qml";
 }

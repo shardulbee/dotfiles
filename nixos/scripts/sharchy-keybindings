@@ -5,7 +5,6 @@ Super + Return                Terminal
 Super + Shift + B             Helium browser
 Super + P                     1Password Quick Access
 Super + Alt + K               This shortcut reference
-Super + Shift + /             Niri hotkey overlay
 Super + Escape                Lock screen
 Super + H/J/K/L               Focus left/down/up/right
 Super + Shift + H/J/K/L       Move window left/down/up/right
@@ -18,11 +17,7 @@ Super + F                     Maximize column
 Super + Shift + F             Fullscreen window
 Alt + Tab                     Previous workspace
 Alt + Q                       Close window
-Alt + C/V/A                   Copy/paste/select all
-Super + X/Z/Shift+Z           Cut/undo/redo
-Super + Left/Right            Move by word
-Alt/Super + Backspace         Delete previous word
-Alt + L/T/W/R/F               Browser address/tab/close/reload/find
+Ctrl shortcuts                Native application editing/browser actions
 Super + Ctrl + T              Toggle light/dark theme
 Alt + Shift + 3/4             Screenshot region/fullscreen
 Print / Ctrl+Print/Alt+Print  Screenshot region/screen/window

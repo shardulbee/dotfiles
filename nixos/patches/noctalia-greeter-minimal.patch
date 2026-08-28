@@ -1,0 +1,94 @@
+--- a/src/greeter/greeter_surface.cpp
++++ b/src/greeter/greeter_surface.cpp
+@@ -1064,34 +1064,29 @@
+     }
+   }
+ 
+-  const float panelWidth = std::clamp(sw * 0.32f, Style::scaled(440.0f), Style::scaled(540.0f));
++  const float panelWidth = std::clamp(sw * 0.24f, Style::scaled(280.0f), Style::scaled(360.0f));
+   const float rowHeight = Style::controlHeightLg();
+-  const float rowGap = Style::spaceSm();
+-  const float panelPadding = Style::spaceLg();
++  const float rowGap = 0.0f;
++  const float panelPadding = Style::spaceMd();
+ 
+   const float userCount = static_cast<float>(m_users.size());
+   const float glyphScale = std::clamp(1.0f - (userCount - 2.0f) * 0.08f, 0.75f, 1.0f);
+   const float headerGlyphSize = Style::scaled(kHeaderUserIconBase) * glyphScale;
+ 
+-  if (m_passwordVisible && !m_users.empty() && m_selectedUser < m_users.size()) {
+-    m_formSubtitleLabel->setText(m_users[m_selectedUser]);
+-    m_formSubtitleLabel->setVisible(true);
+-  } else {
+-    m_formSubtitleLabel->setVisible(false);
+-  }
++  m_formSubtitleLabel->setVisible(false);
+   if (m_formSubtitleLabel->visible()) {
+     m_formSubtitleLabel->measure(*renderer);
+   }
+   m_statusLabel->measure(*renderer);
+ 
+-  const float subtitleGap = m_formSubtitleLabel->visible() ? (6.0f + m_formSubtitleLabel->height()) : 0.0f;
+-  const float headerTopPadding = Style::spaceSm();
+-  const float headerGlyphBlock = headerGlyphSize + Style::spaceMd();
+-  const float headerToContentGap = Style::spaceLg();
+-  const float headerBlockHeight = headerTopPadding + headerGlyphBlock + subtitleGap + headerToContentGap;
++  const float subtitleGap = 0.0f;
++  const float headerTopPadding = 0.0f;
++  const float headerGlyphBlock = 0.0f;
++  const float headerToContentGap = 0.0f;
++  const float headerBlockHeight = 0.0f;
+ 
+-  const float sessionRowH = rowHeight;
+-  const float sessionRowGap = rowGap;
++  const float sessionRowH = 0.0f;
++  const float sessionRowGap = 0.0f;
+ 
+   const float userBlockHeight = showsUserDropdown() ? rowHeight : 0.0f;
+   const float userPickerContentHeight = userBlockHeight + sessionRowGap + sessionRowH;
+@@ -1173,6 +1168,8 @@
+   }
+ 
+   syncHeaderUserAvatar(*renderer, headerGlyphSize, panelX, panelWidth, headerY);
++  if (m_headerUserGlyph != nullptr) m_headerUserGlyph->setVisible(false);
++  if (m_headerUserAvatar != nullptr) m_headerUserAvatar->setVisible(false);
+   headerY += headerGlyphBlock;
+ 
+   if (m_formSubtitleLabel->visible()) {
+@@ -1190,8 +1187,8 @@
+   m_loginPanel->setSize(panelWidth, panelHeight);
+   m_loginPanel->setStyle(
+       RoundedRectStyle{
+-          .fill = colorForRole(ColorRole::SurfaceVariant),
+-          .border = colorForRole(ColorRole::Outline),
++          .fill = colorForRole(ColorRole::SurfaceVariant, 0.0f),
++          .border = colorForRole(ColorRole::Outline, 0.0f),
+           .fillMode = FillMode::Solid,
+           .radius = Style::scaledRadiusXl(),
+           .softness = 1.0f,
+@@ -1216,6 +1213,13 @@
+   }
+ 
+   layoutPowerButtons(ox, oy, sw, sh);
++  if (m_shutdownButton != nullptr) m_shutdownButton->setVisible(false);
++  if (m_rebootButton != nullptr) m_rebootButton->setVisible(false);
++  if (m_firmwareButton != nullptr) m_firmwareButton->setVisible(false);
++  m_schemeSelectBox->setVisible(false);
++  m_schemeSelectIcon->setVisible(false);
++  m_schemeSelectGlyph->setVisible(false);
++  m_schemeSelectArea->setVisible(false);
+ 
+   if (!m_passwordVisible && showsUserDropdown()) {
+     layoutPanelUserSelector(contentLeft, contentTop, contentWidth, rowHeight);
+@@ -1280,6 +1284,11 @@
+   const float sessionY = m_passwordVisible ? (contentTop + Style::controlHeight() + sessionRowGap)
+                                            : (contentTop + userBlockHeight + sessionRowGap);
+   layoutPanelSessionSelector(contentLeft, sessionY, contentWidth, sessionRowH);
++  m_sessionSelectBox->setVisible(false);
++  m_sessionSelectIcon->setVisible(false);
++  m_sessionSelectLabel->setVisible(false);
++  m_sessionSelectGlyph->setVisible(false);
++  m_sessionSelectArea->setVisible(false);
+ 
+   if (hasStatus) {
+     const float statusY = contentTop + contentBlockHeight + statusGap;

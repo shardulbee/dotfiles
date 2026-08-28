@@ -46,10 +46,17 @@
     policies = {
       PasswordManagerEnabled = false;
       BrowserColorScheme = "device";
-      ExtensionInstallForcelist = [
-        "dbepggeogbaibhgnhhndojpepiihcmeb;https://clients2.google.com/service/update2/crx"
-        "aeblfdkhhhdcdjpifhhbdiojplfjncoa;https://clients2.google.com/service/update2/crx"
-      ];
+      ExtensionSettings = {
+        "*".installation_mode = "allowed";
+        "dbepggeogbaibhgnhhndojpepiihcmeb" = {
+          installation_mode = "force_installed";
+          update_url = "https://clients2.google.com/service/update2/crx";
+        };
+        "aeblfdkhhhdcdjpifhhbdiojplfjncoa" = {
+          installation_mode = "force_installed";
+          update_url = "https://clients2.google.com/service/update2/crx";
+        };
+      };
     };
   };
   environment.etc."1password/custom_allowed_browsers".text = "helium\n";

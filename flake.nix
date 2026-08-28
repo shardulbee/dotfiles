@@ -15,17 +15,13 @@
       url = "github:oxcl/nix-flake-helium-browser";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    noctalia = {
-      url = "github:noctalia-dev/noctalia";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     noctalia-greeter = {
       url = "github:noctalia-dev/noctalia-greeter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { nixpkgs, home-manager, clipway, helium, noctalia, noctalia-greeter, ... }:
+  outputs = { nixpkgs, home-manager, clipway, helium, noctalia-greeter, ... }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -36,9 +32,12 @@
           ./nixos/hosts/sharchy/configuration.nix
           home-manager.nixosModules.home-manager
           helium.nixosModules.default
-          noctalia.nixosModules.default
           noctalia-greeter.nixosModules.default
           {
+            programs.noctalia-greeter.package =
+              noctalia-greeter.packages.${system}.default.overrideAttrs (old: {
+                patches = (old.patches or [ ]) ++ [ ./nixos/patches/noctalia-greeter-minimal.patch ];
+              });
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "hm-backup";
