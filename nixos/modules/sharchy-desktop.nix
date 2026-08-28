@@ -79,6 +79,14 @@
 
   programs.dconf.enable = true;
   programs.nix-ld.enable = true;
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-hyprland
+    ];
+    config.common.default = [ "hyprland" "gtk" ];
+  };
   security.polkit.enable = true;
   security.pam.services.hyprlock = { };
   security.pam.services.greetd.enableGnomeKeyring = true;

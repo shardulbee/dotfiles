@@ -3,6 +3,10 @@
 let
   dotfiles = "${config.home.homeDirectory}/Documents/dotfiles";
   link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
+  grok-bot = pkgs.callPackage ../packages/grok-bot.nix { };
+  zed = pkgs.writeShellScriptBin "zed" ''
+    exec ${pkgs.zed-editor}/bin/zeditor "$@"
+  '';
 in
 {
   home.username = "shardul";
@@ -22,6 +26,7 @@ in
     fzf
     gh
     go_1_27
+    grok-bot
     hyperfine
     jjui
     jq
@@ -37,6 +42,8 @@ in
     uv
     yazi
     yt-dlp
+    zed
+    zed-editor
     zoxide
     zsh-autosuggestions
   ];
@@ -114,6 +121,10 @@ in
   xdg.configFile."jjui/config.lua".source = link "jjui-config.lua";
   xdg.configFile."nvim/init.lua".source = link "nvim-init.lua";
   xdg.configFile."nvim/colors/alabaster.lua".source = link "nvim-colors-alabaster.lua";
+  xdg.configFile."zed/settings.json".source = link "zed-settings.json";
+  xdg.configFile."zed/keymap.json".source = link "zed-keymap.json";
+  xdg.configFile."zed/tasks.json".source = link "zed-tasks.json";
+  xdg.configFile."zed/themes/soft.json".source = link "zed-theme-soft.json";
   xdg.configFile."ghostty/config".source = link "nixos/config/ghostty/config";
   xdg.configFile."ghostty/themes/Alabaster Light".source = link "ghostty-themes-alabaster-light";
   xdg.configFile."ghostty/themes/Alabaster Dark".source = link "ghostty-themes-alabaster-dark";
