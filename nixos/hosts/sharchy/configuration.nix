@@ -50,11 +50,11 @@
         "*".installation_mode = "allowed";
         "dbepggeogbaibhgnhhndojpepiihcmeb" = {
           installation_mode = "force_installed";
-          update_url = "https://clients2.google.com/service/update2/crx";
+          update_url = "https://services.helium.imput.net/ext";
         };
         "aeblfdkhhhdcdjpifhhbdiojplfjncoa" = {
           installation_mode = "force_installed";
-          update_url = "https://clients2.google.com/service/update2/crx";
+          update_url = "https://services.helium.imput.net/ext";
         };
       };
     };
