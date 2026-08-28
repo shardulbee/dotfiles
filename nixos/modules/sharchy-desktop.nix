@@ -119,7 +119,6 @@
     glib
     jq
     libnotify
-    lxqt.lxqt-policykit
     mako
     networkmanagerapplet
     pavucontrol

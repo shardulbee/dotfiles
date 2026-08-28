@@ -11,7 +11,7 @@ exec ghostty --title="NixOS rebuild" --class=com.sharchy.rebuild -e bash -lc '
   echo "A polkit password prompt should appear."
   echo
 
-  /run/wrappers/bin/pkexec /run/current-system/sw/bin/nixos-rebuild switch --flake /home/shardul/Documents/dotfiles#sharchy
+  /run/wrappers/bin/pkexec --disable-internal-agent /run/current-system/sw/bin/nixos-rebuild switch --flake /home/shardul/Documents/dotfiles#sharchy
   status=$?
 
   echo
