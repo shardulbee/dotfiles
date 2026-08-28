@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+exec ghostty --title="NixOS rebuild" --class=com.sharchy.rebuild -e bash -lc '
+  set -o pipefail
+  cd "$HOME/Documents/dotfiles" || exit 1
+
+  echo "NixOS rebuild: sharchy"
+  echo "$(pwd)"
+  echo
+  echo "A polkit password prompt should appear."
+  echo
+
+  pkexec /run/current-system/sw/bin/nixos-rebuild switch --flake /home/shardul/Documents/dotfiles#sharchy
+  status=$?
+
+  echo
+  if [ "$status" -eq 0 ]; then
+    notify-send "NixOS rebuild" "Switch complete" 2>/dev/null || true
+    echo "Done."
+  else
+    notify-send -u critical "NixOS rebuild" "Switch failed" 2>/dev/null || true
+    echo "Failed with status $status."
+  fi
+  echo
+  read -r -p "Press Enter to close..."
+  exit "$status"
+'
