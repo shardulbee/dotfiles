@@ -75,21 +75,6 @@ ShellRoot {
             }
           }
         }
-
-        Text {
-          text: {
-            const top = Hyprland.activeToplevel
-            if (!top) return ""
-            if (top.wayland && top.wayland.title) return "·  " + top.wayland.title
-            if (top.lastIpcObject && top.lastIpcObject.title) return "·  " + top.lastIpcObject.title
-            return ""
-          }
-          color: "#999999"
-          font.family: "JetBrainsMono Nerd Font"
-          font.pixelSize: 11
-          elide: Text.ElideRight
-          Layout.maximumWidth: 360
-        }
       }
 
       Text {
