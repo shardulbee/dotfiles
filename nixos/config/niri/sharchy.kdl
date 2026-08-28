@@ -83,7 +83,7 @@ binds {
   Super+Right { spawn "/home/shardul/.local/bin/sharchy-key" "next-word"; }
   Super+Shift+Left { spawn "/home/shardul/.local/bin/sharchy-key" "select-prev-word"; }
   Super+Shift+Right { spawn "/home/shardul/.local/bin/sharchy-key" "select-next-word"; }
-  Super+BackSpace { spawn "/home/shardul/.local/bin/sharchy-key" "delete-to-line-start"; }
+  Super+BackSpace { spawn "/home/shardul/.local/bin/sharchy-key" "delete-prev-word"; }
   Alt+BackSpace { spawn "/home/shardul/.local/bin/sharchy-key" "delete-prev-word"; }
 
   Alt+L repeat=false { spawn "/home/shardul/.local/bin/sharchy-key" "browser" "ctrl" "l" "alt" "l"; }
