@@ -3,6 +3,7 @@ cat <<'EOF' | fuzzel --dmenu --prompt='Keybindings > ' --width=66 --lines=24
 Super + Space                 App launcher
 Super + Return                Terminal
 Super + Shift + B             Helium browser
+Super + P                     1Password Quick Access
 Super + Alt + K               This shortcut reference
 Super + Shift + /             Niri hotkey overlay
 Super + Escape                Lock screen
@@ -21,7 +22,7 @@ Alt + C/V/A                   Copy/paste/select all
 Super + X/Z/Shift+Z           Cut/undo/redo
 Super + Left/Right            Move by word
 Alt + L/T/W/R/F               Browser address/tab/close/reload/find
-Alt + Ctrl + T                Toggle light/dark theme
+Super + Ctrl + T              Toggle light/dark theme
 Print / Ctrl+Print/Alt+Print  Screenshot region/screen/window
 Brightness and volume keys    Adjust display/audio
 EOF

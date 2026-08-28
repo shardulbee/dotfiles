@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-app_id="$(niri msg --json focused-window 2>/dev/null | jq -r '.app_id // ""' || true)"
+if app_id="$(niri msg --json focused-window 2>/dev/null | jq -er '.app_id // ""' 2>/dev/null)"; then
+  compositor=niri
+elif app_id="$(hyprctl activewindow -j 2>/dev/null | jq -er '.class // .initialClass // ""' 2>/dev/null)"; then
+  compositor=hyprland
+else
+  app_id=""
+  compositor=unknown
+fi
 app_id="${app_id,,}"
 is_terminal=false
 is_browser=false
@@ -48,6 +55,8 @@ case "${1:-}" in
   delete-to-line-start)
     if $is_terminal; then
       send_key ctrl u
+    elif $is_browser; then
+      send_key "ctrl shift" BackSpace
     else
       send_key shift Home
       sleep 0.05
@@ -66,8 +75,10 @@ case "${1:-}" in
       send_key ctrl w
     elif $is_terminal; then
       send_key alt w
-    else
+    elif [ "$compositor" = niri ]; then
       niri msg action close-window
+    elif [ "$compositor" = hyprland ]; then
+      hyprctl dispatch killactive
     fi
     ;;
   *)

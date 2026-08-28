@@ -49,6 +49,22 @@ in
   home.file.".local/bin/sharchy-theme".source = link "nixos/scripts/sharchy-theme";
   home.file.".local/bin/sharchy-keybindings".source = link "nixos/scripts/sharchy-keybindings";
 
+  systemd.user.services.sharchy-theme-scheduled = {
+    Unit.Description = "Apply the scheduled Sharchy theme";
+    Service = {
+      Type = "oneshot";
+      ExecStart = "/home/shardul/.local/bin/sharchy-theme scheduled";
+    };
+  };
+  systemd.user.timers.sharchy-theme-scheduled = {
+    Unit.Description = "Switch themes at 07:00 and 19:00";
+    Timer = {
+      OnCalendar = "*-*-* 07,19:00:00";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
   xdg.configFile."git/config".source = link "git-config";
   xdg.configFile."git/ignore".source = link "git-ignore";
   xdg.configFile."jj/config.toml".source = link "jj-config.toml";
@@ -61,7 +77,6 @@ in
   xdg.configFile."helium-browser-flags.conf".source = link "nixos/config/helium-browser-flags.conf";
   xdg.configFile."chromium/extensions/alt-click-new-tab".source = link "omarchy/chromium/extensions/alt-click-new-tab";
   xdg.configFile."niri/config.kdl".source = link "nixos/config/niri/sharchy.kdl";
-  xdg.configFile."waybar/config".source = link "nixos/config/waybar/sharchy.json";
-  xdg.configFile."waybar/style.css".source = link "nixos/config/waybar/style.css";
-  xdg.configFile."mako/config".source = link "nixos/config/mako/config";
+  xdg.configFile."noctalia/config.toml".source = link "nixos/config/noctalia/config.toml";
+  xdg.configFile."hypr/hyprland.conf".source = link "nixos/config/hypr/sharchy.conf";
 }

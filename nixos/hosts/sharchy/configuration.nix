@@ -42,7 +42,13 @@
   };
   programs.helium = {
     enable = true;
-    policies.PasswordManagerEnabled = false;
+    policies = {
+      PasswordManagerEnabled = false;
+      ExtensionInstallForcelist = [
+        "dbepggeogbaibhgnhhndojpepiihcmeb;https://clients2.google.com/service/update2/crx"
+        "aeblfdkhhhdcdjpifhhbdiojplfjncoa;https://clients2.google.com/service/update2/crx"
+      ];
+    };
   };
   environment.etc."1password/custom_allowed_browsers".text = "helium\n";
   environment.localBinInPath = true;

@@ -10,19 +10,33 @@
   };
 
   programs.niri.enable = true;
+  programs.hyprland = {
+    enable = true;
+    withUWSM = true;
+    xwayland.enable = true;
+  };
+  programs.uwsm.enable = true;
   services.greetd = {
     enable = true;
     settings.default_session = {
-      command = "${config.programs.niri.package}/bin/niri-session";
-      user = "shardul";
+      command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --sessions /run/current-system/sw/share/wayland-sessions";
+      user = "greeter";
     };
   };
+  systemd.tmpfiles.rules = [ "d /var/cache/tuigreet 0755 greeter greeter -" ];
 
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   programs.dconf.enable = true;
+  programs.nix-ld.enable = true;
+  programs.noctalia = {
+    enable = true;
+    systemd.enable = true;
+    recommendedServices.enable = true;
+  };
   security.polkit.enable = true;
   security.pam.services.swaylock = { };
+  security.pam.services.greetd.enableGnomeKeyring = true;
   services.dbus.enable = true;
   services.gnome.gnome-keyring.enable = true;
   services.upower.enable = true;
@@ -44,11 +58,9 @@
     jq
     libnotify
     lxqt.lxqt-policykit
-    mako
     swaybg
     swayidle
     swaylock
-    waybar
     wl-clipboard
     wtype
     xwayland-satellite

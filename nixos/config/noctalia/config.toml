@@ -1,0 +1,85 @@
+[shell]
+font_family = "JetBrainsMono Nerd Font"
+settings_show_advanced = true
+telemetry_enabled = false
+polkit_agent = true
+clipboard_enabled = true
+clipboard_keep_from_closed_apps = false
+clipboard_auto_paste = "auto"
+
+[shell.animation]
+enabled = true
+speed = 1.25
+
+[shell.panel]
+transparency_mode = "solid"
+borders = true
+shadow = true
+launcher_placement = "floating"
+launcher_position = "center"
+control_center_placement = "attached"
+session_placement = "attached"
+
+[shell.launcher]
+categories = true
+show_icons = true
+show_app_origin_indicator = true
+sort_by_usage = true
+provider_prefix = "/"
+
+[wallpaper]
+enabled = false
+
+[theme]
+mode = "dark"
+source = "builtin"
+builtin = "Noctalia"
+pure_black_dark = false
+
+[notification]
+enable_daemon = true
+show_app_name = true
+show_actions = true
+position = "top_right"
+background_opacity = 0.97
+
+[lockscreen]
+enabled = true
+blurred_desktop = false
+
+[system.monitor]
+enabled = true
+
+[bar.main]
+position = "top"
+thickness = 34
+background_opacity = 0.96
+radius = 10
+margin_ends = 8
+margin_edge = 8
+padding = 10
+widget_spacing = 5
+shadow = true
+reserve_space = true
+capsule = false
+start = ["launcher", "workspaces"]
+center = ["clock"]
+end = ["media", "tray", "notifications", "clipboard", "network", "bluetooth", "volume", "brightness", "battery", "theme_mode", "control-center", "session"]
+
+[[control_center.shortcuts]]
+type = "wifi"
+
+[[control_center.shortcuts]]
+type = "bluetooth"
+
+[[control_center.shortcuts]]
+type = "notification"
+
+[[control_center.shortcuts]]
+type = "nightlight"
+
+[[control_center.shortcuts]]
+type = "wallpaper"
+
+[[control_center.shortcuts]]
+type = "session"

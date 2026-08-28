@@ -2,7 +2,7 @@
 
 # PATH, highest priority first.
 typeset -U path PATH
-path=("$HOME/.npm-global/bin" "$HOME/.local/share/mise/shims" "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin $path)
+path=("$HOME/.npm-global/bin" "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin $path)
 export NPM_CONFIG_PREFIX="$HOME/.npm-global"
 
 # Do not keep a second, plaintext shell history. Atuin is the only history.

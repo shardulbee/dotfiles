@@ -4,19 +4,21 @@ set -euo pipefail
 state="$HOME/.local/state/sharchy-theme"
 mkdir -p "$(dirname "$state")"
 mode="${1:-toggle}"
-if [ "$mode" = toggle ]; then
+if [ "$mode" = scheduled ]; then
+  hour=$((10#$(date +%H)))
+  if (( hour >= 19 || hour < 7 )); then mode=dark; else mode=light; fi
+elif [ "$mode" = toggle ]; then
   current="$(cat "$state" 2>/dev/null || echo light)"
   if [ "$current" = light ]; then mode=dark; else mode=light; fi
 fi
 case "$mode" in
-  light)
-    echo light > "$state"
-    gsettings set org.gnome.desktop.interface color-scheme prefer-light
-    ;;
-  dark)
-    echo dark > "$state"
-    gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+  light|dark)
+    echo "$mode" > "$state"
+    gsettings set org.gnome.desktop.interface color-scheme "prefer-$mode" || true
+    if command -v noctalia >/dev/null; then
+      noctalia msg theme-mode-set "$mode" >/dev/null || true
+    fi
     ;;
   *) exit 2 ;;
 esac
-notify-send "Alabaster $mode"
+notify-send "Sharchy theme" "$mode mode" || true

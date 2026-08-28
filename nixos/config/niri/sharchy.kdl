@@ -36,9 +36,6 @@ layout {
 
 prefer-no-csd
 spawn-at-startup "swaybg" "-c" "#ebe6da"
-spawn-at-startup "waybar"
-spawn-at-startup "mako"
-spawn-at-startup "lxqt-policykit-agent"
 spawn-at-startup "swayidle" "-w" "timeout" "300" "swaylock -f -c 272727" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "swaylock -f -c 272727"
 
 environment {
@@ -62,12 +59,13 @@ hotkey-overlay {
 
 binds {
   Super+Return repeat=false { spawn "ghostty"; }
-  Super+Space repeat=false { spawn "fuzzel"; }
+  Super+Space repeat=false { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
   Super+Shift+B repeat=false { spawn "helium"; }
+  Super+P repeat=false { spawn "1password" "--quick-access"; }
   Super+Shift+Slash repeat=false { show-hotkey-overlay; }
   Super+Alt+K repeat=false { spawn "/home/shardul/.local/bin/sharchy-keybindings"; }
   Super+O repeat=false { toggle-overview; }
-  Super+Escape repeat=false { spawn "swaylock" "-f" "-c" "272727"; }
+  Super+Escape repeat=false { spawn "sh" "-lc" "noctalia msg session lock || swaylock -f -c 272727"; }
   Alt+Q repeat=false { close-window; }
   Alt+Tab repeat=false { focus-workspace-previous; }
 
@@ -90,7 +88,7 @@ binds {
   Alt+F repeat=false { spawn "/home/shardul/.local/bin/sharchy-key" "browser" "ctrl" "f" "alt" "f"; }
   Alt+T repeat=false { spawn "/home/shardul/.local/bin/sharchy-key" "browser" "ctrl" "t" "alt" "t"; }
   Alt+W repeat=false { spawn "/home/shardul/.local/bin/sharchy-key" "close"; }
-  Alt+Ctrl+T repeat=false { spawn "/home/shardul/.local/bin/sharchy-theme" "toggle"; }
+  Super+Ctrl+T repeat=false { spawn "/home/shardul/.local/bin/sharchy-theme" "toggle"; }
   Alt+Shift+BracketLeft repeat=false { spawn "/home/shardul/.local/bin/sharchy-key" "browser" "ctrl shift" "Tab" "alt shift" "bracketleft"; }
   Alt+Shift+BracketRight repeat=false { spawn "/home/shardul/.local/bin/sharchy-key" "browser" "ctrl" "Tab" "alt shift" "bracketright"; }
   Alt+BracketLeft repeat=false { spawn "/home/shardul/.local/bin/sharchy-key" "browser" "alt" "Left" "alt" "bracketleft"; }

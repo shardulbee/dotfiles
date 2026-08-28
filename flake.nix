@@ -15,9 +15,13 @@
       url = "github:oxcl/nix-flake-helium-browser";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    noctalia = {
+      url = "github:noctalia-dev/noctalia";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { nixpkgs, home-manager, clipway, helium, ... }:
+  outputs = { nixpkgs, home-manager, clipway, helium, noctalia, ... }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -28,6 +32,7 @@
           ./nixos/hosts/sharchy/configuration.nix
           home-manager.nixosModules.home-manager
           helium.nixosModules.default
+          noctalia.nixosModules.default
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
