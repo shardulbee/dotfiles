@@ -60,7 +60,7 @@ hotkey-overlay {
 
 binds {
   Super+Return repeat=false { spawn "ghostty"; }
-  Super+Space repeat=false { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
+  Super+Space repeat=false { spawn "sh" "-lc" "if command -v noctalia >/dev/null; then noctalia msg panel-toggle launcher; else fuzzel; fi"; }
   Super+Shift+B repeat=false { spawn "helium"; }
   Super+P repeat=false { spawn "1password" "--quick-access"; }
   Super+Shift+Slash repeat=false { show-hotkey-overlay; }
