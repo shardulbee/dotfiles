@@ -51,6 +51,15 @@ in
   home.sessionVariables.NPM_CONFIG_PREFIX = "$HOME/.npm-global";
   home.sessionPath = [ "$HOME/.npm-global/bin" "$HOME/.local/bin" ];
 
+  home.pointerCursor = {
+    enable = true;
+    package = pkgs.apple-cursor;
+    name = "macOS";
+    size = 24;
+    gtk.enable = true;
+    x11.enable = true;
+  };
+
   home.file.".zshrc".source = link "zsh-config.zsh";
   home.file.".local/bin/sharchy-helium".source = ../scripts/sharchy-helium;
   home.file.".local/bin/sharchy-helium-defaults".source = ../scripts/sharchy-helium-defaults;
@@ -81,6 +90,7 @@ in
       Description = "Mako notification daemon";
       PartOf = [ "graphical-session.target" ];
       After = [ "graphical-session.target" ];
+      X-Restart-Triggers = [ "${config.xdg.configFile."mako/config".source}" ];
     };
     Service = {
       ExecStart = "${pkgs.mako}/bin/mako";

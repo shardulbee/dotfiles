@@ -63,7 +63,7 @@
         scale = 2.0;
       };
       cursor = {
-        theme = "Adwaita";
+        theme = "macOS";
         size = 24;
       };
       keyboard = {
@@ -87,7 +87,10 @@
     ];
     config.common.default = [ "hyprland" "gtk" ];
   };
-  security.polkit.enable = true;
+  security.polkit = {
+    enable = true;
+    enablePkexecWrapper = true;
+  };
   security.pam.services.hyprlock = { };
   security.pam.services.greetd.enableGnomeKeyring = true;
   services.dbus.enable = true;
@@ -105,6 +108,7 @@
 
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme
+    apple-cursor
     brightnessctl
     blueman
     chromium
