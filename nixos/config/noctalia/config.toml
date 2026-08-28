@@ -2,7 +2,7 @@
 font_family = "JetBrainsMono Nerd Font"
 settings_show_advanced = true
 telemetry_enabled = false
-polkit_agent = true
+polkit_agent = false
 clipboard_enabled = true
 clipboard_keep_from_closed_apps = false
 clipboard_auto_paste = "auto"

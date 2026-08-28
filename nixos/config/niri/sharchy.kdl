@@ -36,6 +36,7 @@ layout {
 
 prefer-no-csd
 spawn-at-startup "swaybg" "-c" "#ebe6da"
+spawn-at-startup "lxqt-policykit-agent"
 spawn-at-startup "swayidle" "-w" "timeout" "300" "swaylock -f -c 272727" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "swaylock -f -c 272727"
 
 environment {
