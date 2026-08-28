@@ -1,5 +1,23 @@
 { config, pkgs, ... }:
 
+let
+  greeterConfig = pkgs.runCommand "sharchy-greeter-config" { } ''
+    mkdir -p $out
+    cp ${../config/quickshell/greeter/shell.qml} $out/shell.qml
+    cp ${../config/quickshell/auth/AlabasterAuth.qml} $out/AlabasterAuth.qml
+  '';
+  greeterSession = pkgs.writeShellScript "sharchy-greeter-session" ''
+    export QT_QPA_PLATFORM=wayland
+    export QT_SCALE_FACTOR=2
+    export XKB_DEFAULT_OPTIONS=ctrl:nocaps
+    export XCURSOR_THEME=macOS
+    export XCURSOR_SIZE=24
+    export XCURSOR_PATH=${pkgs.apple-cursor}/share/icons
+    exec ${pkgs.dbus}/bin/dbus-run-session -- \
+      ${pkgs.cage}/bin/cage -s -d -- \
+      ${pkgs.quickshell}/bin/quickshell -p ${greeterConfig}
+  '';
+in
 {
   hardware.graphics = {
     enable = true;
@@ -17,61 +35,9 @@
   programs.uwsm.enable = true;
   services.greetd = {
     enable = true;
-    settings.default_session.user = "greeter";
-  };
-  programs.noctalia-greeter = {
-    enable = true;
-    greeter-args = "--user shardul --session 'Hyprland (uwsm-managed)'";
-    settings = {
-      session.default = "Hyprland (uwsm-managed)";
-      user.default = "shardul";
-      appearance = {
-        scheme = "Synced";
-        password_style = "default";
-        hide_logo = true;
-        theme_mode = "dark";
-        corner_radius_scale = 0.5;
-        font_family = "JetBrainsMono Nerd Font";
-        palette = {
-          primary = "#d8e8ff";
-          on_primary = "#062d70";
-          secondary = "#9fc5ff";
-          on_secondary = "#062d70";
-          tertiary = "#b8d6ff";
-          on_tertiary = "#062d70";
-          error = "#ffb4ab";
-          on_error = "#690005";
-          surface = "#063b8e";
-          on_surface = "#f4f7ff";
-          surface_variant = "#0a438f";
-          on_surface_variant = "#d8e8ff";
-          outline = "#88aee8";
-          shadow = "#031b43";
-          hover = "#d8e8ff";
-          on_hover = "#062d70";
-        };
-        wallpaper = {
-          path = "color:#063b8e";
-          fill_mode = "stretch";
-          fill_color = "#063b8e";
-        };
-      };
-      output = {
-        name = "eDP-1";
-        width = 2560;
-        height = 1600;
-        scale = 2.0;
-      };
-      cursor = {
-        theme = "macOS";
-        size = 24;
-      };
-      keyboard = {
-        layout = "us";
-        options = "ctrl:nocaps";
-        numlock = true;
-      };
-      idle.timeout = 300;
+    settings.default_session = {
+      command = greeterSession;
+      user = "greeter";
     };
   };
 
@@ -92,7 +58,9 @@
     enablePkexecWrapper = true;
   };
   security.pam.services.hyprlock = { };
+  security.pam.services.sharchy-lock = { };
   security.pam.services.greetd.enableGnomeKeyring = true;
+  systemd.services."getty@tty2".wantedBy = [ "getty.target" ];
   services.dbus.enable = true;
   services.gnome.gnome-keyring.enable = true;
   services.upower.enable = true;

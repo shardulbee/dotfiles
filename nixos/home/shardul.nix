@@ -4,6 +4,11 @@ let
   dotfiles = "${config.home.homeDirectory}/Documents/dotfiles";
   link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
   grok-bot = pkgs.callPackage ../packages/grok-bot.nix { };
+  lockConfig = pkgs.runCommand "sharchy-lock-config" { } ''
+    mkdir -p $out
+    cp ${../config/quickshell/lock/shell.qml} $out/shell.qml
+    cp ${../config/quickshell/auth/AlabasterAuth.qml} $out/AlabasterAuth.qml
+  '';
   zed = pkgs.writeShellScriptBin "zed" ''
     exec ${pkgs.zed-editor}/bin/zeditor "$@"
   '';
@@ -85,6 +90,19 @@ in
       Environment = "QS_NO_RELOAD_POPUP=1";
     };
     Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  systemd.user.services.sharchy-lock = {
+    Unit = {
+      Description = "Alabaster session lock";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.quickshell}/bin/quickshell -p ${lockConfig}";
+      Restart = "on-failure";
+      RestartSec = 1;
+    };
   };
 
   systemd.user.services.mako = {

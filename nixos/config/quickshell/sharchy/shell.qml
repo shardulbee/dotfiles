@@ -21,7 +21,7 @@ ShellRoot {
     anchors.bottom: true
     anchors.left: true
     anchors.right: true
-    color: "#99031b43"
+    color: "#cc14120b"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
@@ -42,10 +42,10 @@ ShellRoot {
       anchors.centerIn: parent
       width: 420
       height: 300
-      radius: 14
-      color: "#063b8e"
-      border.width: 2
-      border.color: "#88aee8"
+      radius: 12
+      color: "#1b1913"
+      border.width: 1
+      border.color: "#2b2923"
 
       Column {
         anchors.fill: parent
@@ -55,7 +55,7 @@ ShellRoot {
         Text {
           anchors.horizontalCenter: parent.horizontalCenter
           text: "󰌾"
-          color: "#f4f7ff"
+          color: "#739fc8"
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 30
         }
@@ -64,7 +64,7 @@ ShellRoot {
           width: parent.width
           horizontalAlignment: Text.AlignHCenter
           text: "Authentication required"
-          color: "#f4f7ff"
+          color: "#cecece"
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 17
           font.bold: true
@@ -74,7 +74,7 @@ ShellRoot {
           width: parent.width
           horizontalAlignment: Text.AlignHCenter
           text: polkitAgent.flow?.message || "Enter your password to continue"
-          color: "#d8e8ff"
+          color: "#999999"
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 11
           wrapMode: Text.Wrap
@@ -85,10 +85,10 @@ ShellRoot {
         Rectangle {
           width: parent.width
           height: 48
-          radius: 10
-          color: "#0a438f"
+          radius: 8
+          color: "#14120b"
           border.width: passwordInput.activeFocus ? 2 : 1
-          border.color: polkitAgent.flow?.failed ? "#ffb4ab" : "#88aee8"
+          border.color: polkitAgent.flow?.failed ? "#d66a64" : (passwordInput.activeFocus ? "#739fc8" : "#2b2923")
 
           TextInput {
             id: passwordInput
@@ -96,9 +96,9 @@ ShellRoot {
             anchors.leftMargin: 16
             anchors.rightMargin: 16
             verticalAlignment: TextInput.AlignVCenter
-            color: "#f4f7ff"
-            selectionColor: "#9fc5ff"
-            selectedTextColor: "#062d70"
+            color: "#cecece"
+            selectionColor: "#3a382f"
+            selectedTextColor: "#cecece"
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 14
             echoMode: polkitAgent.flow?.responseVisible ? TextInput.Normal : TextInput.Password
@@ -117,7 +117,7 @@ ShellRoot {
             anchors.verticalCenter: parent.verticalCenter
             visible: passwordInput.text.length === 0 && !passwordInput.activeFocus
             text: polkitAgent.flow?.inputPrompt || "Password"
-            color: "#88aee8"
+            color: "#6f716c"
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 13
           }
@@ -128,7 +128,7 @@ ShellRoot {
           height: 16
           horizontalAlignment: Text.AlignHCenter
           text: polkitAgent.flow?.failed ? "Authentication failed" : (polkitAgent.flow?.supplementaryMessage || "")
-          color: polkitAgent.flow?.failed || polkitAgent.flow?.supplementaryIsError ? "#ffb4ab" : "#d8e8ff"
+          color: polkitAgent.flow?.failed || polkitAgent.flow?.supplementaryIsError ? "#d66a64" : "#999999"
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 10
           elide: Text.ElideRight
@@ -142,14 +142,14 @@ ShellRoot {
             width: 110
             height: 38
             radius: 9
-            color: cancelMouse.containsMouse ? "#0a438f" : "transparent"
+            color: cancelMouse.containsMouse ? "#2b2923" : "transparent"
             border.width: 1
-            border.color: "#88aee8"
+            border.color: "#2b2923"
 
             Text {
               anchors.centerIn: parent
               text: "Cancel"
-              color: "#f4f7ff"
+              color: "#cecece"
               font.family: "JetBrainsMono Nerd Font"
               font.pixelSize: 12
             }
@@ -166,12 +166,12 @@ ShellRoot {
             width: 110
             height: 38
             radius: 9
-            color: submitMouse.containsMouse ? "#9fc5ff" : "#d8e8ff"
+            color: submitMouse.containsMouse ? "#8bb2d5" : "#739fc8"
 
             Text {
               anchors.centerIn: parent
               text: "Continue"
-              color: "#062d70"
+              color: "#14120b"
               font.family: "JetBrainsMono Nerd Font"
               font.pixelSize: 12
               font.bold: true
@@ -737,7 +737,7 @@ ShellRoot {
                 label: "Lock"
                 onActivated: {
                   bar.panelOpen = false
-                  Quickshell.execDetached(["hyprlock"])
+                  Quickshell.execDetached(["systemctl", "--user", "start", "sharchy-lock.service"])
                 }
               }
               PanelRow {
