@@ -8,8 +8,8 @@ clipboard_keep_from_closed_apps = false
 clipboard_auto_paste = "auto"
 
 [shell.animation]
-enabled = true
-speed = 1.25
+enabled = false
+speed = 1.0
 
 [shell.panel]
 transparency_mode = "solid"
@@ -27,6 +27,14 @@ show_app_origin_indicator = true
 sort_by_usage = true
 provider_prefix = "/"
 
+[shell.screenshot]
+save_to_file = true
+copy_to_clipboard = true
+freeze_screen = true
+confirm_region = false
+directory = "/home/shardul/Pictures/Screenshots"
+filename_pattern = "screenshot_%Y%m%d_%H%M%S"
+
 [wallpaper]
 enabled = false
 
@@ -35,6 +43,12 @@ mode = "dark"
 source = "builtin"
 builtin = "Noctalia"
 pure_black_dark = false
+
+[theme.templates]
+enable_builtin_templates = true
+builtin_ids = ["gtk3", "gtk4"]
+enable_community_templates = false
+community_ids = []
 
 [notification]
 enable_daemon = true
@@ -52,14 +66,14 @@ enabled = true
 
 [bar.main]
 position = "top"
-thickness = 34
-background_opacity = 0.96
-radius = 10
-margin_ends = 8
-margin_edge = 8
-padding = 10
-widget_spacing = 5
-shadow = true
+thickness = 32
+background_opacity = 1.0
+radius = 0
+margin_ends = 0
+margin_edge = 0
+padding = 8
+widget_spacing = 3
+shadow = false
 reserve_space = true
 capsule = false
 start = ["launcher", "workspaces"]

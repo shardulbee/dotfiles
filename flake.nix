@@ -19,9 +19,13 @@
       url = "github:noctalia-dev/noctalia";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    noctalia-greeter = {
+      url = "github:noctalia-dev/noctalia-greeter";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { nixpkgs, home-manager, clipway, helium, noctalia, ... }:
+  outputs = { nixpkgs, home-manager, clipway, helium, noctalia, noctalia-greeter, ... }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -33,6 +37,7 @@
           home-manager.nixosModules.home-manager
           helium.nixosModules.default
           noctalia.nixosModules.default
+          noctalia-greeter.nixosModules.default
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;

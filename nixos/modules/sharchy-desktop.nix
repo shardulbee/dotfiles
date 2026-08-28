@@ -18,12 +18,40 @@
   programs.uwsm.enable = true;
   services.greetd = {
     enable = true;
-    settings.default_session = {
-      command = "${pkgs.tuigreet}/bin/tuigreet --time --user shardul --remember-session --asterisks --sessions /run/current-system/sw/share/wayland-sessions";
-      user = "greeter";
+    settings.default_session.user = "greeter";
+  };
+  programs.noctalia-greeter = {
+    enable = true;
+    greeter-args = "--user shardul --session 'Hyprland (uwsm-managed)'";
+    settings = {
+      session.default = "Hyprland (uwsm-managed)";
+      user.default = "shardul";
+      appearance = {
+        scheme = "Noctalia";
+        password_style = "default";
+        hide_logo = true;
+        theme_mode = "dark";
+        corner_radius_scale = 1.0;
+        font_family = "JetBrainsMono Nerd Font";
+      };
+      output = {
+        name = "eDP-1";
+        width = 2560;
+        height = 1600;
+        scale = 2.0;
+      };
+      cursor = {
+        theme = "Adwaita";
+        size = 24;
+      };
+      keyboard = {
+        layout = "us";
+        options = "ctrl:nocaps";
+        numlock = true;
+      };
+      idle.timeout = 300;
     };
   };
-  systemd.tmpfiles.rules = [ "d /var/cache/tuigreet 0755 greeter greeter -" ];
 
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 

@@ -9,8 +9,8 @@ Super + Shift + /             Niri hotkey overlay
 Super + Escape                Lock screen
 Super + H/J/K/L               Focus left/down/up/right
 Super + Shift + H/J/K/L       Move window left/down/up/right
-Super + 1…9                   Focus workspace
-Super + Shift + 1…9           Move window to workspace
+Super + 1…9 (0 in Hyprland)  Focus workspace
+Super + Shift + 1…9/0         Move window to workspace
 Super + R                     Cycle column width
 Super + -/=                   Decrease/increase width
 Super + Shift + -/=           Decrease/increase height
@@ -21,8 +21,10 @@ Alt + Q                       Close window
 Alt + C/V/A                   Copy/paste/select all
 Super + X/Z/Shift+Z           Cut/undo/redo
 Super + Left/Right            Move by word
+Alt/Super + Backspace         Delete word/to line start
 Alt + L/T/W/R/F               Browser address/tab/close/reload/find
 Super + Ctrl + T              Toggle light/dark theme
+Alt + Shift + 3/4             Screenshot region/fullscreen
 Print / Ctrl+Print/Alt+Print  Screenshot region/screen/window
 Brightness and volume keys    Adjust display/audio
 EOF

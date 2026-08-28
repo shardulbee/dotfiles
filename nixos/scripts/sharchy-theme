@@ -14,10 +14,14 @@ fi
 case "$mode" in
   light|dark)
     echo "$mode" > "$state"
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-$mode" || true
+    dconf write /org/gnome/desktop/interface/color-scheme "'prefer-$mode'" || true
     if command -v noctalia >/dev/null; then
       noctalia msg theme-mode-set "$mode" >/dev/null || true
+      noctalia msg templates-apply >/dev/null || true
     fi
+    if [ "$mode" = light ]; then background="#ebe6da"; else background="#181818"; fi
+    pkill -x swaybg 2>/dev/null || true
+    swaybg -c "$background" >/dev/null 2>&1 &
     ;;
   *) exit 2 ;;
 esac
