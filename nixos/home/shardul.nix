@@ -50,6 +50,7 @@ in
   home.file.".local/bin/sharchy-screenshot".source = link "nixos/scripts/sharchy-screenshot";
   home.file.".local/bin/sharchy-theme".source = link "nixos/scripts/sharchy-theme";
   home.file.".local/bin/sharchy-keybindings".source = link "nixos/scripts/sharchy-keybindings";
+  home.file.".local/bin/sharchy-quake".source = link "nixos/scripts/sharchy-quake";
 
   systemd.user.services.sharchy-bar = {
     Unit = {

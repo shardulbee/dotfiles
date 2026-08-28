@@ -6,6 +6,8 @@ Super + Shift + B             Helium browser
 Super + P                     1Password Quick Access
 Super + Alt + K               This shortcut reference
 Super + Escape                Lock screen
+Alt + Ctrl + Q                Lock screen
+Alt + `                       Toggle Quake terminal
 Super + H/J/K/L               Focus left/down/up/right
 Super + Shift + H/J/K/L       Move window left/down/up/right
 Super + 1…9 (0 in Hyprland)  Focus workspace

@@ -62,6 +62,10 @@
   environment.etc."1password/custom_allowed_browsers".text = "helium\n";
   environment.localBinInPath = true;
 
+  security.sudo.extraConfig = ''
+    Defaults:shardul timestamp_type=global, timestamp_timeout=120
+  '';
+
   services.openssh = {
     enable = true;
     settings.PasswordAuthentication = false;
