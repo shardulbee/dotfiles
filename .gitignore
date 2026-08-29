@@ -17,3 +17,4 @@ pi/tsconfig.json
 result
 *.qcow2
 scratch/
+.plan
