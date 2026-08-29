@@ -1,25 +1,43 @@
 # dotfiles
 
-Personal macOS and NixOS configuration.
+Nix is the control plane for the `sharchy` NixOS workstation and the `macbook`
+macOS host. Home Manager owns the shared user environment; nix-darwin owns
+macOS settings and the Homebrew GUI-app escape hatch.
+
+Small glue configuration is inlined where it is used. Application configuration
+that is useful to edit directly remains under `config/`.
 
 ## macOS
 
+Install Determinate Nix and Homebrew, clone this repository to
+`~/Documents/dotfiles`, then run:
+
 ```sh
-./setup
+sudo nix run nix-darwin -- switch --flake .#macbook
 ```
 
-The setup script links shared command-line configuration, installs the tools in
-`mise-config.toml`, and applies the macOS application configuration.
+Subsequent updates are simply:
+
+```sh
+rebuild
+```
+
+Homebrew cleanup is set to `uninstall`: undeclared formulae and casks, including
+the retired `omp`, are removed during activation. Application data is not
+zapped.
 
 ## NixOS
-
-The flake configures the `sharchy` Dell workstation with Hyprland and Helium.
 
 ```sh
 nix flake check
 sudo nixos-rebuild switch --flake .#sharchy
 ```
 
-Host-specific hardware configuration lives under `nixos/hosts/`. Shared desktop
-configuration, browser assets, and Ghostty configuration live under
-`nixos/config/`.
+Subsequent updates can also use `rebuild`.
+
+## Package ownership
+
+- Nix provides command-line tools, including Pi from nixpkgs unstable.
+- `packages/playwriter.nix` pins and builds Playwriter from its npm lockfile.
+- nix-darwin declares proprietary macOS applications as Homebrew casks.
+- Secrets and application state remain outside the Nix store.

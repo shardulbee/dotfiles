@@ -2,8 +2,7 @@
 
 # PATH, highest priority first.
 typeset -U path PATH
-path=("$HOME/.npm-global/bin" "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin $path)
-export NPM_CONFIG_PREFIX="$HOME/.npm-global"
+path=("$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin $path)
 
 # Do not keep a second, plaintext shell history. Atuin is the only history.
 HISTFILE=/dev/null
@@ -140,4 +139,3 @@ alias vim=nvim
 
 # Machine-specific settings.
 [[ -r ${ZDOTDIR:-$HOME}/.zshrc.local ]] && source "${ZDOTDIR:-$HOME}/.zshrc.local"
-

@@ -161,4 +161,3 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("1password --silent")
     hl.exec_cmd("swayidle -w timeout 300 \"systemctl --user start sharchy-lock.service\" timeout 600 \"hyprctl dispatch dpms off\" resume \"hyprctl dispatch dpms on\" before-sleep \"systemctl --user start sharchy-lock.service\"")
 end)
-

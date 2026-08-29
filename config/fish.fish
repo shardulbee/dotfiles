@@ -1,15 +1,7 @@
 # PATH, highest priority first. -g: session-only; -m: move entries already
 # on PATH so this order wins even if something else prepended them.
 # Missing dirs are skipped, hence no existence/OS checks.
-fish_add_path -gm "$HOME/.local/share/mise/shims" "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin
-
-# mise requires trust because the global config allows Claude's install script.
-# The 1Password wrapper replaces HOME, so persist trust for both the config
-# symlink and its dotfiles target through the environment.
-set -gx MISE_TRUSTED_CONFIG_PATHS "$HOME/.config/mise:$HOME/Documents/dotfiles"
-if command -q mise
-    mise activate fish | source
-end
+fish_add_path -gm "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin
 
 # Use zed as EDITOR within Zed and not using Zed SSH
 # Use neovim otherwise

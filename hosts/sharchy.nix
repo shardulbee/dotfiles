@@ -1,0 +1,324 @@
+# Dell XPS 13 DX13260 (sharchy): hardware, system, desktop, and user config.
+{ config, lib, modulesPath, pkgs, ... }:
+
+let
+  authQml = ../config/quickshell-auth.qml;
+  greeterShell = ../config/quickshell-greeter.qml;
+  greeterConfig = pkgs.runCommand "sharchy-greeter-config" { } ''
+    mkdir -p "$out"
+    cp ${greeterShell} "$out/shell.qml"
+    cp ${authQml} "$out/AlabasterAuth.qml"
+  '';
+  greeterSession = pkgs.writeShellScript "sharchy-greeter-session" ''
+    export QT_QPA_PLATFORM=wayland
+    export QT_SCALE_FACTOR=2
+    export XKB_DEFAULT_OPTIONS=ctrl:nocaps
+    export XCURSOR_THEME=macOS
+    export XCURSOR_SIZE=24
+    export XCURSOR_PATH=${pkgs.apple-cursor}/share/icons
+    exec ${pkgs.dbus}/bin/dbus-run-session -- \
+      ${pkgs.cage}/bin/cage -s -d -- \
+      ${pkgs.quickshell}/bin/quickshell -p ${greeterConfig}
+  '';
+in
+{
+  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
+
+  networking.hostName = "sharchy";
+  time.timeZone = "America/Montreal";
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nixpkgs = {
+    hostPlatform = lib.mkDefault "x86_64-linux";
+    config.allowUnfree = true;
+  };
+
+  boot.initrd.systemd.enable = true;
+  boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usb_storage" "sd_mod" ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-intel" ];
+  boot.extraModulePackages = [ ];
+  boot.initrd.luks.devices.cryptroot = {
+    device = "/dev/disk/by-uuid/95ed11ca-d3f6-4f43-8969-50355533d068";
+    allowDiscards = true;
+    bypassWorkqueues = true;
+    crypttabExtraOpts = [ "tpm2-device=auto" ];
+  };
+  fileSystems."/" = {
+    device = "/dev/disk/by-label/nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@" "compress=zstd:3" "noatime" ];
+  };
+  fileSystems."/home" = {
+    device = "/dev/disk/by-label/nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@home" "compress=zstd:3" "noatime" ];
+  };
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-label/nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@nix" "compress=zstd:3" "noatime" ];
+  };
+  fileSystems."/var/log" = {
+    device = "/dev/disk/by-label/nixos";
+    fsType = "btrfs";
+    options = [ "subvol=@log" "compress=zstd:3" "noatime" ];
+  };
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-label/EFI";
+    fsType = "vfat";
+    options = [ "fmask=0077" "dmask=0077" ];
+  };
+  swapDevices = [ ];
+
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.consoleLogLevel = 0;
+  boot.kernelParams = [ "xe.enable_psr2_sel_fetch=0" ];
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  hardware.enableRedistributableFirmware = true;
+  hardware.cpu.intel.npu.enable = true;
+  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [ intel-media-driver vpl-gpu-rt ];
+  };
+
+  users.users.shardul = {
+    isNormalUser = true;
+    extraGroups = [ "wheel" "networkmanager" "video" "input" ];
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJyBr8fJpesCNZcxU+hDSBSUy34p8Z7VRRSctN2DYHqF shardul@gadget"
+    ];
+    shell = pkgs.zsh;
+  };
+
+  programs.zsh.enable = true;
+  programs.ssh.extraConfig = ''
+    SendEnv LANG LC_*
+  '';
+  programs._1password.enable = true;
+  programs._1password-gui = {
+    enable = true;
+    polkitPolicyOwners = [ "shardul" ];
+  };
+  programs.helium = {
+    enable = true;
+    policies = {
+      PasswordManagerEnabled = false;
+      BrowserColorScheme = "device";
+      ExtensionSettings = {
+        "*".installation_mode = "allowed";
+        "dbepggeogbaibhgnhhndojpepiihcmeb" = {
+          installation_mode = "force_installed";
+          update_url = "https://services.helium.imput.net/ext";
+        };
+        "aeblfdkhhhdcdjpifhhbdiojplfjncoa" = {
+          installation_mode = "force_installed";
+          update_url = "https://services.helium.imput.net/ext";
+        };
+      };
+    };
+  };
+  environment.etc."1password/custom_allowed_browsers".text = "helium\n";
+  environment.localBinInPath = true;
+
+  services.openssh = {
+    enable = true;
+    settings.PasswordAuthentication = false;
+  };
+  services.tailscale.enable = true;
+  networking.networkmanager.enable = true;
+  services.fstrim.enable = true;
+  services.fwupd.enable = true;
+  services.power-profiles-daemon.enable = true;
+  zramSwap.enable = true;
+
+  programs.hyprland = {
+    enable = true;
+    withUWSM = true;
+    xwayland.enable = true;
+  };
+  programs.uwsm.enable = true;
+  services.greetd = {
+    enable = true;
+    settings.default_session = {
+      command = greeterSession;
+      user = "greeter";
+    };
+  };
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+  systemd.tmpfiles.rules = [
+    "d /run/sharchy 0755 shardul users -"
+    "f /run/sharchy/theme 0644 shardul users -"
+  ];
+  programs.dconf.enable = true;
+  programs.nix-ld.enable = true;
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-hyprland ];
+    config.common.default = [ "hyprland" "gtk" ];
+  };
+  security.polkit = {
+    enable = true;
+    enablePkexecWrapper = true;
+  };
+  security.pam.services.sharchy-lock = { };
+  security.pam.services.greetd.enableGnomeKeyring = true;
+  systemd.services."getty@tty2".wantedBy = [ "getty.target" ];
+  services.dbus.enable = true;
+  services.gnome.gnome-keyring.enable = true;
+  services.upower.enable = true;
+  services.blueman.enable = true;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+
+  fonts.packages = with pkgs; [ jetbrains-mono nerd-fonts.jetbrains-mono ];
+  environment.systemPackages = with pkgs; [
+    adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs chromium
+    cryptsetup curl fuzzel ghostty git grim glib jq libnotify mako
+    networkmanagerapplet pavucontrol pciutils quickshell ripgrep slurp swaybg
+    swayidle usbutils vim wget wl-clipboard
+  ];
+
+  home-manager.users.shardul = { config, pkgs, ... }:
+    let
+      grok-bot = pkgs.callPackage ../packages/grok-bot.nix { };
+      lockShell = ../config/quickshell-lock.qml;
+      lockConfig = pkgs.runCommand "sharchy-lock-config" { } ''
+        mkdir -p "$out"
+        cp ${lockShell} "$out/shell.qml"
+        cp ${authQml} "$out/AlabasterAuth.qml"
+      '';
+      wallpaper = pkgs.writeShellScript "sharchy-wallpaper" ''
+        mode="$(${pkgs.coreutils}/bin/cat /home/shardul/.local/state/sharchy-theme 2>/dev/null || true)"
+        if [ "$mode" = dark ]; then color="#14120b"; else color="#e5e4df"; fi
+        exec ${pkgs.swaybg}/bin/swaybg -c "$color"
+      '';
+      zed = pkgs.writeShellScriptBin "zed" ''
+        exec ${pkgs.zed-editor}/bin/zeditor "$@"
+      '';
+    in
+    {
+      home.homeDirectory = "/home/shardul";
+      home.packages = with pkgs; [ clang_22 grok-bot zed zed-editor ];
+      home.pointerCursor = {
+        enable = true;
+        package = pkgs.apple-cursor;
+        name = "macOS";
+        size = 24;
+        gtk.enable = true;
+        x11.enable = true;
+      };
+
+      home.file.".local/bin/sharchy-helium".source = ../scripts/sharchy-helium.sh;
+      home.file.".local/bin/sharchy-helium-defaults".source = ../scripts/sharchy-helium-defaults.sh;
+      home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot.sh;
+      home.file.".local/bin/sharchy-theme".source = ../scripts/sharchy-theme.sh;
+      home.file.".local/bin/sharchy-keybindings".source = ../scripts/sharchy-keybindings.sh;
+      home.file.".local/bin/sharchy-quake".source = ../scripts/sharchy-quake.sh;
+      home.file.".local/bin/sharchy-rebuild".source = ../scripts/sharchy-rebuild.sh;
+      home.file.".local/bin/sharchy-workspace".source = ../scripts/sharchy-workspace.sh;
+
+      systemd.user.services.sharchy-bar = {
+        Unit = {
+          Description = "Sharchy desktop shell";
+          PartOf = [ "graphical-session.target" ];
+          After = [ "graphical-session.target" ];
+          X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/sharchy/shell.qml".source}" ];
+        };
+        Service = {
+          ExecStartPre = [
+            "-${pkgs.systemd}/bin/systemctl --user stop hyprpolkitagent.service"
+            "${pkgs.coreutils}/bin/mkdir -p /home/shardul/.local/state"
+            "${pkgs.coreutils}/bin/touch /home/shardul/.local/state/sharchy-rebuild-status"
+          ];
+          ExecStart = "${pkgs.quickshell}/bin/quickshell -p /home/shardul/.config/quickshell/sharchy";
+          Restart = "on-failure";
+          RestartSec = 1;
+          Environment = "QS_NO_RELOAD_POPUP=1";
+        };
+        Install.WantedBy = [ "graphical-session.target" ];
+      };
+      systemd.user.services.sharchy-wallpaper = {
+        Unit = {
+          Description = "Alabaster desktop wallpaper";
+          PartOf = [ "graphical-session.target" ];
+          After = [ "graphical-session.target" ];
+        };
+        Service = { ExecStart = wallpaper; Restart = "on-failure"; RestartSec = 1; };
+        Install.WantedBy = [ "graphical-session.target" ];
+      };
+      systemd.user.services.sharchy-lock = {
+        Unit = {
+          Description = "Alabaster session lock";
+          PartOf = [ "graphical-session.target" ];
+          After = [ "graphical-session.target" ];
+        };
+        Service = {
+          ExecStart = "${pkgs.quickshell}/bin/quickshell -p ${lockConfig}";
+          Restart = "on-failure";
+          RestartSec = 1;
+        };
+      };
+      systemd.user.services.mako = {
+        Unit = {
+          Description = "Mako notification daemon";
+          PartOf = [ "graphical-session.target" ];
+          After = [ "graphical-session.target" ];
+          X-Restart-Triggers = [ "${config.xdg.configFile."mako/config".source}" ];
+        };
+        Service = { ExecStart = "${pkgs.mako}/bin/mako"; Restart = "on-failure"; };
+        Install.WantedBy = [ "graphical-session.target" ];
+      };
+      systemd.user.services.sharchy-helium-defaults = {
+        Unit = { Description = "Enable Helium extension downloads"; Before = [ "graphical-session.target" ]; };
+        Service = { Type = "oneshot"; ExecStart = "/home/shardul/.local/bin/sharchy-helium-defaults"; };
+        Install.WantedBy = [ "graphical-session.target" ];
+      };
+      systemd.user.services.sharchy-theme-scheduled = {
+        Unit.Description = "Apply the scheduled Sharchy theme";
+        Service = { Type = "oneshot"; ExecStart = "/home/shardul/.local/bin/sharchy-theme scheduled"; };
+      };
+      systemd.user.timers.sharchy-theme-scheduled = {
+        Unit.Description = "Switch themes at 07:00 and 19:00";
+        Timer = { OnCalendar = "*-*-* 07,19:00:00"; Persistent = true; };
+        Install.WantedBy = [ "timers.target" ];
+      };
+
+      xdg.configFile."ghostty/config".source = ../config/ghostty-linux.conf;
+      xdg.configFile."helium-browser-flags.conf".text = ''
+      --ozone-platform=wayland
+      --ozone-platform-hint=wayland
+      --password-store=basic
+      --enable-features=TouchpadOverscrollHistoryNavigation,VerticalTabs
+      --load-extension=/home/shardul/.config/chromium/extensions/alt-click-new-tab
+    '';
+      xdg.configFile."chromium/extensions/alt-click-new-tab/background.js".source = ../config/browser-extension/background.js;
+      xdg.configFile."chromium/extensions/alt-click-new-tab/content.js".source = ../config/browser-extension/content.js;
+      xdg.configFile."chromium/extensions/alt-click-new-tab/manifest.json".source = ../config/browser-extension/manifest.json;
+      xdg.configFile."hypr/hyprland.conf".source = ../config/hyprland.conf;
+      xdg.configFile."hypr/hyprland.lua".source = ../config/hyprland.lua;
+      xdg.configFile."mako/config".source = ../config/mako.conf;
+      xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;
+      xdg.desktopEntries.helium = {
+        name = "Helium";
+        genericName = "Web Browser";
+        exec = "/home/shardul/.local/bin/sharchy-helium %U";
+        icon = "helium";
+        terminal = false;
+        categories = [ "Network" "WebBrowser" ];
+        mimeType = [ "text/html" "x-scheme-handler/http" "x-scheme-handler/https" ];
+      };
+    };
+
+  system.stateVersion = "26.05";
+}

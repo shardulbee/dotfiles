@@ -1,10 +1,14 @@
 {
-  description = "Shardul's Linux and macOS dotfiles";
+  description = "Shardul's NixOS and macOS configuration";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     home-manager = {
       url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    darwin = {
+      url = "github:nix-darwin/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     helium = {
@@ -13,29 +17,289 @@
     };
   };
 
-  outputs = { nixpkgs, home-manager, helium, ... }:
+  outputs = { self, nixpkgs, home-manager, darwin, helium, ... }:
     let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in {
+      sharedHome = { pkgs, ... }:
+        let
+          playwriter = pkgs.callPackage ./packages/playwriter.nix { };
+          uberstat = pkgs.callPackage ./packages/uberstat.nix { };
+          rebuild = pkgs.writeShellScriptBin "rebuild" ''
+            if [ "$(uname)" = Darwin ]; then
+              exec sudo darwin-rebuild switch --flake "$HOME/Documents/dotfiles#macbook"
+            else
+              exec sudo nixos-rebuild switch --flake "$HOME/Documents/dotfiles#sharchy"
+            fi
+          '';
+        in
+        {
+          home.username = "shardul";
+          home.stateVersion = "26.05";
+          programs.home-manager.enable = true;
+
+          home.packages = with pkgs; [
+            atuin
+            btop
+            claude-code
+            direnv
+            fd
+            fish
+            fzf
+            gh
+            go_1_27
+            hyperfine
+            jjui
+            jq
+            jujutsu
+            neovim
+            nodejs_26
+            pi-coding-agent
+            playwriter
+            rclone
+            rebuild
+            ripgrep
+            tmux
+            trash-cli
+            tree-sitter
+            uberstat
+            usage
+            uv
+            yazi
+            yt-dlp
+            zoxide
+            zsh-autosuggestions
+          ];
+
+          home.sessionVariables.DISABLE_AUTOUPDATER = "1";
+          home.sessionPath = [ "$HOME/.local/bin" ];
+
+          home.file.".zshrc".source = ./config/zsh.zsh;
+          xdg.configFile."fish/config.fish".source = ./config/fish.fish;
+          xdg.configFile."git/config".text = ''
+      [init]
+      	defaultBranch = "main"
+      
+      [user]
+      	name = "Shardul Baral"
+      	email = "16765155+shardulbee@users.noreply.github.com"
+      [credential "https://github.com"]
+      	helper = 
+      	helper = !gh auth git-credential
+      [credential "https://gist.github.com"]
+      	helper = 
+      	helper = !gh auth git-credential
+    '';
+          xdg.configFile."git/ignore".text = ''
+      # macOS
+      .DS_Store
+      .git/
+      .direnv/
+    '';
+          xdg.configFile."jj/config.toml".text = ''
+      [user]
+      name = "Shardul Baral"
+      email = "16765155+shardulbee@users.noreply.github.com"
+      
+      [ui]
+      default-command = 'log'
+      
+      [revset-aliases]
+      'closest_bookmark(to)' = 'heads(::to & bookmarks())'
+      
+      [aliases]
+      # Move the closest bookmark to the current commit. Useful when working on a
+      # named branch, creating a bunch of commits, and then needing to update the
+      # bookmark before pushing.
+      tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@-"]
+      
+      [template-aliases]
+      'format_timestamp(timestamp)' = 'timestamp.ago()'
+    '';
+          xdg.configFile."jjui/config.lua".source = ./config/jjui.lua;
+          xdg.configFile."nvim/init.lua".source = ./config/nvim.lua;
+          xdg.configFile."nvim/colors/alabaster.lua".source = ./config/nvim-alabaster.lua;
+          xdg.configFile."tmux/tmux.conf".source = ./config/tmux.conf;
+          xdg.configFile."ghostty/themes/Alabaster Light".text = ''
+      # Alabaster Light - based on tonsky/sublime-scheme-alabaster
+      # https://github.com/tonsky/sublime-scheme-alabaster
+      
+      background = #f7f7f4
+      foreground = #26251e
+      cursor-color = #007acc
+      cursor-text = #f7f7f4
+      selection-background = #bfdbfe
+      selection-foreground = #26251e
+      
+      # black
+      palette = 0=#26251e
+      palette = 8=#777777
+      
+      # red
+      palette = 1=#aa3731
+      palette = 9=#f05050
+      
+      # green
+      palette = 2=#448c27
+      palette = 10=#60cb00
+      
+      # yellow
+      palette = 3=#cb9000
+      palette = 11=#ffbc5d
+      
+      # blue
+      palette = 4=#325cc0
+      palette = 12=#007acc
+      
+      # magenta
+      palette = 5=#7a3e9d
+      palette = 13=#e64ce6
+      
+      # cyan
+      palette = 6=#0083b2
+      palette = 14=#00aacb
+      
+      # white
+      palette = 7=#bbbbbb
+      palette = 15=#ffffff
+    '';
+          xdg.configFile."ghostty/themes/Alabaster Dark".text = ''
+      # Alabaster Dark - based on tonsky/sublime-scheme-alabaster
+      # https://github.com/tonsky/sublime-scheme-alabaster
+      
+      background = #14120b
+      foreground = #cecece
+      cursor-color = #cd974b
+      cursor-text = #14120b
+      selection-background = #3a382f
+      selection-foreground = #cecece
+      
+      # black
+      palette = 0=#14120b
+      palette = 8=#777777
+      
+      # red
+      palette = 1=#d66a64
+      palette = 9=#e47e78
+      
+      # green
+      palette = 2=#8fb980
+      palette = 10=#a5ca98
+      
+      # yellow
+      palette = 3=#c7a55f
+      palette = 11=#d5b773
+      
+      # blue
+      palette = 4=#739fc8
+      palette = 12=#8bb2d5
+      
+      # magenta
+      palette = 5=#b986b5
+      palette = 13=#c99bc5
+      
+      # cyan
+      palette = 6=#6faeb3
+      palette = 14=#88c0c4
+      
+      # white
+      palette = 7=#cecece
+      palette = 15=#ffffff
+    '';
+          xdg.configFile."zed/settings.json".source = ./config/zed-settings.json;
+          xdg.configFile."zed/keymap.json".source = ./config/zed-keymap.json;
+          xdg.configFile."zed/tasks.json".source = ./config/zed-tasks.json;
+          xdg.configFile."zed/themes/soft.json".source = ./config/zed-soft.json;
+        };
+    in
+    {
       nixosConfigurations.sharchy = nixpkgs.lib.nixosSystem {
-        inherit system;
+        system = "x86_64-linux";
         modules = [
-          ./nixos/hosts/sharchy/configuration.nix
+          ./hosts/sharchy.nix
           home-manager.nixosModules.home-manager
           helium.nixosModules.default
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "hm-backup";
-            home-manager.users.shardul = import ./nixos/home/shardul.nix;
+            home-manager.users.shardul.imports = [ sharedHome ];
           }
         ];
       };
 
-      homeConfigurations."shardul@sharchy" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        modules = [ ./nixos/home/shardul.nix ];
+      darwinConfigurations.macbook = darwin.lib.darwinSystem {
+        system = "aarch64-darwin";
+        modules = [
+          home-manager.darwinModules.home-manager
+          ({ pkgs, ... }: {
+            nixpkgs.config.allowUnfree = true;
+            nix.enable = false; # Determinate Nix owns the daemon and nix.conf.
+            system.primaryUser = "shardul";
+            system.stateVersion = 6;
+            users.users.shardul.home = "/Users/shardul";
+
+            programs.zsh.enable = true;
+            environment.shells = [ pkgs.fish ];
+            security.pam.services.sudo_local = {
+              touchIdAuth = true;
+              reattach = true;
+            };
+
+            system.defaults = {
+              dock = {
+                autohide = true;
+                show-recents = false;
+              };
+              finder = {
+                AppleShowAllExtensions = true;
+                FXPreferredViewStyle = "Nlsv";
+              };
+              NSGlobalDomain = {
+                ApplePressAndHoldEnabled = false;
+                InitialKeyRepeat = 15;
+                KeyRepeat = 2;
+              };
+            };
+
+            homebrew = {
+              enable = true;
+              casks = [
+                "1password"
+                "1password-cli"
+                "anki"
+                "arq"
+                "codex-app"
+                "cursor"
+                "discord"
+                "font-jetbrains-mono-nerd-font"
+                "ghostty"
+                "google-chrome"
+                "google-drive"
+                "helium-browser"
+                "obsidian"
+                "openscad@snapshot"
+                "raycast"
+                "slack"
+                "spotify"
+                "tailscale-app"
+                "zed"
+              ];
+              onActivation = {
+                autoUpdate = false;
+                upgrade = false;
+                cleanup = "uninstall";
+              };
+            };
+
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "hm-backup";
+            home-manager.users.shardul = {
+              imports = [ sharedHome ];
+              home.homeDirectory = "/Users/shardul";
+              xdg.configFile."ghostty/config".source = ./config/ghostty-darwin.conf;
+            };
+          })
+        ];
       };
     };
 }
