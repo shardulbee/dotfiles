@@ -194,6 +194,9 @@ in
     mimeType = [ "text/html" "x-scheme-handler/http" "x-scheme-handler/https" ];
   };
   xdg.configFile."chromium/extensions/alt-click-new-tab".source = ../config/browser/extensions/alt-click-new-tab;
+  # Keep the legacy config during the Lua migration so a running Hyprlang
+  # session is never left without its active configuration.
+  xdg.configFile."hypr/hyprland.conf".source = ../config/hypr/sharchy.conf;
   xdg.configFile."hypr/hyprland.lua".source = ../config/hypr/sharchy.lua;
   xdg.configFile."mako/config".source = ../config/mako/config;
   xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/quickshell/sharchy/shell.qml;
