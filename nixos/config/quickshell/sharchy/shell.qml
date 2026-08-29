@@ -486,13 +486,15 @@ ShellRoot {
         spacing: 3
 
         Item {
-          visible: shellRoot.rebuildStatus === "running"
+          visible: ["running", "success", "failed"].includes(shellRoot.rebuildStatus)
           Layout.preferredWidth: visible ? 108 : 0
           Layout.fillHeight: true
           Text {
             anchors.centerIn: parent
-            text: bar.rebuildFrames[bar.rebuildFrame] + " rebuilding"
-            color: bar.accent
+            text: shellRoot.rebuildStatus === "running"
+              ? bar.rebuildFrames[bar.rebuildFrame] + " rebuilding"
+              : shellRoot.rebuildStatus === "success" ? "rebuild complete" : "rebuild failed"
+            color: shellRoot.rebuildStatus === "failed" ? bar.error : bar.accent
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 11
           }
