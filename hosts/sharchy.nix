@@ -205,10 +205,27 @@ in
         name = "Helium and Chromium tabs";
         application.only = [ "helium" "chromium" "chromium-browser" ];
         remap = {
+          "ALT-T" = "CTRL-T";
+          "ALT-L" = "CTRL-L";
+          "ALT-F" = "CTRL-F";
+          "ALT-N" = "CTRL-N";
+          "ALT-SHIFT-N" = "CTRL-SHIFT-N";
           "ALT-W" = "CTRL-W";
+          "ALT-SHIFT-W" = "CTRL-SHIFT-W";
           "ALT-R" = "CTRL-R";
           "ALT-SHIFT-R" = "CTRL-SHIFT-R";
           "ALT-SHIFT-T" = "CTRL-SHIFT-T";
+          "ALT-1" = "CTRL-1";
+          "ALT-2" = "CTRL-2";
+          "ALT-3" = "CTRL-3";
+          "ALT-4" = "CTRL-4";
+          "ALT-5" = "CTRL-5";
+          "ALT-6" = "CTRL-6";
+          "ALT-7" = "CTRL-7";
+          "ALT-8" = "CTRL-8";
+          "ALT-9" = "CTRL-9";
+          "ALT-LEFTBRACE" = "ALT-LEFT";
+          "ALT-RIGHTBRACE" = "ALT-RIGHT";
           "ALT-SHIFT-LEFTBRACE" = "CTRL-PAGEUP";
           "ALT-SHIFT-RIGHTBRACE" = "CTRL-PAGEDOWN";
         };

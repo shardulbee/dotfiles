@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cat <<'EOF' | fuzzel --dmenu --prompt='Keybindings > ' --width=66 --lines=27
+cat <<'EOF' | fuzzel --dmenu --prompt='Keybindings > ' --width=66 --lines=31
 Super + Space                 App launcher
 Super + Return                Terminal
 Super + Shift + B             Helium browser
@@ -19,9 +19,13 @@ Super + Shift + F             Fullscreen window
 Super + Q                     Close window
 Alt + Tab                     Previous workspace
 Alt + C/V/X/A/Z               Copy/paste/cut/select all/undo
-Alt + W / Shift + T           Close/reopen browser tab
+Alt + T/L/F                   New tab/address bar/find
+Alt + N / Shift + N           New/incognito browser window
+Alt + W / Shift + W           Close browser tab/window
+Alt + Shift + T               Reopen browser tab
 Alt + R / Shift + R           Reload/hard reload browser
-Alt + Shift + [/]             Previous/next browser tab
+Alt + 1…9                     Select browser tab
+Alt + [/] / Shift + [/]       Back-forward / previous-next tab
 Alt/Super + arrows            Line/word navigation
 Super + Ctrl + T              Toggle light/dark theme
 Alt + Shift + 3/4             Screenshot region/fullscreen
