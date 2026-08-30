@@ -14,6 +14,12 @@ ShellRoot {
 
   property bool darkMode: themeFile.text().trim() !== "light"
   property string rebuildStatus: rebuildFile.text().trim()
+  property int cpuUsage: 0
+  property int memoryUsage: 0
+  property real memoryUsedGiB: 0
+  property real memoryTotalGiB: 0
+  property real previousCpuIdle: 0
+  property real previousCpuTotal: 0
   readonly property color authBackground: darkMode ? "#1b1913" : "#efeee9"
   readonly property color authField: darkMode ? "#14120b" : "#f7f7f4"
   readonly property color authBorder: darkMode ? "#2b2923" : "#cecdc7"
@@ -42,6 +48,44 @@ ShellRoot {
     watchChanges: true
     printErrors: false
     onFileChanged: reload()
+  }
+
+  Process {
+    id: systemUsageProcess
+    running: true
+    command: ["sh", "-c", "head -n 1 /proc/stat; awk '/MemTotal:/ { total=$2 } /MemAvailable:/ { available=$2 } END { print total, available }' /proc/meminfo"]
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: {
+        const lines = text.trim().split("\n")
+        if (lines.length < 2) return
+
+        const cpu = lines[0].trim().split(/\s+/)
+        let total = 0
+        for (let i = 1; i < cpu.length; i++) total += Number(cpu[i])
+        const idle = Number(cpu[4]) + Number(cpu[5] || 0)
+        const totalDelta = total - shellRoot.previousCpuTotal
+        const idleDelta = idle - shellRoot.previousCpuIdle
+        if (shellRoot.previousCpuTotal > 0 && totalDelta > 0)
+          shellRoot.cpuUsage = Math.max(0, Math.min(100, Math.round(100 * (1 - idleDelta / totalDelta))))
+        shellRoot.previousCpuTotal = total
+        shellRoot.previousCpuIdle = idle
+
+        const memory = lines[1].trim().split(/\s+/)
+        const totalKiB = Number(memory[0])
+        const availableKiB = Number(memory[1])
+        shellRoot.memoryTotalGiB = totalKiB / 1048576
+        shellRoot.memoryUsedGiB = (totalKiB - availableKiB) / 1048576
+        shellRoot.memoryUsage = totalKiB > 0 ? Math.round(100 * (totalKiB - availableKiB) / totalKiB) : 0
+      }
+    }
+  }
+
+  Timer {
+    interval: 2000
+    running: true
+    repeat: true
+    onTriggered: if (!systemUsageProcess.running) systemUsageProcess.running = true
   }
 
   PolkitAgent {
@@ -243,6 +287,7 @@ ShellRoot {
       property bool panelOpen: false
       property string panelPage: ""
       property string pendingPowerAction: ""
+      property var topProcesses: []
       property int rebuildFrame: 0
       property var rebuildFrames: ["|", "/", "—", "\\"]
       property var sink: Pipewire.defaultAudioSink
@@ -267,6 +312,7 @@ ShellRoot {
         pendingPowerAction = ""
         panelOpen = true
         if (page === "wifi" && !wifiProcess.running) wifiProcess.running = true
+        if (page === "system" && !topProcessesProcess.running) topProcessesProcess.running = true
       }
 
       function batteryIcon() {
@@ -399,6 +445,80 @@ ShellRoot {
         }
       }
 
+      component UsageRow: Item {
+        property string icon: ""
+        property string label: ""
+        property string detail: ""
+        property int percentage: 0
+
+        width: parent ? parent.width : 0
+        height: detail.length > 0 ? 54 : 48
+
+        Text {
+          id: usageIcon
+          anchors.left: parent.left
+          anchors.leftMargin: 8
+          anchors.verticalCenter: parent.verticalCenter
+          width: 22
+          horizontalAlignment: Text.AlignHCenter
+          text: icon
+          color: percentage >= 90 ? bar.error : bar.foreground
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 15
+        }
+
+        Column {
+          anchors.left: usageIcon.right
+          anchors.leftMargin: 9
+          anchors.right: usagePercent.left
+          anchors.rightMargin: 12
+          anchors.verticalCenter: parent.verticalCenter
+          spacing: 3
+
+          Text {
+            width: parent.width
+            text: label
+            color: bar.foreground
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 12
+          }
+          Text {
+            visible: detail.length > 0
+            width: parent.width
+            text: detail
+            color: bar.muted
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 9
+          }
+          Rectangle {
+            width: parent.width
+            height: 5
+            radius: 3
+            color: bar.panelBorder
+            Rectangle {
+              width: parent.width * Math.max(0, Math.min(1, percentage / 100))
+              height: parent.height
+              radius: parent.radius
+              color: percentage >= 90 ? bar.error : bar.accent
+            }
+          }
+        }
+
+        Text {
+          id: usagePercent
+          anchors.right: parent.right
+          anchors.rightMargin: 8
+          anchors.verticalCenter: parent.verticalCenter
+          width: 46
+          horizontalAlignment: Text.AlignRight
+          text: percentage + "%"
+          color: percentage >= 90 ? bar.error : bar.foreground
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 16
+          font.bold: true
+        }
+      }
+
       PwObjectTracker {
         objects: [bar.sink]
       }
@@ -420,6 +540,31 @@ ShellRoot {
       Process {
         id: wifiToggleProcess
         onExited: if (!wifiProcess.running) wifiProcess.running = true
+      }
+
+      Process {
+        id: topProcessesProcess
+        command: ["sh", "-c", "ps -eo comm=,%cpu=,%mem= --no-headers | awk '{ name=$1; sub(/^\\./, \"\", name); sub(/-wra.*$/, \"\", name); if (name !~ /^(ps|awk|sort|head|sh|bash|find)$/) { cpu[name] += $2; mem[name] += $3 } } END { for (name in cpu) printf \"%s %.1f %.1f\\n\", name, cpu[name], mem[name] }' | sort -k2,2nr | head -n 5"]
+        stdout: StdioCollector {
+          waitForEnd: true
+          onStreamFinished: {
+            const rows = []
+            const lines = text.trim().split("\n")
+            for (let i = 0; i < lines.length; i++) {
+              const fields = lines[i].trim().split(/\s+/)
+              if (fields.length >= 3)
+                rows.push({ name: fields[0], cpu: fields[1], memory: fields[2] })
+            }
+            bar.topProcesses = rows
+          }
+        }
+      }
+
+      Timer {
+        interval: 2000
+        running: bar.panelOpen && bar.panelPage === "system"
+        repeat: true
+        onTriggered: if (!topProcessesProcess.running) topProcessesProcess.running = true
       }
 
       Timer {
@@ -497,6 +642,32 @@ ShellRoot {
             color: shellRoot.rebuildStatus === "failed" ? bar.error : bar.accent
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 11
+          }
+        }
+
+        Item {
+          Layout.preferredWidth: 122
+          Layout.fillHeight: true
+          Text {
+            anchors.centerIn: parent
+            text: "󰻠 " + String(shellRoot.cpuUsage).padStart(3, " ") + "%  󰍛 " + String(shellRoot.memoryUsage).padStart(3, " ") + "%"
+            color: bar.foreground
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 11
+          }
+          Rectangle {
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 62
+            height: 1
+            color: bar.accent
+            visible: bar.panelOpen && bar.panelPage === "system"
+          }
+          MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: bar.togglePanel("system")
           }
         }
 
@@ -580,7 +751,7 @@ ShellRoot {
         visible: bar.panelOpen
         color: "transparent"
         implicitWidth: 310
-        implicitHeight: bar.panelPage === "power" ? 300 : bar.panelPage === "sound" ? 190 : 158
+        implicitHeight: bar.panelPage === "system" ? 370 : bar.panelPage === "power" ? 300 : bar.panelPage === "sound" ? 190 : 158
 
         onVisibleChanged: if (!visible) bar.pendingPowerAction = ""
 
@@ -618,14 +789,14 @@ ShellRoot {
               height: 22
               spacing: 9
               Text {
-                text: bar.panelPage === "wifi" ? "󰖩" : bar.panelPage === "bluetooth" ? "󰂯" : bar.panelPage === "sound" ? bar.volumeIcon() : bar.batteryIcon()
+                text: bar.panelPage === "system" ? "󰻠" : bar.panelPage === "wifi" ? "󰖩" : bar.panelPage === "bluetooth" ? "󰂯" : bar.panelPage === "sound" ? bar.volumeIcon() : bar.batteryIcon()
                 color: bar.accent
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 17
                 anchors.verticalCenter: parent.verticalCenter
               }
               Text {
-                text: bar.panelPage === "wifi" ? "Wi-Fi" : bar.panelPage === "bluetooth" ? "Bluetooth" : bar.panelPage === "sound" ? "Sound" : "Power"
+                text: bar.panelPage === "system" ? "System" : bar.panelPage === "wifi" ? "Wi-Fi" : bar.panelPage === "bluetooth" ? "Bluetooth" : bar.panelPage === "sound" ? "Sound" : "Power"
                 color: bar.foreground
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 14
@@ -635,6 +806,99 @@ ShellRoot {
             }
 
             Rectangle { width: parent.width; height: 1; color: bar.panelBorder }
+
+            Column {
+              id: systemColumn
+              visible: bar.panelPage === "system"
+              width: parent.width
+              spacing: 4
+
+              UsageRow {
+                icon: "󰻠"
+                label: "CPU"
+                percentage: shellRoot.cpuUsage
+              }
+              UsageRow {
+                icon: "󰍛"
+                label: "Memory"
+                detail: shellRoot.memoryUsedGiB.toFixed(1) + " / " + shellRoot.memoryTotalGiB.toFixed(1) + " GiB"
+                percentage: shellRoot.memoryUsage
+              }
+
+              Item {
+                width: parent.width
+                height: 18
+                Text {
+                  anchors.left: parent.left
+                  anchors.verticalCenter: parent.verticalCenter
+                  text: "Top processes"
+                  color: bar.muted
+                  font.family: "JetBrainsMono Nerd Font"
+                  font.pixelSize: 10
+                }
+                Text {
+                  anchors.right: parent.right
+                  anchors.verticalCenter: parent.verticalCenter
+                  text: "CPU     MEM"
+                  color: bar.inactive
+                  font.family: "JetBrainsMono Nerd Font"
+                  font.pixelSize: 9
+                }
+              }
+
+              Repeater {
+                model: bar.topProcesses
+                delegate: Item {
+                  required property var modelData
+                  width: systemColumn.width
+                  height: 22
+
+                  Text {
+                    anchors.left: parent.left
+                    anchors.right: processCpu.left
+                    anchors.rightMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: modelData.name.charAt(0).toUpperCase() + modelData.name.slice(1)
+                    color: bar.foreground
+                    font.family: "JetBrainsMono Nerd Font"
+                    font.pixelSize: 11
+                    elide: Text.ElideRight
+                  }
+                  Text {
+                    id: processCpu
+                    anchors.right: processMemory.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 50
+                    horizontalAlignment: Text.AlignRight
+                    text: modelData.cpu + "%"
+                    color: bar.muted
+                    font.family: "JetBrainsMono Nerd Font"
+                    font.pixelSize: 10
+                  }
+                  Text {
+                    id: processMemory
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 50
+                    horizontalAlignment: Text.AlignRight
+                    text: modelData.memory + "%"
+                    color: bar.muted
+                    font.family: "JetBrainsMono Nerd Font"
+                    font.pixelSize: 10
+                  }
+                }
+              }
+
+              PanelRow {
+                icon: "󰍛"
+                label: "Open btop…"
+                trailing: "›"
+                onActivated: {
+                  bar.panelOpen = false
+                  Quickshell.execDetached(["ghostty", "-e", "btop"])
+                }
+              }
+            }
 
             Column {
               visible: bar.panelPage === "wifi"
