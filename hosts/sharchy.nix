@@ -250,8 +250,8 @@ in
   fonts.packages = with pkgs; [ jetbrains-mono nerd-fonts.jetbrains-mono ];
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs chromium
-    cryptsetup curl fuzzel ghostty git grim glib jq libnotify mako
-    networkmanagerapplet pavucontrol pciutils quickshell ripgrep slurp swaybg
+    cryptsetup curl discord fuzzel ghostty git grim glib jq libnotify mako
+    networkmanagerapplet obsidian pavucontrol pciutils quickshell ripgrep slurp swaybg
     swayidle usbutils vim wget wl-clipboard
   ];
 
