@@ -206,6 +206,8 @@ in
         application.only = [ "helium" "chromium" "chromium-browser" ];
         remap = {
           "ALT-W" = "CTRL-W";
+          "ALT-R" = "CTRL-R";
+          "ALT-SHIFT-R" = "CTRL-SHIFT-R";
           "ALT-SHIFT-T" = "CTRL-SHIFT-T";
           "ALT-SHIFT-LEFTBRACE" = "CTRL-PAGEUP";
           "ALT-SHIFT-RIGHTBRACE" = "CTRL-PAGEDOWN";
