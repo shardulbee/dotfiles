@@ -2,15 +2,15 @@
 
 rustPlatform.buildRustPackage {
   pname = "uberstat";
-  version = "0.4.0";
+  version = "0.5.0";
 
   src = fetchFromGitHub {
     owner = "shardulbee";
     repo = "uberstat";
-    rev = "19ab145f97f95f99b113fa7fea73f16d2dd15121";
-    hash = "sha256-+2xlRPXap8sqQMUhfRcFgvqz6JYLJAGHLo8I6Klm8vg=";
+    rev = "4f9cdcb492c0bc17e277bd4f5aea2cd94135d958";
+    hash = "sha256-hRCPKxBgWR6GOm4MfYmE7ubzsrgvmaoYFqGFYj/yRFk=";
   };
-  cargoHash = "sha256-j6gp2e3leC9RhSl7jn+Ywaw4aGTr+1q+peYWqGy6VIM=";
+  cargoHash = "sha256-H4QT6f/6xnVpcqdn10aXfMXex/35+/WFXZCs1YbigOE=";
 
   meta = {
     description = "Fast, Jujutsu-first workspace status dashboard";
