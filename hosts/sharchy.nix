@@ -205,6 +205,7 @@ in
         name = "Helium and Chromium tabs";
         application.only = [ "helium" "chromium" "chromium-browser" ];
         remap = {
+          "ALT-W" = "CTRL-W";
           "ALT-SHIFT-LEFTBRACE" = "CTRL-PAGEUP";
           "ALT-SHIFT-RIGHTBRACE" = "CTRL-PAGEDOWN";
         };
