@@ -73,7 +73,10 @@
             zsh-autosuggestions
           ];
 
-          home.sessionVariables.DISABLE_AUTOUPDATER = "1";
+          home.sessionVariables = {
+            DISABLE_AUTOUPDATER = "1";
+            UBERSTAT_ROOT = "$HOME/Documents";
+          };
           home.sessionPath = [ "$HOME/.local/bin" ];
 
           home.file.".zshrc".source = ./config/zsh.zsh;
