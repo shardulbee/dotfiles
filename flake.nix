@@ -15,9 +15,13 @@
       url = "github:oxcl/nix-flake-helium-browser";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    xremap-flake = {
+      url = "github:xremap/nix-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, darwin, helium, ... }:
+  outputs = { self, nixpkgs, home-manager, darwin, helium, xremap-flake, ... }:
     let
       sharedHome = { pkgs, ... }:
         let
@@ -217,6 +221,7 @@
           ./hosts/sharchy.nix
           home-manager.nixosModules.home-manager
           helium.nixosModules.default
+          xremap-flake.nixosModules.default
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;

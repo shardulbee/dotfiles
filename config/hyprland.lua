@@ -28,7 +28,6 @@ hl.bind(mainMod .. " + CTRL + T", hl.dsp.exec_cmd("/home/shardul/.local/bin/shar
 hl.bind(mainMod .. " + ALT + K", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-keybindings"))
 hl.bind(mainMod .. " + ALT + R", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-rebuild"))
 hl.bind(mainMod .. " + ESCAPE", hl.dsp.exec_cmd("systemctl --user start sharchy-lock.service"))
-hl.bind(mainMod .. " + GRAVE", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-quake"))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind("ALT + TAB", hl.dsp.focus({ workspace = "previous" }))
 
@@ -41,16 +40,16 @@ hl.bind(mainMod .. " + SHIFT + J", hl.dsp.window.move({ direction = "d" }))
 hl.bind(mainMod .. " + SHIFT + K", hl.dsp.window.move({ direction = "u" }))
 hl.bind(mainMod .. " + SHIFT + L", hl.dsp.window.move({ direction = "r" }))
 
-hl.bind(mainMod .. " + 1", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-workspace 1"))
-hl.bind(mainMod .. " + 2", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-workspace 2"))
-hl.bind(mainMod .. " + 3", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-workspace 3"))
-hl.bind(mainMod .. " + 4", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-workspace 4"))
-hl.bind(mainMod .. " + 5", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-workspace 5"))
-hl.bind(mainMod .. " + 6", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-workspace 6"))
-hl.bind(mainMod .. " + 7", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-workspace 7"))
-hl.bind(mainMod .. " + 8", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-workspace 8"))
-hl.bind(mainMod .. " + 9", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-workspace 9"))
-hl.bind(mainMod .. " + 0", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-workspace 10"))
+hl.bind(mainMod .. " + 1", hl.dsp.focus({ workspace = 1 }))
+hl.bind(mainMod .. " + 2", hl.dsp.focus({ workspace = 2 }))
+hl.bind(mainMod .. " + 3", hl.dsp.focus({ workspace = 3 }))
+hl.bind(mainMod .. " + 4", hl.dsp.focus({ workspace = 4 }))
+hl.bind(mainMod .. " + 5", hl.dsp.focus({ workspace = 5 }))
+hl.bind(mainMod .. " + 6", hl.dsp.focus({ workspace = 6 }))
+hl.bind(mainMod .. " + 7", hl.dsp.focus({ workspace = 7 }))
+hl.bind(mainMod .. " + 8", hl.dsp.focus({ workspace = 8 }))
+hl.bind(mainMod .. " + 9", hl.dsp.focus({ workspace = 9 }))
+hl.bind(mainMod .. " + 0", hl.dsp.focus({ workspace = 10 }))
 hl.bind(mainMod .. " + SHIFT + 1", hl.dsp.window.move({ workspace = 1 }))
 hl.bind(mainMod .. " + SHIFT + 2", hl.dsp.window.move({ workspace = 2 }))
 hl.bind(mainMod .. " + SHIFT + 3", hl.dsp.window.move({ workspace = 3 }))
@@ -83,17 +82,6 @@ hl.bind("PRINT", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screenshot re
 hl.bind("CTRL + PRINT", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screenshot fullscreen"))
 
 hl.window_rule({
-    name = "quake-terminal",
-    match = {
-        class = "com.sharchy.quake",
-    },
-    float = true,
-    workspace = "special:quake",
-    size = "1150 720",
-    move = "65 38",
-})
-
-hl.window_rule({
     name = "float-1password",
     match = {
         class = "1password",
@@ -120,6 +108,7 @@ hl.config({
         touchpad = {
             natural_scroll = true,
             tap_to_click = true,
+            scroll_factor = 0.3,
         },
     },
     general = {

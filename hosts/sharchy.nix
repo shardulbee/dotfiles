@@ -73,6 +73,9 @@ in
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.consoleLogLevel = 0;
   boot.kernelParams = [ "xe.enable_psr2_sel_fetch=0" ];
+  # The XPS 13 DX13260 routes its CS35L56 woofer amps through a CS42L43
+  # sidecar bridge. Force that bridge until the kernel recognizes SSID 1028:0e53.
+  boot.extraModprobeConfig = "options snd_soc_sof_sdw quirk=65536";
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   hardware.enableRedistributableFirmware = true;
@@ -173,6 +176,41 @@ in
   services.gnome.gnome-keyring.enable = true;
   services.upower.enable = true;
   services.blueman.enable = true;
+  services.xremap = {
+    enable = true;
+    serviceMode = "user";
+    userName = "shardul";
+    withHypr = true;
+    config.keymap = [
+      {
+        name = "macOS editing";
+        application.not = [ "com.mitchellh.ghostty" ];
+        remap = {
+          "ALT-C" = "CTRL-C";
+          "ALT-V" = "CTRL-V";
+          "ALT-X" = "CTRL-X";
+          "ALT-A" = "CTRL-A";
+          "ALT-Z" = "CTRL-Z";
+          "ALT-BACKSPACE" = [ "SHIFT-HOME" "BACKSPACE" ];
+          "ALT-LEFT" = "HOME";
+          "ALT-RIGHT" = "END";
+          "SUPER-BACKSPACE" = "CTRL-BACKSPACE";
+          "SUPER-LEFT" = "CTRL-LEFT";
+          "SUPER-RIGHT" = "CTRL-RIGHT";
+          "SUPER-SHIFT-LEFT" = "CTRL-SHIFT-LEFT";
+          "SUPER-SHIFT-RIGHT" = "CTRL-SHIFT-RIGHT";
+        };
+      }
+      {
+        name = "Helium and Chromium tabs";
+        application.only = [ "helium" "chromium" "chromium-browser" ];
+        remap = {
+          "ALT-SHIFT-LEFTBRACE" = "CTRL-PAGEUP";
+          "ALT-SHIFT-RIGHTBRACE" = "CTRL-PAGEDOWN";
+        };
+      }
+    ];
+  };
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -224,9 +262,7 @@ in
       home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot.sh;
       home.file.".local/bin/sharchy-theme".source = ../scripts/sharchy-theme.sh;
       home.file.".local/bin/sharchy-keybindings".source = ../scripts/sharchy-keybindings.sh;
-      home.file.".local/bin/sharchy-quake".source = ../scripts/sharchy-quake.sh;
       home.file.".local/bin/sharchy-rebuild".source = ../scripts/sharchy-rebuild.sh;
-      home.file.".local/bin/sharchy-workspace".source = ../scripts/sharchy-workspace.sh;
 
       systemd.user.services.sharchy-bar = {
         Unit = {

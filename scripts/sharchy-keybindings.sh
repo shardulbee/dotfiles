@@ -5,23 +5,23 @@ Super + Return                Terminal
 Super + Shift + B             Helium browser
 Super + P                     1Password Quick Access
 Super + Alt + K               This shortcut reference
-Super + Alt + R              Rebuild NixOS
+Super + Alt + R               Rebuild NixOS
 Super + Escape                Lock screen
-Alt + `                       Toggle Quake terminal
 Super + H/J/K/L               Focus left/down/up/right
 Super + Shift + H/J/K/L       Move window left/down/up/right
-Super + 1…9 (0 in Hyprland)  Focus workspace
+Super + 1…9/0                 Focus workspace 1…10
 Super + Shift + 1…9/0         Move window to workspace
-Super + R                     Cycle column width
+Super + R                     Toggle split orientation
 Super + -/=                   Decrease/increase width
 Super + Shift + -/=           Decrease/increase height
-Super + F                     Maximize column
+Super + F                     Maximize window
 Super + Shift + F             Fullscreen window
+Super + Q                     Close window
 Alt + Tab                     Previous workspace
-Alt + Q                       Close window
-Ctrl shortcuts                Native application editing/browser actions
+Alt + C/V/X/A/Z               Copy/paste/cut/select all/undo
+Alt/Super + arrows            Line/word navigation
 Super + Ctrl + T              Toggle light/dark theme
 Alt + Shift + 3/4             Screenshot region/fullscreen
-Print / Ctrl+Print/Alt+Print  Screenshot region/screen/window
+Print / Ctrl + Print          Screenshot region/fullscreen
 Brightness and volume keys    Adjust display/audio
 EOF

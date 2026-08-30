@@ -12,13 +12,24 @@ unsetopt APPEND_HISTORY EXTENDED_HISTORY INC_APPEND_HISTORY SHARE_HISTORY
 
 # Fish-like interactive defaults.
 bindkey -e
-# Ghostty/Hyprland encodes Ctrl+Left/Right as CSI 1;5D/C. Bind those
-# directly so Super+Left/Right can send normal Linux word-movement chords
-# everywhere instead of special-casing terminals in the window manager.
+# Bind common Ctrl+Left/Right terminal encodings for word movement.
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
 bindkey '^[[5D' backward-word
 bindkey '^[[5C' forward-word
+_select_backward_word() {
+  (( REGION_ACTIVE )) || zle set-mark-command
+  zle backward-word
+}
+_select_forward_word() {
+  (( REGION_ACTIVE )) || zle set-mark-command
+  zle forward-word
+}
+zle -N _select_backward_word
+zle -N _select_forward_word
+bindkey '^[[1;6D' _select_backward_word
+bindkey '^[[1;6C' _select_forward_word
+bindkey '^[x' kill-region
 setopt AUTO_CD INTERACTIVE_COMMENTS
 
 # Match Fish's default prompt: user@host ~/a/basename>.
