@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-cat <<'EOF' | fuzzel --dmenu --prompt='Keybindings > ' --width=66 --lines=31
+cat <<'EOF' | fuzzel --dmenu --prompt='Keybindings > ' --width=66 --lines=32
 Super + Space                 App launcher
 Super + Return                Terminal
 Super + Shift + B             Helium browser
 Super + P                     1Password Quick Access
+Super + N                     Toggle Obsidian space
 Super + Alt + K               This shortcut reference
 Super + Alt + R               Rebuild NixOS
 Super + Escape                Lock screen
