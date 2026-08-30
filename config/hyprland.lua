@@ -28,7 +28,8 @@ hl.bind(mainMod .. " + CTRL + T", hl.dsp.exec_cmd("/home/shardul/.local/bin/shar
 hl.bind(mainMod .. " + ALT + K", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-keybindings"))
 hl.bind(mainMod .. " + ALT + R", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-rebuild"))
 hl.bind(mainMod .. " + ESCAPE", hl.dsp.exec_cmd("systemctl --user start sharchy-lock.service"))
-hl.bind(mainMod .. " + N", hl.dsp.workspace.toggle_special("obsidian"))
+hl.bind(mainMod .. " + N", hl.dsp.focus({ workspace = "name:obsidian" }))
+hl.bind(mainMod .. " + TAB", hl.dsp.focus({ workspace = "previous" }))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind("ALT + TAB", hl.dsp.focus({ workspace = "previous" }))
 
@@ -87,7 +88,7 @@ hl.window_rule({
     match = {
         class = "(?i).*obsidian.*",
     },
-    workspace = "special:obsidian",
+    workspace = "name:obsidian",
     fullscreen = true,
 })
 
