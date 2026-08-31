@@ -158,7 +158,6 @@ in
     withUWSM = true;
     xwayland.enable = true;
   };
-  programs.niri.enable = true;
   programs.uwsm.enable = true;
   services.greetd = {
     enable = true;
@@ -176,12 +175,8 @@ in
   programs.nix-ld.enable = true;
   xdg.portal = {
     enable = true;
-    extraPortals = with pkgs; [ xdg-desktop-portal-gnome xdg-desktop-portal-gtk xdg-desktop-portal-hyprland ];
-    config = {
-      common.default = [ "gtk" ];
-      hyprland.default = [ "hyprland" "gtk" ];
-      niri.default = [ "gnome" "gtk" ];
-    };
+    extraPortals = with pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-hyprland ];
+    config.common.default = [ "hyprland" "gtk" ];
   };
   security.polkit = {
     enable = true;
@@ -265,7 +260,7 @@ in
     adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs chromium
     cryptsetup curl discord fuzzel ghostty git grim glib jq libnotify mako
     networkmanagerapplet obsidian pavucontrol pciutils quickshell ripgrep slurp swaybg
-    swayidle usbutils vim wget wl-clipboard xwayland-satellite
+    swayidle usbutils vim wget wl-clipboard
   ];
 
   home-manager.users.shardul = { config, pkgs, ... }:
@@ -303,7 +298,6 @@ in
       home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot.sh;
       home.file.".local/bin/sharchy-theme".source = ../scripts/sharchy-theme.sh;
       home.file.".local/bin/sharchy-keybindings".source = ../scripts/sharchy-keybindings.sh;
-      home.file.".local/bin/sharchy-layout-toggle".source = ../scripts/sharchy-layout-toggle.sh;
       home.file.".local/bin/sharchy-rebuild".source = ../scripts/sharchy-rebuild.sh;
 
       systemd.user.services.amp-runner = {
@@ -400,7 +394,6 @@ in
       xdg.configFile."chromium/extensions/alt-click-new-tab/manifest.json".source = ../config/browser-extension/manifest.json;
       xdg.configFile."hypr/hyprland.conf".source = ../config/hyprland.conf;
       xdg.configFile."hypr/hyprland.lua".source = ../config/hyprland.lua;
-      xdg.configFile."niri/config.kdl".source = ../config/niri.kdl;
       xdg.configFile."mako/config".source = ../config/mako.conf;
       xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;
       xdg.desktopEntries.helium = {
