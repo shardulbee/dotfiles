@@ -1,43 +1,47 @@
 # dotfiles
 
-Nix is the control plane for the `sharchy` NixOS workstation and the `macbook`
-macOS host. Home Manager owns the shared user environment; nix-darwin owns
-macOS settings and the Homebrew GUI-app escape hatch.
+This repository contains the Nix configuration for the `sharchy` NixOS
+workstation and the `macbook` macOS host. Home Manager installs the shared user
+environment and application configuration. nix-darwin manages macOS settings
+and Homebrew casks.
 
-Small glue configuration is inlined where it is used. Application configuration
-that is useful to edit directly remains under `config/`.
+The flake assumes the repository is checked out at `~/Documents/dotfiles` for
+the `shardul` user. Secrets and application state stay outside the Nix store.
 
-## macOS
+## Apply the configuration
 
-Install Determinate Nix and Homebrew, clone this repository to
-`~/Documents/dotfiles`, then run:
+On macOS, install Determinate Nix and Homebrew, then run the initial activation:
 
 ```sh
 sudo nix run nix-darwin -- switch --flake .#macbook
 ```
 
-Subsequent updates are simply:
-
-```sh
-rebuild
-```
-
-Homebrew cleanup is set to `uninstall`: undeclared formulae and casks, including
-the retired `omp`, are removed during activation. Application data is not
-zapped.
-
-## NixOS
+On NixOS, check and activate the `sharchy` configuration:
 
 ```sh
 nix flake check
 sudo nixos-rebuild switch --flake .#sharchy
 ```
 
-Subsequent updates can also use `rebuild`.
+After either initial setup, apply later changes with:
 
-## Package ownership
+```sh
+rebuild
+```
 
-- Nix provides command-line tools, including Pi from nixpkgs unstable.
-- `packages/playwriter.nix` pins and builds Playwriter from its npm lockfile.
-- nix-darwin declares proprietary macOS applications as Homebrew casks.
-- Secrets and application state remain outside the Nix store.
+On macOS, activation removes undeclared Homebrew formulae and casks. It does
+not delete their application data.
+
+## Repository layout
+
+- `flake.nix` defines both hosts and the shared Home Manager configuration.
+- `hosts/sharchy.nix` contains the NixOS hardware, desktop, and system services.
+- `config/` contains editable configuration for shells, editors, terminals,
+  Hyprland, Quickshell, and other desktop tools.
+- `scripts/` contains commands used by the `sharchy` desktop for rebuilding,
+  screenshots, themes, layouts, browser defaults, and shortcut help.
+- `packages/` pins packages that are not taken directly from nixpkgs.
+
+Command-line tools come from Nix. nix-darwin installs proprietary macOS apps as
+Homebrew casks. `packages/playwriter.nix`, `packages/grok-bot.nix`, and
+`packages/uberstat.nix` define locally packaged tools.
