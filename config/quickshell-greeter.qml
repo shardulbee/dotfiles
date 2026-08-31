@@ -20,6 +20,13 @@ ShellRoot {
     property string prompt: "Password"
     property bool responseRequired: false
     property bool responseVisible: false
+    property bool useNiri: false
+    property string sessionName: useNiri ? "Niri" : "Hyprland"
+
+    Shortcut {
+      sequence: "F1"
+      onActivated: greeterWindow.useNiri = !greeterWindow.useNiri
+    }
 
     FileView {
       id: themeFile
@@ -81,7 +88,7 @@ ShellRoot {
       id: authCard
       anchors.centerIn: parent
       title: "Welcome back"
-      subtitle: "shardul · Hyprland"
+      subtitle: "shardul · " + greeterWindow.sessionName
       dark: greeterWindow.darkMode
       prompt: greeterWindow.prompt
       errorText: greeterWindow.errorText
@@ -89,6 +96,22 @@ ShellRoot {
       responseVisible: greeterWindow.responseVisible
       onEdited: greeterWindow.errorText = ""
       onSubmitted: password => greeterWindow.submitPassword(password)
+    }
+
+    Text {
+      anchors.horizontalCenter: authCard.horizontalCenter
+      anchors.top: authCard.bottom
+      anchors.topMargin: 18
+      text: "F1  ·  switch to " + (greeterWindow.useNiri ? "Hyprland" : "Niri")
+      color: greeterWindow.darkMode ? "#999999" : "#57564f"
+      font.family: "JetBrainsMono Nerd Font"
+      font.pixelSize: 12
+
+      MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: greeterWindow.useNiri = !greeterWindow.useNiri
+      }
     }
 
     Connections {
@@ -110,14 +133,18 @@ ShellRoot {
       }
 
       function onReadyToLaunch() {
-        Greetd.launch([
-          "/run/current-system/sw/bin/uwsm",
-          "start",
-          "-e",
-          "-D",
-          "Hyprland",
-          "hyprland.desktop"
-        ])
+        if (greeterWindow.useNiri) {
+          Greetd.launch(["/run/current-system/sw/bin/niri-session"])
+        } else {
+          Greetd.launch([
+            "/run/current-system/sw/bin/uwsm",
+            "start",
+            "-e",
+            "-D",
+            "Hyprland",
+            "hyprland.desktop"
+          ])
+        }
       }
 
       function onError(error) {
