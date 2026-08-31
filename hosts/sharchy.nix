@@ -305,6 +305,7 @@ in
         x11.enable = true;
       };
 
+      home.file.".local/bin/sharchy-fuzzel".source = ../scripts/sharchy-fuzzel.sh;
       home.file.".local/bin/sharchy-helium".source = ../scripts/sharchy-helium.sh;
       home.file.".local/bin/sharchy-helium-defaults".source = ../scripts/sharchy-helium-defaults.sh;
       home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot.sh;
@@ -394,6 +395,9 @@ in
         Install.WantedBy = [ "timers.target" ];
       };
 
+      xdg.configFile."fuzzel/fuzzel.ini".source = ../config/fuzzel.ini;
+      xdg.configFile."fuzzel/light.ini".source = ../config/fuzzel-light.ini;
+      xdg.configFile."fuzzel/dark.ini".source = ../config/fuzzel-dark.ini;
       xdg.configFile."ghostty/config".source = ../config/ghostty-linux.conf;
       xdg.configFile."helium-browser-flags.conf".text = ''
       --ozone-platform=wayland

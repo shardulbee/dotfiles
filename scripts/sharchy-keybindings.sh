@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-cat <<'EOF' | fuzzel --dmenu --prompt='Keybindings > ' --width=66 --lines=33
-Super + Space                 App launcher
+cat <<'EOF' | "$HOME/.local/bin/sharchy-fuzzel" --dmenu --prompt='Keybindings > ' --width=66 --lines=34
+Alt + Space                   App launcher
 Super + Return                Terminal
-Super + Shift + B             Helium browser
+Super + Shift + Return / B    Helium browser
 Super + P                     1Password Quick Access
+Super + Shift + P             1Password
 Super + N                     Focus Obsidian space
 Super + Tab                   Previous workspace
 Super + Alt + K               This shortcut reference

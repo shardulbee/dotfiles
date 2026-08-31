@@ -21,9 +21,11 @@ hl.gesture({
 })
 
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("ghostty"))
-hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd("fuzzel"))
+hl.bind("ALT + SPACE", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-fuzzel"))
+hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-helium"))
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-helium"))
 hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("1password --quick-access"))
+hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("1password --show"))
 hl.bind(mainMod .. " + CTRL + T", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-theme toggle"))
 hl.bind(mainMod .. " + ALT + K", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-keybindings"))
 hl.bind(mainMod .. " + ALT + R", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-rebuild"))
