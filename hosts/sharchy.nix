@@ -298,6 +298,7 @@ in
       home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot.sh;
       home.file.".local/bin/sharchy-theme".source = ../scripts/sharchy-theme.sh;
       home.file.".local/bin/sharchy-keybindings".source = ../scripts/sharchy-keybindings.sh;
+      home.file.".local/bin/sharchy-layout-toggle".source = ../scripts/sharchy-layout-toggle.sh;
       home.file.".local/bin/sharchy-rebuild".source = ../scripts/sharchy-rebuild.sh;
 
       systemd.user.services.amp-runner = {
