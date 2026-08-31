@@ -224,6 +224,8 @@ in
           "ALT-SHIFT-T" = "CTRL-SHIFT-T";
           "ALT-1" = "CTRL-1";
           "ALT-2" = "CTRL-2";
+          "ALT-SHIFT-3" = "ALT-SHIFT-3";
+          "ALT-SHIFT-4" = "ALT-SHIFT-4";
           "ALT-3" = "CTRL-3";
           "ALT-4" = "CTRL-4";
           "ALT-5" = "CTRL-5";
