@@ -395,6 +395,13 @@ in
         Install.WantedBy = [ "timers.target" ];
       };
 
+      # Mask terminal-only launchers; Fuzzel should contain GUI applications.
+      xdg.dataFile."applications/vim.desktop".text = ''
+        [Desktop Entry]
+        Type=Application
+        Name=Vim
+        Hidden=true
+      '';
       xdg.configFile."fuzzel/fuzzel.ini".source = ../config/fuzzel.ini;
       xdg.configFile."fuzzel/light.ini".source = ../config/fuzzel-light.ini;
       xdg.configFile."fuzzel/dark.ini".source = ../config/fuzzel-dark.ini;
