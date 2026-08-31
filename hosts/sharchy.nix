@@ -20,6 +20,14 @@ let
       ${pkgs.cage}/bin/cage -s -d -- \
       ${pkgs.quickshell}/bin/quickshell -p ${greeterConfig}
   '';
+  cs35l56SpeakerFirmware = pkgs.runCommand "cs35l56-10280e53-spkid0-firmware" { } ''
+    mkdir -p "$out/lib/firmware/cirrus"
+    for suffix in .wmfw -ampl.bin -ampr.bin; do
+      cp -L \
+        "${pkgs.linux-firmware}/lib/firmware/cirrus/cs35l56-b2-dsp1-misc-10280e53-spkid1$suffix" \
+        "$out/lib/firmware/cirrus/cs35l56-b2-dsp1-misc-10280e53-spkid0$suffix"
+    done
+  '';
 in
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
@@ -85,6 +93,10 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   hardware.enableRedistributableFirmware = true;
+  # BIOS samples the speaker-ID GPIO too early and reports 0 during boot, but
+  # the physical strap reads a stable 1 with every bias mode after boot. Alias
+  # the matching Dell ID-1 tuning so the CS35L56 amplifiers can initialize.
+  hardware.firmware = [ cs35l56SpeakerFirmware ];
   hardware.cpu.intel.npu.enable = true;
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
   hardware.bluetooth = {
