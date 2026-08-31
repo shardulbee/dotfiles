@@ -142,7 +142,7 @@ hl.config({
         },
     },
     animations = {
-        enabled = true,
+        enabled = false,
     },
     dwindle = {
         preserve_split = true,
