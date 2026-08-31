@@ -323,7 +323,7 @@ in
         Service = {
           Environment = "HOME=/home/shardul";
           WorkingDirectory = "/home/shardul";
-          ExecStart = "/home/shardul/.amp/bin/amp --no-tui --runner-id sharchy --remote-control-terminal";
+          ExecStart = "${pkgs.amp-cli}/bin/amp --no-tui --runner-id sharchy --remote-control-terminal";
           Restart = "always";
           RestartSec = 5;
         };

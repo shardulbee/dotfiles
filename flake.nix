@@ -41,6 +41,7 @@
           programs.home-manager.enable = true;
 
           home.packages = with pkgs; [
+            amp-cli
             atuin
             btop
             claude-code
@@ -250,6 +251,20 @@
             security.pam.services.sudo_local = {
               touchIdAuth = true;
               reattach = true;
+            };
+
+            launchd.user.agents.amp-runner = {
+              command = "${pkgs.amp-cli}/bin/amp --no-tui --runner-id turbogadget --remote-control-terminal";
+              serviceConfig = {
+                Label = "com.ampcode.runner";
+                EnvironmentVariables.HOME = "/Users/shardul";
+                WorkingDirectory = "/Users/shardul";
+                RunAtLoad = true;
+                KeepAlive = true;
+                ThrottleInterval = 5;
+                StandardOutPath = "/Users/shardul/Library/Logs/amp-runner.log";
+                StandardErrorPath = "/Users/shardul/Library/Logs/amp-runner.log";
+              };
             };
 
             system.defaults = {
