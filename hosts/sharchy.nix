@@ -72,7 +72,13 @@ in
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.consoleLogLevel = 0;
-  boot.kernelParams = [ "xe.enable_psr2_sel_fetch=0" ];
+  # Avoid choppy frame delivery from Panel Replay on the DX13260 display while
+  # retaining lower-power PSR1 self-refresh.
+  boot.kernelParams = [
+    "xe.enable_psr=1"
+    "xe.enable_psr2_sel_fetch=0"
+    "xe.enable_panel_replay=0"
+  ];
   # The XPS 13 DX13260 routes its CS35L56 woofer amps through a CS42L43
   # sidecar bridge. Force that bridge until the kernel recognizes SSID 1028:0e53.
   boot.extraModprobeConfig = "options snd_soc_sof_sdw quirk=65536";
