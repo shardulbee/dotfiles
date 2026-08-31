@@ -220,6 +220,7 @@
     {
       nixosConfigurations.sharchy = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
+        specialArgs = { inherit xremap-flake; };
         modules = [
           ./hosts/sharchy.nix
           home-manager.nixosModules.home-manager
