@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Bluetooth
+import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.Pipewire
 import Quickshell.Services.Polkit
@@ -19,7 +20,6 @@ ShellRoot {
   property real memoryTotalGiB: 0
   property real previousCpuIdle: 0
   property real previousCpuTotal: 0
-  readonly property bool isNiri: Quickshell.env("XDG_CURRENT_DESKTOP").toLowerCase() === "niri"
   readonly property color authBackground: darkMode ? "#1b1913" : "#efeee9"
   readonly property color authField: darkMode ? "#14120b" : "#f7f7f4"
   readonly property color authBorder: darkMode ? "#2b2923" : "#cecdc7"
@@ -48,60 +48,6 @@ ShellRoot {
     watchChanges: true
     printErrors: false
     onFileChanged: reload()
-  }
-
-  ListModel { id: workspaceModel }
-
-  function focusWorkspace(target) {
-    if (isNiri)
-      Quickshell.execDetached(["niri", "msg", "action", "focus-workspace", target])
-    else
-      Quickshell.execDetached(["hyprctl", "dispatch", "workspace", target])
-  }
-
-  Process {
-    id: workspaceProcess
-    running: true
-    command: isNiri ? ["niri", "msg", "--json", "workspaces"] : ["hyprctl", "workspaces", "-j"]
-    stdout: StdioCollector {
-      waitForEnd: true
-      onStreamFinished: {
-        try {
-          const workspaces = JSON.parse(text)
-          workspaceModel.clear()
-          if (shellRoot.isNiri) {
-            workspaces.sort((a, b) => a.idx - b.idx)
-            for (const workspace of workspaces) {
-              if (workspace.name === null && workspace.active_window_id === null) continue
-              workspaceModel.append({
-                label: workspace.name === "obsidian" ? "N" : (workspace.name || String(workspace.idx)),
-                focused: workspace.is_focused,
-                target: workspace.name || String(workspace.idx)
-              })
-            }
-          } else {
-            workspaces.sort((a, b) => a.id - b.id)
-            for (const workspace of workspaces) {
-              if (workspace.id <= 0) continue
-              workspaceModel.append({
-                label: workspace.name,
-                focused: workspace.focused,
-                target: workspace.name
-              })
-            }
-          }
-        } catch (error) {
-          console.warn("Could not update workspaces:", error)
-        }
-      }
-    }
-  }
-
-  Timer {
-    interval: 500
-    running: true
-    repeat: true
-    onTriggered: if (!workspaceProcess.running) workspaceProcess.running = true
   }
 
   Process {
@@ -649,21 +595,20 @@ ShellRoot {
         spacing: 7
 
         Repeater {
-          model: workspaceModel
+          model: Hyprland.workspaces
           delegate: Text {
-            required property string label
-            required property bool focused
-            required property string target
-            text: label
-            color: focused ? bar.foreground : bar.inactive
+            required property var modelData
+            visible: modelData.id > 0
+            text: modelData.name
+            color: modelData.focused ? bar.foreground : bar.inactive
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
-            font.bold: focused
+            font.bold: modelData.focused
 
             MouseArea {
               anchors.fill: parent
               cursorShape: Qt.PointingHandCursor
-              onClicked: shellRoot.focusWorkspace(parent.target)
+              onClicked: parent.modelData.activate()
             }
           }
         }
@@ -809,6 +754,12 @@ ShellRoot {
         implicitHeight: bar.panelPage === "system" ? 370 : bar.panelPage === "power" ? 300 : bar.panelPage === "sound" ? 190 : 158
 
         onVisibleChanged: if (!visible) bar.pendingPowerAction = ""
+
+        HyprlandFocusGrab {
+          active: bar.panelOpen
+          windows: [quickPanel, bar]
+          onCleared: bar.panelOpen = false
+        }
 
         anchor {
           window: bar

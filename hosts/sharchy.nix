@@ -1,5 +1,5 @@
 # Dell XPS 13 DX13260 (sharchy): hardware, system, desktop, and user config.
-{ config, lib, modulesPath, pkgs, xremap-flake, ... }:
+{ config, lib, modulesPath, pkgs, ... }:
 
 let
   authQml = ../config/quickshell-auth.qml;
@@ -20,8 +20,6 @@ let
       ${pkgs.cage}/bin/cage -s -d -- \
       ${pkgs.quickshell}/bin/quickshell -p ${greeterConfig}
   '';
-  xremapConfig = (pkgs.formats.yaml { }).generate "xremap-config.yml" config.services.xremap.config;
-  niriXremap = xremap-flake.packages.${pkgs.stdenv.hostPlatform.system}.xremap-niri;
 in
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
@@ -253,22 +251,6 @@ in
         };
       }
     ];
-  };
-  systemd.user.services.xremap = {
-    partOf = [ "graphical-session.target" ];
-    unitConfig.ConditionEnvironment = "XDG_CURRENT_DESKTOP=Hyprland";
-  };
-  systemd.user.services.xremap-niri = {
-    description = "xremap user service for Niri";
-    partOf = [ "graphical-session.target" ];
-    after = [ "graphical-session.target" ];
-    wantedBy = [ "graphical-session.target" ];
-    unitConfig.ConditionEnvironment = "XDG_CURRENT_DESKTOP=niri";
-    serviceConfig = {
-      ExecStart = "${niriXremap}/bin/xremap ${xremapConfig}";
-      Restart = "on-failure";
-      RestartSec = 1;
-    };
   };
   security.rtkit.enable = true;
   services.pipewire = {
