@@ -271,8 +271,8 @@ in
   fonts.packages = with pkgs; [ jetbrains-mono nerd-fonts.jetbrains-mono ];
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs chromium
-    cliphist cryptsetup curl discord fuzzel ghostty git grim glib jq libnotify mako
-    networkmanagerapplet obsidian pavucontrol pciutils quickshell ripgrep slurp swaybg
+    cryptsetup curl discord fuzzel ghostty git grim glib jq libnotify mako
+    networkmanagerapplet obsidian pavucontrol pciutils python3 quickshell ripgrep slurp swaybg
     swayidle usbutils vim wget wl-clipboard wtype
   ];
 
@@ -300,12 +300,6 @@ in
         done
         exit 0
       '';
-      clipboardStore = pkgs.writeShellScript "sharchy-clipboard-store" ''
-        case "''${CLIPBOARD_STATE:-data}" in
-          data) exec ${pkgs.cliphist}/bin/cliphist store ;;
-          *) exec ${pkgs.coreutils}/bin/cat >/dev/null ;;
-        esac
-      '';
     in
     {
       home.homeDirectory = "/home/shardul";
@@ -325,6 +319,7 @@ in
 
       home.file.".local/bin/sharchy-fuzzel".source = ../scripts/sharchy-fuzzel.sh;
       home.file.".local/bin/sharchy-clipboard".source = ../scripts/sharchy-clipboard.sh;
+      home.file.".local/bin/sharchy-clipboard-backend".source = ../scripts/sharchy-clipboard-backend.py;
       home.file.".local/bin/sharchy-helium".source = ../scripts/sharchy-helium.sh;
       home.file.".local/bin/sharchy-helium-defaults".source = ../scripts/sharchy-helium-defaults.sh;
       home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot.sh;
@@ -373,13 +368,28 @@ in
           Description = "Sharchy clipboard history";
           PartOf = [ "graphical-session.target" ];
           After = [ "graphical-session.target" ];
+          X-Restart-Triggers = [ "${config.home.file.".local/bin/sharchy-clipboard-backend".source}" ];
         };
         Service = {
-          ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${clipboardStore}";
+          ExecStartPre = "/home/shardul/.local/bin/sharchy-clipboard-backend init";
+          ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --watch /home/shardul/.local/bin/sharchy-clipboard-backend capture";
           Restart = "on-failure";
           RestartSec = 1;
         };
         Install.WantedBy = [ "graphical-session.target" ];
+      };
+      systemd.user.services.sharchy-clipboard-ui = {
+        Unit = {
+          Description = "Sharchy clipboard picker";
+          PartOf = [ "graphical-session.target" ];
+          After = [ "graphical-session.target" ];
+          X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/sharchy-clipboard/shell.qml".source}" ];
+        };
+        Service = {
+          ExecStartPre = "/home/shardul/.local/bin/sharchy-clipboard-backend init";
+          ExecStart = "${pkgs.quickshell}/bin/quickshell -p /home/shardul/.config/quickshell/sharchy-clipboard";
+          Environment = "QS_NO_RELOAD_POPUP=1";
+        };
       };
       systemd.user.services.sharchy-wallpaper = {
         Unit = {
@@ -454,6 +464,7 @@ in
       xdg.configFile."chromium/extensions/alt-click-new-tab/manifest.json".source = ../config/browser-extension/manifest.json;
       xdg.configFile."hypr/hyprland.lua".source = ../config/hyprland.lua;
       xdg.configFile."mako/config".source = ../config/mako.conf;
+      xdg.configFile."quickshell/sharchy-clipboard/shell.qml".source = ../config/quickshell-clipboard.qml;
       xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;
       xdg.desktopEntries.helium = {
         name = "Helium";
