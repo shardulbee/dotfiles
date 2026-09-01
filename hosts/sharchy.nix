@@ -271,9 +271,9 @@ in
   fonts.packages = with pkgs; [ jetbrains-mono nerd-fonts.jetbrains-mono ];
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs chromium
-    cryptsetup curl discord fuzzel ghostty git grim glib jq libnotify mako
+    cliphist cryptsetup curl discord fuzzel ghostty git grim glib jq libnotify mako
     networkmanagerapplet obsidian pavucontrol pciutils quickshell ripgrep slurp swaybg
-    swayidle usbutils vim wget wl-clipboard
+    swayidle usbutils vim wget wl-clipboard wtype
   ];
 
   home-manager.users.shardul = { config, pkgs, ... }:
@@ -300,6 +300,12 @@ in
         done
         exit 0
       '';
+      clipboardStore = pkgs.writeShellScript "sharchy-clipboard-store" ''
+        case "''${CLIPBOARD_STATE:-data}" in
+          data) exec ${pkgs.cliphist}/bin/cliphist store ;;
+          *) exec ${pkgs.coreutils}/bin/cat >/dev/null ;;
+        esac
+      '';
     in
     {
       home.homeDirectory = "/home/shardul";
@@ -318,6 +324,7 @@ in
       };
 
       home.file.".local/bin/sharchy-fuzzel".source = ../scripts/sharchy-fuzzel.sh;
+      home.file.".local/bin/sharchy-clipboard".source = ../scripts/sharchy-clipboard.sh;
       home.file.".local/bin/sharchy-helium".source = ../scripts/sharchy-helium.sh;
       home.file.".local/bin/sharchy-helium-defaults".source = ../scripts/sharchy-helium-defaults.sh;
       home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot.sh;
@@ -358,6 +365,19 @@ in
           Restart = "on-failure";
           RestartSec = 1;
           Environment = "QS_NO_RELOAD_POPUP=1";
+        };
+        Install.WantedBy = [ "graphical-session.target" ];
+      };
+      systemd.user.services.cliphist = {
+        Unit = {
+          Description = "Sharchy clipboard history";
+          PartOf = [ "graphical-session.target" ];
+          After = [ "graphical-session.target" ];
+        };
+        Service = {
+          ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${clipboardStore}";
+          Restart = "on-failure";
+          RestartSec = 1;
         };
         Install.WantedBy = [ "graphical-session.target" ];
       };
