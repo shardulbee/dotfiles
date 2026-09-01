@@ -13,6 +13,8 @@ printf 'running\n' > "$status_file"
 trap 'printf "idle\n" > "$status_file"' EXIT
 
 /run/wrappers/bin/pkexec --disable-internal-agent \
+  /run/current-system/sw/bin/flock \
+  /run/lock/sharchy-deploy.lock \
   /run/current-system/sw/bin/nixos-rebuild switch \
   --flake /home/shardul/Documents/dotfiles#sharchy >"$log" 2>&1
 status=$?

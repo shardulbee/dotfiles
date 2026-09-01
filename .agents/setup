@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+nix_profile="$HOME/.nix-profile"
+
+timed() {
+  local label="$1"
+  shift
+  local started=$SECONDS
+  printf '==> %s\n' "$label"
+  "$@"
+  printf '<== %s (%ss)\n' "$label" "$((SECONDS - started))"
+}
+
+install_prerequisites() {
+  local packages=()
+  command -v curl >/dev/null 2>&1 || packages+=(curl)
+  command -v xz >/dev/null 2>&1 || packages+=(xz-utils)
+
+  if ((${#packages[@]})); then
+    sudo apt-get update
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${packages[@]}"
+  fi
+}
+
+install_tailscale() {
+  if command -v tailscale >/dev/null 2>&1 \
+    && dpkg --compare-versions "$(tailscale version | head -n 1)" ge 1.90.1; then
+    return
+  fi
+
+  curl --fail --silent --show-error --location \
+    https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg \
+    | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+  curl --fail --silent --show-error --location \
+    https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list \
+    | sudo tee /etc/apt/sources.list.d/tailscale.list >/dev/null
+  sudo apt-get update
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y tailscale
+}
+
+configure_tailscale() {
+  sudo install -d /etc/systemd/system/tailscaled.service.d
+  printf '%s\n' '[Service]' 'Environment=TS_ASSUME_NETWORK_UP_FOR_TEST=true' \
+    | sudo tee /etc/systemd/system/tailscaled.service.d/amp-orb.conf >/dev/null
+  sudo systemctl daemon-reload
+  sudo systemctl enable tailscaled
+  sudo systemctl restart tailscaled
+}
+
+install_nix() {
+  if [[ -x "$nix_profile/bin/nix" ]]; then
+    return
+  fi
+
+  local installer
+  installer="$(mktemp)"
+  if ! curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
+    https://nixos.org/nix/install -o "$installer"; then
+    rm -f "$installer"
+    return 1
+  fi
+  if ! sh "$installer" --no-daemon --yes; then
+    rm -f "$installer"
+    return 1
+  fi
+  rm -f "$installer"
+}
+
+configure_nix() {
+  local config_dir="$HOME/.config/nix"
+  local config_file="$config_dir/nix.conf"
+  mkdir -p "$config_dir"
+  touch "$config_file"
+  if ! grep -Eq '^[[:space:]]*(extra-)?experimental-features[[:space:]]*=.*nix-command.*flakes' "$config_file"; then
+    printf '%s\n' 'extra-experimental-features = nix-command flakes' >> "$config_file"
+  fi
+}
+
+timed 'Checking system prerequisites' install_prerequisites
+timed 'Installing Tailscale' install_tailscale
+timed 'Configuring Tailscale for Amp orbs' configure_tailscale
+timed 'Installing Nix' install_nix
+
+# The installer cannot update this already-running process.
+# shellcheck disable=SC1091
+source "$nix_profile/etc/profile.d/nix.sh"
+
+timed 'Configuring Nix flakes' configure_nix

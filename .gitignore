@@ -18,3 +18,6 @@ result
 *.qcow2
 scratch/
 .plan
+
+# Amp orb portals
+.amp/portals/*

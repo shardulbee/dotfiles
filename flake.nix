@@ -24,6 +24,21 @@
 
   outputs = { self, nixpkgs, home-manager, darwin, helium, xremap-flake, hermes, ... }:
     let
+      deploySharchy =
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in
+        pkgs.writeShellApplication {
+          name = "deploy-sharchy";
+          runtimeInputs = [
+            pkgs.coreutils
+            pkgs.git
+            pkgs.openssh
+            pkgs.tailscale
+          ];
+          text = builtins.readFile ./scripts/deploy-sharchy;
+        };
       sharedHome = { pkgs, ... }:
         let
           playwriter = pkgs.callPackage ./packages/playwriter.nix { };
@@ -32,7 +47,10 @@
             if [ "$(uname)" = Darwin ]; then
               exec sudo darwin-rebuild switch --flake "$HOME/Documents/dotfiles#macbook"
             else
-              exec sudo nixos-rebuild switch --flake "$HOME/Documents/dotfiles#sharchy"
+              exec sudo /run/current-system/sw/bin/flock \
+                /run/lock/sharchy-deploy.lock \
+                /run/current-system/sw/bin/nixos-rebuild switch \
+                --flake "$HOME/Documents/dotfiles#sharchy"
             fi
           '';
         in
@@ -220,6 +238,11 @@
         };
     in
     {
+      apps.x86_64-linux.deploy-sharchy = {
+        type = "app";
+        program = "${deploySharchy "x86_64-linux"}/bin/deploy-sharchy";
+      };
+
       nixosConfigurations.sharchy = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = { inherit hermes; };

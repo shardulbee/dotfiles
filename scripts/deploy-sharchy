@@ -1,0 +1,49 @@
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+if [[ -n "$(git status --porcelain)" ]]; then
+  printf '%s\n' 'Dotfiles working tree must be clean before deployment.' >&2
+  exit 1
+fi
+
+revision="$(git rev-parse HEAD)"
+remote_revision="$(git ls-remote origin refs/heads/main | cut -f1)"
+if [[ "$revision" != "$remote_revision" ]]; then
+  printf '%s\n' 'Dotfiles HEAD must be pushed to origin/main before deployment.' >&2
+  exit 1
+fi
+
+: "${TAILSCALE_CLIENT_ID:?Set TAILSCALE_CLIENT_ID}"
+: "${TAILSCALE_AUDIENCE:?Set TAILSCALE_AUDIENCE}"
+: "${SHARCHY_DEPLOY_SSH_KEY:?Set SHARCHY_DEPLOY_SSH_KEY}"
+
+key_file="$(mktemp)"
+cleanup() {
+  rm -f "$key_file"
+  sudo tailscale logout >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+chmod 600 "$key_file"
+printf '%s\n' "$SHARCHY_DEPLOY_SSH_KEY" > "$key_file"
+unset SHARCHY_DEPLOY_SSH_KEY
+
+token="$(amp orb id-token --audience "$TAILSCALE_AUDIENCE" --subject-scope project)"
+
+orb_name="${AMP_THREAD_ID:-$(hostname)}"
+orb_name="${orb_name:0:40}"
+
+sudo tailscale up \
+  --client-id="${TAILSCALE_CLIENT_ID}?ephemeral=true&preauthorized=true" \
+  --id-token="$token" \
+  --advertise-tags=tag:amp-dotfiles-deploy \
+  --hostname="amp-dotfiles-deploy-$orb_name"
+unset token
+
+ssh -i "$key_file" \
+  -o BatchMode=yes \
+  -o IdentitiesOnly=yes \
+  -o StrictHostKeyChecking=accept-new \
+  shardul@sharchy \
+  "sudo /run/current-system/sw/bin/flock /run/lock/sharchy-deploy.lock /run/current-system/sw/bin/nixos-rebuild switch --flake github:shardulbee/dotfiles/$revision#sharchy"
