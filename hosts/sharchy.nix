@@ -291,6 +291,15 @@ in
         if [ "$mode" = dark ]; then color="#14120b"; else color="#e5e4df"; fi
         exec ${pkgs.swaybg}/bin/swaybg -c "$color"
       '';
+      makoTheme = pkgs.writeShellScript "sharchy-mako-theme" ''
+        mode="$(${pkgs.coreutils}/bin/cat /home/shardul/.local/state/sharchy-theme 2>/dev/null || true)"
+        if [ "$mode" != dark ]; then mode=light; fi
+        for _ in $(${pkgs.coreutils}/bin/seq 1 20); do
+          if ${pkgs.mako}/bin/makoctl mode -s "$mode"; then exit 0; fi
+          ${pkgs.coreutils}/bin/sleep 0.05
+        done
+        exit 0
+      '';
     in
     {
       home.homeDirectory = "/home/shardul";
@@ -380,7 +389,11 @@ in
           After = [ "graphical-session.target" ];
           X-Restart-Triggers = [ "${config.xdg.configFile."mako/config".source}" ];
         };
-        Service = { ExecStart = "${pkgs.mako}/bin/mako"; Restart = "on-failure"; };
+        Service = {
+          ExecStart = "${pkgs.mako}/bin/mako";
+          ExecStartPost = makoTheme;
+          Restart = "on-failure";
+        };
         Install.WantedBy = [ "graphical-session.target" ];
       };
       systemd.user.services.sharchy-helium-defaults = {

@@ -17,6 +17,7 @@ case "$mode" in
     if [ -w /run/sharchy/theme ]; then printf '%s\n' "$mode" > /run/sharchy/theme; fi
     dconf write /org/gnome/desktop/interface/color-scheme "'prefer-$mode'" || true
     systemctl --user restart sharchy-wallpaper.service
+    makoctl mode -s "$mode" || true
     ;;
   *) exit 2 ;;
 esac
