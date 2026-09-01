@@ -452,7 +452,6 @@ in
       xdg.configFile."chromium/extensions/alt-click-new-tab/background.js".source = ../config/browser-extension/background.js;
       xdg.configFile."chromium/extensions/alt-click-new-tab/content.js".source = ../config/browser-extension/content.js;
       xdg.configFile."chromium/extensions/alt-click-new-tab/manifest.json".source = ../config/browser-extension/manifest.json;
-      xdg.configFile."hypr/hyprland.conf".source = ../config/hyprland.conf;
       xdg.configFile."hypr/hyprland.lua".source = ../config/hyprland.lua;
       xdg.configFile."mako/config".source = ../config/mako.conf;
       xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;
