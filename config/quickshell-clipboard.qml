@@ -23,6 +23,23 @@ ShellRoot {
 
   onSelectedIndexChanged: textPreview.contentY = 0
 
+  function show(): void {
+    root.nowMs = Date.now()
+    root.setFilter("")
+    historyFile.reload()
+    panel.visible = true
+    Qt.callLater(function() { keyCatcher.forceActiveFocus() })
+  }
+
+  function hide(): void {
+    panel.visible = false
+  }
+
+  function toggle(): void {
+    if (panel.visible) root.hide()
+    else root.show()
+  }
+
   function loadHistory(raw) {
     try {
       const value = raw.trim() ? JSON.parse(raw) : []
@@ -84,7 +101,7 @@ ShellRoot {
     if (displayModel.count === 0) return
     const row = displayModel.get(root.selectedIndex)
     Quickshell.execDetached([root.backend, copyOnly ? "copy" : "paste", row.entryId])
-    Qt.quit()
+    root.hide()
   }
 
   function removeSelected() {
@@ -127,9 +144,14 @@ ShellRoot {
 
   ListModel { id: displayModel }
 
+  IpcHandler {
+    target: "clipboard"
+    function toggle(): void { root.toggle() }
+  }
+
   PanelWindow {
     id: panel
-    visible: true
+    visible: false
     anchors.top: true
     anchors.bottom: true
     anchors.left: true
@@ -147,7 +169,7 @@ ShellRoot {
 
       MouseArea {
         anchors.fill: parent
-        onClicked: Qt.quit()
+        onClicked: root.hide()
       }
     }
 
@@ -173,7 +195,7 @@ ShellRoot {
         Keys.onPressed: function(event) {
           if (event.key === Qt.Key_Escape) {
             if (root.filterText) root.setFilter("")
-            else Qt.quit()
+            else root.hide()
             event.accepted = true
           } else if (event.key === Qt.Key_Backspace) {
             if (root.filterText) root.setFilter(root.filterText.slice(0, -1))

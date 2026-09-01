@@ -386,10 +386,12 @@ in
           X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/sharchy-clipboard/shell.qml".source}" ];
         };
         Service = {
-          ExecStartPre = "/home/shardul/.local/bin/sharchy-clipboard-backend init";
-          ExecStart = "${pkgs.quickshell}/bin/quickshell -p /home/shardul/.config/quickshell/sharchy-clipboard";
+          ExecStart = "${pkgs.quickshell}/bin/quickshell -c sharchy-clipboard";
+          Restart = "on-failure";
+          RestartSec = 1;
           Environment = "QS_NO_RELOAD_POPUP=1";
         };
+        Install.WantedBy = [ "graphical-session.target" ];
       };
       systemd.user.services.sharchy-wallpaper = {
         Unit = {

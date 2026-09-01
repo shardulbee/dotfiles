@@ -4,7 +4,7 @@ set -euo pipefail
 lock="${XDG_RUNTIME_DIR:-/run/user/$UID}/sharchy-fuzzel-${WAYLAND_DISPLAY:-wayland-1}.lock"
 exec 9>"$lock"
 if ! flock -n 9; then
-  pkill -x fuzzel
+  pkill -x fuzzel || true
   exit 0
 fi
 
@@ -14,4 +14,4 @@ case "$mode" in
   *) mode=light ;;
 esac
 
-exec fuzzel --config="$HOME/.config/fuzzel/$mode.ini" "$@"
+fuzzel --config="$HOME/.config/fuzzel/$mode.ini" "$@" 9>&-
