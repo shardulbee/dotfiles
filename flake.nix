@@ -19,9 +19,10 @@
       url = "github:xremap/nix-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    hermes.url = "github:NousResearch/hermes-agent/29112bef099274229cadff79cdff7bf7b99c4b77";
   };
 
-  outputs = { self, nixpkgs, home-manager, darwin, helium, xremap-flake, ... }:
+  outputs = { self, nixpkgs, home-manager, darwin, helium, xremap-flake, hermes, ... }:
     let
       sharedHome = { pkgs, ... }:
         let
@@ -221,6 +222,7 @@
     {
       nixosConfigurations.sharchy = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
+        specialArgs = { inherit hermes; };
         modules = [
           ./hosts/sharchy.nix
           home-manager.nixosModules.home-manager

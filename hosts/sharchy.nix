@@ -1,5 +1,5 @@
 # Dell XPS 13 DX13260 (sharchy): hardware, system, desktop, and user config.
-{ config, lib, modulesPath, pkgs, ... }:
+{ config, hermes, lib, modulesPath, pkgs, ... }:
 
 let
   authQml = ../config/quickshell-auth.qml;
@@ -279,6 +279,7 @@ in
   home-manager.users.shardul = { config, pkgs, ... }:
     let
       grok-bot = pkgs.callPackage ../packages/grok-bot.nix { };
+      hermes-desktop = pkgs.callPackage ../packages/hermes-desktop.nix { inherit hermes; };
       lockShell = ../config/quickshell-lock.qml;
       lockConfig = pkgs.runCommand "sharchy-lock-config" { } ''
         mkdir -p "$out"
@@ -290,13 +291,14 @@ in
         if [ "$mode" = dark ]; then color="#14120b"; else color="#e5e4df"; fi
         exec ${pkgs.swaybg}/bin/swaybg -c "$color"
       '';
-      zed = pkgs.writeShellScriptBin "zed" ''
-        exec ${pkgs.zed-editor}/bin/zeditor "$@"
-      '';
     in
     {
       home.homeDirectory = "/home/shardul";
-      home.packages = with pkgs; [ clang_22 grok-bot zed zed-editor ];
+      home.packages = with pkgs; [
+        clang_22
+        grok-bot
+        hermes-desktop
+      ];
       home.pointerCursor = {
         enable = true;
         package = pkgs.apple-cursor;
