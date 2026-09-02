@@ -22,6 +22,7 @@ hl.gesture({
 
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("ghostty"))
 hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-fuzzel"))
+hl.bind("ALT + SPACE", hl.dsp.exec_cmd("vicinae toggle"))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-clipboard"))
 hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-helium"))
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-helium"))

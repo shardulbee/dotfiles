@@ -279,7 +279,7 @@ in
     adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs chromium
     cryptsetup curl discord fuzzel ghostty git grim glib jq libnotify mako
     networkmanagerapplet obsidian pavucontrol pciutils python3 quickshell ripgrep slurp swaybg
-    swayidle usbutils vim wget wl-clipboard wtype
+    swayidle usbutils vicinae vim wget wl-clipboard wtype
   ];
 
   home-manager.users.shardul = { config, pkgs, ... }:
@@ -348,6 +348,21 @@ in
           RestartSec = 5;
         };
         Install.WantedBy = [ "default.target" ];
+      };
+      systemd.user.services.vicinae = {
+        Unit = {
+          Description = "Vicinae launcher";
+          After = [ "graphical-session.target" ];
+          PartOf = [ "graphical-session.target" ];
+          Requires = [ "dbus.socket" ];
+        };
+        Service = {
+          ExecStart = "${pkgs.vicinae}/bin/vicinae server --replace";
+          KillMode = "process";
+          Restart = "always";
+          RestartSec = 60;
+        };
+        Install.WantedBy = [ "graphical-session.target" ];
       };
       systemd.user.services.sharchy-bar = {
         Unit = {
