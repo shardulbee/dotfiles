@@ -278,7 +278,7 @@ in
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs chromium
     cryptsetup curl discord fuzzel ghostty git grim glib jq libnotify mako
-    networkmanagerapplet obsidian pavucontrol pciutils python3 quickshell ripgrep slurp swaybg
+    networkmanagerapplet obsidian pavucontrol pciutils quickshell ripgrep slurp swaybg
     swayidle usbutils vicinae vim wget wl-clipboard wtype
   ];
 
@@ -306,6 +306,17 @@ in
         done
         exit 0
       '';
+      vicinaeTheme = pkgs.writeShellScript "sharchy-vicinae-theme" ''
+        mode="$(${pkgs.coreutils}/bin/cat /home/shardul/.local/state/sharchy-theme 2>/dev/null || true)"
+        if [ "$mode" != dark ]; then mode=light; fi
+        for _ in $(${pkgs.coreutils}/bin/seq 1 20); do
+          if ${pkgs.vicinae}/bin/vicinae ping >/dev/null 2>&1; then
+            exec ${pkgs.vicinae}/bin/vicinae theme set "alabaster-$mode"
+          fi
+          ${pkgs.coreutils}/bin/sleep 0.05
+        done
+        exit 1
+      '';
     in
     {
       home.homeDirectory = "/home/shardul";
@@ -324,8 +335,6 @@ in
       };
 
       home.file.".local/bin/sharchy-fuzzel".source = ../scripts/sharchy-fuzzel.sh;
-      home.file.".local/bin/sharchy-clipboard".source = ../scripts/sharchy-clipboard.sh;
-      home.file.".local/bin/sharchy-clipboard-backend".source = ../scripts/sharchy-clipboard-backend.py;
       home.file.".local/bin/sharchy-helium".source = ../scripts/sharchy-helium.sh;
       home.file.".local/bin/sharchy-helium-defaults".source = ../scripts/sharchy-helium-defaults.sh;
       home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot.sh;
@@ -355,9 +364,14 @@ in
           After = [ "graphical-session.target" ];
           PartOf = [ "graphical-session.target" ];
           Requires = [ "dbus.socket" ];
+          X-Restart-Triggers = [
+            "${config.xdg.dataFile."vicinae/themes/alabaster-light.toml".source}"
+            "${config.xdg.dataFile."vicinae/themes/alabaster-dark.toml".source}"
+          ];
         };
         Service = {
           ExecStart = "${pkgs.vicinae}/bin/vicinae server --replace";
+          ExecStartPost = vicinaeTheme;
           KillMode = "process";
           Restart = "always";
           RestartSec = 60;
@@ -378,36 +392,6 @@ in
             "${pkgs.coreutils}/bin/touch /home/shardul/.local/state/sharchy-rebuild-status"
           ];
           ExecStart = "${pkgs.quickshell}/bin/quickshell -p /home/shardul/.config/quickshell/sharchy";
-          Restart = "on-failure";
-          RestartSec = 1;
-          Environment = "QS_NO_RELOAD_POPUP=1";
-        };
-        Install.WantedBy = [ "graphical-session.target" ];
-      };
-      systemd.user.services.cliphist = {
-        Unit = {
-          Description = "Sharchy clipboard history";
-          PartOf = [ "graphical-session.target" ];
-          After = [ "graphical-session.target" ];
-          X-Restart-Triggers = [ "${config.home.file.".local/bin/sharchy-clipboard-backend".source}" ];
-        };
-        Service = {
-          ExecStartPre = "/home/shardul/.local/bin/sharchy-clipboard-backend init";
-          ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --watch /home/shardul/.local/bin/sharchy-clipboard-backend capture";
-          Restart = "on-failure";
-          RestartSec = 1;
-        };
-        Install.WantedBy = [ "graphical-session.target" ];
-      };
-      systemd.user.services.sharchy-clipboard-ui = {
-        Unit = {
-          Description = "Sharchy clipboard picker";
-          PartOf = [ "graphical-session.target" ];
-          After = [ "graphical-session.target" ];
-          X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/sharchy-clipboard/shell.qml".source}" ];
-        };
-        Service = {
-          ExecStart = "${pkgs.quickshell}/bin/quickshell -c sharchy-clipboard";
           Restart = "on-failure";
           RestartSec = 1;
           Environment = "QS_NO_RELOAD_POPUP=1";
@@ -487,8 +471,9 @@ in
       xdg.configFile."chromium/extensions/alt-click-new-tab/manifest.json".source = ../config/browser-extension/manifest.json;
       xdg.configFile."hypr/hyprland.lua".source = ../config/hyprland.lua;
       xdg.configFile."mako/config".source = ../config/mako.conf;
-      xdg.configFile."quickshell/sharchy-clipboard/shell.qml".source = ../config/quickshell-clipboard.qml;
       xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;
+      xdg.dataFile."vicinae/themes/alabaster-light.toml".source = ../config/vicinae-light.toml;
+      xdg.dataFile."vicinae/themes/alabaster-dark.toml".source = ../config/vicinae-dark.toml;
       xdg.desktopEntries.helium = {
         name = "Helium";
         genericName = "Web Browser";

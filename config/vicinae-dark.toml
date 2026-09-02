@@ -1,0 +1,76 @@
+[meta]
+name = "Alabaster Dark"
+description = "Sharchy's Alabaster dark palette"
+variant = "dark"
+inherits = "vicinae-dark"
+
+[colors.core]
+accent = "#cd974b"
+accent_foreground = "#26251e"
+background = "#211f18"
+foreground = "#f4f0e8"
+secondary_background = "#353229"
+border = "#3b3830"
+
+[colors.main_window]
+border = "colors.core.border"
+footer = { background = "colors.core.background" }
+
+[colors.settings_window]
+border = "colors.core.border"
+
+[colors.shortcut]
+border = "colors.core.border"
+
+[colors.text]
+default = "colors.core.foreground"
+muted = "#aaa9a5"
+danger = "#d66a64"
+success = "#7aaa65"
+placeholder = "#777777"
+selection = { background = "#353229", foreground = "#f4f0e8" }
+
+[colors.text.links]
+default = "#d5b773"
+visited = "#b78bd0"
+
+[colors.input]
+background = "#211f18"
+border = "colors.core.border"
+border_focus = "colors.core.accent"
+border_error = "colors.text.danger"
+
+[colors.button.primary]
+background = "#353229"
+foreground = "colors.core.foreground"
+hover = { background = "#454138" }
+focus = { outline = "colors.core.accent" }
+
+[colors.list.item.hover]
+background = "#2b2921"
+foreground = "colors.core.foreground"
+secondary_foreground = "colors.text.muted"
+
+[colors.list.item.selection]
+background = "#353229"
+foreground = "colors.core.foreground"
+secondary_background = "#353229"
+secondary_foreground = "#d5b773"
+
+[colors.grid.item]
+background = "#2b2921"
+hover = { outline = "colors.core.accent" }
+selection = { outline = "colors.core.accent" }
+
+[colors.scrollbars]
+background = "colors.core.border"
+secondary_background = "#777777"
+
+[colors.tooltip]
+background = "#353229"
+foreground = "colors.core.foreground"
+border = "colors.core.border"
+
+[colors.loading]
+bar = "colors.core.accent"
+spinner = "colors.core.accent"

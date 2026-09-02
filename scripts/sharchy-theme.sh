@@ -18,6 +18,7 @@ case "$mode" in
     dconf write /org/gnome/desktop/interface/color-scheme "'prefer-$mode'" || true
     systemctl --user restart sharchy-wallpaper.service
     makoctl mode -s "$mode" || true
+    vicinae theme set "alabaster-$mode" || true
     ;;
   *) exit 2 ;;
 esac

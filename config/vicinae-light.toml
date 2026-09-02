@@ -1,0 +1,76 @@
+[meta]
+name = "Alabaster Light"
+description = "Sharchy's Alabaster light palette"
+variant = "light"
+inherits = "vicinae-light"
+
+[colors.core]
+accent = "#cd974b"
+accent_foreground = "#26251e"
+background = "#f7f7f4"
+foreground = "#26251e"
+secondary_background = "#f4edd7"
+border = "#cecdc7"
+
+[colors.main_window]
+border = "colors.core.border"
+footer = { background = "#efeee9" }
+
+[colors.settings_window]
+border = "colors.core.border"
+
+[colors.shortcut]
+border = "colors.core.border"
+
+[colors.text]
+default = "colors.core.foreground"
+muted = "#77756e"
+danger = "#aa3731"
+success = "#448c27"
+placeholder = "#98968e"
+selection = { background = "#f4edd7", foreground = "#26251e" }
+
+[colors.text.links]
+default = "#aa7300"
+visited = "#7a3e9d"
+
+[colors.input]
+background = "#f7f7f4"
+border = "colors.core.border"
+border_focus = "colors.core.accent"
+border_error = "colors.text.danger"
+
+[colors.button.primary]
+background = "#f4edd7"
+foreground = "colors.core.foreground"
+hover = { background = "#e9dfbf" }
+focus = { outline = "colors.core.accent" }
+
+[colors.list.item.hover]
+background = "#efeee9"
+foreground = "colors.core.foreground"
+secondary_foreground = "colors.text.muted"
+
+[colors.list.item.selection]
+background = "#f4edd7"
+foreground = "colors.core.foreground"
+secondary_background = "#f4edd7"
+secondary_foreground = "#aa7300"
+
+[colors.grid.item]
+background = "#efeee9"
+hover = { outline = "colors.core.accent" }
+selection = { outline = "colors.core.accent" }
+
+[colors.scrollbars]
+background = "colors.core.border"
+secondary_background = "#98968e"
+
+[colors.tooltip]
+background = "#efeee9"
+foreground = "colors.core.foreground"
+border = "colors.core.border"
+
+[colors.loading]
+bar = "colors.core.accent"
+spinner = "colors.core.accent"
