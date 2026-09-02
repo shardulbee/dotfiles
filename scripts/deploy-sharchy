@@ -20,14 +20,26 @@ fi
 : "${SHARCHY_DEPLOY_SSH_KEY:?Set SHARCHY_DEPLOY_SSH_KEY}"
 
 key_file="$(mktemp)"
+bundle_file="$(mktemp)"
+remote_dir=""
+ssh_options=(
+  -i "$key_file"
+  -o BatchMode=yes
+  -o IdentitiesOnly=yes
+  -o StrictHostKeyChecking=accept-new
+)
 cleanup() {
-  rm -f "$key_file"
+  if [[ -n "$remote_dir" ]]; then
+    ssh "${ssh_options[@]}" shardul@sharchy "rm -rf -- '$remote_dir'" >/dev/null 2>&1 || true
+  fi
+  rm -f "$key_file" "$bundle_file"
   sudo tailscale logout >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 chmod 600 "$key_file"
 printf '%s\n' "$SHARCHY_DEPLOY_SSH_KEY" > "$key_file"
 unset SHARCHY_DEPLOY_SSH_KEY
+git bundle create "$bundle_file" HEAD
 
 token="$(amp orb id-token --audience "$TAILSCALE_AUDIENCE" --subject-scope project)"
 
@@ -41,9 +53,16 @@ sudo tailscale up \
   --hostname="amp-dotfiles-deploy-$orb_name"
 unset token
 
-ssh -i "$key_file" \
-  -o BatchMode=yes \
-  -o IdentitiesOnly=yes \
-  -o StrictHostKeyChecking=accept-new \
-  shardul@sharchy \
-  "sudo /run/current-system/sw/bin/flock /run/lock/sharchy-deploy.lock /run/current-system/sw/bin/nixos-rebuild switch --flake github:shardulbee/dotfiles/$revision#sharchy"
+remote_dir="$(ssh "${ssh_options[@]}" shardul@sharchy mktemp -d)"
+if [[ ! "$remote_dir" =~ ^/tmp/[[:alnum:]._-]+$ ]]; then
+  printf 'Unexpected remote temporary directory: %s\n' "$remote_dir" >&2
+  exit 1
+fi
+
+scp "${ssh_options[@]}" "$bundle_file" "shardul@sharchy:$remote_dir/dotfiles.bundle"
+ssh "${ssh_options[@]}" shardul@sharchy \
+  "git clone --quiet '$remote_dir/dotfiles.bundle' '$remote_dir/repo' &&
+   test \"\$(git -C '$remote_dir/repo' rev-parse HEAD)\" = '$revision' &&
+   mkdir '$remote_dir/source' &&
+   git -C '$remote_dir/repo' archive HEAD | tar -x -C '$remote_dir/source' &&
+   sudo /run/current-system/sw/bin/flock /run/lock/sharchy-deploy.lock /run/current-system/sw/bin/nixos-rebuild switch --flake 'path:$remote_dir/source#sharchy'"
