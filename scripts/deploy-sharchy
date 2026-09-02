@@ -30,6 +30,7 @@ ssh_options=(
 )
 cleanup() {
   if [[ -n "$remote_dir" ]]; then
+    # shellcheck disable=SC2029 # Expand the validated path on this client.
     ssh "${ssh_options[@]}" shardul@sharchy "rm -rf -- '$remote_dir'" >/dev/null 2>&1 || true
   fi
   rm -f "$key_file" "$bundle_file"
@@ -60,6 +61,7 @@ if [[ ! "$remote_dir" =~ ^/tmp/[[:alnum:]._-]+$ ]]; then
 fi
 
 scp "${ssh_options[@]}" "$bundle_file" "shardul@sharchy:$remote_dir/dotfiles.bundle"
+# shellcheck disable=SC2029 # Expand the validated path and revision on this client.
 ssh "${ssh_options[@]}" shardul@sharchy \
   "git clone --quiet '$remote_dir/dotfiles.bundle' '$remote_dir/repo' &&
    test \"\$(git -C '$remote_dir/repo' rev-parse HEAD)\" = '$revision' &&
