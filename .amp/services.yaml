@@ -1,0 +1,3 @@
+services:
+  attic-watch-store:
+    command: attic watch-store sharbox:turbochardo
