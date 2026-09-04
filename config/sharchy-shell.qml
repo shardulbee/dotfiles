@@ -364,8 +364,7 @@ ShellRoot {
 
       Rectangle {
         anchors.fill: parent
-        anchors.margins: 3
-        radius: 8
+        radius: 0
         color: bar.barBackground
         border.width: 1
         border.color: bar.panelBorder

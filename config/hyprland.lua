@@ -129,7 +129,7 @@ hl.config({
     },
     general = {
         gaps_in = 2,
-        gaps_out = 4,
+        gaps_out = 0,
         border_size = 2,
         col = {
             active_border = "rgb(cd974b)",
@@ -138,7 +138,7 @@ hl.config({
         layout = "dwindle",
     },
     decoration = {
-        rounding = 10,
+        rounding = 0,
         shadow = {
             enabled = false,
         },
