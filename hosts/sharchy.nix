@@ -136,7 +136,7 @@ in
       "--ozone-platform=wayland"
       "--ozone-platform-hint=wayland"
       "--enable-features=TouchpadOverscrollHistoryNavigation,VerticalTabs"
-      "--load-extension=/home/shardul/.config/chromium/extensions/alt-click-new-tab"
+      "--load-extension=/home/shardul/.config/helium/extensions/alt-click-new-tab"
     ];
     policies = {
       PasswordManagerEnabled = false;
@@ -243,8 +243,8 @@ in
         };
       }
       {
-        name = "Helium and Chromium tabs";
-        application.only = [ "helium" "chromium" "chromium-browser" ];
+        name = "Helium tabs";
+        application.only = [ "helium" ];
         remap = {
           "ALT-T" = "CTRL-T";
           "ALT-L" = "CTRL-L";
@@ -285,7 +285,7 @@ in
 
   fonts.packages = with pkgs; [ jetbrains-mono nerd-fonts.jetbrains-mono ];
   environment.systemPackages = with pkgs; [
-    adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs chromium
+    adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs
     cryptsetup curl discord fuzzel ghostty git grim glib jq libnotify mako
     networkmanagerapplet obsidian pavucontrol pciutils quickshell ripgrep slurp swaybg
     swayidle usbutils vicinae vim wget wl-clipboard wtype
@@ -468,14 +468,24 @@ in
       xdg.configFile."fuzzel/light.ini".source = ../config/fuzzel-light.ini;
       xdg.configFile."fuzzel/dark.ini".source = ../config/fuzzel-dark.ini;
       xdg.configFile."ghostty/config".source = ../config/ghostty-linux.conf;
-      xdg.configFile."chromium/extensions/alt-click-new-tab/background.js".source = ../config/browser-extension/background.js;
-      xdg.configFile."chromium/extensions/alt-click-new-tab/content.js".source = ../config/browser-extension/content.js;
-      xdg.configFile."chromium/extensions/alt-click-new-tab/manifest.json".source = ../config/browser-extension/manifest.json;
+      xdg.configFile."helium/extensions/alt-click-new-tab/background.js".source = ../config/browser-extension/background.js;
+      xdg.configFile."helium/extensions/alt-click-new-tab/content.js".source = ../config/browser-extension/content.js;
+      xdg.configFile."helium/extensions/alt-click-new-tab/manifest.json".source = ../config/browser-extension/manifest.json;
       xdg.configFile."hypr/hyprland.lua".source = ../config/hyprland.lua;
       xdg.configFile."mako/config".source = ../config/mako.conf;
       xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;
       xdg.dataFile."vicinae/themes/alabaster-light.toml".source = ../config/vicinae-light.toml;
       xdg.dataFile."vicinae/themes/alabaster-dark.toml".source = ../config/vicinae-dark.toml;
+      xdg.dataFile."applications/chrome-bpgpkfmeagdpdcenbogglipmfkalmple-Default.desktop".text = ''
+        [Desktop Entry]
+        Version=1.0
+        Type=Application
+        Name=Amp
+        Exec=/home/shardul/.local/bin/sharchy-helium --profile-directory=Default --app-id=bpgpkfmeagdpdcenbogglipmfkalmple
+        Icon=chrome-bpgpkfmeagdpdcenbogglipmfkalmple-Default
+        StartupWMClass=crx_bpgpkfmeagdpdcenbogglipmfkalmple
+        Terminal=false
+      '';
       xdg.desktopEntries.helium = {
         name = "Helium";
         genericName = "Web Browser";
