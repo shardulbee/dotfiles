@@ -22,7 +22,6 @@ fi
 key_file="$(mktemp)"
 bundle_file="$(mktemp)"
 remote_dir=""
-joined=false
 ssh_options=(
   -i "$key_file"
   -o BatchMode=yes
@@ -35,9 +34,7 @@ cleanup() {
     ssh "${ssh_options[@]}" shardul@sharchy "rm -rf -- '$remote_dir'" >/dev/null 2>&1 || true
   fi
   rm -f "$key_file" "$bundle_file"
-  if [[ "$joined" == true ]]; then
-    sudo tailscale logout >/dev/null 2>&1 || true
-  fi
+  sudo tailscale logout >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 chmod 600 "$key_file"
@@ -45,20 +42,17 @@ printf '%s\n' "$SHARCHY_DEPLOY_SSH_KEY" > "$key_file"
 unset SHARCHY_DEPLOY_SSH_KEY
 git bundle create "$bundle_file" HEAD
 
-if ! tailscale status --json | jq -e '.BackendState == "Running"' >/dev/null; then
-  token="$(amp orb id-token --audience "$TAILSCALE_AUDIENCE" --subject-scope project)"
+token="$(amp orb id-token --audience "$TAILSCALE_AUDIENCE" --subject-scope project)"
 
-  orb_name="${AMP_THREAD_ID:-$(hostname)}"
-  orb_name="${orb_name:0:40}"
+orb_name="${AMP_THREAD_ID:-$(hostname)}"
+orb_name="${orb_name:0:40}"
 
-  sudo tailscale up \
-    --client-id="${TAILSCALE_CLIENT_ID}?ephemeral=true&preauthorized=true" \
-    --id-token="$token" \
-    --advertise-tags=tag:amp-dotfiles-deploy \
-    --hostname="amp-dotfiles-deploy-$orb_name"
-  unset token
-  joined=true
-fi
+sudo tailscale up \
+  --client-id="${TAILSCALE_CLIENT_ID}?ephemeral=true&preauthorized=true" \
+  --id-token="$token" \
+  --advertise-tags=tag:amp-dotfiles-deploy \
+  --hostname="amp-dotfiles-deploy-$orb_name"
+unset token
 
 remote_dir="$(ssh "${ssh_options[@]}" shardul@sharchy mktemp -d)"
 if [[ ! "$remote_dir" =~ ^/tmp/[[:alnum:]._-]+$ ]]; then

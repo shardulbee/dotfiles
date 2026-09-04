@@ -77,14 +77,6 @@ configure_nix() {
   fi
 }
 
-install_attic() {
-  if [[ -x "$nix_profile/bin/attic" ]]; then
-    return
-  fi
-
-  "$nix_profile/bin/nix" profile install nixpkgs#attic-client
-}
-
 timed 'Checking system prerequisites' install_prerequisites
 timed 'Installing Tailscale' install_tailscale
 timed 'Configuring Tailscale for Amp orbs' configure_tailscale
@@ -95,4 +87,3 @@ timed 'Installing Nix' install_nix
 source "$nix_profile/etc/profile.d/nix.sh"
 
 timed 'Configuring Nix flakes' configure_nix
-timed 'Installing Attic client' install_attic

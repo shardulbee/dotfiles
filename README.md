@@ -34,16 +34,3 @@ The deployment joins Tailscale as a short-lived `tag:amp-dotfiles-deploy`
 node, connects to Sharchy as `shardul` over standard OpenSSH, and rebuilds the
 exact pushed commit. Local and orb-triggered Sharchy rebuilds share
 `/run/lock/sharchy-deploy.lock`.
-
-Orb setup installs the Attic client. When the dotfiles Amp project provides the
-`ATTIC_TOKEN` secret, the resume hook configures the private `turbochardo` cache
-on Sharbox over Tailscale. A supervised store watcher uploads newly built paths
-for reuse by fresh orbs, so normal Nix commands use the cache without
-Cloudflare's request-size limit:
-
-```sh
-nix flake check path:.
-nix build path:.#nixosConfigurations.sharchy.config.system.build.toplevel
-```
-
-Without the token, Nix uses its default substituters and no paths are uploaded.
