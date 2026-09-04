@@ -13,6 +13,12 @@ if [[ -n "${ATTIC_TOKEN:-}" ]]; then
   : "${TAILSCALE_CLIENT_ID:?Set TAILSCALE_CLIENT_ID}"
   : "${TAILSCALE_AUDIENCE:?Set TAILSCALE_AUDIENCE}"
 
+  attic_token="$(printf '%s' "$ATTIC_TOKEN" | tr -d '[:space:]')"
+  [[ -n "$attic_token" ]] || {
+    printf '%s\n' 'ATTIC_TOKEN contains no usable token data.' >&2
+    exit 1
+  }
+
   if ! tailscale status --json | jq -e '.BackendState == "Running"' >/dev/null; then
     identity_token="$(amp orb id-token \
       --audience "$TAILSCALE_AUDIENCE" \
@@ -27,7 +33,8 @@ if [[ -n "${ATTIC_TOKEN:-}" ]]; then
     unset identity_token
   fi
 
-  attic login --set-default sharbox http://sharbox:8081 "$ATTIC_TOKEN"
+  attic login --set-default sharbox http://sharbox:8081 "$attic_token"
+  unset attic_token
   attic use sharbox:turbochardo
   printf '%s\n' 'Configured private Attic cache turbochardo.'
 else
