@@ -132,6 +132,13 @@ in
   };
   programs.helium = {
     enable = true;
+    flags = [
+      "--ozone-platform=wayland"
+      "--ozone-platform-hint=wayland"
+      "--password-store=basic"
+      "--enable-features=TouchpadOverscrollHistoryNavigation,VerticalTabs"
+      "--load-extension=/home/shardul/.config/chromium/extensions/alt-click-new-tab"
+    ];
     policies = {
       PasswordManagerEnabled = false;
       BrowserColorScheme = "device";
@@ -459,13 +466,6 @@ in
       xdg.configFile."fuzzel/light.ini".source = ../config/fuzzel-light.ini;
       xdg.configFile."fuzzel/dark.ini".source = ../config/fuzzel-dark.ini;
       xdg.configFile."ghostty/config".source = ../config/ghostty-linux.conf;
-      xdg.configFile."helium-browser-flags.conf".text = ''
-      --ozone-platform=wayland
-      --ozone-platform-hint=wayland
-      --password-store=basic
-      --enable-features=TouchpadOverscrollHistoryNavigation,VerticalTabs
-      --load-extension=/home/shardul/.config/chromium/extensions/alt-click-new-tab
-    '';
       xdg.configFile."chromium/extensions/alt-click-new-tab/background.js".source = ../config/browser-extension/background.js;
       xdg.configFile."chromium/extensions/alt-click-new-tab/content.js".source = ../config/browser-extension/content.js;
       xdg.configFile."chromium/extensions/alt-click-new-tab/manifest.json".source = ../config/browser-extension/manifest.json;
