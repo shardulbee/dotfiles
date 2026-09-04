@@ -135,7 +135,6 @@ in
     flags = [
       "--ozone-platform=wayland"
       "--ozone-platform-hint=wayland"
-      "--password-store=basic"
       "--enable-features=TouchpadOverscrollHistoryNavigation,VerticalTabs"
       "--load-extension=/home/shardul/.config/chromium/extensions/alt-click-new-tab"
     ];
@@ -155,7 +154,10 @@ in
       };
     };
   };
-  environment.etc."1password/custom_allowed_browsers".text = "helium\n";
+  environment.etc."1password/custom_allowed_browsers" = {
+    text = "helium\n";
+    mode = "0644";
+  };
   environment.localBinInPath = true;
 
   services.openssh = {
