@@ -301,7 +301,7 @@
               serviceConfig = {
                 Label = "com.ampcode.runner";
                 EnvironmentVariables.HOME = "/Users/shardul";
-                WorkingDirectory = "/Users/shardul";
+                WorkingDirectory = "/Users/shardul/.local/share/amp/host-runner/turbogadget";
                 RunAtLoad = true;
                 KeepAlive = true;
                 ThrottleInterval = 5;
@@ -362,6 +362,11 @@
             home-manager.users.shardul = {
               imports = [ sharedHome ];
               home.homeDirectory = "/Users/shardul";
+              home.file.".local/share/amp/host-runner/turbogadget/AGENTS.md".text = ''
+                # TurboGadget host runner
+
+                Use this runner for work that requires the TurboGadget host. Do source changes in a project orb unless the task requires macOS or this machine.
+              '';
               xdg.configFile."ghostty/config".source = ./config/ghostty-darwin.conf;
             };
           })

@@ -354,6 +354,11 @@ in
       home.file.".local/bin/sharchy-keybindings".source = ../scripts/sharchy-keybindings.sh;
       home.file.".local/bin/sharchy-layout-toggle".source = ../scripts/sharchy-layout-toggle.sh;
       home.file.".local/bin/sharchy-rebuild".source = ../scripts/sharchy-rebuild.sh;
+      home.file.".local/share/amp/host-runner/sharchy/AGENTS.md".text = ''
+        # Sharchy host runner
+
+        Use this runner for work that requires the Sharchy host. Do source changes in a project orb unless the task must run on this machine.
+      '';
 
       systemd.user.services.amp-runner = {
         Unit = {
@@ -363,7 +368,7 @@ in
         };
         Service = {
           Environment = "HOME=/home/shardul";
-          WorkingDirectory = "/home/shardul";
+          WorkingDirectory = "/home/shardul/.local/share/amp/host-runner/sharchy";
           ExecStart = "${pkgs.amp-cli}/bin/amp --no-tui --runner-id sharchy --remote-control-terminal";
           Restart = "always";
           RestartSec = 5;
