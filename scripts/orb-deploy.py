@@ -2,15 +2,12 @@
 
 Requires TAILSCALE_CLIENT_ID, TAILSCALE_AUDIENCE and SHARCHY_DEPLOY_SSH_KEY.
 Both hosts use an ephemeral tag:amp-dotfiles-deploy node and standard SSH.
-Sharchy accepts a Git bundle as shardul and shares the local rebuild lock.
-TurboGadget accepts only a revision as dotfiles-deploy and fetches main itself.
-Bootstrap and host-side restrictions live in config/turbogadget-deploy.nix.
+Both accept only a revision as dotfiles-deploy and fetch main themselves.
+Bootstrap and restrictions: config/{sharchy,turbogadget}-deploy.nix.
 """
 
 import argparse
 import os
-import re
-import shlex
 import socket
 import subprocess
 import sys
@@ -55,16 +52,9 @@ def main():
             "-o",
             "StrictHostKeyChecking=accept-new",
         ]
-        user = "shardul" if host == "sharchy" else "dotfiles-deploy"
-        ssh = ["ssh", *options, f"{user}@{host}"]
-        remote_dir = ""
+        ssh = ["ssh", *options, f"dotfiles-deploy@{host}"]
         joined = False
         try:
-            bundle = Path(directory) / "dotfiles.bundle"
-            if host == "sharchy":
-                subprocess.run(
-                    ["git", "bundle", "create", str(bundle), "HEAD"], check=True
-                )
             token = output(
                 "amp",
                 "orb",
@@ -89,48 +79,8 @@ def main():
             )
             del token
             joined = True
-            if host == "turbogadget":
-                subprocess.run([*ssh, f"deploy {revision}"], check=True)
-                return
-
-            candidate = output(*ssh, "mktemp -d")
-            if not re.fullmatch(r"/tmp/[\w.-]+", candidate, flags=re.ASCII):
-                raise ValueError(f"Unexpected remote temporary directory: {candidate}")
-            remote_dir = candidate
-            subprocess.run(
-                [
-                    "scp",
-                    *options,
-                    str(bundle),
-                    f"shardul@sharchy:{remote_dir}/dotfiles.bundle",
-                ],
-                check=True,
-            )
-            path = shlex.quote(remote_dir)
-            commit = shlex.quote(revision)
-            subprocess.run(
-                [
-                    *ssh,
-                    (
-                        f"git clone --quiet {path}/dotfiles.bundle {path}/repo && "
-                        f'test "$(git -C {path}/repo rev-parse HEAD)" = {commit} && '
-                        f"mkdir {path}/source && "
-                        f"git -C {path}/repo archive HEAD | tar -x -C {path}/source && "
-                        "sudo /run/current-system/sw/bin/flock /run/lock/sharchy-deploy.lock "
-                        "/run/current-system/sw/bin/nixos-rebuild switch "
-                        f"--flake path:{path}/source#sharchy"
-                    ),
-                ],
-                check=True,
-            )
+            subprocess.run([*ssh, f"deploy {revision}"], check=True)
         finally:
-            if remote_dir:
-                subprocess.run(
-                    [*ssh, f"rm -rf -- {shlex.quote(remote_dir)}"],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    check=False,
-                )
             if joined:
                 subprocess.run(
                     ["sudo", "tailscale", "logout"],
