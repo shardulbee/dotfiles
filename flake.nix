@@ -43,6 +43,11 @@
         let
           playwriter = pkgs.callPackage ./packages/playwriter.nix { };
           uberstat = pkgs.callPackage ./packages/uberstat.nix { };
+          gr = pkgs.writeShellApplication {
+            name = "gr";
+            runtimeInputs = [ pkgs.fzf pkgs.neovim pkgs.bashInteractive ];
+            text = builtins.readFile ./scripts/gr;
+          };
           rebuild = pkgs.writeShellScriptBin "rebuild" ''
             if [ "$(uname)" = Darwin ]; then
               exec sudo darwin-rebuild switch --flake "$HOME/Documents/dotfiles#macbook"
@@ -70,6 +75,7 @@
             fzf
             gh
             go_1_27
+            gr
             hyperfine
             jjui
             jq
@@ -248,6 +254,7 @@
         specialArgs = { inherit hermes; };
         modules = [
           ./hosts/sharchy.nix
+          (import ./config/github-sync.nix { linux = true; })
           home-manager.nixosModules.home-manager
           helium.nixosModules.default
           xremap-flake.nixosModules.default
@@ -263,6 +270,7 @@
       darwinConfigurations.macbook = darwin.lib.darwinSystem {
         system = "aarch64-darwin";
         modules = [
+          (import ./config/github-sync.nix { linux = false; })
           home-manager.darwinModules.home-manager
           ({ pkgs, ... }: {
             nixpkgs.config.allowUnfree = true;

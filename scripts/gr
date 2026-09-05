@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root="$HOME/.cache/checkouts/github.com/shardulbee"
+repos=()
+shopt -s nullglob dotglob
+for dir in "$root"/*; do
+  [[ -d "$dir/.git" ]] && repos+=("${dir##*/}")
+done
+if ((${#repos[@]} == 0)); then
+  printf '%s\n' 'No GitHub checkouts yet. Run github-checkouts-refresh.' >&2
+  exit 1
+fi
+
+selected=$(printf '%s\n' "${repos[@]}" | fzf --height=40% --reverse --no-multi --prompt='repo> ' --query="$*")
+[[ -n "$selected" ]] || exit 1
+cd -- "$root/$selected"
+nvim .
+
+# An executable cannot change its parent shell's directory. Start a shell here.
+exec "${SHELL:-bash}" -i
