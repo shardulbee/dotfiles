@@ -314,8 +314,10 @@
                 Label = "com.ampcode.runner";
                 # Login Items uses the executable name, not Label. Avoid the
                 # generic /bin/sh wrapper that nix-darwin's command generates.
+                # Inherit the login shell's exports, including interactive .zshrc.
                 ProgramArguments = [
                   "/Library/Application Support/Amp Runner/Amp Runner"
+                  "/bin/zsh" "-ilc" ''exec "$@"'' "amp-runner"
                   "${pkgs.amp-cli}/bin/amp"
                   "--no-tui"
                   "--runner-id" "turbogadget"
@@ -336,6 +338,7 @@
                 Label = "com.ampcode.runner.chinwag";
                 ProgramArguments = [
                   "/Library/Application Support/Amp Runner/Amp Runner"
+                  "/bin/zsh" "-ilc" ''exec "$@"'' "amp-runner"
                   "${pkgs.amp-cli}/bin/amp"
                   "--no-tui"
                   "--runner-id" "chinwag"
@@ -356,6 +359,7 @@
                 Label = "com.ampcode.runner.natterwire";
                 ProgramArguments = [
                   "/Library/Application Support/Amp Runner/Amp Runner"
+                  "/bin/zsh" "-ilc" ''exec "$@"'' "amp-runner"
                   "${pkgs.amp-cli}/bin/amp"
                   "--no-tui"
                   "--runner-id" "natterwire"
