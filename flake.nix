@@ -296,10 +296,31 @@
               reattach = true;
             };
 
+            # Install a real file before launchd loads the agent. A store symlink
+            # cannot run the wait when /nix/store has not mounted yet.
+            # Rebuild only when restarting the runner is safe. After activation,
+            # check com.ampcode.runner in sfltool dumpbtm and Login Items.
+            # macOS may cache old names; do not reset the whole BTM database.
+            system.activationScripts.extraActivation.text = ''
+              /usr/bin/install -d -m 0755 '/Library/Application Support/Amp Runner'
+              /usr/bin/install -m 0755 ${pkgs.writeText "amp-runner-launcher" ''
+                #!/bin/sh
+                /bin/wait4path /nix/store && exec "$@"
+              ''} '/Library/Application Support/Amp Runner/Amp Runner'
+            '';
+
             launchd.user.agents.amp-runner = {
-              command = "${pkgs.amp-cli}/bin/amp --no-tui --runner-id turbogadget --remote-control-terminal";
               serviceConfig = {
                 Label = "com.ampcode.runner";
+                # Login Items uses the executable name, not Label. Avoid the
+                # generic /bin/sh wrapper that nix-darwin's command generates.
+                ProgramArguments = [
+                  "/Library/Application Support/Amp Runner/Amp Runner"
+                  "${pkgs.amp-cli}/bin/amp"
+                  "--no-tui"
+                  "--runner-id" "turbogadget"
+                  "--remote-control-terminal"
+                ];
                 EnvironmentVariables.HOME = "/Users/shardul";
                 WorkingDirectory = "/Users/shardul/.local/share/amp/host-runner/turbogadget";
                 RunAtLoad = true;
