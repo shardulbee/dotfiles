@@ -336,16 +336,19 @@
             launchd.user.agents.amp-runner-chinwag = {
               serviceConfig = {
                 Label = "com.ampcode.runner.chinwag";
+                # Initialize shell integrations outside Documents to avoid TCC
+                # prompts for helpers such as direnv. cd -q skips chpwd hooks.
                 ProgramArguments = [
                   "/Library/Application Support/Amp Runner/Amp Runner"
-                  "/bin/zsh" "-ilc" ''exec "$@"'' "amp-runner"
+                  "/bin/zsh" "-ilc" ''cd -q -- "$1" && shift && exec "$@"'' "amp-runner"
+                  "/Users/shardul/Documents/chinwag"
                   "${pkgs.amp-cli}/bin/amp"
                   "--no-tui"
                   "--runner-id" "chinwag"
                   "--remote-control-terminal"
                 ];
                 EnvironmentVariables.HOME = "/Users/shardul";
-                WorkingDirectory = "/Users/shardul/Documents/chinwag";
+                WorkingDirectory = "/Users/shardul";
                 RunAtLoad = true;
                 KeepAlive = true;
                 ThrottleInterval = 5;
@@ -359,14 +362,15 @@
                 Label = "com.ampcode.runner.natterwire";
                 ProgramArguments = [
                   "/Library/Application Support/Amp Runner/Amp Runner"
-                  "/bin/zsh" "-ilc" ''exec "$@"'' "amp-runner"
+                  "/bin/zsh" "-ilc" ''cd -q -- "$1" && shift && exec "$@"'' "amp-runner"
+                  "/Users/shardul/Documents/natterwire"
                   "${pkgs.amp-cli}/bin/amp"
                   "--no-tui"
                   "--runner-id" "natterwire"
                   "--remote-control-terminal"
                 ];
                 EnvironmentVariables.HOME = "/Users/shardul";
-                WorkingDirectory = "/Users/shardul/Documents/natterwire";
+                WorkingDirectory = "/Users/shardul";
                 RunAtLoad = true;
                 KeepAlive = true;
                 ThrottleInterval = 5;
