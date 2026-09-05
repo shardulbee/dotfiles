@@ -1,4 +1,8 @@
 // github-sync maintains disposable clones owned by a dedicated sync account.
+// Refresh resets default branches, removes local edits/untracked/ignored files,
+// and follows force pushes. Failed or disappeared repos are preserved.
+// No hooks, submodules, LFS downloads or dependency installation.
+// Tests: go test -race ./...; go vet ./...
 package main
 
 import (

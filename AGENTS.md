@@ -1,12 +1,6 @@
-# Sharchy deployment
+# Shipping
 
-When the user asks to ship changes that affect Sharchy, shipping includes the
-deployment, not only a Git push:
-
-1. Run `nix flake check path:.` and applicable linters or static checks.
-2. Commit and push the exact reviewed changes to `origin/main`.
-3. Run `nix run .#deploy-sharchy` and confirm Sharchy builds and switches to
-   that revision successfully.
-
-Do not deploy Sharchy for changes that affect only the macOS configuration.
-Do not deploy when the user asks only to commit or push.
+- Check: `nix flake check path:.` and relevant tests/linters.
+- When asked to ship: commit, push reviewed changes to `origin/main`, deploy affected hosts, verify.
+- Orb commands: `nix run .#orb-deploy-sharchy` / `nix run .#orb-deploy-turbogadget`; requirements live in those scripts.
+- Do not deploy for commit/push-only requests, or deploy Sharchy for macOS-only changes.

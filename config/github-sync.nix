@@ -1,3 +1,9 @@
+# Disposable read-only cache at ~/.cache/checkouts/github.com/shardulbee.
+# `gr` opens a repo; `github-checkouts-refresh` refreshes using shardul's gh login.
+# Writer owns files; reader group cannot edit them (sudo remains unrestricted).
+# macOS reserves UID/GID 499. Log out/in after first activation for reader access.
+# Logs: journalctl --user -u github-sync.service (Linux),
+# ~/Library/Logs/github-sync.log (macOS). Timer runs every 30s; no overlap.
 { linux }:
 { lib, pkgs, ... }:
 let

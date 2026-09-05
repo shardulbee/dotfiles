@@ -1,5 +1,10 @@
 set -euo pipefail
 
+# Run from the dotfiles Amp project's orb, not a personal host.
+# Requires its TAILSCALE_CLIENT_ID, TAILSCALE_AUDIENCE and SHARCHY_DEPLOY_SSH_KEY.
+# Deploys clean, pushed main through an ephemeral tag:amp-dotfiles-deploy node.
+# Standard SSH as shardul; unlike TurboGadget, this key has normal shell access.
+# Host rebuild shares /run/lock/sharchy-deploy.lock with local rebuilds.
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
 

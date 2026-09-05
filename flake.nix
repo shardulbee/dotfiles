@@ -24,20 +24,20 @@
 
   outputs = { self, nixpkgs, home-manager, darwin, helium, xremap-flake, hermes, ... }:
     let
-      deploySharchy =
+      orbDeploySharchy =
         system:
         let
           pkgs = import nixpkgs { inherit system; };
         in
         pkgs.writeShellApplication {
-          name = "deploy-sharchy";
+          name = "orb-deploy-sharchy";
           runtimeInputs = [
             pkgs.coreutils
             pkgs.git
             pkgs.openssh
             pkgs.tailscale
           ];
-          text = builtins.readFile ./scripts/deploy-sharchy;
+          text = builtins.readFile ./scripts/orb-deploy-sharchy;
         };
       sharedHome = { pkgs, ... }:
         let
@@ -244,10 +244,24 @@
         };
     in
     {
-      apps.x86_64-linux.deploy-sharchy = {
+      apps.x86_64-linux.orb-deploy-sharchy = {
         type = "app";
-        program = "${deploySharchy "x86_64-linux"}/bin/deploy-sharchy";
+        program = "${orbDeploySharchy "x86_64-linux"}/bin/orb-deploy-sharchy";
       };
+
+      apps.x86_64-linux.orb-deploy-turbogadget =
+        let
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          deploy = pkgs.writeShellApplication {
+            name = "orb-deploy-turbogadget";
+            runtimeInputs = [ pkgs.coreutils pkgs.git pkgs.openssh pkgs.tailscale ];
+            text = builtins.readFile ./scripts/orb-deploy-turbogadget;
+          };
+        in
+        {
+          type = "app";
+          program = "${deploy}/bin/orb-deploy-turbogadget";
+        };
 
       nixosConfigurations.sharchy = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -270,6 +284,7 @@
       darwinConfigurations.macbook = darwin.lib.darwinSystem {
         system = "aarch64-darwin";
         modules = [
+          ./config/turbogadget-deploy.nix
           (import ./config/github-sync.nix { linux = false; })
           home-manager.darwinModules.home-manager
           ({ pkgs, ... }: {
