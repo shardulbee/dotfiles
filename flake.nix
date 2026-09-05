@@ -24,20 +24,21 @@
 
   outputs = { self, nixpkgs, home-manager, darwin, helium, xremap-flake, hermes, ... }:
     let
-      orbDeploySharchy =
-        system:
+      orbDeploy =
+        host:
         let
-          pkgs = import nixpkgs { inherit system; };
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
         in
         pkgs.writeShellApplication {
-          name = "orb-deploy-sharchy";
+          name = "orb-deploy-${host}";
           runtimeInputs = [
-            pkgs.coreutils
             pkgs.git
             pkgs.openssh
             pkgs.tailscale
           ];
-          text = builtins.readFile ./scripts/orb-deploy-sharchy;
+          text = ''
+            exec ${pkgs.python3}/bin/python3 -I ${./scripts/orb-deploy.py} ${host} "$@"
+          '';
         };
       sharedHome = { pkgs, ... }:
         let
@@ -246,22 +247,13 @@
     {
       apps.x86_64-linux.orb-deploy-sharchy = {
         type = "app";
-        program = "${orbDeploySharchy "x86_64-linux"}/bin/orb-deploy-sharchy";
+        program = "${orbDeploy "sharchy"}/bin/orb-deploy-sharchy";
       };
 
-      apps.x86_64-linux.orb-deploy-turbogadget =
-        let
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          deploy = pkgs.writeShellApplication {
-            name = "orb-deploy-turbogadget";
-            runtimeInputs = [ pkgs.coreutils pkgs.git pkgs.openssh pkgs.tailscale ];
-            text = builtins.readFile ./scripts/orb-deploy-turbogadget;
-          };
-        in
-        {
-          type = "app";
-          program = "${deploy}/bin/orb-deploy-turbogadget";
-        };
+      apps.x86_64-linux.orb-deploy-turbogadget = {
+        type = "app";
+        program = "${orbDeploy "turbogadget"}/bin/orb-deploy-turbogadget";
+      };
 
       nixosConfigurations.sharchy = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -330,7 +322,7 @@
               NSGlobalDomain = {
                 ApplePressAndHoldEnabled = false;
                 InitialKeyRepeat = 15;
-                KeyRepeat = 2;
+                KeyRepeat = 1;
               };
             };
 

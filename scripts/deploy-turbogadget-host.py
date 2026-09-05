@@ -153,7 +153,8 @@ def main():
         with tempfile.TemporaryDirectory(
             prefix="dotfiles-deploy-", dir="/var/tmp"
         ) as directory:
-            work = Path(directory)
+            # macOS /var is a symlink; Nix path flakes require the physical path.
+            work = Path(directory).resolve()
             os.chown(work, 0, grp.getgrnam("staff").gr_gid)
             work.chmod(0o750)
             deploy(revision, work)
