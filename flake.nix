@@ -331,6 +331,46 @@
               };
             };
 
+            launchd.user.agents.amp-runner-chinwag = {
+              serviceConfig = {
+                Label = "com.ampcode.runner.chinwag";
+                ProgramArguments = [
+                  "/Library/Application Support/Amp Runner/Amp Runner"
+                  "${pkgs.amp-cli}/bin/amp"
+                  "--no-tui"
+                  "--runner-id" "chinwag"
+                  "--remote-control-terminal"
+                ];
+                EnvironmentVariables.HOME = "/Users/shardul";
+                WorkingDirectory = "/Users/shardul/Documents/chinwag";
+                RunAtLoad = true;
+                KeepAlive = true;
+                ThrottleInterval = 5;
+                StandardOutPath = "/Users/shardul/Library/Logs/amp-runner-chinwag.log";
+                StandardErrorPath = "/Users/shardul/Library/Logs/amp-runner-chinwag.log";
+              };
+            };
+
+            launchd.user.agents.amp-runner-natterwire = {
+              serviceConfig = {
+                Label = "com.ampcode.runner.natterwire";
+                ProgramArguments = [
+                  "/Library/Application Support/Amp Runner/Amp Runner"
+                  "${pkgs.amp-cli}/bin/amp"
+                  "--no-tui"
+                  "--runner-id" "natterwire"
+                  "--remote-control-terminal"
+                ];
+                EnvironmentVariables.HOME = "/Users/shardul";
+                WorkingDirectory = "/Users/shardul/Documents/natterwire";
+                RunAtLoad = true;
+                KeepAlive = true;
+                ThrottleInterval = 5;
+                StandardOutPath = "/Users/shardul/Library/Logs/amp-runner-natterwire.log";
+                StandardErrorPath = "/Users/shardul/Library/Logs/amp-runner-natterwire.log";
+              };
+            };
+
             system.defaults = {
               dock = {
                 autohide = true;
