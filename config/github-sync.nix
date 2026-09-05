@@ -56,6 +56,7 @@ lib.mkMerge [
 
       launchd.agents.github-sync = lib.mkIf (!linux) {
         enable = true;
+        waitForNixStore = false; # Use a named launcher instead of "sh" in Background Items.
         config = {
           ProgramArguments = [ "${refresh}/bin/github-checkouts-refresh" ];
           RunAtLoad = true;
