@@ -278,6 +278,9 @@
             system.primaryUser = "shardul";
             system.stateVersion = 6;
             users.users.shardul.home = "/Users/shardul";
+            users.users.shardul.openssh.authorizedKeys.keys = [
+              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDvyyQaeYRafexqIO6kZByqrYMB9IrumIez6BsZDuOJr shardul@sharbox"
+            ];
 
             programs.zsh.enable = true;
             environment.shells = [ pkgs.fish ];
