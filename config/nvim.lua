@@ -21,17 +21,21 @@ vim.o.clipboard = "unnamedplus"
 vim.o.ignorecase = true
 vim.o.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
 
-local function sync_theme()
-  local ok, lines = pcall(vim.fn.readfile, vim.fn.expand("~/.local/state/sharchy-theme"))
-  local mode = ok and lines[1] == "light" and "light" or "dark"
-  if vim.o.background ~= mode then
-    vim.o.background = mode
-    if vim.g.colors_name then vim.cmd.colorscheme("alabaster") end
+-- Sharchy follows its theme state file. On macOS, leave background unset so
+-- Neovim follows Ghostty's system appearance through OSC 11 responses.
+if vim.fn.has("linux") == 1 then
+  local function sync_theme()
+    local ok, lines = pcall(vim.fn.readfile, vim.fn.expand("~/.local/state/sharchy-theme"))
+    local mode = ok and lines[1] == "light" and "light" or "dark"
+    if vim.o.background ~= mode then
+      vim.o.background = mode
+      if vim.g.colors_name then vim.cmd.colorscheme("alabaster") end
+    end
   end
+  sync_theme()
+  vim.api.nvim_create_autocmd("FocusGained", { callback = sync_theme })
 end
-sync_theme()
 vim.cmd.colorscheme("alabaster")
-vim.api.nvim_create_autocmd("FocusGained", { callback = sync_theme })
 
 vim.defer_fn(function()
   require("nvim-treesitter").install({
@@ -107,4 +111,3 @@ map("n", "<leader>c", function()
   vim.api.nvim_win_set_cursor(0, { row, #prefix })
   vim.cmd("startinsert")
 end, { desc = "insert SHARVIEW comment" })
-
