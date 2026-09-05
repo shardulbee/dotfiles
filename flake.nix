@@ -333,21 +333,14 @@
                 "1password-cli"
                 "anki"
                 "arq"
-                "codex-app"
-                "cursor"
                 "discord"
                 "font-jetbrains-mono-nerd-font"
                 "ghostty"
-                "google-chrome"
                 "google-drive"
                 "helium-browser"
                 "obsidian"
-                "openscad@snapshot"
                 "raycast"
-                "slack"
-                "spotify"
                 "tailscale-app"
-                "zed"
               ];
               onActivation = {
                 autoUpdate = false;
