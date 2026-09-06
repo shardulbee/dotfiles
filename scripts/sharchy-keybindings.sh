@@ -32,6 +32,7 @@ Alt + [/] / Shift + [/]       Back-forward / previous-next tab
 Alt/Super + arrows            Line/word navigation
 Super + Ctrl + T              Toggle light/dark theme
 Alt + Shift + 3/4             Screenshot region/fullscreen
+Alt + Shift + 5               Record: drag region or click window/screen
 Print / Ctrl + Print          Screenshot region/fullscreen
 Brightness and volume keys    Adjust display/audio
 EOF

@@ -263,6 +263,7 @@ in
           "ALT-2" = "CTRL-2";
           "ALT-SHIFT-3" = "ALT-SHIFT-3";
           "ALT-SHIFT-4" = "ALT-SHIFT-4";
+          "ALT-SHIFT-5" = "ALT-SHIFT-5";
           "ALT-3" = "CTRL-3";
           "ALT-4" = "CTRL-4";
           "ALT-5" = "CTRL-5";
@@ -291,7 +292,7 @@ in
     adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs
     cryptsetup curl discord fuzzel ghostty git grim glib jq libnotify mako
     networkmanagerapplet obsidian pavucontrol pciutils quickshell ripgrep slurp swaybg
-    swayidle usbutils vicinae vim wget wl-clipboard wtype
+    swayidle usbutils vicinae vim wget wf-recorder wl-clipboard wtype
   ];
 
   home-manager.users.shardul = { config, pkgs, ... }:
@@ -349,6 +350,7 @@ in
       home.file.".local/bin/sharchy-fuzzel".source = ../scripts/sharchy-fuzzel.sh;
       home.file.".local/bin/sharchy-helium".source = ../scripts/sharchy-helium.sh;
       home.file.".local/bin/sharchy-helium-defaults".source = ../scripts/sharchy-helium-defaults.sh;
+      home.file.".local/bin/sharchy-screen-record".source = ../scripts/sharchy-screen-record.sh;
       home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot.sh;
       home.file.".local/bin/sharchy-theme".source = ../scripts/sharchy-theme.sh;
       home.file.".local/bin/sharchy-keybindings".source = ../scripts/sharchy-keybindings.sh;

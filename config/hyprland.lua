@@ -85,6 +85,7 @@ hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { loc
 
 hl.bind("ALT + SHIFT + 3", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screenshot region"))
 hl.bind("ALT + SHIFT + 4", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screenshot fullscreen"))
+hl.bind("ALT + SHIFT + 5", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screen-record"))
 hl.bind("PRINT", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screenshot region"))
 hl.bind("CTRL + PRINT", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screenshot fullscreen"))
 
