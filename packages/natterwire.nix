@@ -2,13 +2,13 @@
 
 buildGoModule {
   pname = "natterwire-tui";
-  version = "0-unstable-aaba707";
+  version = "0-unstable-e7f1a31";
 
   src = fetchFromGitHub {
     owner = "shardulbee";
     repo = "natterwire";
-    rev = "aaba707e285cb2ea31d2c1cfba0291ebfcc5f7a6";
-    hash = "sha256-zQ56sPXxxATHRadEUKnCVvw5uDfG9LctYRS5vDAr3I0=";
+    rev = "e7f1a3136dbbf26c92ea9a908e494fb124fb3ac4";
+    hash = "sha256-Pe39cavfhdcpdFRtqgKdpzz5e2e4jmbdCqXlSWTu9us=";
   };
   modRoot = "tui";
   subPackages = [ "." ];
