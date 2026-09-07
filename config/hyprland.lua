@@ -21,21 +21,16 @@ hl.gesture({
 })
 
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("ghostty"))
-hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-fuzzel"))
+hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd("vicinae toggle"))
 hl.bind("ALT + SPACE", hl.dsp.exec_cmd("vicinae toggle"))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("vicinae 'vicinae://launch/clipboard/history?toggle=true'"))
 hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-helium"))
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-helium"))
-hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("1password --quick-access"))
-hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("1password --show"))
+hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd("1password --quick-access"))
 hl.bind(mainMod .. " + CTRL + T", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-theme toggle"))
-hl.bind(mainMod .. " + ALT + K", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-keybindings"))
-hl.bind(mainMod .. " + ALT + R", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-rebuild"))
-hl.bind(mainMod .. " + ALT + S", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-layout-toggle"))
-hl.bind(mainMod .. " + ESCAPE", hl.dsp.exec_cmd("systemctl --user start sharchy-lock.service"))
-hl.bind(mainMod .. " + N", hl.dsp.focus({ workspace = "name:obsidian" }))
+hl.bind("ALT + CTRL + Q", hl.dsp.exec_cmd("systemctl --user start sharchy-lock.service"))
 hl.bind(mainMod .. " + TAB", hl.dsp.focus({ workspace = "previous" }))
-hl.bind(mainMod .. " + Q", hl.dsp.window.close())
+hl.bind("ALT + Q", hl.dsp.window.close())
 hl.bind("ALT + TAB", hl.dsp.focus({ workspace = "previous" }))
 
 hl.bind(mainMod .. " + H", hl.dsp.focus({ direction = "left" }))
@@ -86,17 +81,6 @@ hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { loc
 hl.bind("ALT + SHIFT + 3", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screenshot region"))
 hl.bind("ALT + SHIFT + 4", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screenshot fullscreen"))
 hl.bind("ALT + SHIFT + 5", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screen-record"))
-hl.bind("PRINT", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screenshot region"))
-hl.bind("CTRL + PRINT", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-screenshot fullscreen"))
-
-hl.window_rule({
-    name = "obsidian-space",
-    match = {
-        class = "(?i).*obsidian.*",
-    },
-    workspace = "name:obsidian",
-    fullscreen = true,
-})
 
 hl.window_rule({
     name = "float-1password",
@@ -165,6 +149,5 @@ hl.config({
 hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start sharchy-bar.service mako.service")
     hl.exec_cmd("1password --silent")
-    hl.exec_cmd("obsidian")
     hl.exec_cmd("swayidle -w timeout 300 \"systemctl --user start sharchy-lock.service\" timeout 600 \"hyprctl dispatch dpms off\" resume \"hyprctl dispatch dpms on\" before-sleep \"systemctl --user start sharchy-lock.service\"")
 end)

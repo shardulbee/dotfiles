@@ -290,7 +290,7 @@ in
   fonts.packages = with pkgs; [ jetbrains-mono nerd-fonts.jetbrains-mono ];
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs
-    cryptsetup curl discord fuzzel ghostty git grim glib jq libnotify mako
+    cryptsetup curl discord ghostty git grim glib jq libnotify mako
     networkmanagerapplet obsidian pavucontrol pciutils quickshell ripgrep slurp swaybg
     swayidle usbutils vicinae vim wget wf-recorder wl-clipboard wtype
   ];
@@ -351,14 +351,11 @@ in
         x11.enable = true;
       };
 
-      home.file.".local/bin/sharchy-fuzzel".source = ../scripts/sharchy-fuzzel.sh;
       home.file.".local/bin/sharchy-helium".source = ../scripts/sharchy-helium.sh;
       home.file.".local/bin/sharchy-helium-defaults".source = ../scripts/sharchy-helium-defaults.sh;
       home.file.".local/bin/sharchy-screen-record".source = ../scripts/sharchy-screen-record.sh;
       home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot.sh;
       home.file.".local/bin/sharchy-theme".source = ../scripts/sharchy-theme.sh;
-      home.file.".local/bin/sharchy-keybindings".source = ../scripts/sharchy-keybindings.sh;
-      home.file.".local/bin/sharchy-layout-toggle".source = ../scripts/sharchy-layout-toggle.sh;
       home.file.".local/bin/sharchy-rebuild".source = ../scripts/sharchy-rebuild.sh;
       home.file.".local/share/amp/host-runner/sharchy/AGENTS.md".text = ''
         # Sharchy host runner
@@ -471,16 +468,6 @@ in
         Install.WantedBy = [ "timers.target" ];
       };
 
-      # Mask terminal-only launchers; Fuzzel should contain GUI applications.
-      xdg.dataFile."applications/vim.desktop".text = ''
-        [Desktop Entry]
-        Type=Application
-        Name=Vim
-        Hidden=true
-      '';
-      xdg.configFile."fuzzel/fuzzel.ini".source = ../config/fuzzel.ini;
-      xdg.configFile."fuzzel/light.ini".source = ../config/fuzzel-light.ini;
-      xdg.configFile."fuzzel/dark.ini".source = ../config/fuzzel-dark.ini;
       xdg.configFile."ghostty/config".source = ../config/ghostty-linux.conf;
       xdg.configFile."helium/extensions/alt-click-new-tab/background.js".source = ../config/browser-extension/background.js;
       xdg.configFile."helium/extensions/alt-click-new-tab/content.js".source = ../config/browser-extension/content.js;
