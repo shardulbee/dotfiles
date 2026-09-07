@@ -2,19 +2,17 @@
 
 buildGoModule {
   pname = "natterwire-tui";
-  version = "0-unstable-f61a2f0";
+  version = "0-unstable-aaba707";
 
   src = fetchFromGitHub {
     owner = "shardulbee";
     repo = "natterwire";
-    rev = "f61a2f0749a9229a54cb2b2e62b7a43b9e70063c";
-    hash = "sha256-s9BMHWqiczAIJUOk8FDudxrQt3IRrMipquntPcqMeOc=";
-    # Supply NIX_GITHUB_PRIVATE_USERNAME/PASSWORD to the builder, never in Nix.
-    private = true;
+    rev = "aaba707e285cb2ea31d2c1cfba0291ebfcc5f7a6";
+    hash = "sha256-zQ56sPXxxATHRadEUKnCVvw5uDfG9LctYRS5vDAr3I0=";
   };
   modRoot = "tui";
   subPackages = [ "." ];
-  vendorHash = "sha256-d7E6KLG1EpEoXLlwh29g3YpOmsNQ6RaN8Cu0Q0NRNzw=";
+  vendorHash = "sha256-YE9fNQcDJVJk2lNWL3OetqaW82Hgaj8050cNugaqpHU=";
   env.CGO_ENABLED = 0;
 
   postInstall = ''
