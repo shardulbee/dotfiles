@@ -299,6 +299,7 @@ in
     let
       grok-bot = pkgs.callPackage ../packages/grok-bot.nix { };
       hermes-desktop = pkgs.callPackage ../packages/hermes-desktop.nix { inherit hermes; };
+      natterwire = pkgs.callPackage ../packages/natterwire.nix { };
       lockShell = ../config/quickshell-lock.qml;
       lockConfig = pkgs.runCommand "sharchy-lock-config" { } ''
         mkdir -p "$out"
@@ -337,6 +338,9 @@ in
         clang_22
         grok-bot
         hermes-desktop
+        (pkgs.writeShellScriptBin "nw" ''
+          exec ${natterwire}/bin/natterwire-tui --url https://turbogadget.li-werner.ts.net:8741 "$@"
+        '')
       ];
       home.pointerCursor = {
         enable = true;
