@@ -368,28 +368,6 @@
               };
             };
 
-            launchd.user.agents.amp-runner-natterwire = {
-              serviceConfig = {
-                Label = "com.ampcode.runner.natterwire";
-                ProgramArguments = [
-                  "/Library/Application Support/Amp Runner/Amp Runner"
-                  "/bin/zsh" "-ilc" ''cd -q -- "$1" && shift && exec "$@"'' "amp-runner"
-                  "/Users/shardul/Documents/natterwire"
-                  "${pkgs.amp-cli}/bin/amp"
-                  "--no-tui"
-                  "--runner-id" "natterwire"
-                  "--remote-control-terminal"
-                ];
-                EnvironmentVariables.HOME = "/Users/shardul";
-                WorkingDirectory = "/Users/shardul";
-                RunAtLoad = true;
-                KeepAlive = true;
-                ThrottleInterval = 5;
-                StandardOutPath = "/Users/shardul/Library/Logs/amp-runner-natterwire.log";
-                StandardErrorPath = "/Users/shardul/Library/Logs/amp-runner-natterwire.log";
-              };
-            };
-
             system.defaults = {
               dock = {
                 autohide = true;
