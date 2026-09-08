@@ -64,11 +64,17 @@
           home.username = "shardul";
           home.stateVersion = "26.05";
           programs.home-manager.enable = true;
+          programs.btop = {
+            enable = true;
+            settings = {
+              proc_aggregate = true;
+              proc_tree_auto_collapse = 1;
+            };
+          };
 
           home.packages = with pkgs; [
             amp-cli
             atuin
-            btop
             claude-code
             direnv
             fd
