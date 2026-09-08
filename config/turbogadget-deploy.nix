@@ -1,17 +1,15 @@
-# Bootstrap locally: sudo darwin-rebuild switch --flake .#macbook
+# Bootstrap via admin access before enabling the source-transfer workflow:
+# sudo darwin-rebuild switch --flake .#macbook
 # Requires Remote Login enabled and UID/GID 498 unused on first activation.
-# Deploy key gets only the forced command and passwordless sudo for its helper;
-# no shell, PTY, forwarding or uploads. Personal SSH access stays unchanged.
+# The deploy key accepts only deploy <SHA> with a source tar on stdin.
+# This authorizes root execution of that source; personal SSH stays unchanged.
 { lib, pkgs, ... }:
 let
   hostScript = pkgs.replaceVars ../scripts/deploy-turbogadget-host.py {
-    git = "${pkgs.git}/bin/git";
-    gh = "${pkgs.gh}/bin/gh";
     nix = "${pkgs.nix}/bin/nix";
     nixEnv = "${pkgs.nix}/bin/nix-env";
     path = lib.makeBinPath [
       pkgs.git
-      pkgs.gh
       pkgs.nix
       pkgs.coreutils
       pkgs.bash
@@ -41,7 +39,7 @@ in
     createHome = false;
     shell = pkgs.bashInteractive;
     openssh.authorizedKeys.keys = [
-      ''restrict,command="${dispatch}" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJo9B32sfzU4LF4SATBenldO248t4BadFcUNG9y6T1Kx amp-dotfiles-deploy''
+      ''restrict,command="${dispatch}" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJo9B32sfzU4LF4SATBenldO248t4BadFcUNG9y6T1Kx dotfiles-deploy''
     ];
   };
 

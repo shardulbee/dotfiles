@@ -1,35 +1,23 @@
-"""Root entrypoint: deploy only the requested current GitHub main revision.
+"""Build and activate the source tar streamed by Actions on stdin.
 
-Fetch uses shardul's gh login (must retain repository access); build runs as
-shardul against root-owned source. Publishing main therefore grants root code
-execution on activation: this restricts the SSH key, not repository authors.
-Orb runs serialize; do not rebuild manually alongside them. Activation failure
-can leave the profile changed without switching /run/current-system. No automatic
-rollback: inspect the error before retrying. Root-only last-successful.json in
-/var/db/dotfiles-deploy records completed activation, not merely a build.
+The deployment key authorizes root code execution through supplied Nix source.
+Actions serializes deployments; do not rebuild locally alongside it.
+Activation can partially fail; inspect before retrying, no automatic rollback.
 """
 
-import fcntl
 import grp
-import io
-import json
 import os
 import re
-import shlex
 import subprocess
 import sys
 import tarfile
 import tempfile
 from pathlib import Path
 
-GIT = "@git@"
-GH = "@gh@"
 NIX = "@nix@"
 NIX_ENV = "@nixEnv@"
 PATH = "@path@"
-REPOSITORY = "https://github.com/shardulbee/dotfiles.git"
 PROFILE = "/nix/var/nix/profiles/system"
-STATE = Path("/var/db/dotfiles-deploy")
 BUILDER = [
     "/usr/bin/sudo",
     "-n",
@@ -60,35 +48,9 @@ def run(arguments, **kwargs):
 
 
 def deploy(revision, work):
-    repository = work / "repo"
     source = work / "source"
     source.mkdir(mode=0o755)
-    # Caller-controlled Git configuration and submitted Git bundles are not
-    # trusted. Use the owner's GitHub login without exposing it to the deploy user.
-    git = [
-        GIT,
-        "-c",
-        "credential.helper=",
-        "-c",
-        "credential.helper=!" + shlex.join(BUILDER + [GH, "auth", "git-credential"]),
-        "-c",
-        "core.hooksPath=/dev/null",
-        "-c",
-        "protocol.file.allow=never",
-    ]
-    run(git + ["init", "--bare", str(repository)])
-    git += ["--git-dir", str(repository)]
-    run(
-        git
-        + ["fetch", "--quiet", "--no-tags", "--depth=1", REPOSITORY, "refs/heads/main"]
-    )
-    actual = run(git + ["rev-parse", "FETCH_HEAD"], text=True).strip()
-    if actual != revision:
-        raise ValueError(
-            "Requested commit is not the current GitHub main; nothing activated"
-        )
-    archive = run(git + ["archive", "--format=tar", revision])
-    with tarfile.open(fileobj=io.BytesIO(archive)) as tree:
+    with tarfile.open(fileobj=sys.stdin.buffer, mode="r|*") as tree:
         tree.extractall(source, filter="data")
     # Parent is root:staff 0750; source stays root-owned and not writable by
     # shardul. The deployment account is not a member of staff.
@@ -104,6 +66,7 @@ def deploy(revision, work):
             "--option",
             "accept-flake-config",
             "false",
+            "--no-write-lock-file",
             f"path:{source}#darwinConfigurations.macbook.system",
         ],
         text=True,
@@ -119,9 +82,6 @@ def deploy(revision, work):
     subprocess.run([output + "/activate"], check=True)
     if Path("/run/current-system").resolve() != Path(output):
         raise ValueError("Activation did not select the built system")
-    temporary = STATE / "last-successful.json.tmp"
-    temporary.write_text(json.dumps({"revision": revision, "system": output}) + "\n")
-    os.replace(temporary, STATE / "last-successful.json")
     print(f"Activated {revision}: {output}", flush=True)
 
 
@@ -137,27 +97,18 @@ def main():
             "USER": "root",
             "LOGNAME": "root",
             "PATH": PATH,
-            "GIT_CONFIG_NOSYSTEM": "1",
-            "GIT_CONFIG_GLOBAL": "/dev/null",
-            "GIT_TERMINAL_PROMPT": "0",
             "SSL_CERT_FILE": "/etc/ssl/cert.pem",
             "NIX_SSL_CERT_FILE": "/etc/ssl/cert.pem",
         }
     )
-    STATE.mkdir(mode=0o700, exist_ok=True)
-    with (STATE / "lock").open("a") as lock:
-        try:
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError:
-            raise ValueError("Another orb deployment is running") from None
-        with tempfile.TemporaryDirectory(
-            prefix="dotfiles-deploy-", dir="/var/tmp"
-        ) as directory:
-            # macOS /var is a symlink; Nix path flakes require the physical path.
-            work = Path(directory).resolve()
-            os.chown(work, 0, grp.getgrnam("staff").gr_gid)
-            work.chmod(0o750)
-            deploy(revision, work)
+    with tempfile.TemporaryDirectory(
+        prefix="dotfiles-deploy-", dir="/var/tmp"
+    ) as directory:
+        # macOS /var is a symlink; Nix path flakes require the physical path.
+        work = Path(directory).resolve()
+        os.chown(work, 0, grp.getgrnam("staff").gr_gid)
+        work.chmod(0o750)
+        deploy(revision, work)
 
 
 if __name__ == "__main__":

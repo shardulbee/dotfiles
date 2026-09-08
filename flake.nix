@@ -27,22 +27,6 @@
       ampOverlay = _: prev: {
         amp-cli = prev.callPackage ./packages/amp-cli.nix { inherit (prev) amp-cli; };
       };
-      orbDeploy =
-        host:
-        let
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        in
-        pkgs.writeShellApplication {
-          name = "orb-deploy-${host}";
-          runtimeInputs = [
-            pkgs.git
-            pkgs.openssh
-            pkgs.tailscale
-          ];
-          text = ''
-            exec ${pkgs.python3}/bin/python3 -I ${./scripts/orb-deploy.py} ${host} "$@"
-          '';
-        };
       sharedHome = { pkgs, ... }:
         let
           playwriter = pkgs.callPackage ./packages/playwriter.nix { };
@@ -56,9 +40,7 @@
             if [ "$(uname)" = Darwin ]; then
               exec sudo darwin-rebuild switch --flake "$HOME/Documents/dotfiles#macbook"
             else
-              exec sudo /run/current-system/sw/bin/flock \
-                /run/lock/sharchy-deploy.lock \
-                /run/current-system/sw/bin/nixos-rebuild switch \
+              exec sudo /run/current-system/sw/bin/nixos-rebuild switch \
                 --flake "$HOME/Documents/dotfiles#sharchy"
             fi
           '';
@@ -254,16 +236,6 @@
         };
     in
     {
-      apps.x86_64-linux.orb-deploy-sharchy = {
-        type = "app";
-        program = "${orbDeploy "sharchy"}/bin/orb-deploy-sharchy";
-      };
-
-      apps.x86_64-linux.orb-deploy-turbogadget = {
-        type = "app";
-        program = "${orbDeploy "turbogadget"}/bin/orb-deploy-turbogadget";
-      };
-
       nixosConfigurations.sharchy = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = { inherit hermes; };
