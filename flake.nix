@@ -290,6 +290,11 @@
                 #!/bin/sh
                 /bin/wait4path /nix/store && exec "$@"
               ''} '/Library/Application Support/Amp Runner/Amp Runner'
+              /usr/bin/install -d -m 0755 '/Library/Application Support/Natterwire Actions Runner'
+              /usr/bin/install -m 0755 ${pkgs.writeText "natterwire-actions-launcher" ''
+                #!/bin/sh
+                exec "$@"
+              ''} '/Library/Application Support/Natterwire Actions Runner/Natterwire Actions Runner'
             '';
 
             launchd.user.agents.amp-runner = {
@@ -337,6 +342,28 @@
                 ThrottleInterval = 5;
                 StandardOutPath = "/Users/shardul/Library/Logs/amp-runner-chinwag.log";
                 StandardErrorPath = "/Users/shardul/Library/Logs/amp-runner-chinwag.log";
+              };
+            };
+
+            # Register once with GitHub's repository runner setup in this directory;
+            # keep .credentials* private and let dotfiles own the service, not svc.sh.
+            # Same label adopts the existing agent. Rebuild only while it is idle.
+            launchd.user.agents.natterwire-actions = {
+              serviceConfig = {
+                Label = "actions.runner.shardulbee-natterwire.natterwire-turbogadget";
+                # Match Amp's named executable for macOS Login Items.
+                ProgramArguments = [
+                  "/Library/Application Support/Natterwire Actions Runner/Natterwire Actions Runner"
+                  "/Users/shardul/.local/share/natterwire-actions-runner/runsvc.sh"
+                ];
+                UserName = "shardul";
+                WorkingDirectory = "/Users/shardul/.local/share/natterwire-actions-runner";
+                EnvironmentVariables.ACTIONS_RUNNER_SVC = "1";
+                RunAtLoad = true;
+                SessionCreate = true;
+                ProcessType = "Interactive";
+                StandardOutPath = "/Users/shardul/Library/Logs/actions.runner.shardulbee-natterwire.natterwire-turbogadget/stdout.log";
+                StandardErrorPath = "/Users/shardul/Library/Logs/actions.runner.shardulbee-natterwire.natterwire-turbogadget/stderr.log";
               };
             };
 
