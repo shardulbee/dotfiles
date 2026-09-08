@@ -139,7 +139,7 @@ in
       "--ozone-platform=wayland"
       "--ozone-platform-hint=wayland"
       "--enable-features=TouchpadOverscrollHistoryNavigation,VerticalTabs"
-      "--load-extension=/home/shardul/.config/helium/extensions/alt-click-new-tab"
+      "--load-extension=/home/shardul/.config/helium/extensions/alt-click"
     ];
     policies = {
       PasswordManagerEnabled = false;
@@ -469,9 +469,7 @@ in
       };
 
       xdg.configFile."ghostty/config".source = ../config/ghostty-linux.conf;
-      xdg.configFile."helium/extensions/alt-click-new-tab/background.js".source = ../config/browser-extension/background.js;
-      xdg.configFile."helium/extensions/alt-click-new-tab/content.js".source = ../config/browser-extension/content.js;
-      xdg.configFile."helium/extensions/alt-click-new-tab/manifest.json".source = ../config/browser-extension/manifest.json;
+      xdg.configFile."helium/extensions/alt-click".source = ../config/browser-extension;
       xdg.configFile."hypr/hyprland.lua".source = ../config/hyprland.lua;
       xdg.configFile."mako/config".source = ../config/mako.conf;
       xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;
