@@ -24,6 +24,9 @@
 
   outputs = { self, nixpkgs, home-manager, darwin, helium, xremap-flake, hermes, ... }:
     let
+      ampOverlay = _: prev: {
+        amp-cli = prev.callPackage ./packages/amp-cli.nix { inherit (prev) amp-cli; };
+      };
       orbDeploy =
         host:
         let
@@ -265,6 +268,7 @@
         system = "x86_64-linux";
         specialArgs = { inherit hermes; };
         modules = [
+          { nixpkgs.overlays = [ ampOverlay ]; }
           ./hosts/sharchy.nix
           (import ./config/github-sync.nix { linux = true; })
           home-manager.nixosModules.home-manager
@@ -287,6 +291,7 @@
           home-manager.darwinModules.home-manager
           ({ pkgs, ... }: {
             nixpkgs.config.allowUnfree = true;
+            nixpkgs.overlays = [ ampOverlay ];
             nix.enable = false; # Determinate Nix owns the daemon and nix.conf.
             system.primaryUser = "shardul";
             system.stateVersion = 6;
