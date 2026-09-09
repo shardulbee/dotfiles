@@ -1,0 +1,52 @@
+{
+  "template_list": [
+    "17872330956437kje718",
+    "1787234685393knsuqkc"
+  ],
+  "template_17872330956437kje718": {
+    "schemaVersion": "0.1.0",
+    "name": "Default",
+    "behavior": "create",
+    "noteContentFormat": "{{content}}",
+    "properties": [
+      {
+        "id": "1787233095643v7l0wa8",
+        "name": "source",
+        "value": "{{url}}",
+        "type": "text"
+      }
+    ],
+    "triggers": [],
+    "noteNameFormat": "{{date|date:\"YYYY-MM-DD HHmm\"}} {{\"Give this article a concise, specific title of at most six words. Return only the title, with no quotes, Markdown, or ending punctuation.\"|safe_name}}",
+    "path": "Clippings",
+    "id": "17872330956437kje718",
+    "context": ""
+  },
+  "template_1787234685393knsuqkc": {
+    "schemaVersion": "0.1.0",
+    "name": "Product",
+    "behavior": "create",
+    "noteContentFormat": "{{image|image}}\n\n{{\"In one concise sentence, describe what this product is and its standout feature. Do not repeat the product name or price.\"}}\n\n[View product]({{url}})",
+    "properties": [
+      {
+        "id": "1787234685393g12advu",
+        "name": "source",
+        "value": "{{url}}",
+        "type": "text"
+      },
+      {
+        "id": "1787237141840xxsu4fm8r",
+        "name": "price",
+        "value": "{{\\\"Return the product's current price including currency. If multiple variants exist, use the currently selected or default variant. If unavailable, return 'Price unavailable'. Return only the price.\\\"}}",
+        "type": "text"
+      }
+    ],
+    "triggers": [
+      "schema:@Product"
+    ],
+    "noteNameFormat": "{{date|date:\"YYYY-MM-DD HHmm\"}} {{\"Return only the concise product name, including a useful model or variant when present, in at most eight words. No quotes, Markdown, or ending punctuation.\"|safe_name}}",
+    "path": "Clippings/Products",
+    "context": "Page title: {{title}}\nDescription: {{description}}\n\n{{content|slice:0,12000}}",
+    "id": "1787234685393knsuqkc"
+  }
+}

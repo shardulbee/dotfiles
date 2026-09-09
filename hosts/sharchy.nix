@@ -3,6 +3,10 @@
 
 let
   authQml = ../config/quickshell-auth.qml;
+  clipperTemplateStorage = builtins.fromJSON (builtins.readFile ../config/obsidian-clipper-templates.json);
+  clipperTemplates = map
+    (id: builtins.getAttr "template_${id}" clipperTemplateStorage)
+    clipperTemplateStorage.template_list;
   greeterShell = ../config/quickshell-greeter.qml;
   greeterConfig = pkgs.runCommand "sharchy-greeter-config" { } ''
     mkdir -p "$out"
@@ -20,6 +24,7 @@ let
       ${pkgs.cage}/bin/cage -s -d -- \
       ${pkgs.quickshell}/bin/quickshell -p ${greeterConfig}
   '';
+  obsidianClipper = pkgs.callPackage ../packages/obsidian-clipper.nix { };
   cs35l56SpeakerFirmware = pkgs.runCommand "cs35l56-10280e53-spkid0-firmware" { } ''
     mkdir -p "$out/lib/firmware/cirrus"
     for suffix in .wmfw -ampl.bin -ampr.bin; do
@@ -139,13 +144,14 @@ in
       "--ozone-platform=wayland"
       "--ozone-platform-hint=wayland"
       "--enable-features=TouchpadOverscrollHistoryNavigation,VerticalTabs"
-      "--load-extension=/home/shardul/.config/helium/extensions/alt-click"
+      "--load-extension=/home/shardul/.config/helium/extensions/alt-click,${obsidianClipper}"
     ];
     policies = {
       PasswordManagerEnabled = false;
       BrowserColorScheme = "device";
       ExtensionSettings = {
         "*".installation_mode = "allowed";
+        "cnjifjpddelmedmihgijeibhnjfabmlf".installation_mode = "blocked";
         "dbepggeogbaibhgnhhndojpepiihcmeb" = {
           installation_mode = "force_installed";
           update_url = "https://services.helium.imput.net/ext";
@@ -155,6 +161,8 @@ in
           update_url = "https://services.helium.imput.net/ext";
         };
       };
+      "3rdparty".extensions."hfcmcaggmoacgjoamcoekbmplcjdgjhb".templates =
+        builtins.toJSON clipperTemplates;
     };
   };
   environment.etc."1password/custom_allowed_browsers" = {
