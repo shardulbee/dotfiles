@@ -1,7 +1,9 @@
 {
   "template_list": [
     "17872330956437kje718",
-    "1787234685393knsuqkc"
+    "1787234685393knsuqkc",
+    "managed-tweet-v1",
+    "managed-github-repository-v1"
   ],
   "template_17872330956437kje718": {
     "schemaVersion": "0.1.0",
@@ -48,5 +50,65 @@
     "path": "Clippings/Products",
     "context": "Page title: {{title}}\nDescription: {{description}}\n\n{{content|slice:0,12000}}",
     "id": "1787234685393knsuqkc"
+  },
+  "template_managed-tweet-v1": {
+    "schemaVersion": "0.1.0",
+    "name": "Tweet",
+    "behavior": "create",
+    "noteContentFormat": "{{content|trim}}",
+    "properties": [
+      {
+        "id": "managed-tweet-source",
+        "name": "source",
+        "value": "{{url}}",
+        "type": "text"
+      },
+      {
+        "id": "managed-tweet-author",
+        "name": "author",
+        "value": "@{{url|split:\"/\"|slice:3,4|first}}",
+        "type": "text"
+      },
+      {
+        "id": "managed-tweet-published",
+        "name": "published",
+        "value": "{{selector:article[data-testid=\"tweet\"] time?datetime|first}}",
+        "type": "date"
+      }
+    ],
+    "triggers": [
+      "/^https:\\/\\/(?:x\\.com|(?:www\\.)?twitter\\.com)\\/[^/?#]+\\/status\\/\\d+/"
+    ],
+    "noteNameFormat": "{{date|date:\"YYYY-MM-DD HHmm\"}} {{\"Give this post or thread a concise, specific title of at most six words. Return only the title, with no quotes, Markdown, or ending punctuation.\"|safe_name}}",
+    "path": "Clippings/Tweets",
+    "context": "Author: @{{url|split:\"/\"|slice:3,4|first}}\n\n{{content|split:\"\\n## Comments\\n\"|first|trim|slice:0,12000}}",
+    "id": "managed-tweet-v1"
+  },
+  "template_managed-github-repository-v1": {
+    "schemaVersion": "0.1.0",
+    "name": "GitHub repository",
+    "behavior": "create",
+    "noteContentFormat": "{% set readme = selectorHtml:article.markdown-body %}{% if readme %}{{readme[0]|markdown|trim}}{% else %}## Files\n\n{{selector:table a.Link--primary|unique|list}}{% endif %}",
+    "properties": [
+      {
+        "id": "managed-github-source",
+        "name": "source",
+        "value": "{{url}}",
+        "type": "text"
+      },
+      {
+        "id": "managed-github-repository",
+        "name": "repository",
+        "value": "{{url|split:\"/\"|slice:3,5|join:\"/\"}}",
+        "type": "text"
+      }
+    ],
+    "triggers": [
+      "/^https:\\/\\/github\\.com\\/[^/]+\\/[^/]+(?:\\/?$|\\/tree\\/)/"
+    ],
+    "noteNameFormat": "{{date|date:\"YYYY-MM-DD HHmm\"}} {{\"Give this GitHub repository or directory a concise, specific title of at most six words. Return only the title, with no quotes, Markdown, or ending punctuation.\"|safe_name}}",
+    "path": "Clippings/GitHub",
+    "context": "Repository: {{url|split:\"/\"|slice:3,5|join:\"/\"}}\nPage: {{title}}\nDescription: {{description}}\n\n{{content|slice:0,12000}}",
+    "id": "managed-github-repository-v1"
   }
 }
