@@ -1,0 +1,383 @@
+diff --git a/src/_locales/en/messages.json b/src/_locales/en/messages.json
+index 4d14ded..b1f893e 100644
+--- a/src/_locales/en/messages.json
++++ b/src/_locales/en/messages.json
+@@ -692,6 +692,12 @@
+ 	"providerModelIdDescription": {
+ 		"message": "The identifier of the model from your provider. Typically a short name without spaces."
+ 	},
++	"reasoningEffort": {
++		"message": "Reasoning effort"
++	},
++	"reasoningEffortDescription": {
++		"message": "Controls how much the model thinks. Supported levels vary by model."
++	},
+ 	"providerModelIdPlaceholder": {
+ 		"message": "Model ID"
+ 	},
+@@ -1095,4 +1101,4 @@
+ 	"version": {
+ 		"message": "Version"
+ 	}
+-}
+\ No newline at end of file
++}
+diff --git a/src/managers/interpreter-settings.ts b/src/managers/interpreter-settings.ts
+index d0844b7..d596e2d 100644
+--- a/src/managers/interpreter-settings.ts
++++ b/src/managers/interpreter-settings.ts
+@@ -837,8 +837,9 @@ async function showModelModal(model: ModelConfig, index?: number) {
+ 		const modelSelectionRadios = form.querySelector('#model-selection-radios') as HTMLElement;
+ 		const nameInput = form.querySelector('[name="name"]') as HTMLInputElement;
+ 		const providerModelIdInput = form.querySelector('[name="providerModelId"]') as HTMLInputElement;
++		const reasoningEffortSelect = form.querySelector('[name="reasoningEffort"]') as HTMLSelectElement;
+ 
+-		if (!modelIdDescriptionContainer || !modelSelectionContainer || !modelSelectionRadios || !nameInput || !providerModelIdInput || !providerSelect) {
++		if (!modelIdDescriptionContainer || !modelSelectionContainer || !modelSelectionRadios || !nameInput || !providerModelIdInput || !providerSelect || !reasoningEffortSelect) {
+ 			console.error('Required model modal form elements not found');
+ 			return;
+ 		}
+@@ -864,6 +865,7 @@ async function showModelModal(model: ModelConfig, index?: number) {
+ 
+ 		nameInput.value = '';
+ 		providerModelIdInput.value = '';
++		reasoningEffortSelect.value = model.reasoningEffort || 'default';
+ 		nameInput.disabled = true;
+ 		providerModelIdInput.disabled = true;
+ 		modelSelectionContainer.style.display = 'none';
+@@ -1033,7 +1035,8 @@ async function showModelModal(model: ModelConfig, index?: number) {
+ 				providerId: selectedProviderId,
+ 				providerModelId: '',
+ 				name: '',
+-				enabled: model.enabled
++				enabled: model.enabled,
++				reasoningEffort: formData.get('reasoningEffort') as ModelConfig['reasoningEffort']
+ 			};
+ 
+ 			updatedModel.name = formData.get('name') as string;
+diff --git a/src/settings.html b/src/settings.html
+index dd9948f..f71d027 100644
+--- a/src/settings.html
++++ b/src/settings.html
+@@ -840,7 +840,24 @@
+ 								<input type="text" id="provider-model-id" name="providerModelId" data-i18n="providerModelId" placeholder="Model ID" required>
+ 							</div>
+ 						</div>
+-						
++						<div class="setting-item">
++							<div class="setting-item-info">
++								<label for="model-reasoning-effort" data-i18n="reasoningEffort">Reasoning effort</label>
++								<div class="setting-item-description" data-i18n="reasoningEffortDescription">Controls how much the model thinks. Supported levels vary by model.</div>
++							</div>
++							<div class="setting-item-control">
++								<select id="model-reasoning-effort" name="reasoningEffort">
++									<option value="default">Provider default</option>
++									<option value="none">None</option>
++									<option value="minimal">Minimal</option>
++									<option value="low">Low</option>
++									<option value="medium">Medium</option>
++									<option value="high">High</option>
++									<option value="xhigh">Extra high</option>
++									<option value="max">Maximum</option>
++								</select>
++							</div>
++						</div>
+ 					</form>
+ 				</div>
+ 				<div class="modal-button-container">
+@@ -927,4 +944,4 @@
+ 
+ 		<script type="module" src="settings.js"></script>
+ </body>
+-</html>
+\ No newline at end of file
++</html>
+diff --git a/src/types/types.ts b/src/types/types.ts
+index aeef60a..93c3f7e 100644
+--- a/src/types/types.ts
++++ b/src/types/types.ts
+@@ -104,6 +104,7 @@ export interface ModelConfig {
+ 	providerModelId: string;
+ 	name: string;
+ 	enabled: boolean;
++	reasoningEffort?: 'default' | 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+ }
+ 
+ export interface HistoryEntry {
+diff --git a/src/utils/interpreter.ts b/src/utils/interpreter.ts
+index 7243e5b..6c5a55e 100644
+--- a/src/utils/interpreter.ts
++++ b/src/utils/interpreter.ts
+@@ -14,7 +14,47 @@ let lastRequestTime = 0;
+ // Store event listeners for cleanup
+ const eventListeners = new WeakMap<HTMLElement, { [key: string]: EventListener }>();
+ 
+-export async function sendToLLM(promptContext: string, content: string, promptVariables: PromptVariable[], model: ModelConfig): Promise<{ promptResponses: any[] }> {
++export function extractImageUrls(html: string, fallbackImage = ''): string[] {
++	const document = new DOMParser().parseFromString(html, 'text/html');
++	return [...new Set([
++		fallbackImage,
++		...Array.from(document.querySelectorAll('img[src]')).map(image => image.getAttribute('src') || '')
++	].filter(url => /^(?:https?:|data:image\/)/.test(url)))];
++}
++
++interface ImageData {
++	dataUrl: string;
++	mimeType: string;
++	base64: string;
++}
++
++async function loadImages(imageUrls: string[]): Promise<ImageData[]> {
++	const images = await Promise.all(imageUrls.map(async url => {
++		try {
++			let dataUrl = url;
++			if (!url.startsWith('data:')) {
++				const response = await fetch(url);
++				if (!response.ok) return null;
++				const blob = await response.blob();
++				if (!blob.type.startsWith('image/')) return null;
++				dataUrl = await new Promise<string>((resolve, reject) => {
++					const reader = new FileReader();
++					reader.onload = () => resolve(reader.result as string);
++					reader.onerror = () => reject(reader.error);
++					reader.readAsDataURL(blob);
++				});
++			}
++			const match = dataUrl.match(/^data:(image\/[^;,]+);base64,([\s\S]+)$/);
++			return match ? { dataUrl, mimeType: match[1], base64: match[2] } : null;
++		} catch (error) {
++			debugLog('Interpreter', `Could not include image ${url}:`, error);
++			return null;
++		}
++	}));
++	return images.filter((image): image is ImageData => image !== null);
++}
++
++export async function sendToLLM(promptContext: string, content: string, promptVariables: PromptVariable[], model: ModelConfig, imageUrls: string[] = []): Promise<{ promptResponses: any[] }> {
+ 	debugLog('Interpreter', 'Sending request to LLM...');
+ 	
+ 	// Find the provider for this model
+@@ -43,6 +83,15 @@ export async function sendToLLM(promptContext: string, content: string, promptVa
+ 				return acc;
+ 			}, {} as { [key: string]: string })
+ 		};
++		const images = await loadImages(imageUrls);
++		const openAIContext = [
++			{ type: 'text', text: promptContext },
++			...images.map(image => ({ type: 'image_url', image_url: { url: image.dataUrl } }))
++		];
++		const reasoningEffort = model.reasoningEffort === 'default' ? undefined : model.reasoningEffort;
++		const anthropicEffort = reasoningEffort === 'none' || reasoningEffort === 'minimal' ? 'low' : reasoningEffort === 'xhigh' ? 'max' : reasoningEffort;
++		const geminiEffort = reasoningEffort === 'none' ? 'minimal' : reasoningEffort === 'xhigh' || reasoningEffort === 'max' ? 'high' : reasoningEffort;
++		const ollamaEffort = reasoningEffort === 'none' || reasoningEffort === 'minimal' ? false : reasoningEffort === 'xhigh' ? 'max' : reasoningEffort;
+ 
+ 		let requestUrl: string;
+ 		let requestBody: any;
+@@ -58,10 +107,11 @@ export async function sendToLLM(promptContext: string, content: string, promptVa
+ 				model: model.providerModelId,
+ 				messages: [
+ 					{ role: 'system', content: systemContent },
+-					{ role: 'user', content: `${promptContext}` },
++					{ role: 'user', content: openAIContext },
+ 					{ role: 'user', content: `${JSON.stringify(promptContent)}` }
+ 				],
+ 				max_tokens: 1600,
++				...(reasoningEffort && { reasoning_effort: reasoningEffort }),
+ 				stream: false
+ 			};					
+ 			headers = {
+@@ -74,10 +124,11 @@ export async function sendToLLM(promptContext: string, content: string, promptVa
+ 			requestBody = {
+ 				messages: [
+ 					{ role: 'system', content: systemContent },
+-					{ role: 'user', content: `${promptContext}` },
++					{ role: 'user', content: openAIContext },
+ 					{ role: 'user', content: `${JSON.stringify(promptContent)}` }
+ 				],
+ 				max_completion_tokens: 8000,
++				...(reasoningEffort && { reasoning_effort: reasoningEffort }),
+ 				stream: false
+ 			};
+ 			headers = {
+@@ -90,13 +141,14 @@ export async function sendToLLM(promptContext: string, content: string, promptVa
+ 				model: model.providerModelId,
+ 				messages: [
+ 					{ role: 'system', content: systemContent },
+-					{ role: 'user', content: `${promptContext}` },
++					{ role: 'user', content: openAIContext },
+ 					{ role: 'user', content: `${JSON.stringify(promptContent)}` }
+ 				],
+ 				max_tokens: 8000,
+-				thinking: {
+-					type: 'disabled'
+-				},
++				thinking: { type: reasoningEffort && reasoningEffort !== 'none' && reasoningEffort !== 'minimal' ? 'enabled' : 'disabled' },
++				...(reasoningEffort && reasoningEffort !== 'none' && reasoningEffort !== 'minimal' && {
++					reasoning_effort: reasoningEffort === 'medium' ? 'high' : reasoningEffort === 'xhigh' ? 'max' : reasoningEffort
++				}),
+ 				stream: false
+ 			};
+ 			headers = {
+@@ -116,13 +168,15 @@ export async function sendToLLM(promptContext: string, content: string, promptVa
+ 						role: 'user',
+ 						parts: [
+ 							{ text: `${promptContext}` },
++							...images.map(image => ({ inlineData: { mimeType: image.mimeType, data: image.base64 } })),
+ 							{ text: `${JSON.stringify(promptContent)}` }
+ 						]
+ 					}
+ 				],
+ 				generationConfig: {
+ 					maxOutputTokens: 8000,
+-					responseMimeType: 'application/json'
++					responseMimeType: 'application/json',
++					...(geminiEffort && { thinkingConfig: { thinkingLevel: geminiEffort } })
+ 				}
+ 			};
+ 			headers = {
+@@ -135,10 +189,20 @@ export async function sendToLLM(promptContext: string, content: string, promptVa
+ 				model: model.providerModelId,
+ 				max_tokens: 8000,
+ 				messages: [
+-					{ role: 'user', content: `${promptContext}` },
++					{
++						role: 'user',
++						content: [
++							{ type: 'text', text: promptContext },
++							...images.map(image => ({
++								type: 'image',
++								source: { type: 'base64', media_type: image.mimeType, data: image.base64 }
++							}))
++						]
++					},
+ 					{ role: 'user', content: `${JSON.stringify(promptContent)}` }
+ 				],
+-				system: systemContent
++				system: systemContent,
++				...(anthropicEffort && { output_config: { effort: anthropicEffort } })
+ 			};
+ 			headers = {
+ 				...headers,
+@@ -153,11 +217,10 @@ export async function sendToLLM(promptContext: string, content: string, promptVa
+ 				max_tokens: 8000,
+ 				messages: [
+ 					{ role: 'system', content: systemContent },
+-					{ role: 'user', content: `
+-						"${promptContext}"
+-						"${JSON.stringify(promptContent)}"`
+-					}
+-				]
++					{ role: 'user', content: openAIContext },
++					{ role: 'user', content: `${JSON.stringify(promptContent)}` }
++				],
++				...(reasoningEffort && { reasoning_effort: reasoningEffort })
+ 			};
+ 			headers = {
+ 				...headers,
+@@ -171,11 +234,12 @@ export async function sendToLLM(promptContext: string, content: string, promptVa
+ 				model: model.providerModelId,
+ 				messages: [
+ 					{ role: 'system', content: systemContent },
+-					{ role: 'user', content: `${promptContext}` },
++					{ role: 'user', content: promptContext, images: images.map(image => image.base64) },
+ 					{ role: 'user', content: `${JSON.stringify(promptContent)}` }
+ 				],
+ 				format: 'json',
+ 				num_ctx: 120000,
++				...(ollamaEffort !== undefined && { think: ollamaEffort }),
+ 				stream: false
+ 			};
+ 		} else {
+@@ -185,9 +249,10 @@ export async function sendToLLM(promptContext: string, content: string, promptVa
+ 				model: model.providerModelId,
+ 				messages: [
+ 					{ role: 'system', content: systemContent },
+-					{ role: 'user', content: `${promptContext}` },
++					{ role: 'user', content: openAIContext },
+ 					{ role: 'user', content: `${JSON.stringify(promptContent)}` }
+ 				],
++				...(reasoningEffort && { reasoning_effort: reasoningEffort }),
+ 				stream: false
+ 			};
+ 			headers = {
+@@ -639,7 +704,8 @@ export async function handleInterpreterUI(
+ 			responseTimer.textContent = formatDuration(elapsedTime);
+ 		}, 10);
+ 
+-		const { promptResponses } = await sendToLLM(contextToUse, contentToProcess, promptVariables, modelConfig);
++		const imageUrls = extractImageUrls(variables['{{contentHtml}}'] || '', variables['{{image}}']);
++		const { promptResponses } = await sendToLLM(contextToUse, contentToProcess, promptVariables, modelConfig, imageUrls);
+ 		debugLog('Interpreter', 'LLM response:', { promptResponses });
+ 
+ 		// Stop the timer and update UI
+@@ -760,4 +826,4 @@ export function replacePromptVariables(promptVariables: PromptVariable[], prompt
+ 			});
+ 		}
+ 	});
+-}
+\ No newline at end of file
++}
+diff --git a/src/utils/model-variables.test.ts b/src/utils/model-variables.test.ts
+index 6bb2bc3..713fb1b 100644
+--- a/src/utils/model-variables.test.ts
++++ b/src/utils/model-variables.test.ts
+@@ -4,7 +4,7 @@
+ // interpreter once a model has actually been used (issue #360).
+ import { describe, test, expect, beforeEach, vi } from 'vitest';
+ import { compileTemplate } from './template-compiler';
+-import { replaceModelVariables } from './interpreter';
++import { extractImageUrls, replaceModelVariables, sendToLLM } from './interpreter';
+ import { generalSettings } from './storage-utils';
+ import { ModelConfig, Provider } from '../types/types';
+ 
+@@ -132,3 +132,50 @@ describe('replaceModelVariables', () => {
+ 		expect(textarea.value).toBe('Claude 5 Sonnet {{"a prompt"}} {{title}}');
+ 	});
+ });
++
++describe('Interpreter request inputs', () => {
++	test('collects unique document and social images', () => {
++		expect(extractImageUrls(
++			'<img src="https://example.com/a.png"><img src="https://example.com/a.png"><img src="data:image/png;base64,YQ==">',
++			'https://example.com/social.jpg'
++		)).toEqual([
++			'https://example.com/social.jpg',
++			'https://example.com/a.png',
++			'data:image/png;base64,YQ=='
++		]);
++	});
++
++	test('sends images and reasoning effort to OpenAI-compatible providers', async () => {
++		const fetchMock = vi.fn().mockResolvedValue({
++			ok: true,
++			text: async () => JSON.stringify({
++				choices: [{ message: { content: JSON.stringify({ prompts_responses: { prompt_1: 'A title' } }) } }]
++			})
++		});
++		vi.stubGlobal('fetch', fetchMock);
++		generalSettings.providers = [{
++			id: 'openai',
++			name: 'OpenAI',
++			baseUrl: 'https://api.openai.com/v1/chat/completions',
++			apiKey: 'test'
++		}];
++
++		try {
++			await sendToLLM(
++				'Page context',
++				'',
++				[{ key: 'prompt_1', prompt: 'Title this page' }],
++				{ id: 'model', providerId: 'openai', providerModelId: 'gpt-5.6-luna', name: 'Luna', enabled: true, reasoningEffort: 'high' },
++				['data:image/png;base64,YQ==']
++			);
++			const body = JSON.parse(fetchMock.mock.calls[0][1].body);
++			expect(body.reasoning_effort).toBe('high');
++			expect(body.messages[1].content).toEqual([
++				{ type: 'text', text: 'Page context' },
++				{ type: 'image_url', image_url: { url: 'data:image/png;base64,YQ==' } }
++			]);
++		} finally {
++			vi.unstubAllGlobals();
++		}
++	});
++});

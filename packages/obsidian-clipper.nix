@@ -11,6 +11,8 @@ buildNpmPackage {
     hash = "sha256-H39hATM9qVQFboIVictryTZ0xi43W4sCZv9JzXaMH6E=";
   };
 
+  patches = [ ./obsidian-clipper-interpreter.patch ];
+
   npmDepsHash = "sha256-zgKeIchtjHiZE+m/+ACrsYriV5uPx9P85PuPMqhbIHc=";
   npmFlags = [ "--legacy-peer-deps" ];
   npmBuildScript = "build:chrome";
