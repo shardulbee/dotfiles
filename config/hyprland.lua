@@ -30,7 +30,7 @@ hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd("1password --quick-access"))
 hl.bind(mainMod .. " + CTRL + T", hl.dsp.exec_cmd("/home/shardul/.local/bin/sharchy-theme toggle"))
 hl.bind("ALT + CTRL + Q", hl.dsp.exec_cmd("systemctl --user start sharchy-lock.service"))
 hl.bind(mainMod .. " + TAB", hl.dsp.focus({ workspace = "previous" }))
-hl.bind("ALT + Q", hl.dsp.window.close())
+hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind("ALT + TAB", hl.dsp.focus({ workspace = "previous" }))
 
 hl.bind(mainMod .. " + H", hl.dsp.focus({ direction = "left" }))
