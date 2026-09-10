@@ -15,14 +15,10 @@
       url = "github:oxcl/nix-flake-helium-browser";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    xremap-flake = {
-      url = "github:xremap/nix-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     hermes.url = "github:NousResearch/hermes-agent/29112bef099274229cadff79cdff7bf7b99c4b77";
   };
 
-  outputs = { self, nixpkgs, home-manager, darwin, helium, xremap-flake, hermes, ... }:
+  outputs = { self, nixpkgs, home-manager, darwin, helium, hermes, ... }:
     let
       ampOverlay = _: prev: {
         amp-cli = prev.callPackage ./packages/amp-cli.nix { inherit (prev) amp-cli; };
@@ -229,10 +225,6 @@
       palette = 7=#cecece
       palette = 15=#ffffff
     '';
-          xdg.configFile."zed/settings.json".source = ./config/zed-settings.json;
-          xdg.configFile."zed/keymap.json".source = ./config/zed-keymap.json;
-          xdg.configFile."zed/tasks.json".source = ./config/zed-tasks.json;
-          xdg.configFile."zed/themes/soft.json".source = ./config/zed-soft.json;
         };
     in
     {
@@ -245,7 +237,6 @@
           (import ./config/github-sync.nix { linux = true; })
           home-manager.nixosModules.home-manager
           helium.nixosModules.default
-          xremap-flake.nixosModules.default
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;

@@ -141,11 +141,7 @@ if (( $+commands[zoxide] )); then
   unset zoxide_init
 fi
 
-if [[ -n ${ZED_TERM:-} && -z ${SSH_CONNECTION:-} ]]; then
-  export EDITOR='zed --wait'
-else
-  export EDITOR=nvim
-fi
+export EDITOR=nvim
 alias vim=nvim
 
 # Machine-specific settings.

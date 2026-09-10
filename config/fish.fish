@@ -3,13 +3,7 @@
 # Missing dirs are skipped, hence no existence/OS checks.
 fish_add_path -gm "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin
 
-# Use zed as EDITOR within Zed and not using Zed SSH
-# Use neovim otherwise
-if set -q ZED_TERM; and not set -q SSH_CONNECTION
-    set -gx EDITOR "zed --wait"
-else
-    set -gx EDITOR "nvim"
-end
+set -gx EDITOR "nvim"
 
 # Shell integrations
 command -q fzf; and fzf --fish | source

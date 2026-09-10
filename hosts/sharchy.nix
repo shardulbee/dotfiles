@@ -144,7 +144,7 @@ in
       "--ozone-platform=wayland"
       "--ozone-platform-hint=wayland"
       "--enable-features=TouchpadOverscrollHistoryNavigation,VerticalTabs"
-      "--load-extension=/home/shardul/.config/helium/extensions/alt-click,${obsidianClipper}"
+      "--load-extension=${obsidianClipper}"
     ];
     policies = {
       PasswordManagerEnabled = false;
@@ -228,65 +228,6 @@ in
   services.gnome.gnome-keyring.enable = true;
   services.upower.enable = true;
   services.blueman.enable = true;
-  services.xremap = {
-    enable = true;
-    serviceMode = "user";
-    userName = "shardul";
-    withHypr = true;
-    config.keymap = [
-      {
-        name = "macOS editing";
-        application.not = [ "com.mitchellh.ghostty" ];
-        remap = {
-          "ALT-C" = "CTRL-C";
-          "ALT-V" = "CTRL-V";
-          "ALT-X" = "CTRL-X";
-          "ALT-A" = "CTRL-A";
-          "ALT-Z" = "CTRL-Z";
-          "ALT-BACKSPACE" = [ "SHIFT-HOME" "BACKSPACE" ];
-          "ALT-LEFT" = "HOME";
-          "ALT-RIGHT" = "END";
-          "SUPER-BACKSPACE" = "CTRL-BACKSPACE";
-          "SUPER-LEFT" = "CTRL-LEFT";
-          "SUPER-RIGHT" = "CTRL-RIGHT";
-          "SUPER-SHIFT-LEFT" = "CTRL-SHIFT-LEFT";
-          "SUPER-SHIFT-RIGHT" = "CTRL-SHIFT-RIGHT";
-        };
-      }
-      {
-        name = "Helium tabs";
-        application.only = [ "helium" ];
-        remap = {
-          "ALT-T" = "CTRL-T";
-          "ALT-L" = "CTRL-L";
-          "ALT-F" = "CTRL-F";
-          "ALT-N" = "CTRL-N";
-          "ALT-SHIFT-N" = "CTRL-SHIFT-N";
-          "ALT-W" = "CTRL-W";
-          "ALT-SHIFT-W" = "CTRL-SHIFT-W";
-          "ALT-R" = "CTRL-R";
-          "ALT-SHIFT-R" = "CTRL-SHIFT-R";
-          "ALT-SHIFT-T" = "CTRL-SHIFT-T";
-          "ALT-1" = "CTRL-1";
-          "ALT-2" = "CTRL-2";
-          "ALT-SHIFT-3" = "ALT-SHIFT-3";
-          "ALT-SHIFT-4" = "ALT-SHIFT-4";
-          "ALT-SHIFT-5" = "ALT-SHIFT-5";
-          "ALT-3" = "CTRL-3";
-          "ALT-4" = "CTRL-4";
-          "ALT-5" = "CTRL-5";
-          "ALT-6" = "CTRL-6";
-          "ALT-7" = "CTRL-7";
-          "ALT-8" = "CTRL-8";
-          "ALT-9" = "CTRL-9";
-          "ALT-LEFTBRACE" = "ALT-LEFT";
-          "ALT-RIGHTBRACE" = "ALT-RIGHT";
-          "ALT-SHIFT-LEFTBRACE" = "CTRL-PAGEUP";
-          "ALT-SHIFT-RIGHTBRACE" = "CTRL-PAGEDOWN";
-        };
-      }
-    ];
-  };
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -477,7 +418,6 @@ in
       };
 
       xdg.configFile."ghostty/config".source = ../config/ghostty-linux.conf;
-      xdg.configFile."helium/extensions/alt-click".source = ../config/browser-extension;
       xdg.configFile."hypr/hyprland.lua".source = ../config/hyprland.lua;
       xdg.configFile."mako/config".source = ../config/mako.conf;
       xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;
