@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Bluetooth
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.Pipewire
@@ -13,11 +12,8 @@ ShellRoot {
   id: shellRoot
 
   property bool darkMode: themeFile.text().trim() !== "light"
-  property string rebuildStatus: rebuildFile.text().trim()
   property int cpuUsage: 0
   property int memoryUsage: 0
-  property real memoryUsedGiB: 0
-  property real memoryTotalGiB: 0
   property real previousCpuIdle: 0
   property real previousCpuTotal: 0
   readonly property color authBackground: darkMode ? "#1b1913" : "#efeee9"
@@ -33,16 +29,6 @@ ShellRoot {
   FileView {
     id: themeFile
     path: "/home/shardul/.local/state/sharchy-theme"
-    preload: true
-    blockLoading: true
-    watchChanges: true
-    printErrors: false
-    onFileChanged: reload()
-  }
-
-  FileView {
-    id: rebuildFile
-    path: "/home/shardul/.local/state/sharchy-rebuild-status"
     preload: true
     blockLoading: true
     watchChanges: true
@@ -74,8 +60,6 @@ ShellRoot {
         const memory = lines[1].trim().split(/\s+/)
         const totalKiB = Number(memory[0])
         const availableKiB = Number(memory[1])
-        shellRoot.memoryTotalGiB = totalKiB / 1048576
-        shellRoot.memoryUsedGiB = (totalKiB - availableKiB) / 1048576
         shellRoot.memoryUsage = totalKiB > 0 ? Math.round(100 * (totalKiB - availableKiB) / totalKiB) : 0
       }
     }
@@ -282,38 +266,15 @@ ShellRoot {
       id: bar
       required property var modelData
       property string wifiName: ""
-      property bool wifiEnabled: false
       property date now: new Date()
-      property bool panelOpen: false
-      property string panelPage: ""
-      property string pendingPowerAction: ""
-      property var topProcesses: []
-      property int rebuildFrame: 0
-      property var rebuildFrames: ["|", "/", "—", "\\"]
       property var sink: Pipewire.defaultAudioSink
       property var battery: UPower.displayDevice
 
       readonly property color foreground: shellRoot.darkMode ? "#f4f0e8" : "#26251e"
-      readonly property color muted: shellRoot.darkMode ? "#aaa9a5" : "#57564f"
-      readonly property color accent: "#cd974b"
       readonly property color barBackground: shellRoot.darkMode ? "#211f18" : "#efeee9"
-      readonly property color panelBackground: shellRoot.darkMode ? "#211f18" : "#efeee9"
       readonly property color panelBorder: shellRoot.darkMode ? "#3b3830" : "#cecdc7"
-      readonly property color hoverBackground: shellRoot.darkMode ? "#353229" : "#d9d8d2"
       readonly property color inactive: shellRoot.darkMode ? "#777777" : "#98968e"
       readonly property color error: shellRoot.darkMode ? "#d66a64" : "#aa3731"
-
-      function togglePanel(page) {
-        if (panelOpen && panelPage === page) {
-          panelOpen = false
-          return
-        }
-        panelPage = page
-        pendingPowerAction = ""
-        panelOpen = true
-        if (page === "wifi" && !wifiProcess.running) wifiProcess.running = true
-        if (page === "system" && !topProcessesProcess.running) topProcessesProcess.running = true
-      }
 
       function batteryIcon() {
         if (!battery || !battery.ready) return "󰂑"
@@ -333,28 +294,6 @@ ShellRoot {
         return "󰖁"
       }
 
-      function setVolume(value) {
-        if (!sink || !sink.audio) return
-        sink.audio.volume = Math.max(0, Math.min(1, value))
-      }
-
-      function bluetoothSummary() {
-        const devices = Bluetooth.devices ? Bluetooth.devices.values : []
-        const names = []
-        for (let i = 0; i < devices.length; i++) {
-          if (devices[i] && devices[i].connected)
-            names.push(devices[i].name || devices[i].deviceName || "Connected device")
-        }
-        return names.length > 0 ? names.join(", ") : "No devices connected"
-      }
-
-      function bluetoothConnected() {
-        const devices = Bluetooth.devices ? Bluetooth.devices.values : []
-        for (let i = 0; i < devices.length; i++)
-          if (devices[i] && devices[i].connected) return true
-        return false
-      }
-
       screen: modelData
       anchors.top: true
       anchors.left: true
@@ -370,154 +309,6 @@ ShellRoot {
         border.color: bar.panelBorder
       }
 
-      component PanelRow: Rectangle {
-        id: panelRow
-        property string icon: ""
-        property string label: ""
-        property string detail: ""
-        property string trailing: ""
-        property bool destructive: false
-        signal activated()
-
-        width: parent ? parent.width : 0
-        height: detail.length > 0 ? 44 : 36
-        radius: 6
-        color: rowMouse.containsMouse ? bar.hoverBackground : "transparent"
-
-        Text {
-          id: rowIcon
-          anchors.left: parent.left
-          anchors.leftMargin: 8
-          anchors.verticalCenter: parent.verticalCenter
-          width: 22
-          horizontalAlignment: Text.AlignHCenter
-          text: panelRow.icon
-          color: panelRow.destructive ? bar.error : bar.foreground
-          font.family: "JetBrainsMono Nerd Font"
-          font.pixelSize: 15
-        }
-
-        Column {
-          anchors.left: rowIcon.right
-          anchors.leftMargin: 9
-          anchors.right: rowTrailing.left
-          anchors.rightMargin: 8
-          anchors.verticalCenter: parent.verticalCenter
-          spacing: 1
-
-          Text {
-            width: parent.width
-            text: panelRow.label
-            color: panelRow.destructive ? bar.error : bar.foreground
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 12
-            elide: Text.ElideRight
-          }
-          Text {
-            visible: panelRow.detail.length > 0
-            width: parent.width
-            text: panelRow.detail
-            color: bar.muted
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 10
-            elide: Text.ElideRight
-          }
-        }
-
-        Text {
-          id: rowTrailing
-          anchors.right: parent.right
-          anchors.rightMargin: 9
-          anchors.verticalCenter: parent.verticalCenter
-          text: panelRow.trailing
-          color: panelRow.destructive ? bar.error : bar.muted
-          font.family: "JetBrainsMono Nerd Font"
-          font.pixelSize: 11
-        }
-
-        MouseArea {
-          id: rowMouse
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
-          onClicked: panelRow.activated()
-        }
-      }
-
-      component UsageRow: Item {
-        property string icon: ""
-        property string label: ""
-        property string detail: ""
-        property int percentage: 0
-
-        width: parent ? parent.width : 0
-        height: detail.length > 0 ? 54 : 48
-
-        Text {
-          id: usageIcon
-          anchors.left: parent.left
-          anchors.leftMargin: 8
-          anchors.verticalCenter: parent.verticalCenter
-          width: 22
-          horizontalAlignment: Text.AlignHCenter
-          text: icon
-          color: percentage >= 90 ? bar.error : bar.foreground
-          font.family: "JetBrainsMono Nerd Font"
-          font.pixelSize: 15
-        }
-
-        Column {
-          anchors.left: usageIcon.right
-          anchors.leftMargin: 9
-          anchors.right: usagePercent.left
-          anchors.rightMargin: 12
-          anchors.verticalCenter: parent.verticalCenter
-          spacing: 3
-
-          Text {
-            width: parent.width
-            text: label
-            color: bar.foreground
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 12
-          }
-          Text {
-            visible: detail.length > 0
-            width: parent.width
-            text: detail
-            color: bar.muted
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 9
-          }
-          Rectangle {
-            width: parent.width
-            height: 5
-            radius: 3
-            color: bar.panelBorder
-            Rectangle {
-              width: parent.width * Math.max(0, Math.min(1, percentage / 100))
-              height: parent.height
-              radius: parent.radius
-              color: percentage >= 90 ? bar.error : bar.accent
-            }
-          }
-        }
-
-        Text {
-          id: usagePercent
-          anchors.right: parent.right
-          anchors.rightMargin: 8
-          anchors.verticalCenter: parent.verticalCenter
-          width: 46
-          horizontalAlignment: Text.AlignRight
-          text: percentage + "%"
-          color: percentage >= 90 ? bar.error : bar.foreground
-          font.family: "JetBrainsMono Nerd Font"
-          font.pixelSize: 16
-          font.bold: true
-        }
-      }
-
       PwObjectTracker {
         objects: [bar.sink]
       }
@@ -525,45 +316,11 @@ ShellRoot {
       Process {
         id: wifiProcess
         running: true
-        command: ["sh", "-c", "nmcli radio wifi; nmcli -t -f TYPE,STATE,CONNECTION device | awk -F: '$1 == \"wifi\" && $2 == \"connected\" { print $3; exit }'"]
+        command: ["sh", "-c", "nmcli -t -f TYPE,STATE,CONNECTION device | awk -F: '$1 == \"wifi\" && $2 == \"connected\" { sub(/^[^:]*:[^:]*:/, \"\"); print; exit }'"]
         stdout: StdioCollector {
           waitForEnd: true
-          onStreamFinished: {
-            const lines = text.trim().split("\n")
-            bar.wifiEnabled = lines.length > 0 && lines[0] === "enabled"
-            bar.wifiName = lines.length > 1 ? lines.slice(1).join(":") : ""
-          }
+          onStreamFinished: bar.wifiName = text.trim()
         }
-      }
-
-      Process {
-        id: wifiToggleProcess
-        onExited: if (!wifiProcess.running) wifiProcess.running = true
-      }
-
-      Process {
-        id: topProcessesProcess
-        command: ["sh", "-c", "ps -eo comm=,%cpu=,%mem= --no-headers | awk '{ name=$1; sub(/^\\./, \"\", name); sub(/-wra.*$/, \"\", name); if (name !~ /^(ps|awk|sort|head|sh|bash|find)$/) { cpu[name] += $2; mem[name] += $3 } } END { for (name in cpu) printf \"%s %.1f %.1f\\n\", name, cpu[name], mem[name] }' | sort -k2,2nr | head -n 5"]
-        stdout: StdioCollector {
-          waitForEnd: true
-          onStreamFinished: {
-            const rows = []
-            const lines = text.trim().split("\n")
-            for (let i = 0; i < lines.length; i++) {
-              const fields = lines[i].trim().split(/\s+/)
-              if (fields.length >= 3)
-                rows.push({ name: fields[0], cpu: fields[1], memory: fields[2] })
-            }
-            bar.topProcesses = rows
-          }
-        }
-      }
-
-      Timer {
-        interval: 2000
-        running: bar.panelOpen && bar.panelPage === "system"
-        repeat: true
-        onTriggered: if (!topProcessesProcess.running) topProcessesProcess.running = true
       }
 
       Timer {
@@ -578,13 +335,6 @@ ShellRoot {
         running: true
         repeat: true
         onTriggered: bar.now = new Date()
-      }
-
-      Timer {
-        interval: 200
-        running: shellRoot.rebuildStatus === "running"
-        repeat: true
-        onTriggered: bar.rebuildFrame = (bar.rebuildFrame + 1) % bar.rebuildFrames.length
       }
 
       RowLayout {
@@ -603,12 +353,6 @@ ShellRoot {
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 12
             font.bold: modelData.focused
-
-            MouseArea {
-              anchors.fill: parent
-              cursorShape: Qt.PointingHandCursor
-              onClicked: parent.modelData.activate()
-            }
           }
         }
       }
@@ -627,483 +371,43 @@ ShellRoot {
         anchors.rightMargin: 6
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        spacing: 3
+        spacing: 14
 
-        Item {
-          visible: ["running", "success", "failed"].includes(shellRoot.rebuildStatus)
-          Layout.preferredWidth: visible ? 108 : 0
-          Layout.fillHeight: true
-          Text {
-            anchors.centerIn: parent
-            text: shellRoot.rebuildStatus === "running"
-              ? bar.rebuildFrames[bar.rebuildFrame] + " rebuilding"
-              : shellRoot.rebuildStatus === "success" ? "rebuild complete" : "rebuild failed"
-            color: shellRoot.rebuildStatus === "failed" ? bar.error : bar.accent
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 11
-          }
+        Text {
+          Layout.alignment: Qt.AlignVCenter
+          text: "󰻠 " + shellRoot.cpuUsage + "%  󰍛 " + shellRoot.memoryUsage + "%"
+          color: bar.foreground
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 11
         }
 
-        Item {
-          Layout.preferredWidth: 122
-          Layout.fillHeight: true
-          Text {
-            anchors.centerIn: parent
-            text: "󰻠 " + String(shellRoot.cpuUsage).padStart(3, " ") + "%  󰍛 " + String(shellRoot.memoryUsage).padStart(3, " ") + "%"
-            color: bar.foreground
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 11
-          }
-          Rectangle {
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: 62
-            height: 1
-            color: bar.accent
-            visible: bar.panelOpen && bar.panelPage === "system"
-          }
-          MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: bar.togglePanel("system")
-          }
+        Text {
+          Layout.alignment: Qt.AlignVCenter
+          Layout.maximumWidth: 220
+          text: bar.wifiName.length > 0 ? "󰖩 " + bar.wifiName : "󰖪 offline"
+          color: bar.wifiName.length > 0 ? bar.foreground : bar.inactive
+          elide: Text.ElideRight
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 11
         }
 
-        Item {
-          Layout.preferredWidth: 25
-          Layout.fillHeight: true
-          Text {
-            anchors.centerIn: parent
-            text: "󰖩"
-            color: bar.wifiName.length > 0 ? bar.foreground : bar.inactive
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 13
-          }
-          Rectangle { anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; width: 14; height: 1; color: bar.accent; visible: bar.panelOpen && bar.panelPage === "wifi" }
-          MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: bar.togglePanel("wifi") }
+        Text {
+          Layout.alignment: Qt.AlignVCenter
+          text: bar.volumeIcon() + " " + (bar.sink && bar.sink.audio ? Math.round(bar.sink.audio.volume * 100) + "%" : "—")
+          color: bar.foreground
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 11
         }
 
-        Item {
-          Layout.preferredWidth: 25
-          Layout.fillHeight: true
-          Text {
-            anchors.centerIn: parent
-            text: bar.bluetoothConnected() ? "󰂱" : "󰂯"
-            color: Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled ? bar.foreground : bar.inactive
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 13
-          }
-          Rectangle { anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; width: 14; height: 1; color: bar.accent; visible: bar.panelOpen && bar.panelPage === "bluetooth" }
-          MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: bar.togglePanel("bluetooth") }
-        }
-
-        Item {
-          Layout.preferredWidth: 25
-          Layout.fillHeight: true
-          Text {
-            anchors.centerIn: parent
-            text: bar.volumeIcon()
-            color: bar.foreground
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 13
-          }
-          Rectangle { anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; width: 14; height: 1; color: bar.accent; visible: bar.panelOpen && bar.panelPage === "sound" }
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: bar.togglePanel("sound")
-            onWheel: event => bar.setVolume((bar.sink && bar.sink.audio ? bar.sink.audio.volume : 0) + (event.angleDelta.y > 0 ? 0.05 : -0.05))
-          }
-        }
-
-        Item {
-          Layout.preferredWidth: 67
-          Layout.fillHeight: true
-          Text {
-            anchors.centerIn: parent
-            text: bar.battery && bar.battery.ready ? bar.batteryIcon() + " " + Math.round(bar.battery.percentage * 100) + "%" : "󰂑"
-            color: bar.battery && bar.battery.ready && bar.battery.percentage < 0.2 ? bar.error : bar.foreground
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 12
-          }
-          Rectangle { anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; width: 30; height: 1; color: bar.accent; visible: bar.panelOpen && bar.panelPage === "power" }
-          MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: bar.togglePanel("power") }
-        }
-
-        Item {
-          Layout.preferredWidth: 25
-          Layout.fillHeight: true
-          Text {
-            anchors.centerIn: parent
-            text: "󰐥"
-            color: bar.foreground
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 13
-          }
-          MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: bar.togglePanel("power") }
+        Text {
+          Layout.alignment: Qt.AlignVCenter
+          text: bar.battery && bar.battery.ready ? bar.batteryIcon() + " " + Math.round(bar.battery.percentage * 100) + "%" : "󰂑 —"
+          color: bar.battery && bar.battery.ready && bar.battery.percentage < 0.2 ? bar.error : bar.foreground
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 11
         }
       }
 
-      PopupWindow {
-        id: quickPanel
-        visible: bar.panelOpen
-        color: "transparent"
-        implicitWidth: 310
-        implicitHeight: bar.panelPage === "system" ? 370 : bar.panelPage === "power" ? 300 : bar.panelPage === "sound" ? 190 : 158
-
-        onVisibleChanged: if (!visible) bar.pendingPowerAction = ""
-
-        HyprlandFocusGrab {
-          active: bar.panelOpen
-          windows: [quickPanel, bar]
-          onCleared: bar.panelOpen = false
-        }
-
-        anchor {
-          window: bar
-          adjustment: PopupAdjustment.Slide
-          edges: Edges.Top | Edges.Left
-          gravity: Edges.Bottom | Edges.Right
-          rect.x: bar.width - quickPanel.implicitWidth - 6
-          rect.y: bar.height + 4
-          rect.width: 1
-          rect.height: 1
-        }
-
-        Rectangle {
-          anchors.fill: parent
-          color: bar.panelBackground
-          border.color: bar.panelBorder
-          border.width: 1
-          radius: 10
-
-          Column {
-            anchors.fill: parent
-            anchors.margins: 14
-            spacing: 10
-
-            Row {
-              width: parent.width
-              height: 22
-              spacing: 9
-              Text {
-                text: bar.panelPage === "system" ? "󰻠" : bar.panelPage === "wifi" ? "󰖩" : bar.panelPage === "bluetooth" ? "󰂯" : bar.panelPage === "sound" ? bar.volumeIcon() : bar.batteryIcon()
-                color: bar.accent
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 17
-                anchors.verticalCenter: parent.verticalCenter
-              }
-              Text {
-                text: bar.panelPage === "system" ? "System" : bar.panelPage === "wifi" ? "Wi-Fi" : bar.panelPage === "bluetooth" ? "Bluetooth" : bar.panelPage === "sound" ? "Sound" : "Power"
-                color: bar.foreground
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 14
-                font.bold: true
-                anchors.verticalCenter: parent.verticalCenter
-              }
-            }
-
-            Rectangle { width: parent.width; height: 1; color: bar.panelBorder }
-
-            Column {
-              id: systemColumn
-              visible: bar.panelPage === "system"
-              width: parent.width
-              spacing: 4
-
-              UsageRow {
-                icon: "󰻠"
-                label: "CPU"
-                percentage: shellRoot.cpuUsage
-              }
-              UsageRow {
-                icon: "󰍛"
-                label: "Memory"
-                detail: shellRoot.memoryUsedGiB.toFixed(1) + " / " + shellRoot.memoryTotalGiB.toFixed(1) + " GiB"
-                percentage: shellRoot.memoryUsage
-              }
-
-              Item {
-                width: parent.width
-                height: 18
-                Text {
-                  anchors.left: parent.left
-                  anchors.verticalCenter: parent.verticalCenter
-                  text: "Top processes"
-                  color: bar.muted
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 10
-                }
-                Text {
-                  anchors.right: parent.right
-                  anchors.verticalCenter: parent.verticalCenter
-                  text: "CPU     MEM"
-                  color: bar.inactive
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 9
-                }
-              }
-
-              Repeater {
-                model: bar.topProcesses
-                delegate: Item {
-                  required property var modelData
-                  width: systemColumn.width
-                  height: 22
-
-                  Text {
-                    anchors.left: parent.left
-                    anchors.right: processCpu.left
-                    anchors.rightMargin: 8
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: modelData.name.charAt(0).toUpperCase() + modelData.name.slice(1)
-                    color: bar.foreground
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 11
-                    elide: Text.ElideRight
-                  }
-                  Text {
-                    id: processCpu
-                    anchors.right: processMemory.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 50
-                    horizontalAlignment: Text.AlignRight
-                    text: modelData.cpu + "%"
-                    color: bar.muted
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 10
-                  }
-                  Text {
-                    id: processMemory
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 50
-                    horizontalAlignment: Text.AlignRight
-                    text: modelData.memory + "%"
-                    color: bar.muted
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 10
-                  }
-                }
-              }
-
-              PanelRow {
-                icon: "󰍛"
-                label: "Open btop…"
-                trailing: "›"
-                onActivated: {
-                  bar.panelOpen = false
-                  Quickshell.execDetached(["ghostty", "-e", "btop"])
-                }
-              }
-            }
-
-            Column {
-              visible: bar.panelPage === "wifi"
-              width: parent.width
-              spacing: 4
-              PanelRow {
-                icon: "󰖩"
-                label: "Wi-Fi"
-                detail: bar.wifiName.length > 0 ? bar.wifiName : "Not connected"
-                trailing: bar.wifiEnabled ? "On" : "Off"
-                onActivated: {
-                  if (wifiToggleProcess.running) return
-                  wifiToggleProcess.command = ["nmcli", "radio", "wifi", bar.wifiEnabled ? "off" : "on"]
-                  wifiToggleProcess.running = true
-                }
-              }
-              PanelRow {
-                icon: "󰒓"
-                label: "Network settings…"
-                trailing: "›"
-                onActivated: {
-                  bar.panelOpen = false
-                  Quickshell.execDetached(["nm-connection-editor"])
-                }
-              }
-            }
-
-            Column {
-              visible: bar.panelPage === "bluetooth"
-              width: parent.width
-              spacing: 4
-              PanelRow {
-                icon: bar.bluetoothConnected() ? "󰂱" : "󰂯"
-                label: "Bluetooth"
-                detail: bar.bluetoothSummary()
-                trailing: Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled ? "On" : "Off"
-                onActivated: if (Bluetooth.defaultAdapter) Bluetooth.defaultAdapter.enabled = !Bluetooth.defaultAdapter.enabled
-              }
-              PanelRow {
-                icon: "󰒓"
-                label: "Bluetooth settings…"
-                trailing: "›"
-                onActivated: {
-                  bar.panelOpen = false
-                  Quickshell.execDetached(["blueman-manager"])
-                }
-              }
-            }
-
-            Column {
-              visible: bar.panelPage === "sound"
-              width: parent.width
-              spacing: 9
-
-              Row {
-                width: parent.width
-                height: 24
-                spacing: 10
-                Text {
-                  text: bar.volumeIcon()
-                  color: bar.foreground
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 15
-                  anchors.verticalCenter: parent.verticalCenter
-                }
-                Rectangle {
-                  id: volumeTrack
-                  width: parent.width - 70
-                  height: 6
-                  radius: 3
-                  color: bar.panelBorder
-                  anchors.verticalCenter: parent.verticalCenter
-                  Rectangle {
-                    height: parent.height
-                    width: parent.width * Math.max(0, Math.min(1, bar.sink && bar.sink.audio ? bar.sink.audio.volume : 0))
-                    radius: parent.radius
-                    color: bar.accent
-                  }
-                  MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    function apply(mouse) { bar.setVolume(mouse.x / width) }
-                    onPressed: mouse => apply(mouse)
-                    onPositionChanged: mouse => { if (pressed) apply(mouse) }
-                  }
-                }
-                Text {
-                  width: 38
-                  horizontalAlignment: Text.AlignRight
-                  text: Math.round((bar.sink && bar.sink.audio ? bar.sink.audio.volume : 0) * 100) + "%"
-                  color: bar.foreground
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 11
-                  anchors.verticalCenter: parent.verticalCenter
-                }
-              }
-
-              PanelRow {
-                icon: bar.sink && bar.sink.audio && bar.sink.audio.muted ? "󰖁" : "󰕾"
-                label: bar.sink && bar.sink.audio && bar.sink.audio.muted ? "Unmute" : "Mute"
-                trailing: ""
-                onActivated: if (bar.sink && bar.sink.audio) bar.sink.audio.muted = !bar.sink.audio.muted
-              }
-              PanelRow {
-                icon: "󰒓"
-                label: "Audio settings…"
-                trailing: "›"
-                onActivated: {
-                  bar.panelOpen = false
-                  Quickshell.execDetached(["pavucontrol"])
-                }
-              }
-            }
-
-            Column {
-              visible: bar.panelPage === "power"
-              width: parent.width
-              spacing: 4
-
-              Item {
-                width: parent.width
-                height: 47
-                Text {
-                  anchors.left: parent.left
-                  anchors.verticalCenter: parent.verticalCenter
-                  text: bar.batteryIcon()
-                  color: bar.battery && bar.battery.ready && bar.battery.percentage < 0.2 ? bar.error : bar.foreground
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 24
-                }
-                Column {
-                  anchors.left: parent.left
-                  anchors.leftMargin: 38
-                  anchors.right: batteryPercent.left
-                  anchors.rightMargin: 8
-                  anchors.verticalCenter: parent.verticalCenter
-                  spacing: 4
-                  Text {
-                    text: bar.battery && bar.battery.ready ? "Battery" : "No battery"
-                    color: bar.foreground
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 12
-                  }
-                  Rectangle {
-                    width: parent.width
-                    height: 5
-                    radius: 3
-                    color: bar.panelBorder
-                    Rectangle {
-                      height: parent.height
-                      width: parent.width * Math.max(0, Math.min(1, bar.battery && bar.battery.ready ? bar.battery.percentage : 0))
-                      radius: parent.radius
-                      color: bar.accent
-                    }
-                  }
-                }
-                Text {
-                  id: batteryPercent
-                  anchors.right: parent.right
-                  anchors.verticalCenter: parent.verticalCenter
-                  text: bar.battery && bar.battery.ready ? Math.round(bar.battery.percentage * 100) + "%" : "—"
-                  color: bar.foreground
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 18
-                  font.bold: true
-                }
-              }
-
-              PanelRow {
-                icon: "󰌾"
-                label: "Lock"
-                onActivated: {
-                  bar.panelOpen = false
-                  Quickshell.execDetached(["systemctl", "--user", "start", "sharchy-lock.service"])
-                }
-              }
-              PanelRow {
-                icon: "󰒲"
-                label: "Suspend"
-                onActivated: {
-                  bar.panelOpen = false
-                  Quickshell.execDetached(["systemctl", "suspend"])
-                }
-              }
-              PanelRow {
-                icon: "󰜉"
-                label: bar.pendingPowerAction === "reboot" ? "Click again to restart" : "Restart"
-                destructive: bar.pendingPowerAction === "reboot"
-                onActivated: {
-                  if (bar.pendingPowerAction === "reboot") Quickshell.execDetached(["systemctl", "reboot"])
-                  else bar.pendingPowerAction = "reboot"
-                }
-              }
-              PanelRow {
-                icon: "󰐥"
-                label: bar.pendingPowerAction === "poweroff" ? "Click again to shut down" : "Shut down"
-                destructive: bar.pendingPowerAction === "poweroff"
-                onActivated: {
-                  if (bar.pendingPowerAction === "poweroff") Quickshell.execDetached(["systemctl", "poweroff"])
-                  else bar.pendingPowerAction = "poweroff"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   }
 }

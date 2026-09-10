@@ -357,8 +357,6 @@ in
         Service = {
           ExecStartPre = [
             "-${pkgs.systemd}/bin/systemctl --user stop hyprpolkitagent.service"
-            "${pkgs.coreutils}/bin/mkdir -p /home/shardul/.local/state"
-            "${pkgs.coreutils}/bin/touch /home/shardul/.local/state/sharchy-rebuild-status"
           ];
           ExecStart = "${pkgs.quickshell}/bin/quickshell -p /home/shardul/.config/quickshell/sharchy";
           Restart = "on-failure";
