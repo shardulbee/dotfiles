@@ -357,15 +357,6 @@ ShellRoot {
         }
       }
 
-      Text {
-        anchors.centerIn: parent
-        text: Qt.formatDateTime(bar.now, "ddd, MMM d") + " · " + Qt.formatDateTime(bar.now, "HH:mm")
-        color: bar.foreground
-        font.family: "JetBrainsMono Nerd Font"
-        font.pixelSize: 12
-        font.bold: true
-      }
-
       RowLayout {
         anchors.right: parent.right
         anchors.rightMargin: 6
@@ -403,6 +394,14 @@ ShellRoot {
           Layout.alignment: Qt.AlignVCenter
           text: bar.battery && bar.battery.ready ? bar.batteryIcon() + " " + Math.round(bar.battery.percentage * 100) + "%" : "󰂑 —"
           color: bar.battery && bar.battery.ready && bar.battery.percentage < 0.2 ? bar.error : bar.foreground
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 11
+        }
+
+        Text {
+          Layout.alignment: Qt.AlignVCenter
+          text: Qt.formatDateTime(bar.now, "ddd, MMM d") + " · " + Qt.formatDateTime(bar.now, "HH:mm:ss")
+          color: bar.foreground
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 11
         }
