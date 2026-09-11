@@ -78,7 +78,7 @@ hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen
 hl.bind(mainMod .. " + G", function()
     local workspace = hl.get_active_workspace()
     local layout = workspace.tiled_layout == "dwindle" and "monocle" or "dwindle"
-    hl.workspace_rule({ workspace = workspace.addressable_name, layout = layout })
+    hl.workspace_rule({ workspace = workspace.config_name, layout = layout })
 end)
 hl.bind(mainMod .. " + R", hl.dsp.layout("togglesplit"))
 
