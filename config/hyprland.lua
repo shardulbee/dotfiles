@@ -33,10 +33,16 @@ hl.bind(mainMod .. " + TAB", hl.dsp.focus({ workspace = "previous" }))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind("ALT + TAB", hl.dsp.focus({ workspace = "previous" }))
 
-hl.bind(mainMod .. " + H", hl.dsp.focus({ direction = "left" }))
+hl.bind(mainMod .. " + H", function()
+    local layout = hl.get_active_workspace().tiled_layout
+    hl.dispatch(layout == "monocle" and hl.dsp.window.cycle_next({ next = false, tiled = true }) or hl.dsp.focus({ direction = "left" }))
+end)
 hl.bind(mainMod .. " + J", hl.dsp.focus({ direction = "down" }))
 hl.bind(mainMod .. " + K", hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + L", hl.dsp.focus({ direction = "right" }))
+hl.bind(mainMod .. " + L", function()
+    local layout = hl.get_active_workspace().tiled_layout
+    hl.dispatch(layout == "monocle" and hl.dsp.window.cycle_next({ next = true, tiled = true }) or hl.dsp.focus({ direction = "right" }))
+end)
 hl.bind(mainMod .. " + SHIFT + H", hl.dsp.window.move({ direction = "l" }))
 hl.bind(mainMod .. " + SHIFT + J", hl.dsp.window.move({ direction = "d" }))
 hl.bind(mainMod .. " + SHIFT + K", hl.dsp.window.move({ direction = "u" }))
@@ -69,6 +75,11 @@ hl.bind(mainMod .. " + SHIFT + MINUS", hl.dsp.window.resize({ x = 0, y = -100, r
 hl.bind(mainMod .. " + SHIFT + EQUAL", hl.dsp.window.resize({ x = 0, y = 100, relative = true }))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }))
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
+hl.bind(mainMod .. " + G", function()
+    local workspace = hl.get_active_workspace()
+    local layout = workspace.tiled_layout == "dwindle" and "monocle" or "dwindle"
+    hl.workspace_rule({ workspace = workspace.addressable_name, layout = layout })
+end)
 hl.bind(mainMod .. " + R", hl.dsp.layout("togglesplit"))
 
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
@@ -120,7 +131,7 @@ hl.config({
             active_border = "rgb(cd974b)",
             inactive_border = "rgb(5c584c)",
         },
-        layout = "dwindle",
+        layout = "monocle",
     },
     decoration = {
         rounding = 0,
