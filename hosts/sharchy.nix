@@ -159,6 +159,7 @@ in
         {
           url = "https://ampcode.com/";
           default_launch_container = "window";
+          create_desktop_shortcut = true;
         }
       ];
       ExtensionSettings = {
