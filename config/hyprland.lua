@@ -21,6 +21,7 @@ hl.gesture({
 })
 
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("ghostty"))
+hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("quickshell -p /home/shardul/.config/quickshell/sharchy ipc call overview toggle"))
 hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd("vicinae toggle"))
 hl.bind("ALT + SPACE", hl.dsp.exec_cmd("vicinae toggle"))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("vicinae 'vicinae://launch/clipboard/history?toggle=true'"))

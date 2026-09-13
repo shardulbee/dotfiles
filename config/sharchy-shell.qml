@@ -26,6 +26,114 @@ ShellRoot {
   readonly property color authError: darkMode ? "#d66a64" : "#aa3731"
   readonly property color authAccentHover: darkMode ? "#d5b773" : "#cb9000"
 
+  IpcHandler {
+    target: "overview"
+    function toggle(): void { overview.visible = !overview.visible }
+  }
+
+  PanelWindow {
+    id: overview
+    visible: false
+    screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? null
+    anchors { top: true; bottom: true; left: true; right: true }
+    color: shellRoot.darkMode ? "#ee14120b" : "#eef7f7f4"
+    exclusionMode: ExclusionMode.Ignore
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+    onVisibleChanged: if (visible) overviewContent.forceActiveFocus()
+
+    MouseArea {
+      anchors.fill: parent
+      onClicked: overview.visible = false
+    }
+
+    Flickable {
+      id: overviewContent
+      anchors.fill: parent
+      anchors.margins: 40
+      contentHeight: workspaceList.height
+      clip: true
+      Keys.onEscapePressed: overview.visible = false
+
+      MouseArea {
+        width: overviewContent.width
+        height: Math.max(overviewContent.height, overviewContent.contentHeight)
+        onClicked: overview.visible = false
+      }
+
+      Column {
+        id: workspaceList
+        width: parent.width
+        spacing: 24
+
+        Repeater {
+          model: overview.visible ? Hyprland.workspaces : null
+          delegate: Column {
+            id: workspaceGroup
+            required property var modelData
+            width: workspaceList.width
+            visible: modelData.id > 0 && modelData.toplevels.values.length > 0
+            spacing: 10
+
+            Text {
+              text: "Workspace " + workspaceGroup.modelData.name
+              color: shellRoot.authText
+              font.family: "JetBrainsMono Nerd Font"
+              font.pixelSize: 16
+              font.bold: true
+            }
+
+            Flow {
+              width: parent.width
+              spacing: 12
+              Repeater {
+                model: workspaceGroup.visible ? workspaceGroup.modelData.toplevels : null
+                delegate: Rectangle {
+                  id: card
+                  required property var modelData
+                  width: Math.min(280, workspaceList.width)
+                  height: 186
+                  radius: 10
+                  color: shellRoot.authBackground
+                  border.color: cardMouse.containsMouse ? "#cd974b" : shellRoot.authBorder
+
+                  ScreencopyView {
+                    anchors.centerIn: parent
+                    anchors.verticalCenterOffset: -15
+                    captureSource: card.modelData.wayland
+                    live: overview.visible
+                    constraintSize: Qt.size(card.width - 16, 140)
+                  }
+
+                  Text {
+                    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 10 }
+                    text: card.modelData.title
+                    elide: Text.ElideRight
+                    color: shellRoot.authText
+                    font.family: "JetBrainsMono Nerd Font"
+                    font.pixelSize: 12
+                  }
+
+                  MouseArea {
+                    id: cardMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                      const window = card.modelData.wayland
+                      overview.visible = false
+                      window?.activate()
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   FileView {
     id: themeFile
     path: "/home/shardul/.local/state/sharchy-theme"
