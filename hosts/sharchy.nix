@@ -228,6 +228,20 @@ in
   services.gnome.gnome-keyring.enable = true;
   services.upower.enable = true;
   services.blueman.enable = true;
+  services.xremap = {
+    enable = true;
+    serviceMode = "user";
+    userName = "shardul";
+    withHypr = true;
+    config.keymap = [{
+      name = "Helium tabs";
+      application.only = [ "helium" ];
+      remap = {
+        "ALT-SHIFT-LEFTBRACE" = "CTRL-PAGEUP";
+        "ALT-SHIFT-RIGHTBRACE" = "CTRL-PAGEDOWN";
+      };
+    }];
+  };
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;

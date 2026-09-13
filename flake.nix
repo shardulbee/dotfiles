@@ -15,10 +15,14 @@
       url = "github:oxcl/nix-flake-helium-browser";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    xremap-flake = {
+      url = "github:xremap/nix-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     hermes.url = "github:NousResearch/hermes-agent/29112bef099274229cadff79cdff7bf7b99c4b77";
   };
 
-  outputs = { self, nixpkgs, home-manager, darwin, helium, hermes, ... }:
+  outputs = { self, nixpkgs, home-manager, darwin, helium, xremap-flake, hermes, ... }:
     let
       ampOverlay = _: prev: {
         amp-cli = prev.callPackage ./packages/amp-cli.nix { inherit (prev) amp-cli; };
@@ -237,6 +241,7 @@
           (import ./config/github-sync.nix { linux = true; })
           home-manager.nixosModules.home-manager
           helium.nixosModules.default
+          xremap-flake.nixosModules.default
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
