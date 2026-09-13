@@ -40,7 +40,15 @@ ShellRoot {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-    onVisibleChanged: if (visible) overviewContent.forceActiveFocus()
+    onVisibleChanged: {
+      if (visible) {
+        overviewContent.contentY = 0
+        overviewContent.forceActiveFocus()
+        Qt.callLater(overviewContent.selectFirst)
+      } else {
+        overviewContent.selectedCard = null
+      }
+    }
 
     MouseArea {
       anchors.fill: parent
@@ -49,16 +57,84 @@ ShellRoot {
 
     Flickable {
       id: overviewContent
+      property var cards: []
+      property var selectedCard: null
       anchors.fill: parent
       anchors.margins: 40
       contentHeight: workspaceList.height
       clip: true
       Keys.onEscapePressed: overview.visible = false
 
-      MouseArea {
-        width: overviewContent.width
-        height: Math.max(overviewContent.height, overviewContent.contentHeight)
-        onClicked: overview.visible = false
+      function registerCard(card) {
+        cards = cards.concat(card)
+        if (overview.visible && !selectedCard) selectedCard = card
+      }
+
+      function unregisterCard(card) {
+        cards = cards.filter(candidate => candidate !== card)
+        if (selectedCard === card) selectFirst()
+      }
+
+      function selectFirst() {
+        selectedCard = cards.find(card => card.visible) ?? null
+      }
+
+      function scroll(wheel) {
+        const delta = wheel.pixelDelta.y || wheel.angleDelta.y
+        contentY = Math.max(0, Math.min(contentHeight - height,
+          contentY - delta * (wheel.pixelDelta.y ? 3 : 2)))
+        wheel.accepted = true
+      }
+
+      function moveSelection(dx, dy) {
+        if (!selectedCard) {
+          selectFirst()
+          return
+        }
+
+        const origin = selectedCard.mapToItem(workspaceList, selectedCard.width / 2, selectedCard.height / 2)
+        let best = null
+        let bestScore = Infinity
+        for (const card of cards) {
+          if (card === selectedCard || !card.visible) continue
+          const point = card.mapToItem(workspaceList, card.width / 2, card.height / 2)
+          const primary = dx ? (point.x - origin.x) * dx : (point.y - origin.y) * dy
+          if (primary <= 0) continue
+          const secondary = Math.abs(dx ? point.y - origin.y : point.x - origin.x)
+          const score = primary + secondary * 2
+          if (score < bestScore) {
+            best = card
+            bestScore = score
+          }
+        }
+
+        if (!best) return
+        selectedCard = best
+        const point = best.mapToItem(workspaceList, 0, 0)
+        if (point.y < contentY) contentY = point.y
+        else if (point.y + best.height > contentY + height) contentY = point.y + best.height - height
+      }
+
+      Keys.onPressed: event => {
+        if (event.key === Qt.Key_Left || event.key === Qt.Key_H) moveSelection(-1, 0)
+        else if (event.key === Qt.Key_Right || event.key === Qt.Key_L) moveSelection(1, 0)
+        else if (event.key === Qt.Key_Up || event.key === Qt.Key_K) moveSelection(0, -1)
+        else if (event.key === Qt.Key_Down || event.key === Qt.Key_J) moveSelection(0, 1)
+        else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+          const window = selectedCard?.modelData.wayland
+          overview.visible = false
+          window?.activate()
+        } else return
+        event.accepted = true
+      }
+
+      WheelHandler {
+        target: null
+        onWheel: event => overviewContent.scroll(event)
+      }
+
+      TapHandler {
+        onTapped: overview.visible = false
       }
 
       Column {
@@ -95,7 +171,10 @@ ShellRoot {
                   height: 186
                   radius: 10
                   color: shellRoot.authBackground
-                  border.color: cardMouse.containsMouse ? "#cd974b" : shellRoot.authBorder
+                  border.width: overviewContent.selectedCard === card ? 2 : 1
+                  border.color: overviewContent.selectedCard === card || cardMouse.containsMouse ? "#cd974b" : shellRoot.authBorder
+                  Component.onCompleted: overviewContent.registerCard(card)
+                  Component.onDestruction: overviewContent.unregisterCard(card)
 
                   ScreencopyView {
                     anchors.centerIn: parent
@@ -119,6 +198,7 @@ ShellRoot {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
+                    onEntered: overviewContent.selectedCard = card
                     onClicked: {
                       const window = card.modelData.wayland
                       overview.visible = false
