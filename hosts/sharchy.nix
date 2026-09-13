@@ -449,13 +449,15 @@ in
       xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;
       xdg.dataFile."vicinae/themes/alabaster-light.toml".source = ../config/vicinae-light.toml;
       xdg.dataFile."vicinae/themes/alabaster-dark.toml".source = ../config/vicinae-dark.toml;
-      xdg.desktopEntries.amp = {
-        name = "Amp";
-        exec = "/home/shardul/.local/bin/sharchy-helium --profile-directory=Default --app-id=bpgpkfmeagdpdcenbogglipmfkalmple";
-        icon = "chrome-bpgpkfmeagdpdcenbogglipmfkalmple-Default";
-        terminal = false;
-        categories = [ "Development" ];
-      };
+      xdg.dataFile."applications/amp.desktop".text = ''
+        [Desktop Entry]
+        Type=Application
+        Name=Amp
+        Exec=/home/shardul/.local/bin/sharchy-helium --profile-directory=Default --app-id=bpgpkfmeagdpdcenbogglipmfkalmple
+        Icon=chrome-bpgpkfmeagdpdcenbogglipmfkalmple-Default
+        Terminal=false
+        Categories=Development;
+      '';
       xdg.desktopEntries.helium = {
         name = "Helium";
         genericName = "Web Browser";
