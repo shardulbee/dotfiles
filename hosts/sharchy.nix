@@ -305,6 +305,7 @@ in
       home.file.".local/bin/sharchy-screen-record".source = ../scripts/sharchy-screen-record.sh;
       home.file.".local/bin/sharchy-screenshot".source = ../scripts/sharchy-screenshot.sh;
       home.file.".local/bin/sharchy-theme".source = ../scripts/sharchy-theme.sh;
+      home.file.".local/bin/sharchy-translate".source = ../scripts/sharchy-translate.sh;
       home.file.".local/bin/sharchy-rebuild".source = ../scripts/sharchy-rebuild.sh;
       home.file.".local/share/amp/host-runner/sharchy/AGENTS.md".text = ''
         # Sharchy host runner
@@ -418,6 +419,7 @@ in
       xdg.configFile."ghostty/config".source = ../config/ghostty-linux.conf;
       xdg.configFile."hypr/hyprland.lua".source = ../config/hyprland.lua;
       xdg.configFile."mako/config".source = ../config/mako.conf;
+      xdg.configFile."quickshell/translate.qml".source = ../config/quickshell-translate.qml;
       xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;
       xdg.dataFile."vicinae/themes/alabaster-light.toml".source = ../config/vicinae-light.toml;
       xdg.dataFile."vicinae/themes/alabaster-dark.toml".source = ../config/vicinae-dark.toml;
