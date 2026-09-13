@@ -149,6 +149,18 @@ in
     policies = {
       PasswordManagerEnabled = false;
       BrowserColorScheme = "device";
+      WebAppInstallForceList = [
+        {
+          url = "https://discord.com/app";
+          default_launch_container = "window";
+          install_as_shortcut = true;
+          custom_name = "Discord";
+        }
+        {
+          url = "https://ampcode.com/";
+          default_launch_container = "window";
+        }
+      ];
       ExtensionSettings = {
         "*".installation_mode = "allowed";
         "cnjifjpddelmedmihgijeibhnjfabmlf".installation_mode = "blocked";
@@ -253,7 +265,7 @@ in
   fonts.packages = with pkgs; [ jetbrains-mono nerd-fonts.jetbrains-mono ];
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs
-    cryptsetup curl discord ghostty git grim glib jq libnotify mako
+    cryptsetup curl ghostty git grim glib jq libnotify mako
     networkmanagerapplet obsidian pavucontrol pciutils quickshell ripgrep slurp swaybg
     swayidle usbutils vicinae vim wget wf-recorder wl-clipboard wtype
   ];
@@ -437,16 +449,6 @@ in
       xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;
       xdg.dataFile."vicinae/themes/alabaster-light.toml".source = ../config/vicinae-light.toml;
       xdg.dataFile."vicinae/themes/alabaster-dark.toml".source = ../config/vicinae-dark.toml;
-      xdg.dataFile."applications/chrome-bpgpkfmeagdpdcenbogglipmfkalmple-Default.desktop".text = ''
-        [Desktop Entry]
-        Version=1.0
-        Type=Application
-        Name=Amp
-        Exec=/home/shardul/.local/bin/sharchy-helium --profile-directory=Default --app-id=bpgpkfmeagdpdcenbogglipmfkalmple
-        Icon=chrome-bpgpkfmeagdpdcenbogglipmfkalmple-Default
-        StartupWMClass=crx_bpgpkfmeagdpdcenbogglipmfkalmple
-        Terminal=false
-      '';
       xdg.desktopEntries.helium = {
         name = "Helium";
         genericName = "Web Browser";
