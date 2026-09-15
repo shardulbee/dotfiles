@@ -33,6 +33,10 @@
       };
       sharedHome = { pkgs, ... }:
         let
+          monstarTerminfo = pkgs.runCommand "monstar-terminfo" { nativeBuildInputs = [ pkgs.ncurses ]; } ''
+            mkdir -p "$out/share/terminfo"
+            tic -x -o "$out/share/terminfo" ${monstar.outPath}/dist/monstar.terminfo
+          '';
           playwriter = pkgs.callPackage ./packages/playwriter.nix { };
           uberstat = pkgs.callPackage ./packages/uberstat.nix { };
           gr = pkgs.writeShellApplication {
@@ -71,6 +75,7 @@
           };
           programs.fish = {
             enable = true;
+            functions.fish_greeting = "";
             functions.fish_vcs_prompt = "";
             interactiveShellInit = ''
               fish_add_path -gm "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin
@@ -100,6 +105,7 @@
             jjui
             jq
             jujutsu
+            monstarTerminfo
             neovim
             nodejs_26
             pi-coding-agent
@@ -288,11 +294,16 @@
             nix.enable = false; # Determinate Nix owns the daemon and nix.conf.
             system.primaryUser = "shardul";
             system.stateVersion = 6;
-            users.users.shardul.home = "/Users/shardul";
-            users.users.shardul.shell = pkgs.fish;
-            users.users.shardul.openssh.authorizedKeys.keys = [
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDvyyQaeYRafexqIO6kZByqrYMB9IrumIez6BsZDuOJr shardul@sharbox"
-            ];
+            users.knownUsers = [ "shardul" ];
+            users.users.shardul = {
+              uid = 501;
+              isHidden = false;
+              home = "/Users/shardul";
+              shell = pkgs.fish;
+              openssh.authorizedKeys.keys = [
+                "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDvyyQaeYRafexqIO6kZByqrYMB9IrumIez6BsZDuOJr shardul@sharbox"
+              ];
+            };
 
             programs.fish.enable = true;
             environment.shells = [ pkgs.fish ];
