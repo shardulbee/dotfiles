@@ -160,6 +160,27 @@
         "type": "github"
       }
     },
+    "monstar": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789394987,
+        "narHash": "sha256-NiKBeUdCN2dxQWGIuRWWtiSoyXYfUhdytiS95n6G+1E=",
+        "owner": "rockorager",
+        "repo": "monstar",
+        "rev": "709ebe668e8c08166f30e847a678aae820ff1732",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rockorager",
+        "repo": "monstar",
+        "rev": "709ebe668e8c08166f30e847a678aae820ff1732",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1785318670,
@@ -284,6 +305,7 @@
         "helium": "helium",
         "hermes": "hermes",
         "home-manager": "home-manager_2",
+        "monstar": "monstar",
         "nixpkgs": "nixpkgs_2",
         "xremap-flake": "xremap-flake"
       }

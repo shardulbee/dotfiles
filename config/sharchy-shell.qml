@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Hyprland
+import Quickshell.I3
 import Quickshell.Io
 import Quickshell.Services.Pipewire
 import Quickshell.Services.Polkit
@@ -34,7 +34,7 @@ ShellRoot {
   PanelWindow {
     id: overview
     visible: false
-    screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? null
+    screen: Quickshell.screens.find(s => s.name === I3.focusedMonitor?.name) ?? null
     anchors { top: true; bottom: true; left: true; right: true }
     color: shellRoot.darkMode ? "#ee14120b" : "#eef7f7f4"
     exclusionMode: ExclusionMode.Ignore
@@ -121,9 +121,8 @@ ShellRoot {
         else if (event.key === Qt.Key_Up || event.key === Qt.Key_K) moveSelection(0, -1)
         else if (event.key === Qt.Key_Down || event.key === Qt.Key_J) moveSelection(0, 1)
         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-          const window = selectedCard?.modelData.wayland
           overview.visible = false
-          window?.activate()
+          selectedCard?.modelData.activate()
         } else return
         event.accepted = true
       }
@@ -137,75 +136,43 @@ ShellRoot {
         onTapped: overview.visible = false
       }
 
-      Column {
+      Flow {
         id: workspaceList
         width: parent.width
-        spacing: 24
+        spacing: 12
 
         Repeater {
-          model: overview.visible ? Hyprland.workspaces : null
-          delegate: Column {
-            id: workspaceGroup
+          model: overview.visible ? ToplevelManager.toplevels : null
+          delegate: Rectangle {
+            id: card
             required property var modelData
-            width: workspaceList.width
-            visible: modelData.id > 0 && modelData.toplevels.values.length > 0
-            spacing: 10
+            width: Math.min(360, workspaceList.width)
+            height: 72
+            radius: 10
+            color: shellRoot.authBackground
+            border.width: overviewContent.selectedCard === card ? 2 : 1
+            border.color: overviewContent.selectedCard === card || cardMouse.containsMouse ? "#cd974b" : shellRoot.authBorder
+            Component.onCompleted: overviewContent.registerCard(card)
+            Component.onDestruction: overviewContent.unregisterCard(card)
 
             Text {
-              text: "Workspace " + workspaceGroup.modelData.name
+              anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 16 }
+              text: card.modelData.title
+              elide: Text.ElideRight
               color: shellRoot.authText
               font.family: "JetBrainsMono Nerd Font"
-              font.pixelSize: 16
-              font.bold: true
+              font.pixelSize: 13
             }
 
-            Flow {
-              width: parent.width
-              spacing: 12
-              Repeater {
-                model: workspaceGroup.visible ? workspaceGroup.modelData.toplevels : null
-                delegate: Rectangle {
-                  id: card
-                  required property var modelData
-                  width: Math.min(280, workspaceList.width)
-                  height: 186
-                  radius: 10
-                  color: shellRoot.authBackground
-                  border.width: overviewContent.selectedCard === card ? 2 : 1
-                  border.color: overviewContent.selectedCard === card || cardMouse.containsMouse ? "#cd974b" : shellRoot.authBorder
-                  Component.onCompleted: overviewContent.registerCard(card)
-                  Component.onDestruction: overviewContent.unregisterCard(card)
-
-                  ScreencopyView {
-                    anchors.centerIn: parent
-                    anchors.verticalCenterOffset: -15
-                    captureSource: card.modelData.wayland
-                    live: overview.visible
-                    constraintSize: Qt.size(card.width - 16, 140)
-                  }
-
-                  Text {
-                    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 10 }
-                    text: card.modelData.title
-                    elide: Text.ElideRight
-                    color: shellRoot.authText
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 12
-                  }
-
-                  MouseArea {
-                    id: cardMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onEntered: overviewContent.selectedCard = card
-                    onClicked: {
-                      const window = card.modelData.wayland
-                      overview.visible = false
-                      window?.activate()
-                    }
-                  }
-                }
+            MouseArea {
+              id: cardMouse
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onEntered: overviewContent.selectedCard = card
+              onClicked: {
+                overview.visible = false
+                card.modelData.activate()
               }
             }
           }
@@ -532,10 +499,10 @@ ShellRoot {
         spacing: 7
 
         Repeater {
-          model: Hyprland.workspaces
+          model: I3.workspaces
           delegate: Text {
             required property var modelData
-            visible: modelData.id > 0
+            visible: modelData.number > 0
             text: modelData.name
             color: modelData.focused ? bar.foreground : bar.inactive
             font.family: "JetBrainsMono Nerd Font"

@@ -81,7 +81,7 @@ ShellRoot {
       id: authCard
       anchors.centerIn: parent
       title: "Welcome back"
-      subtitle: "shardul · Hyprland"
+      subtitle: "shardul · Sway"
       dark: greeterWindow.darkMode
       prompt: greeterWindow.prompt
       errorText: greeterWindow.errorText
@@ -115,8 +115,8 @@ ShellRoot {
           "start",
           "-e",
           "-D",
-          "Hyprland",
-          "hyprland.desktop"
+          "Sway",
+          "sway.desktop"
         ])
       }
 

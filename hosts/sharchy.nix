@@ -1,5 +1,5 @@
 # Dell XPS 13 DX13260 (sharchy): hardware, system, desktop, and user config.
-{ config, hermes, lib, modulesPath, pkgs, ... }:
+{ config, hermes, lib, modulesPath, monstar, pkgs, ... }:
 
 let
   authQml = ../config/quickshell-auth.qml;
@@ -204,12 +204,20 @@ in
   services.power-profiles-daemon.enable = true;
   zramSwap.enable = true;
 
-  programs.hyprland = {
+  programs.sway = {
     enable = true;
-    withUWSM = true;
+    extraPackages = [ ];
+    wrapperFeatures.gtk = true;
     xwayland.enable = true;
   };
-  programs.uwsm.enable = true;
+  programs.uwsm = {
+    enable = true;
+    waylandCompositors.sway = {
+      prettyName = "Sway";
+      comment = "Sway compositor managed by UWSM";
+      binPath = "/run/current-system/sw/bin/sway";
+    };
+  };
   services.greetd = {
     enable = true;
     settings.default_session = {
@@ -226,8 +234,7 @@ in
   programs.nix-ld.enable = true;
   xdg.portal = {
     enable = true;
-    extraPortals = with pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-hyprland ];
-    config.common.default = [ "hyprland" "gtk" ];
+    extraPortals = with pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-wlr ];
   };
   security.polkit = {
     enable = true;
@@ -244,7 +251,7 @@ in
     enable = true;
     serviceMode = "user";
     userName = "shardul";
-    withHypr = true;
+    withSway = true;
     config.keymap = [{
       name = "Helium tabs";
       application.only = [ "helium" ];
@@ -265,7 +272,8 @@ in
   fonts.packages = with pkgs; [ jetbrains-mono nerd-fonts.jetbrains-mono ];
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme apple-cursor brightnessctl blueman btrfs-progs
-    cryptsetup curl ghostty git grim glib jq libnotify mako
+    cryptsetup curl git grim glib jq libnotify mako
+    monstar.packages.${pkgs.stdenv.hostPlatform.system}.default
     networkmanagerapplet obsidian pavucontrol pciutils quickshell ripgrep slurp swaybg
     swayidle usbutils vicinae vim wget wf-recorder wl-clipboard wtype
   ];
@@ -382,9 +390,6 @@ in
           X-Restart-Triggers = [ "${config.xdg.configFile."quickshell/sharchy/shell.qml".source}" ];
         };
         Service = {
-          ExecStartPre = [
-            "-${pkgs.systemd}/bin/systemctl --user stop hyprpolkitagent.service"
-          ];
           ExecStart = "${pkgs.quickshell}/bin/quickshell -p /home/shardul/.config/quickshell/sharchy";
           Restart = "on-failure";
           RestartSec = 1;
@@ -442,8 +447,10 @@ in
         Install.WantedBy = [ "timers.target" ];
       };
 
-      xdg.configFile."ghostty/config".source = ../config/ghostty-linux.conf;
-      xdg.configFile."hypr/hyprland.lua".source = ../config/hyprland.lua;
+      xdg.configFile."monstar/config".source = ../config/monstar.conf;
+      xdg.configFile."monstar/themes/Alabaster Light".source = config.xdg.configFile."ghostty/themes/Alabaster Light".source;
+      xdg.configFile."monstar/themes/Alabaster Dark".source = config.xdg.configFile."ghostty/themes/Alabaster Dark".source;
+      xdg.configFile."sway/config".source = ../config/sway.conf;
       xdg.configFile."mako/config".source = ../config/mako.conf;
       xdg.configFile."quickshell/translate.qml".source = ../config/quickshell-translate.qml;
       xdg.configFile."quickshell/sharchy/shell.qml".source = ../config/sharchy-shell.qml;

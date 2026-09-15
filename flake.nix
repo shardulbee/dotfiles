@@ -19,10 +19,14 @@
       url = "github:xremap/nix-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    monstar = {
+      url = "github:rockorager/monstar/709ebe668e8c08166f30e847a678aae820ff1732";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     hermes.url = "github:NousResearch/hermes-agent/29112bef099274229cadff79cdff7bf7b99c4b77";
   };
 
-  outputs = { self, nixpkgs, home-manager, darwin, helium, xremap-flake, hermes, ... }:
+  outputs = { self, nixpkgs, home-manager, darwin, helium, xremap-flake, monstar, hermes, ... }:
     let
       ampOverlay = _: prev: {
         amp-cli = prev.callPackage ./packages/amp-cli.nix { inherit (prev) amp-cli; };
@@ -234,7 +238,7 @@
     {
       nixosConfigurations.sharchy = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
-        specialArgs = { inherit hermes; };
+        specialArgs = { inherit hermes monstar; };
         modules = [
           { nixpkgs.overlays = [ ampOverlay ]; }
           ./hosts/sharchy.nix
