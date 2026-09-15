@@ -28,11 +28,59 @@ ShellRoot {
 
   IpcHandler {
     target: "overview"
-    function toggle(): void { overview.visible = !overview.visible }
+    function toggle(): void {
+      hotkeys.visible = false
+      overview.visible = !overview.visible
+    }
+  }
+
+  IpcHandler {
+    target: "hotkeys"
+    function toggle(): void {
+      overview.visible = false
+      hotkeys.visible = !hotkeys.visible
+    }
+  }
+
+  Process {
+    id: swayTree
+    command: ["swaymsg", "-r", "-t", "get_tree"]
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: {
+        function windows(node, result) {
+          const children = (node.nodes || []).concat(node.floating_nodes || [])
+          if ((node.app_id || node.window) && children.length === 0)
+            result.push({ id: node.id, title: node.name || node.app_id || "Untitled" })
+          for (const child of children) windows(child, result)
+        }
+
+        function workspaces(node, result) {
+          if (node.type === "workspace") {
+            const items = []
+            windows(node, items)
+            if (items.length > 0) result.push({ name: node.name, number: node.num, windows: items })
+          } else {
+            for (const child of (node.nodes || [])) workspaces(child, result)
+          }
+        }
+
+        try {
+          const result = []
+          workspaces(JSON.parse(text), result)
+          result.sort((a, b) => a.number - b.number)
+          overview.workspaceModel = result
+          Qt.callLater(overviewContent.selectFirst)
+        } catch (error) {
+          console.warn("Could not parse Sway tree:", error)
+        }
+      }
+    }
   }
 
   PanelWindow {
     id: overview
+    property var workspaceModel: []
     visible: false
     screen: Quickshell.screens.find(s => s.name === I3.focusedMonitor?.name) ?? null
     anchors { top: true; bottom: true; left: true; right: true }
@@ -44,9 +92,10 @@ ShellRoot {
       if (visible) {
         overviewContent.contentY = 0
         overviewContent.forceActiveFocus()
-        Qt.callLater(overviewContent.selectFirst)
+        swayTree.running = true
       } else {
         overviewContent.selectedCard = null
+        overviewContent.cards = []
       }
     }
 
@@ -122,7 +171,7 @@ ShellRoot {
         else if (event.key === Qt.Key_Down || event.key === Qt.Key_J) moveSelection(0, 1)
         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
           overview.visible = false
-          selectedCard?.modelData.activate()
+          if (selectedCard) Quickshell.execDetached(["swaymsg", "[con_id=" + selectedCard.modelData.id + "]", "focus"])
         } else return
         event.accepted = true
       }
@@ -136,46 +185,160 @@ ShellRoot {
         onTapped: overview.visible = false
       }
 
-      Flow {
+      Column {
         id: workspaceList
         width: parent.width
-        spacing: 12
+        spacing: 24
 
         Repeater {
-          model: overview.visible ? ToplevelManager.toplevels : null
-          delegate: Rectangle {
-            id: card
+          model: overview.visible ? overview.workspaceModel : null
+          delegate: Column {
+            id: workspaceGroup
             required property var modelData
-            width: Math.min(360, workspaceList.width)
-            height: 72
-            radius: 10
-            color: shellRoot.authBackground
-            border.width: overviewContent.selectedCard === card ? 2 : 1
-            border.color: overviewContent.selectedCard === card || cardMouse.containsMouse ? "#cd974b" : shellRoot.authBorder
-            Component.onCompleted: overviewContent.registerCard(card)
-            Component.onDestruction: overviewContent.unregisterCard(card)
+            width: workspaceList.width
+            spacing: 10
 
             Text {
-              anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 16 }
-              text: card.modelData.title
-              elide: Text.ElideRight
+              text: "Workspace " + workspaceGroup.modelData.name
               color: shellRoot.authText
               font.family: "JetBrainsMono Nerd Font"
-              font.pixelSize: 13
+              font.pixelSize: 16
+              font.bold: true
             }
 
-            MouseArea {
-              id: cardMouse
-              anchors.fill: parent
-              hoverEnabled: true
-              cursorShape: Qt.PointingHandCursor
-              onEntered: overviewContent.selectedCard = card
-              onClicked: {
-                overview.visible = false
-                card.modelData.activate()
+            Row {
+              width: parent.width
+              spacing: 12
+
+              Repeater {
+                model: workspaceGroup.modelData.windows
+                delegate: Rectangle {
+                  id: card
+                  required property var modelData
+                  width: Math.min(280, (workspaceList.width - 12 * (workspaceGroup.modelData.windows.length - 1)) / workspaceGroup.modelData.windows.length)
+                  height: 150
+                  radius: 10
+                  color: shellRoot.authBackground
+                  border.width: overviewContent.selectedCard === card ? 2 : 1
+                  border.color: overviewContent.selectedCard === card || cardMouse.containsMouse ? "#cd974b" : shellRoot.authBorder
+                  Component.onCompleted: overviewContent.registerCard(card)
+                  Component.onDestruction: overviewContent.unregisterCard(card)
+
+                  Text {
+                    anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 16 }
+                    text: card.modelData.title
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideRight
+                    color: shellRoot.authText
+                    font.family: "JetBrainsMono Nerd Font"
+                    font.pixelSize: 12
+                  }
+
+                  MouseArea {
+                    id: cardMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onEntered: overviewContent.selectedCard = card
+                    onClicked: {
+                      overview.visible = false
+                      Quickshell.execDetached(["swaymsg", "[con_id=" + card.modelData.id + "]", "focus"])
+                    }
+                  }
+                }
               }
             }
           }
+        }
+      }
+    }
+  }
+
+  PanelWindow {
+    id: hotkeys
+    visible: false
+    screen: Quickshell.screens.find(s => s.name === I3.focusedMonitor?.name) ?? null
+    anchors { top: true; bottom: true; left: true; right: true }
+    color: shellRoot.darkMode ? "#cc14120b" : "#ccf7f7f4"
+    exclusionMode: ExclusionMode.Ignore
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+    onVisibleChanged: if (visible) hotkeysContent.forceActiveFocus()
+
+    MouseArea {
+      anchors.fill: parent
+      onClicked: hotkeys.visible = false
+    }
+
+    Rectangle {
+      anchors.centerIn: parent
+      width: 620
+      height: 570
+      radius: 12
+      color: shellRoot.authBackground
+      border.width: 1
+      border.color: shellRoot.authBorder
+
+      MouseArea { anchors.fill: parent }
+
+      Column {
+        id: hotkeysContent
+        anchors.fill: parent
+        anchors.margins: 28
+        spacing: 20
+        Keys.onEscapePressed: hotkeys.visible = false
+
+        Text {
+          text: "Hotkeys"
+          color: shellRoot.authText
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 20
+          font.bold: true
+        }
+
+        GridLayout {
+          width: parent.width
+          columns: 2
+          columnSpacing: 28
+          rowSpacing: 12
+
+          Repeater {
+            model: [
+              { key: "Super + Enter", action: "Terminal" },
+              { key: "Super + Space", action: "Launcher" },
+              { key: "Super + A", action: "Workspace overview" },
+              { key: "Super + H/J/K/L", action: "Focus window" },
+              { key: "Super + Shift + H/J/K/L", action: "Move window" },
+              { key: "Super + 1–0", action: "Switch workspace" },
+              { key: "Super + Shift + 1–0", action: "Move to workspace" },
+              { key: "Super + B / V", action: "Horizontal / vertical split" },
+              { key: "Super + R", action: "Toggle split orientation" },
+              { key: "Super + G", action: "Toggle tabbed layout" },
+              { key: "Super + F", action: "Fullscreen" },
+              { key: "Super + Shift + F", action: "Floating" },
+              { key: "Super + Q", action: "Close window" },
+              { key: "Super + Ctrl + T", action: "Toggle light / dark" },
+              { key: "Super + Escape", action: "Lock" },
+              { key: "Super + Alt + K", action: "This cheatsheet" }
+            ]
+
+            delegate: Text {
+              required property var modelData
+              Layout.columnSpan: 2
+              text: "<b>" + modelData.key + "</b>  ·  " + modelData.action
+              textFormat: Text.RichText
+              color: shellRoot.authText
+              font.family: "JetBrainsMono Nerd Font"
+              font.pixelSize: 12
+            }
+          }
+        }
+
+        Text {
+          text: "Esc or click outside to close"
+          color: shellRoot.authMuted
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 10
         }
       }
     }
