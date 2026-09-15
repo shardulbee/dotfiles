@@ -343,30 +343,6 @@
               };
             };
 
-            launchd.user.agents.amp-runner-chinwag = {
-              serviceConfig = {
-                Label = "com.ampcode.runner.chinwag";
-                # Initialize shell integrations outside Documents to avoid TCC
-                # prompts for helpers such as direnv, then enter the repository.
-                ProgramArguments = [
-                  "/Library/Application Support/Amp Runner/Amp Runner"
-                  "${pkgs.fish}/bin/fish" "-ilc" "cd -- \$argv[1]; and exec \$argv[2..]"
-                  "/Users/shardul/Documents/chinwag"
-                  "${pkgs.amp-cli}/bin/amp"
-                  "--no-tui"
-                  "--runner-id" "chinwag"
-                  "--remote-control-terminal"
-                ];
-                EnvironmentVariables.HOME = "/Users/shardul";
-                WorkingDirectory = "/Users/shardul";
-                RunAtLoad = true;
-                KeepAlive = true;
-                ThrottleInterval = 5;
-                StandardOutPath = "/Users/shardul/Library/Logs/amp-runner-chinwag.log";
-                StandardErrorPath = "/Users/shardul/Library/Logs/amp-runner-chinwag.log";
-              };
-            };
-
             # Register once with GitHub's repository runner setup in this directory;
             # keep .credentials* private and let dotfiles own the service, not svc.sh.
             # Same label adopts the existing agent. Rebuild only while it is idle.
