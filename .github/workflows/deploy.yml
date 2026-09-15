@@ -35,5 +35,6 @@ jobs:
           install -m 600 /dev/null ~/.ssh/dotfiles-deploy
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/dotfiles-deploy
           ssh=(ssh -i ~/.ssh/dotfiles-deploy -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new)
-          git archive "$GITHUB_SHA" | "${ssh[@]}" dotfiles-deploy@sharchy "deploy $GITHUB_SHA"
-          git archive "$GITHUB_SHA" | "${ssh[@]}" dotfiles-deploy@turbogadget "deploy $GITHUB_SHA"
+          gzip -dc .github/homelab-bootstrap.tar.gz | \
+            "${ssh[@]}" dotfiles-deploy@turbogadget \
+            "deploy dbb16ecad71f851e4d99d5d09c0c17178e858ad1"
