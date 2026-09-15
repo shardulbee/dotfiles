@@ -278,7 +278,7 @@ in
     swayidle usbutils vicinae vim wget wf-recorder wl-clipboard wtype
   ];
 
-  home-manager.users.shardul = { config, pkgs, ... }:
+  home-manager.users.shardul = { config, lib, pkgs, ... }:
     let
       grok-bot = pkgs.callPackage ../packages/grok-bot.nix { };
       hermes-desktop = pkgs.callPackage ../packages/hermes-desktop.nix { inherit hermes; };
@@ -341,6 +341,11 @@ in
       home.file.".local/bin/sharchy-theme".source = ../scripts/sharchy-theme.sh;
       home.file.".local/bin/sharchy-translate".source = ../scripts/sharchy-translate.sh;
       home.file.".local/bin/sharchy-rebuild".source = ../scripts/sharchy-rebuild.sh;
+      home.activation.reloadSway = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        for socket in /run/user/1000/sway-ipc.1000.*.sock; do
+          if [ -S "$socket" ] && $DRY_RUN_CMD ${pkgs.sway}/bin/swaymsg -s "$socket" reload >/dev/null; then break; fi
+        done
+      '';
       home.file.".local/share/amp/host-runner/sharchy/AGENTS.md".text = ''
         # Sharchy host runner
 

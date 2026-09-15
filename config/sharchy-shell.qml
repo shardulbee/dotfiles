@@ -170,8 +170,9 @@ ShellRoot {
         else if (event.key === Qt.Key_Up || event.key === Qt.Key_K) moveSelection(0, -1)
         else if (event.key === Qt.Key_Down || event.key === Qt.Key_J) moveSelection(0, 1)
         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+          const id = selectedCard?.modelData.id
           overview.visible = false
-          if (selectedCard) Quickshell.execDetached(["swaymsg", "[con_id=" + selectedCard.modelData.id + "]", "focus"])
+          if (id) Quickshell.execDetached(["swaymsg", "[con_id=" + id + "]", "focus"])
         } else return
         event.accepted = true
       }
