@@ -60,15 +60,39 @@
               proc_tree_auto_collapse = 1;
             };
           };
+          programs.atuin = {
+            enable = true;
+            enableFishIntegration = true;
+            flags = [ "--disable-up-arrow" ];
+          };
+          programs.direnv = {
+            enable = true;
+            enableFishIntegration = true;
+          };
+          programs.fish = {
+            enable = true;
+            functions.fish_vcs_prompt = "";
+            interactiveShellInit = ''
+              fish_add_path -gm "$HOME/.local/bin" "$HOME/bin" /opt/homebrew/bin
+            '';
+            shellInitLast = ''
+              test -f "$HOME/.config/fish/local.fish"; and source "$HOME/.config/fish/local.fish"
+            '';
+          };
+          programs.fzf = {
+            enable = true;
+            enableFishIntegration = true;
+            historyWidget.command = "";
+          };
+          programs.zoxide = {
+            enable = true;
+            enableFishIntegration = true;
+          };
 
           home.packages = with pkgs; [
             amp-cli
-            atuin
             claude-code
-            direnv
             fd
-            fish
-            fzf
             gh
             go_1_27
             gr
@@ -91,18 +115,15 @@
             uv
             yazi
             yt-dlp
-            zoxide
-            zsh-autosuggestions
           ];
 
           home.sessionVariables = {
             DISABLE_AUTOUPDATER = "1";
+            EDITOR = "nvim";
             UBERSTAT_ROOT = "$HOME/Documents";
           };
           home.sessionPath = [ "$HOME/.local/bin" ];
 
-          home.file.".zshrc".source = ./config/zsh.zsh;
-          xdg.configFile."fish/config.fish".source = ./config/fish.fish;
           xdg.configFile."git/config".text = ''
       [init]
       	defaultBranch = "main"
@@ -268,11 +289,12 @@
             system.primaryUser = "shardul";
             system.stateVersion = 6;
             users.users.shardul.home = "/Users/shardul";
+            users.users.shardul.shell = pkgs.fish;
             users.users.shardul.openssh.authorizedKeys.keys = [
               "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDvyyQaeYRafexqIO6kZByqrYMB9IrumIez6BsZDuOJr shardul@sharbox"
             ];
 
-            programs.zsh.enable = true;
+            programs.fish.enable = true;
             environment.shells = [ pkgs.fish ];
             security.pam.services.sudo_local = {
               touchIdAuth = true;
@@ -302,10 +324,10 @@
                 Label = "com.ampcode.runner";
                 # Login Items uses the executable name, not Label. Avoid the
                 # generic /bin/sh wrapper that nix-darwin's command generates.
-                # Inherit the login shell's exports, including interactive .zshrc.
+                # Inherit the login shell's exports, including interactive config.fish.
                 ProgramArguments = [
                   "/Library/Application Support/Amp Runner/Amp Runner"
-                  "/bin/zsh" "-ilc" ''exec "$@"'' "amp-runner"
+                  "${pkgs.fish}/bin/fish" "-ilc" "exec \$argv"
                   "${pkgs.amp-cli}/bin/amp"
                   "--no-tui"
                   "--runner-id" "turbogadget"
@@ -325,10 +347,10 @@
               serviceConfig = {
                 Label = "com.ampcode.runner.chinwag";
                 # Initialize shell integrations outside Documents to avoid TCC
-                # prompts for helpers such as direnv. cd -q skips chpwd hooks.
+                # prompts for helpers such as direnv, then enter the repository.
                 ProgramArguments = [
                   "/Library/Application Support/Amp Runner/Amp Runner"
-                  "/bin/zsh" "-ilc" ''cd -q -- "$1" && shift && exec "$@"'' "amp-runner"
+                  "${pkgs.fish}/bin/fish" "-ilc" "cd -- \$argv[1]; and exec \$argv[2..]"
                   "/Users/shardul/Documents/chinwag"
                   "${pkgs.amp-cli}/bin/amp"
                   "--no-tui"

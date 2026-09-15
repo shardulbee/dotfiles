@@ -126,10 +126,10 @@ in
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDvyyQaeYRafexqIO6kZByqrYMB9IrumIez6BsZDuOJr shardul@sharbox"
     ];
     linger = true;
-    shell = pkgs.zsh;
+    shell = pkgs.fish;
   };
 
-  programs.zsh.enable = true;
+  programs.fish.enable = true;
   programs.ssh.extraConfig = ''
     SendEnv LANG LC_*
   '';
