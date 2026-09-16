@@ -1,30 +1,66 @@
-# Bootstrap via admin access before enabling the source-transfer workflow:
+# Bootstrap via admin access before enabling the immutable-source workflow:
 # sudo darwin-rebuild switch --flake .#macbook
 # Requires Remote Login enabled and UID/GID 498 unused on first activation.
-# The deploy key accepts only deploy <SHA> with a source tar on stdin.
-# This authorizes root execution of that source; personal SSH stays unchanged.
+# The deploy key can only import Nix store paths or activate one imported source;
+# activating it authorizes root execution. Personal SSH stays unchanged.
 { lib, pkgs, ... }:
 let
-  hostScript = pkgs.replaceVars ../scripts/deploy-turbogadget-host.py {
-    nix = "${pkgs.nix}/bin/nix";
-    nixEnv = "${pkgs.nix}/bin/nix-env";
-    path = lib.makeBinPath [
-      pkgs.git
-      pkgs.nix
-      pkgs.coreutils
-      pkgs.bash
-    ];
-  };
+  path = lib.makeBinPath [ pkgs.nix pkgs.coreutils pkgs.bash ];
+  locked = pkgs.writeShellScript "deploy-turbogadget-locked" ''
+    set -euo pipefail
+
+    old_system="$(${pkgs.coreutils}/bin/readlink -f /run/current-system)"
+    new_system="$(/usr/bin/sudo -n -H -u shardul /usr/bin/env -i \
+      HOME=/Users/shardul USER=shardul LOGNAME=shardul PATH=${path} \
+      SSL_CERT_FILE=/etc/ssl/cert.pem NIX_SSL_CERT_FILE=/etc/ssl/cert.pem \
+      ${pkgs.nix}/bin/nix build \
+      --no-link \
+      --print-out-paths \
+      --option accept-flake-config false \
+      --no-write-lock-file \
+      "path:$1#darwinConfigurations.macbook.system")"
+    if [[ ! $new_system =~ ^/nix/store/[0-9a-z]{32}-darwin-system-[^/[:space:]]+$ ]]; then
+      echo 'Build did not return one Darwin system store path' >&2
+      exit 1
+    fi
+    if [[ -e $new_system/activate-user ]] && ! ${pkgs.gnugrep}/bin/grep -q '# nix-darwin: deprecated' "$new_system/activate-user"; then
+      echo 'Legacy user activation is not supported; nothing activated' >&2
+      exit 1
+    fi
+
+    ${pkgs.nix}/bin/nix-env --profile /nix/var/nix/profiles/system --set "$new_system"
+    status=0
+    "$new_system/activate" || status=$?
+    if [[ $status -eq 0 && "$(${pkgs.coreutils}/bin/readlink -f /run/current-system)" == "$new_system" ]]; then
+      echo "Activated $new_system"
+      exit 0
+    fi
+
+    [[ $status -ne 0 ]] || status=1
+    echo 'Activation failed; restoring prior system' >&2
+    ${pkgs.nix}/bin/nix-env --profile /nix/var/nix/profiles/system --set "$old_system"
+    "$old_system/activate"
+    exit "$status"
+  '';
   host = pkgs.writeShellScriptBin "deploy-turbogadget-host" ''
-    exec ${pkgs.python3}/bin/python3 -I ${hostScript} "$@"
+    set -euo pipefail
+    if [[ $# -ne 1 || ! $1 =~ ^/nix/store/[0-9a-z]{32}-source$ ]]; then
+      echo 'usage: deploy-turbogadget-host /nix/store/<hash>-source' >&2
+      exit 2
+    fi
+    exec /usr/bin/lockf -k /var/run/dotfiles-deploy.lock ${locked} "$1"
   '';
   dispatch = pkgs.writeShellScript "dotfiles-deploy-ssh" ''
     set -euo pipefail
-    if [[ ! "''${SSH_ORIGINAL_COMMAND:-}" =~ ^deploy\ ([0-9a-f]{40})$ ]]; then
-      echo 'Only: deploy <40-character commit ID>' >&2
-      exit 1
-    fi
-    exec /usr/bin/sudo -n ${host}/bin/deploy-turbogadget-host "''${BASH_REMATCH[1]}"
+    case "''${SSH_ORIGINAL_COMMAND:-}" in
+      'nix-daemon --stdio') exec ${pkgs.nix}/bin/nix-daemon --stdio ;;
+      deploy\ /nix/store/*-source)
+        source="''${SSH_ORIGINAL_COMMAND#deploy }"
+        [[ $source =~ ^/nix/store/[0-9a-z]{32}-source$ ]] || exit 1
+        exec /usr/bin/sudo -n ${host}/bin/deploy-turbogadget-host "$source"
+        ;;
+      *) echo 'Only Nix store import and deployment are allowed' >&2; exit 1 ;;
+    esac
   '';
 in
 {
