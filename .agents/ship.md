@@ -8,5 +8,5 @@
 - First installation or an installed-helper limitation needs local/admin
   activation. Follow [Sharchy](../config/sharchy-deploy.nix) or
   [TurboGadget](../config/turbogadget-deploy.nix) bootstrap instructions.
-- Verify the reported revision and system against `/run/current-system` via
+- Verify each reported system store path against `/run/current-system` via
   personal/admin access, then check affected services. A build alone is not success.
