@@ -139,6 +139,7 @@ in
       set -g mode-style 'fg=colour0,bg=colour4'
     '';
   };
+  programs.yazi.enable = true;
   programs.zoxide = {
     enable = true;
     enableFishIntegration = true;

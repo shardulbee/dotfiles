@@ -1,5 +1,5 @@
 {
-  description = "Shardul's Home Manager configuration";
+  description = "My home configuration";
 
   outputs = _: {
     homeModules.default = ./home;
