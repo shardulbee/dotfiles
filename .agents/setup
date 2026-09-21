@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+nix_profile="$HOME/.nix-profile"
+
+timed() {
+  local label="$1"
+  shift
+  local started=$SECONDS
+  printf '==> %s\n' "$label"
+  "$@"
+  printf '<== %s (%ss)\n' "$label" "$((SECONDS - started))"
+}
+
+install_nix() {
+  if [[ -x "$nix_profile/bin/nix" ]]; then
+    return
+  fi
+
+  local installer
+  installer="$(mktemp)"
+  if ! curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
+    https://nixos.org/nix/install -o "$installer"; then
+    rm -f "$installer"
+    return 1
+  fi
+  if ! sh "$installer" --no-daemon --yes; then
+    rm -f "$installer"
+    return 1
+  fi
+  rm -f "$installer"
+}
+
+configure_nix() {
+  local config_dir="$HOME/.config/nix"
+  local config_file="$config_dir/nix.conf"
+  mkdir -p "$config_dir"
+  touch "$config_file"
+  if ! grep -Eq '^[[:space:]]*(extra-)?experimental-features[[:space:]]*=.*nix-command.*flakes' "$config_file"; then
+    printf '%s\n' 'extra-experimental-features = nix-command flakes' >> "$config_file"
+  fi
+}
+
+timed 'Installing Nix' install_nix
+
+# The installer cannot update this already-running process.
+# shellcheck disable=SC1091
+source "$nix_profile/etc/profile.d/nix.sh"
+
+timed 'Configuring Nix flakes' configure_nix
