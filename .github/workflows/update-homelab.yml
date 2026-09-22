@@ -1,0 +1,27 @@
+name: Update Homelab
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-homelab
+  cancel-in-progress: true
+
+jobs:
+  dispatch:
+    if: github.repository == 'shardulbee/dotfiles' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request Homelab Dotfiles lock update
+        env:
+          GH_TOKEN: ${{ secrets.HOMELAB_DISPATCH_TOKEN }}
+          DOTFILES_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$DOTFILES_SHA" =~ ^[0-9a-f]{40}$ ]]
+          jq -n --arg sha "$DOTFILES_SHA" '{event_type:"dotfiles-main-updated",client_payload:{sha:$sha}}' |
+            gh api --method POST repos/shardulbee/homelab/dispatches --input -
