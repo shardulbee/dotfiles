@@ -88,7 +88,7 @@ in
       snacks-nvim
       vim-surround
       (nvim-treesitter.withPlugins (p: with p; [
-        bash html javascript json lua markdown python tsx typescript vim vimdoc yaml
+        bash html javascript json lua markdown nix python tsx typescript vim vimdoc yaml
       ]))
     ];
     initLua = builtins.readFile ./nvim.lua;

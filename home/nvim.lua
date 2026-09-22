@@ -14,6 +14,11 @@ vim.o.autowrite = true
 vim.o.clipboard = "unnamedplus"
 vim.o.ignorecase = true
 vim.o.grepprg = "rg --hidden --vimgrep --no-heading --smart-case"
+vim.o.foldmethod = "expr"
+vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.o.foldlevel = 99
+vim.o.foldlevelstart = 99
+vim.o.foldcolumn = "1"
 
 vim.cmd.colorscheme("alabaster")
 
