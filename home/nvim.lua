@@ -44,7 +44,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 local fzflua = require("fzf-lua")
 local snacks = require("snacks")
-snacks.setup({ explorer = {}, picker = {} })
+snacks.setup({ explorer = {}, picker = { sources = { explorer = { hidden = true } } } })
 local map = vim.keymap.set
 map("n", "<leader>t", fzflua.files)
 map("n", "<leader>f", fzflua.live_grep)
