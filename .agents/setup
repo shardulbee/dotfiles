@@ -48,3 +48,36 @@ timed 'Installing Nix' install_nix
 source "$nix_profile/etc/profile.d/nix.sh"
 
 timed 'Configuring Nix flakes' configure_nix
+
+if ! command -v tailscale >/dev/null 2>&1; then
+  curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg |
+    sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+  curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list |
+    sudo tee /etc/apt/sources.list.d/tailscale.list >/dev/null
+
+  (
+    policy_backup="$(mktemp)"
+    if [[ -e /usr/sbin/policy-rc.d ]]; then
+      sudo cp -p /usr/sbin/policy-rc.d "$policy_backup"
+    else
+      rm "$policy_backup"
+    fi
+    # shellcheck disable=SC2329 # Invoked by trap.
+    restore_policy() {
+      if [[ -e "$policy_backup" ]]; then
+        sudo cp -p "$policy_backup" /usr/sbin/policy-rc.d
+      else
+        sudo rm -f /usr/sbin/policy-rc.d
+      fi
+      sudo rm -f "$policy_backup"
+    }
+    trap restore_policy EXIT
+    printf '#!/bin/sh\nexit 101\n' | sudo tee /usr/sbin/policy-rc.d >/dev/null
+    sudo chmod 0755 /usr/sbin/policy-rc.d
+    sudo apt-get update
+    sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tailscale
+  )
+fi
+
+# Never save a Tailscale machine identity in the reusable orb snapshot.
+sudo systemctl disable --now tailscaled.service
