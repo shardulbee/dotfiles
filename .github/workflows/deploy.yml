@@ -1,0 +1,33 @@
+name: Deploy
+
+# Merging to main deploys: every host builds Homelab main with Dotfiles main
+# itself (shardulbee/homelab modules/pull-deploy.nix). This job only asks over
+# Tailscale SSH, as a tag that may log in only as the forced-shell `deploy` user.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # sharchy is relayed through Sharbox and fails while it sleeps.
+        target: [sharbox, hotbox, sharbox sharchy, sharbox turbogadget]
+    steps:
+      - uses: tailscale/github-action@306e68a486fd2350f2bfc3b19fcd143891a4a2d8 # v4.1.3
+        with:
+          oauth-client-id: TwzEH6Txq111CNTRL-k41cme7ky721CNTRL
+          audience: api.tailscale.com/TwzEH6Txq111CNTRL-k41cme7ky721CNTRL
+          tags: tag:gha-deploy
+      - run: ssh -o StrictHostKeyChecking=accept-new deploy@${{ matrix.target }}
